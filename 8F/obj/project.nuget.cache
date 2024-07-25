@@ -1,8 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "UgtdVbIoDAoztuCuGIUUyPRVNhJeT/XPNcDSI31ttimeasLDwlYtNikTrfhQY4IvMbXk0OeWUSB8ASN+0COP5A==",
+  "dgSpecHash": "vq+37g8z6S7zY7+/nCUc6gj1W014eoFakGT5+LHuJKQ8s9k/bKhGIjLJmu5eJm0XPHr3Kc+7S4LzyUQBJEWAcw==",
   "success": true,
   "projectFilePath": "D:\\Git\\8F\\8F\\8F.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Compac\\.nuget\\packages\\runtime.linux-arm.runtime.native.system.io.ports\\8.0.0\\runtime.linux-arm.runtime.native.system.io.ports.8.0.0.nupkg.sha512",
+    "C:\\Users\\Compac\\.nuget\\packages\\runtime.linux-arm64.runtime.native.system.io.ports\\8.0.0\\runtime.linux-arm64.runtime.native.system.io.ports.8.0.0.nupkg.sha512",
+    "C:\\Users\\Compac\\.nuget\\packages\\runtime.linux-x64.runtime.native.system.io.ports\\8.0.0\\runtime.linux-x64.runtime.native.system.io.ports.8.0.0.nupkg.sha512",
+    "C:\\Users\\Compac\\.nuget\\packages\\runtime.native.system.io.ports\\8.0.0\\runtime.native.system.io.ports.8.0.0.nupkg.sha512",
+    "C:\\Users\\Compac\\.nuget\\packages\\runtime.osx-arm64.runtime.native.system.io.ports\\8.0.0\\runtime.osx-arm64.runtime.native.system.io.ports.8.0.0.nupkg.sha512",
+    "C:\\Users\\Compac\\.nuget\\packages\\runtime.osx-x64.runtime.native.system.io.ports\\8.0.0\\runtime.osx-x64.runtime.native.system.io.ports.8.0.0.nupkg.sha512",
+    "C:\\Users\\Compac\\.nuget\\packages\\system.io.ports\\8.0.0\\system.io.ports.8.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

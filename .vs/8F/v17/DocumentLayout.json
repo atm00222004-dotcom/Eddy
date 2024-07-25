@@ -1,12 +1,84 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\Git\\8F\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\git\\8f\\8f\\portcom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\portcom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\git\\8f\\8f\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Compac\\AppData\\Local\\Temp\\.vsdbgsrc\\811f0c1102ba7a3d32ee827d0bb52f1af2ec958c7f3fb7abe7c05f601195e6c8\\XamlReader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\git\\8f\\8f\\8f.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\8f.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "XamlReader.cs",
+              "DocumentMoniker": "C:\\Users\\Compac\\AppData\\Local\\Temp\\.vsdbgsrc\\811f0c1102ba7a3d32ee827d0bb52f1af2ec958c7f3fb7abe7c05f601195e6c8\\XamlReader.cs",
+              "ToolTip": "C:\\Users\\Compac\\AppData\\Local\\Temp\\.vsdbgsrc\\811f0c1102ba7a3d32ee827d0bb52f1af2ec958c7f3fb7abe7c05f601195e6c8\\XamlReader.cs [Read Only]",
+              "ViewState": "AQIAAKEBAAAAAAAAAAAnwLYBAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-25T08:26:49.178Z",
+              "EditorCaption": " [Read Only]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "8F.csproj",
+              "DocumentMoniker": "D:\\Git\\8F\\8F\\8F.csproj",
+              "RelativeDocumentMoniker": "8F\\8F.csproj",
+              "ToolTip": "D:\\Git\\8F\\8F\\8F.csproj",
+              "RelativeToolTip": "8F\\8F.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-07-25T06:38:12.3Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PortCOM.cs",
+              "DocumentMoniker": "D:\\Git\\8F\\8F\\PortCOM.cs",
+              "RelativeDocumentMoniker": "8F\\PortCOM.cs",
+              "ToolTip": "D:\\Git\\8F\\8F\\PortCOM.cs",
+              "RelativeToolTip": "8F\\PortCOM.cs",
+              "ViewState": "AQIAACQAAAAAAAAAAAAMwBwAAAAaAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-25T06:38:47.984Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "D:\\Git\\8F\\8F\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "8F\\MainWindow.xaml.cs",
+              "ToolTip": "D:\\Git\\8F\\8F\\MainWindow.xaml.cs",
+              "RelativeToolTip": "8F\\MainWindow.xaml.cs",
+              "ViewState": "AQIAAA8AAAAAAAAAAAAAABsAAAAaAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-25T06:00:57.884Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -21,6 +21,14 @@ namespace _8F
         {
             selectedEllipe = null;
             InitializeComponent();
+
+            PortCOM portCOM = new PortCOM();
+            portCOM.InitialPort("COM10");
+
+            portCOM.WriteBalance();
+            portCOM.ReadFreqAndGain();
+            portCOM.ReadGraphData();
+            portCOM.WriteFreqAndGain("1", "03590", "45");
         }
 
         private void SelectEllipse(object sender)
