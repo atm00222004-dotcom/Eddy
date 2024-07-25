@@ -1,0 +1,161 @@
+﻿<Window x:Class="_8F.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_8F"
+        mc:Ignorable="d"
+        Title="8F" 
+        WindowState="Maximized" ResizeMode="NoResize"
+        >
+    <Grid Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="8*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="9*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Grid.Row="0" Background="Coral" >
+                <Border Margin="5" Grid.Row="0" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="4" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="4*"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="4*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br1" Margin="5" Grid.Row="0" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
+                            <Canvas x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                                <Ellipse x:Name="ellipse1" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                                    <Ellipse.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform/>
+                                            <SkewTransform/>
+                                            <RotateTransform x:Name="rtAngel1" Angle="0"/>
+                                            <TranslateTransform x:Name="tt1" X="0" Y="0"/>
+                                        </TransformGroup>
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                            </Canvas>
+                        </Border>
+                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br2" Margin="5" Grid.Row="0" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
+                            <Canvas x:Name="Canvas2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                                <Ellipse x:Name="ellipse2" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                                    <Ellipse.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform/>
+                                            <SkewTransform/>
+                                            <RotateTransform x:Name="rtAngel2" Angle="0"/>
+                                            <TranslateTransform x:Name="tt2" X="0" Y="0"/>
+                                        </TransformGroup>
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                            </Canvas>
+                        </Border>
+                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br3" Margin="5" Grid.Row="0" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
+                            <Canvas x:Name="Canvas3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                                <Ellipse x:Name="ellipse3" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                                    <Ellipse.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform/>
+                                            <SkewTransform/>
+                                            <RotateTransform x:Name="rtAngel3" Angle="0"/>
+                                            <TranslateTransform x:Name="tt3" X="0" Y="0"/>
+                                        </TransformGroup>
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                            </Canvas>
+                        </Border>
+                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br4" Margin="5" Grid.Row="0" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
+                            <Canvas x:Name="Canvas4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                                <Ellipse x:Name="ellipse4" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                                    <Ellipse.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform/>
+                                            <SkewTransform/>
+                                            <RotateTransform x:Name="rtAngel4" Angle="0"/>
+                                            <TranslateTransform x:Name="tt4" X="0" Y="0"/>
+                                        </TransformGroup>
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                            </Canvas>
+                        </Border>
+
+                        <Border Margin="5" Grid.Row="2" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
+                        </Border>
+                        <Border Margin="5" Grid.Row="2" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
+                        </Border>
+                        <Border Margin="5" Grid.Row="2" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
+                        </Border>
+                        <Border Margin="5" Grid.Row="2" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+            <Grid Grid.Column="0" Grid.Row="1" Background="Cyan" >
+
+            </Grid>
+           
+        </Grid>
+        <Grid Grid.Column="1" Background="Black" >
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="8*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Margin="2,0,0,0" VerticalAlignment="Center" Name="lblHeight" Foreground="White" FontSize="16" FontWeight="Bold" Content="Height" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
+                    <TextBox Height="24" Width="70"  Text="0" VerticalContentAlignment="Center"  VerticalAlignment="Center" x:Name="txtHeight" FontSize="16" Grid.Row="0" Grid.Column="1" />
+
+                    <Label VerticalAlignment="Center" Name="lblWidth" Foreground="White" FontSize="16" FontWeight="Bold" Content="Width" Margin="0" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
+                    <TextBox Height="24" Width="70" Text="0" VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="txtWidth" FontSize="16" Grid.Row="0" Grid.Column="3" />
+
+                    <Label Margin="2,0,0,0" VerticalAlignment="Center" Name="lblXShift" Foreground="White" FontSize="16" FontWeight="Bold" Content="X Shift" Padding="0" Grid.Row="1" Grid.Column="0"></Label>
+                    <TextBox Height="24" Width="70"  Text="0" VerticalContentAlignment="Center"  VerticalAlignment="Center" x:Name="txtXShift" FontSize="16" Grid.Row="1" Grid.Column="1" />
+
+                    <Label VerticalAlignment="Center" Name="lblYShift" Foreground="White" FontSize="16" FontWeight="Bold" Content="Y Shift" Margin="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
+                    <TextBox Height="24" Width="70" Text="0" VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="txtYShift" FontSize="16" Grid.Row="1" Grid.Column="3" />
+
+                    <Label Margin="2,0,0,0" VerticalAlignment="Center" Name="lblAngel" Foreground="White" FontSize="16" FontWeight="Bold" Content="Angel" Padding="0" Grid.Row="3" Grid.Column="0"></Label>
+                    <TextBox Height="24" Width="70"  Text="0" VerticalContentAlignment="Center"  VerticalAlignment="Center" x:Name="txtAngel" FontSize="16" Grid.Row="3" Grid.Column="1" />
+                    <Button Cursor="Hand" Height="30" FontSize="16" FontWeight="Bold" x:Name="btnApply" Click="btnApply_Click"  VerticalContentAlignment="Center"   Grid.Row="3" Grid.Column="2" Content="Apply" Background="GreenYellow" />
+                    
+                    
+                </Grid>
+                
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
