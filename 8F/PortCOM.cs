@@ -25,7 +25,6 @@ namespace _8F
                 WriteTimeout = 2000
             };
         }
-
         public bool ReadFreqAndGain()
         {
             if (!port.IsOpen)

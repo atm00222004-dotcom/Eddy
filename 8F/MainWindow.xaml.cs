@@ -23,12 +23,12 @@ namespace _8F
             InitializeComponent();
 
             PortCOM portCOM = new PortCOM();
-            portCOM.InitialPort("COM10");
+            portCOM.InitialPort("COM4");
+            //portCOM.ReadFreqAndGain();
 
-            portCOM.WriteBalance();
-            portCOM.ReadFreqAndGain();
-            portCOM.ReadGraphData();
-            portCOM.WriteFreqAndGain("1", "03590", "45");
+            //portCOM.WriteBalance();
+            //portCOM.ReadGraphData();
+            //portCOM.WriteFreqAndGain("1", "03590", "45");
         }
 
         private void SelectEllipse(object sender)
