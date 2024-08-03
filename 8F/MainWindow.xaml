@@ -9,11 +9,11 @@
         WindowState="Maximized" ResizeMode="NoResize"
         >
 
-    <Grid>
+    <Grid Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height=".5*"/>
             <RowDefinition Height="7*"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2.6*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -44,17 +44,19 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Border Cursor="Hand" x:Name="br1" Margin="2,10,2,10" Grid.Row="0" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
-                <Canvas x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+            <Border Cursor="Hand" x:Name="br1" Margin="2,2,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
+               
+                <Canvas  x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    
                     <TextBlock Name="txtELbr1" > 
                         D1-100Hz,10dBP,10dB
                     </TextBlock>
 
                     <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="txtRbr1" > 
                             x:100,y:100
-                    </TextBlock> 
-                    
-                    <Rectangle Width="248"
+                    </TextBlock>
+
+                    <Rectangle Width="248" Fill="White"
                         Height="250"
                         Canvas.Left="0"
                         Canvas.Top="0" />                   
@@ -71,19 +73,14 @@
                         Fill="Black"
                         Canvas.Top="0" />
 
-                    <Rectangle Width="10" Name="rResult"
-                        Height="10"
-                        Canvas.Left="235"
+                    <Rectangle Width="20" Name="rResult"
+                        Height="20"
+                        Canvas.Left="225"
                         Fill="Green"
-                        Canvas.Top="237" />       
+                        Canvas.Top="227" />       
 
                     <Canvas Name="cnBr1" Canvas.Left="122" Canvas.Top="123">
-                        <Ellipse Width="4"
-                            Height="4"
-                            Canvas.Left="0"
-                            Canvas.Top="0"
-                             Fill="Blue">
-                        </Ellipse>
+                        
 
                         <Ellipse x:Name="br1ellipse" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                             <Ellipse.RenderTransform>
@@ -96,11 +93,31 @@
                             </Ellipse.RenderTransform>
                         </Ellipse>
 
+                        <Ellipse Width="4"
+    Height="4"
+    Canvas.Left="10"
+    Canvas.Top="20"
+     Fill="Green">
+                        </Ellipse>
+
+                        <Ellipse Width="4"
+    Height="4"
+    Canvas.Left="-30"
+    Canvas.Top="-40"
+     Fill="Red">
+                        </Ellipse>
+                        <Ellipse Width="4"
+    Height="4"
+    Canvas.Left="0"
+    Canvas.Top="0"
+     Fill="Blue">
+                        </Ellipse>
+                        
                     </Canvas>
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br2" Margin="2,10,2,10" Grid.Row="0" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
+            <Border Cursor="Hand" x:Name="br2" Margin="2,2,2,2" Grid.Row="0" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
                 <Canvas x:Name="Canvas2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Ellipse x:Name="ellipse2" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                         <Ellipse.RenderTransform>
@@ -115,7 +132,7 @@
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br3" Margin="2,10,2,10" Grid.Row="0" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
+            <Border Cursor="Hand" x:Name="br3" Margin="2,2,2,2" Grid.Row="0" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
                 <Canvas x:Name="Canvas3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Ellipse x:Name="ellipse3" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                         <Ellipse.RenderTransform>
@@ -130,7 +147,7 @@
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br4" Margin="2,10,2,10" Grid.Row="0" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
+            <Border Cursor="Hand" x:Name="br4" Margin="2,2,2,2" Grid.Row="0" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
                 <Canvas x:Name="Canvas4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Ellipse x:Name="ellipse4" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                         <Ellipse.RenderTransform>
@@ -145,7 +162,7 @@
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand"  x:Name="br5" Margin="2,10,2,10" Grid.Row="1" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
+            <Border Cursor="Hand"  x:Name="br5" Margin="2,2,2,2" Grid.Row="1" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
                 <Canvas x:Name="Canvas5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Ellipse x:Name="ellipse5" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                         <Ellipse.RenderTransform>
@@ -160,7 +177,7 @@
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br6" Margin="2,10,2,10" Grid.Row="1" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
+            <Border Cursor="Hand" x:Name="br6" Margin="2,2,2,2" Grid.Row="1" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
                 <Canvas x:Name="Canvas6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Ellipse x:Name="ellipse6" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                         <Ellipse.RenderTransform>
@@ -175,7 +192,7 @@
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand"  x:Name="br7" Margin="2,10,2,10" Grid.Row="1" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
+            <Border Cursor="Hand"  x:Name="br7" Margin="2,2,2,2" Grid.Row="1" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
                 <Canvas x:Name="Canvas7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Ellipse x:Name="ellipse7" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                         <Ellipse.RenderTransform>
@@ -190,7 +207,7 @@
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br8" Margin="2,10,2,10" Grid.Row="1" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
+            <Border Cursor="Hand" x:Name="br8" Margin="2,2,2,2" Grid.Row="1" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
                 <Canvas x:Name="Canvas8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Ellipse x:Name="ellipse8" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                         <Ellipse.RenderTransform>
