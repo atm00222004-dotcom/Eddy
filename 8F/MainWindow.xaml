@@ -8,386 +8,225 @@
         Title="8F" 
         WindowState="Maximized" ResizeMode="NoResize"
         >
-    <Grid Name="mainGrid">
+
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="8*"/>
-            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
+
+        <Menu VerticalAlignment="Stretch" FontSize="16" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
+            <Menu.ItemContainerStyle>
+                <Style TargetType="{x:Type MenuItem}">
+                    <Setter Property="Command" Value="{Binding Command}" />
+                </Style>
+            </Menu.ItemContainerStyle>
+            <Menu.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type local:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
+                    <TextBlock Text="{Binding Header}"/>
+                </HierarchicalDataTemplate>
+            </Menu.ItemTemplate>
+        </Menu>
+
+        <Grid Grid.Column="0" Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="9*"/>
-                <RowDefinition Height="0*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0" Grid.Row="0" Background="Coral" >
-                <Border Margin="5" Grid.Row="0" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="4" >
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="4*"/>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="4*"/>
-                            <RowDefinition Height="1*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br1" Margin="5" Grid.Row="0" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Canvas x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                                <Ellipse x:Name="ellipse1" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                                    <Ellipse.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform x:Name="rtAngel1" Angle="0"/>
-                                            <TranslateTransform x:Name="tt1" X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                        </Border>
 
-                        <Border Margin="5" Grid.Row="1" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
+            <Border Cursor="Hand" x:Name="br1" Margin="2,10,2,10" Grid.Row="0" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
+                <Canvas x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    <TextBlock Name="txtELbr1" > 
+                        D1-100Hz,10dBP,10dB
+                    </TextBlock>
 
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr1_EName" Foreground="White" FontSize="16" FontWeight="Bold" Content="A" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                                
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr1_Frlable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Frequency" Padding="0" Grid.Row="0" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr1_GainLable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Gain" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr1_Fr" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr1_Gain" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-
-                            </Grid>
-                        </Border>
-
-                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br2" Margin="5" Grid.Row="0" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Canvas x:Name="Canvas2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                                <Ellipse x:Name="ellipse2" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                                    <Ellipse.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform x:Name="rtAngel2" Angle="0"/>
-                                            <TranslateTransform x:Name="tt2" X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                        </Border>
-
-                        <Border Margin="5" Grid.Row="1" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr2_EName" Foreground="White" FontSize="16" FontWeight="Bold" Content="A" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr2_Frlable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Frequency" Padding="0" Grid.Row="0" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr2_GainLable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Gain" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr2_Fr" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr2_Gain" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-
-                            </Grid>
-                        </Border>
-
-                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br3" Margin="5" Grid.Row="0" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Canvas x:Name="Canvas3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                                <Ellipse x:Name="ellipse3" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                                    <Ellipse.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform x:Name="rtAngel3" Angle="0"/>
-                                            <TranslateTransform x:Name="tt3" X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                        </Border>
-
-                        <Border Margin="5" Grid.Row="1" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr3_EName" Foreground="White" FontSize="16" FontWeight="Bold" Content="A" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr3_Frlable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Frequency" Padding="0" Grid.Row="0" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr3_GainLable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Gain" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr3_Fr" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr3_Gain" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-
-                            </Grid>
-                        </Border>
-
-                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br4" Margin="5" Grid.Row="0" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Canvas x:Name="Canvas4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                                <Ellipse x:Name="ellipse4" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                                    <Ellipse.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform x:Name="rtAngel4" Angle="0"/>
-                                            <TranslateTransform x:Name="tt4" X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                        </Border>
-
-                        <Border Margin="5" Grid.Row="1" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr4_EName" Foreground="White" FontSize="16" FontWeight="Bold" Content="A" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr4_Frlable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Frequency" Padding="0" Grid.Row="0" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr4_GainLable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Gain" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr4_Fr" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr4_Gain" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-
-                            </Grid>
-                        </Border>
-
-                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br5" Margin="5" Grid.Row="2" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Canvas x:Name="Canvas5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                                <Ellipse x:Name="ellipse5" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                                    <Ellipse.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform x:Name="rtAngel5" Angle="0"/>
-                                            <TranslateTransform x:Name="tt5" X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                        </Border>
-
-                        <Border Margin="5" Grid.Row="3" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr5_EName" Foreground="White" FontSize="16" FontWeight="Bold" Content="A" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr5_Frlable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Frequency" Padding="0" Grid.Row="0" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr5_GainLable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Gain" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr5_Fr" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr5_Gain" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-
-                            </Grid>
-                        </Border>
-
-                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br6" Margin="5" Grid.Row="2" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Canvas x:Name="Canvas6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                                <Ellipse x:Name="ellipse6" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                                    <Ellipse.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform x:Name="rtAngel6" Angle="0"/>
-                                            <TranslateTransform x:Name="tt6" X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                        </Border>
-
-                        <Border Margin="5" Grid.Row="3" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr6_EName" Foreground="White" FontSize="16" FontWeight="Bold" Content="A" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr6_Frlable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Frequency" Padding="0" Grid.Row="0" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr6_GainLable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Gain" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr6_Fr" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr6_Gain" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-
-                            </Grid>
-                        </Border>
-
-                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br7" Margin="5" Grid.Row="2" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Canvas x:Name="Canvas7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                                <Ellipse x:Name="ellipse7" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                                    <Ellipse.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform x:Name="rtAngel7" Angle="0"/>
-                                            <TranslateTransform x:Name="tt7" X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                        </Border>
-
-                        <Border Margin="5" Grid.Row="3" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr7_EName" Foreground="White" FontSize="16" FontWeight="Bold" Content="A" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr7_Frlable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Frequency" Padding="0" Grid.Row="0" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr7_GainLable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Gain" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr7_Fr" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr7_Gain" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-
-                            </Grid>
-                        </Border>
-
-                        <Border Cursor="Hand" MouseLeftButtonDown="br1_MouseLeftButtonDown" x:Name="br8" Margin="5" Grid.Row="2" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Canvas x:Name="Canvas8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                                <Ellipse x:Name="ellipse8" Fill="Chocolate" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                                    <Ellipse.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform x:Name="rtAngel8" Angle="0"/>
-                                            <TranslateTransform x:Name="tt8" X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                        </Border>
-
-                        <Border Margin="5" Grid.Row="3" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr8_EName" Foreground="White" FontSize="16" FontWeight="Bold" Content="A" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr8_Frlable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Frequency" Padding="0" Grid.Row="0" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr8_GainLable" Foreground="White" FontSize="16" FontWeight="Bold" Content="Gain" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr8_Fr" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="1"></Label>
-                                <Label Margin="2,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Name="lblbr8_Gain" Foreground="White" FontSize="16" FontWeight="Bold" Content="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-
-                            </Grid>
-                        </Border>
-
-                    </Grid>
-                </Border>
-            </Grid>
-            <Grid Grid.Column="0" Grid.Row="1" Background="Cyan" >
-               
-            </Grid>
-           
-        </Grid>
-        <Grid Grid.Column="1" Background="Black" >
-
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="2*"/>
-                    <RowDefinition Height="8*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-
-                <Grid Grid.Row="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1.5*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Margin="2,0,0,0" VerticalAlignment="Center" Name="lblHeight" Foreground="White" FontSize="16" FontWeight="Bold" Content="Height" Padding="0" Grid.Row="0" Grid.Column="0"></Label>
-                    <TextBox Height="24" Width="70"  Text="0" VerticalContentAlignment="Center"  VerticalAlignment="Center" x:Name="txtHeight" FontSize="16" Grid.Row="0" Grid.Column="1" />
-
-                    <Label VerticalAlignment="Center" Name="lblWidth" Foreground="White" FontSize="16" FontWeight="Bold" Content="Width" Margin="0" Padding="0" Grid.Row="0" Grid.Column="2"></Label>
-                    <TextBox Height="24" Width="70" Text="0" VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="txtWidth" FontSize="16" Grid.Row="0" Grid.Column="3" />
-
-                    <Label Margin="2,0,0,0" VerticalAlignment="Center" Name="lblXShift" Foreground="White" FontSize="16" FontWeight="Bold" Content="X Shift" Padding="0" Grid.Row="1" Grid.Column="0"></Label>
-                    <TextBox Height="24" Width="70"  Text="0" VerticalContentAlignment="Center"  VerticalAlignment="Center" x:Name="txtXShift" FontSize="16" Grid.Row="1" Grid.Column="1" />
-
-                    <Label VerticalAlignment="Center" Name="lblYShift" Foreground="White" FontSize="16" FontWeight="Bold" Content="Y Shift" Margin="0" Padding="0" Grid.Row="1" Grid.Column="2"></Label>
-                    <TextBox Height="24" Width="70" Text="0" VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="txtYShift" FontSize="16" Grid.Row="1" Grid.Column="3" />
-
-                    <Label Margin="2,0,0,0" VerticalAlignment="Center" Name="lblAngel" Foreground="White" FontSize="16" FontWeight="Bold" Content="Angel" Padding="0" Grid.Row="3" Grid.Column="0"></Label>
-                    <TextBox Height="24" Width="70"  Text="0" VerticalContentAlignment="Center"  VerticalAlignment="Center" x:Name="txtAngel" FontSize="16" Grid.Row="3" Grid.Column="1" />
-                    <Button Cursor="Hand" Height="30" FontSize="16" FontWeight="Bold" x:Name="btnApply" Click="btnApply_Click"  VerticalContentAlignment="Center"   Grid.Row="3" Grid.Column="2" Content="Apply" Background="GreenYellow" />
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="txtRbr1" > 
+                            x:100,y:100
+                    </TextBlock> 
                     
-                    
-                </Grid>
-                
-            </Grid>
+                    <Rectangle Width="248"
+                        Height="250"
+                        Canvas.Left="0"
+                        Canvas.Top="0" />                   
+
+                    <Rectangle Width="248"
+                        Height=".5"
+                        Canvas.Left="0"
+                               Fill="Black"
+                        Canvas.Top="125" />
+
+                    <Rectangle Width=".5"
+                        Height="250"
+                        Canvas.Left="124"
+                        Fill="Black"
+                        Canvas.Top="0" />
+
+                    <Rectangle Width="10" Name="rResult"
+                        Height="10"
+                        Canvas.Left="235"
+                        Fill="Green"
+                        Canvas.Top="237" />       
+
+                    <Canvas Name="cnBr1" Canvas.Left="122" Canvas.Top="123">
+                        <Ellipse Width="4"
+                            Height="4"
+                            Canvas.Left="0"
+                            Canvas.Top="0"
+                             Fill="Blue">
+                        </Ellipse>
+
+                        <Ellipse x:Name="br1ellipse" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform x:Name="rtAngel1" Angle="0"/>
+                                    <TranslateTransform x:Name="tt1" X="-23" Y="-33"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+
+                    </Canvas>
+                </Canvas>
+            </Border>
+
+            <Border Cursor="Hand" x:Name="br2" Margin="2,10,2,10" Grid.Row="0" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
+                <Canvas x:Name="Canvas2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    <Ellipse x:Name="ellipse2" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform x:Name="rtAngel2" Angle="0"/>
+                                <TranslateTransform x:Name="tt2" X="0" Y="0"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Canvas>
+            </Border>
+
+            <Border Cursor="Hand" x:Name="br3" Margin="2,10,2,10" Grid.Row="0" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
+                <Canvas x:Name="Canvas3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    <Ellipse x:Name="ellipse3" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform x:Name="rtAngel3" Angle="0"/>
+                                <TranslateTransform x:Name="tt3" X="0" Y="0"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Canvas>
+            </Border>
+
+            <Border Cursor="Hand" x:Name="br4" Margin="2,10,2,10" Grid.Row="0" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
+                <Canvas x:Name="Canvas4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    <Ellipse x:Name="ellipse4" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform x:Name="rtAngel4" Angle="0"/>
+                                <TranslateTransform x:Name="tt4" X="0" Y="0"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Canvas>
+            </Border>
+
+            <Border Cursor="Hand"  x:Name="br5" Margin="2,10,2,10" Grid.Row="1" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
+                <Canvas x:Name="Canvas5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    <Ellipse x:Name="ellipse5" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform x:Name="rtAngel5" Angle="0"/>
+                                <TranslateTransform x:Name="tt5" X="0" Y="0"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Canvas>
+            </Border>
+
+            <Border Cursor="Hand" x:Name="br6" Margin="2,10,2,10" Grid.Row="1" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
+                <Canvas x:Name="Canvas6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    <Ellipse x:Name="ellipse6" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform x:Name="rtAngel6" Angle="0"/>
+                                <TranslateTransform x:Name="tt6" X="0" Y="0"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Canvas>
+            </Border>
+
+            <Border Cursor="Hand"  x:Name="br7" Margin="2,10,2,10" Grid.Row="1" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
+                <Canvas x:Name="Canvas7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    <Ellipse x:Name="ellipse7" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform x:Name="rtAngel7" Angle="0"/>
+                                <TranslateTransform x:Name="tt7" X="0" Y="0"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Canvas>
+            </Border>
+
+            <Border Cursor="Hand" x:Name="br8" Margin="2,10,2,10" Grid.Row="1" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
+                <Canvas x:Name="Canvas8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                    <Ellipse x:Name="ellipse8" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform x:Name="rtAngel8" Angle="0"/>
+                                <TranslateTransform x:Name="tt8" X="0" Y="0"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Canvas>
+            </Border>
+
         </Grid>
+
+        <Grid Grid.Column="0" Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Button Content="Balance" Grid.Column="0" Grid.Row="0" />
+            <Button Content="Test" Grid.Column="1" Grid.Row="0" />
+            <Button Content="Clear" Grid.Column="2" Grid.Row="0" />
+            <Button Content="Counter" Grid.Column="3" Grid.Row="0" />
+            <Button Content="Reset Counter" Grid.Column="4" Grid.Row="0" />
+
+
+        </Grid>
+
     </Grid>
 </Window>
