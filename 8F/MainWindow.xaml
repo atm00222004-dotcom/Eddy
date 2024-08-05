@@ -44,22 +44,20 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Border Cursor="Hand" x:Name="br1" Margin="2,2,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
-               
+            <Border Cursor="Hand" x:Name="D1" Margin="2,2,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
                 <Canvas  x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     
-                    <TextBlock Name="txtELbr1" > 
-                        D1-100Hz,10dBP,10dB
-                    </TextBlock>
-
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="txtRbr1" > 
-                            x:100,y:100
-                    </TextBlock>
-
                     <Rectangle Width="248" Fill="White"
                         Height="250"
                         Canvas.Left="0"
-                        Canvas.Top="0" />                   
+                        Canvas.Top="0" />
+                    <TextBlock Name="lblFreq1" > 
+                       
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY1" > 
+                       
+                    </TextBlock>
 
                     <Rectangle Width="248"
                         Height=".5"
@@ -73,16 +71,14 @@
                         Fill="Black"
                         Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult"
+                    <Rectangle Width="20" Name="rResult1"
                         Height="20"
                         Canvas.Left="225"
-                        Fill="Green"
-                        Canvas.Top="227" />       
+                        Fill="white"
+                        Canvas.Top="227" />
 
                     <Canvas Name="cnBr1" Canvas.Left="122" Canvas.Top="123">
-                        
-
-                        <Ellipse x:Name="br1ellipse" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse x:Name="el1" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                             <Ellipse.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -93,132 +89,364 @@
                             </Ellipse.RenderTransform>
                         </Ellipse>
 
-                        <Ellipse Width="4"
-    Height="4"
-    Canvas.Left="10"
-    Canvas.Top="20"
-     Fill="Green">
+                        <!--<Ellipse Width="4"
+                            Height="4"
+                            Canvas.Left="10"
+                            Canvas.Top="20"
+                             Fill="Green">  
                         </Ellipse>
 
                         <Ellipse Width="4"
-    Height="4"
-    Canvas.Left="-30"
-    Canvas.Top="-40"
-     Fill="Red">
+                            Height="4"
+                            Canvas.Left="-30"
+                            Canvas.Top="-40"
+                             Fill="Red">        
                         </Ellipse>
+                        
                         <Ellipse Width="4"
-    Height="4"
-    Canvas.Left="0"
-    Canvas.Top="0"
-     Fill="Blue">
-                        </Ellipse>
+                            Height="4"
+                            Canvas.Left="0"
+                            Canvas.Top="0"
+                             Fill="Blue">       
+                        </Ellipse>-->
                         
                     </Canvas>
                 </Canvas>
             </Border>
 
             <Border Cursor="Hand" x:Name="br2" Margin="2,2,2,2" Grid.Row="0" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
-                <Canvas x:Name="Canvas2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                    <Ellipse x:Name="ellipse2" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                        <Ellipse.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform/>
-                                <SkewTransform/>
-                                <RotateTransform x:Name="rtAngel2" Angle="0"/>
-                                <TranslateTransform x:Name="tt2" X="0" Y="0"/>
-                            </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                <Canvas  x:Name="Canvas2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+
+                    <Rectangle Width="248" Fill="White"
+        Height="250"
+        Canvas.Left="0"
+        Canvas.Top="0" />
+                    <TextBlock Name="lblFreq2" >
+
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY2" >
+
+                    </TextBlock>
+
+                    <Rectangle Width="248"
+        Height=".5"
+        Canvas.Left="0"
+               Fill="Black"
+        Canvas.Top="125" />
+
+                    <Rectangle Width=".5"
+        Height="250"
+        Canvas.Left="124"
+        Fill="Black"
+        Canvas.Top="0" />
+
+                    <Rectangle Width="20" Name="rResult2"
+        Height="20"
+        Canvas.Left="225"
+        Fill="white"
+        Canvas.Top="227" />
+
+                    <Canvas Name="cnBr2" Canvas.Left="122" Canvas.Top="123">
+                        <Ellipse x:Name="el2" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform x:Name="rtAngel2" Angle="0"/>
+                                    <TranslateTransform x:Name="tt2" X="-23" Y="-33"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Canvas>
                 </Canvas>
             </Border>
 
             <Border Cursor="Hand" x:Name="br3" Margin="2,2,2,2" Grid.Row="0" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
-                <Canvas x:Name="Canvas3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                    <Ellipse x:Name="ellipse3" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                        <Ellipse.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform/>
-                                <SkewTransform/>
-                                <RotateTransform x:Name="rtAngel3" Angle="0"/>
-                                <TranslateTransform x:Name="tt3" X="0" Y="0"/>
-                            </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                <Canvas  x:Name="Canvas3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+
+                    <Rectangle Width="248" Fill="White"
+Height="250"
+Canvas.Left="0"
+Canvas.Top="0" />
+                    <TextBlock Name="lblFreq3" >
+
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY3" >
+
+                    </TextBlock>
+
+                    <Rectangle Width="248"
+Height=".5"
+Canvas.Left="0"
+       Fill="Black"
+Canvas.Top="125" />
+
+                    <Rectangle Width=".5"
+Height="250"
+Canvas.Left="124"
+Fill="Black"
+Canvas.Top="0" />
+
+                    <Rectangle Width="20" Name="rResult3"
+Height="20"
+Canvas.Left="225"
+Fill="white"
+Canvas.Top="227" />
+
+                    <Canvas Name="cnBr3" Canvas.Left="122" Canvas.Top="123">
+                        <Ellipse x:Name="el3" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform x:Name="rtAngel3" Angle="0"/>
+                                    <TranslateTransform x:Name="tt3" X="-23" Y="-33"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Canvas>
                 </Canvas>
             </Border>
 
             <Border Cursor="Hand" x:Name="br4" Margin="2,2,2,2" Grid.Row="0" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
-                <Canvas x:Name="Canvas4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                    <Ellipse x:Name="ellipse4" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                        <Ellipse.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform/>
-                                <SkewTransform/>
-                                <RotateTransform x:Name="rtAngel4" Angle="0"/>
-                                <TranslateTransform x:Name="tt4" X="0" Y="0"/>
-                            </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                <Canvas  x:Name="Canvas4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+
+                    <Rectangle Width="248" Fill="White"
+Height="250"
+Canvas.Left="0"
+Canvas.Top="0" />
+                    <TextBlock Name="lblFreq4" >
+
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY4" >
+
+                    </TextBlock>
+
+                    <Rectangle Width="248"
+Height=".5"
+Canvas.Left="0"
+       Fill="Black"
+Canvas.Top="125" />
+
+                    <Rectangle Width=".5"
+Height="250"
+Canvas.Left="124"
+Fill="Black"
+Canvas.Top="0" />
+
+                    <Rectangle Width="20" Name="rResult4"
+Height="20"
+Canvas.Left="225"
+Fill="white"
+Canvas.Top="227" />
+
+                    <Canvas Name="cnBr4" Canvas.Left="122" Canvas.Top="123">
+                        <Ellipse x:Name="el4" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform x:Name="rtAngel4" Angle="0"/>
+                                    <TranslateTransform x:Name="tt4" X="-23" Y="-33"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Canvas>
                 </Canvas>
             </Border>
 
             <Border Cursor="Hand"  x:Name="br5" Margin="2,2,2,2" Grid.Row="1" Grid.Column="0" BorderBrush="SlateGray"  BorderThickness="2" >
-                <Canvas x:Name="Canvas5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                    <Ellipse x:Name="ellipse5" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                        <Ellipse.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform/>
-                                <SkewTransform/>
-                                <RotateTransform x:Name="rtAngel5" Angle="0"/>
-                                <TranslateTransform x:Name="tt5" X="0" Y="0"/>
-                            </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                <Canvas  x:Name="Canvas5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+
+                    <Rectangle Width="248" Fill="White"
+Height="250"
+Canvas.Left="0"
+Canvas.Top="0" />
+                    <TextBlock Name="lblFreq5" >
+
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY5" >
+
+                    </TextBlock>
+
+                    <Rectangle Width="248"
+Height=".5"
+Canvas.Left="0"
+       Fill="Black"
+Canvas.Top="125" />
+
+                    <Rectangle Width=".5"
+Height="250"
+Canvas.Left="124"
+Fill="Black"
+Canvas.Top="0" />
+
+                    <Rectangle Width="20" Name="rResult5"
+Height="20"
+Canvas.Left="225"
+Fill="white"
+Canvas.Top="227" />
+
+                    <Canvas Name="cnBr5" Canvas.Left="122" Canvas.Top="123">
+                        <Ellipse x:Name="el5" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform x:Name="rtAngel5" Angle="0"/>
+                                    <TranslateTransform x:Name="tt5" X="-23" Y="-33"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Canvas>
                 </Canvas>
             </Border>
 
             <Border Cursor="Hand" x:Name="br6" Margin="2,2,2,2" Grid.Row="1" Grid.Column="1" BorderBrush="SlateGray"  BorderThickness="2" >
-                <Canvas x:Name="Canvas6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                    <Ellipse x:Name="ellipse6" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                        <Ellipse.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform/>
-                                <SkewTransform/>
-                                <RotateTransform x:Name="rtAngel6" Angle="0"/>
-                                <TranslateTransform x:Name="tt6" X="0" Y="0"/>
-                            </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                <Canvas  x:Name="Canvas6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+
+                    <Rectangle Width="248" Fill="White"
+Height="250"
+Canvas.Left="0"
+Canvas.Top="0" />
+                    <TextBlock Name="lblFreq6" >
+
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY6" >
+
+                    </TextBlock>
+
+                    <Rectangle Width="248"
+Height=".5"
+Canvas.Left="0"
+       Fill="Black"
+Canvas.Top="125" />
+
+                    <Rectangle Width=".5"
+Height="250"
+Canvas.Left="124"
+Fill="Black"
+Canvas.Top="0" />
+
+                    <Rectangle Width="20" Name="rResult6"
+Height="20"
+Canvas.Left="225"
+Fill="white"
+Canvas.Top="227" />
+
+                    <Canvas Name="cnBr6" Canvas.Left="122" Canvas.Top="123">
+                        <Ellipse x:Name="el6" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform x:Name="rtAngel6" Angle="0"/>
+                                    <TranslateTransform x:Name="tt6" X="-23" Y="-33"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Canvas>
                 </Canvas>
             </Border>
 
             <Border Cursor="Hand"  x:Name="br7" Margin="2,2,2,2" Grid.Row="1" Grid.Column="2" BorderBrush="SlateGray"  BorderThickness="2" >
-                <Canvas x:Name="Canvas7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                    <Ellipse x:Name="ellipse7" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                        <Ellipse.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform/>
-                                <SkewTransform/>
-                                <RotateTransform x:Name="rtAngel7" Angle="0"/>
-                                <TranslateTransform x:Name="tt7" X="0" Y="0"/>
-                            </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                <Canvas  x:Name="Canvas7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+
+                    <Rectangle Width="248" Fill="White"
+Height="250"
+Canvas.Left="0"
+Canvas.Top="0" />
+                    <TextBlock Name="lblFreq7" >
+
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY7" >
+
+                    </TextBlock>
+
+                    <Rectangle Width="248"
+Height=".5"
+Canvas.Left="0"
+       Fill="Black"
+Canvas.Top="125" />
+
+                    <Rectangle Width=".5"
+Height="250"
+Canvas.Left="124"
+Fill="Black"
+Canvas.Top="0" />
+
+                    <Rectangle Width="20" Name="rResult7"
+Height="20"
+Canvas.Left="225"
+Fill="white"
+Canvas.Top="227" />
+
+                    <Canvas Name="cnBr7" Canvas.Left="122" Canvas.Top="123">
+                        <Ellipse x:Name="el7" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform x:Name="rtAngel7" Angle="0"/>
+                                    <TranslateTransform x:Name="tt7" X="-23" Y="-33"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Canvas>
                 </Canvas>
             </Border>
 
             <Border Cursor="Hand" x:Name="br8" Margin="2,2,2,2" Grid.Row="1" Grid.Column="3" BorderBrush="SlateGray"  BorderThickness="2" >
-                <Canvas x:Name="Canvas8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                    <Ellipse x:Name="ellipse8" HorizontalAlignment="Center" Height="100"  Stroke="Black" VerticalAlignment="Center" Width="100" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
-                        <Ellipse.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform/>
-                                <SkewTransform/>
-                                <RotateTransform x:Name="rtAngel8" Angle="0"/>
-                                <TranslateTransform x:Name="tt8" X="0" Y="0"/>
-                            </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                <Canvas  x:Name="Canvas8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+
+                    <Rectangle Width="248" Fill="White"
+Height="250"
+Canvas.Left="0"
+Canvas.Top="0" />
+                    <TextBlock Name="lblFreq8" >
+
+                    </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY8" >
+
+                    </TextBlock>
+
+                    <Rectangle Width="248"
+Height=".5"
+Canvas.Left="0"
+       Fill="Black"
+Canvas.Top="125" />
+
+                    <Rectangle Width=".5"
+Height="250"
+Canvas.Left="124"
+Fill="Black"
+Canvas.Top="0" />
+
+                    <Rectangle Width="20" Name="rResult8"
+Height="20"
+Canvas.Left="225"
+Fill="white"
+Canvas.Top="227" />
+
+                    <Canvas Name="cnBr8" Canvas.Left="122" Canvas.Top="123">
+                        <Ellipse x:Name="el8" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform x:Name="rtAngel8" Angle="0"/>
+                                    <TranslateTransform x:Name="tt8" X="-23" Y="-33"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Canvas>
                 </Canvas>
             </Border>
 

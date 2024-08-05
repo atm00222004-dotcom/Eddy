@@ -10,7 +10,7 @@ namespace _8F
     public class PortCOM
     {
         public SerialPort port;
-
+        public static List<GraphData> graphDatas;
         public void InitialPort(string portName)
         {
             port = new SerialPort
@@ -138,5 +138,24 @@ namespace _8F
             return false;
         }
 
+    }
+
+    public class GraphData
+    {
+        public int Id = 0;
+        public string Name = "D";
+        public string freq = "00100";
+        public string gain = "0";
+        public string phase = "0";
+        public double height = 100;
+        public double width = 70;
+        public double ex = -33;
+        public double ey = -48;
+        public double angel = 0;
+
+        public int? x;
+        public int? y;
+
+        public bool? result;
     }
 }
