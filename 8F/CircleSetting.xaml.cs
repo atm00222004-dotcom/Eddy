@@ -17,27 +17,27 @@ namespace _8F
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class Freq : Window
+    public partial class CircleSetting : Window
     {
         public bool IsSaved = false; 
-        public Freq()
+        public CircleSetting(string selectChannel)
         {
             InitializeComponent();
 
             ddlFrChennel.ItemsSource = PortCOM.graphDatas.Select(x=> x.Name).ToList();
             ddlFrChennel.SelectedIndex = 0;
-            var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == "D1");
+            var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == selectChannel);
             if (Gdata != null)
             {
-                txtFreq.Text = Gdata.freq;
-                txtGain.Text = Gdata.gain;
-                txtPhase.Text = Gdata.phase;
-
-                //txtHeight.Text = Gdata.height.ToString();
-                //txtWidth.Text = Gdata.width.ToString();
-                //txtX_Shift.Text = Gdata.ex.ToString();
-                //txtY_Shift.Text = Gdata.ey.ToString();
-                //txtAngel.Text = Gdata.angel.ToString();
+                //txtFreq.Text = Gdata.freq;
+                //txtGain.Text = Gdata.gain;
+                //txtPhase.Text = Gdata.phase;
+                ddlFrChennel.SelectedItem = selectChannel;
+                txtHeight.Text = Gdata.height.ToString();
+                txtWidth.Text = Gdata.width.ToString();
+                txtX_Shift.Text = Gdata.ex.ToString();
+                txtY_Shift.Text = Gdata.ey.ToString();
+                txtAngel.Text = Gdata.angel.ToString();
             }
         }
 
@@ -53,16 +53,14 @@ namespace _8F
                 var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
                 if (Gdata != null)
                 {
-                    Gdata.freq = txtFreq.Text;
-                    Gdata.gain = txtGain.Text;
-                    Gdata.phase = txtPhase.Text;
-
-                    //Gdata.height = Convert.ToDouble(txtHeight.Text);
-                    //Gdata.width = Convert.ToDouble(txtWidth.Text);
-                    //Gdata.ex = Convert.ToDouble(txtX_Shift.Text);
-                    //Gdata.ey = Convert.ToDouble(txtY_Shift.Text);
-                    //Gdata.angel = Convert.ToDouble(txtAngel.Text);
-
+                    //Gdata.freq = txtFreq.Text;
+                    //Gdata.gain = txtGain.Text;
+                    //Gdata.phase = txtPhase.Text;
+                    Gdata.height = Convert.ToDouble(txtHeight.Text);
+                    Gdata.width = Convert.ToDouble(txtWidth.Text);
+                    Gdata.ex = Convert.ToDouble(txtX_Shift.Text);
+                    Gdata.ey = Convert.ToDouble(txtY_Shift.Text);
+                    Gdata.angel = Convert.ToDouble(txtAngel.Text);
                 }
                 IsSaved = true;
                 lblMsg.Content = "Configuration Saved!!!";
@@ -78,17 +76,17 @@ namespace _8F
             var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
             if (Gdata != null)
             {
-                txtFreq.Text = Gdata.freq;
-                txtGain.Text = Gdata.gain;
-                txtPhase.Text = Gdata.phase;
+                //txtFreq.Text = Gdata.freq;
+                //txtGain.Text = Gdata.gain;
+                //txtPhase.Text = Gdata.phase;
 
-                //txtHeight.Text = Gdata.height.ToString();
-                //txtWidth.Text = Gdata.width.ToString();
-                //txtX_Shift.Text = Gdata.ex.ToString();
-                //txtY_Shift.Text = Gdata.ey.ToString();
-                //txtAngel.Text = Gdata.angel.ToString();
+                txtHeight.Text = Gdata.height.ToString();
+                txtWidth.Text = Gdata.width.ToString();
+                txtX_Shift.Text = Gdata.ex.ToString();
+                txtY_Shift.Text = Gdata.ey.ToString();
+                txtAngel.Text = Gdata.angel.ToString();
             }
-
+            
         }
     }
 }

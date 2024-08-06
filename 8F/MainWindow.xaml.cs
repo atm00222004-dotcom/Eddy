@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,8 +20,9 @@ namespace _8F
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    { 
+    {
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
+        public CircleSetting ellipsesPop { get; set; }
         public MainWindow()
         {
             InitializeComponent();
@@ -29,24 +32,25 @@ namespace _8F
                 new MenuItemViewModel { Header = "File",
                     MenuItems = new ObservableCollection<MenuItemViewModel>
                         {
-                            new MenuItemViewModel { Header = "New" },
-                            new MenuItemViewModel { Header = "Open" },
-                            new MenuItemViewModel { Header = "Save" },
+                            new MenuItemViewModel { Header = "New", mainWindow =this },
+                            new MenuItemViewModel { Header = "Open" ,mainWindow =this },
+                            new MenuItemViewModel { Header = "Save",  },
                             new MenuItemViewModel { Header = "Save As" },
-                            new MenuItemViewModel { Header = "Exit" }
+                            new MenuItemViewModel { Header = "Exit" ,mainWindow =this }
                         }
                 },
                 new MenuItemViewModel { Header = "Configuration",
                     MenuItems = new ObservableCollection<MenuItemViewModel>
                         {
                             new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
+                            new MenuItemViewModel { Header = "Ellipses Setting", mainWindow = this },
                         }
                 },
             };
             DataContext = this;
 
-            InitialGraphData();
-            ImplementChanges();
+            InitialGraphData(true);
+            ImplementChanges(0);
 
             //PortCOM portCOM = new PortCOM();
             //portCOM.InitialPort("COM4");
@@ -57,163 +61,165 @@ namespace _8F
             //portCOM.WriteFreqAndGain("1", "03590", "45");
         }
 
-        public void InitialGraphData()
+        public void InitialGraphData(bool IsPayLaod )
         {
-
-            for(int i = 10; i < 248; i = i+10)
+            if (IsPayLaod)
             {
-                Rectangle r1 = new Rectangle();
-                r1.Height = .2;
-                r1.Width = 248;
-                Canvas.SetLeft(r1, 0);
-                Canvas.SetTop(r1, i);
-                r1.Stroke = new SolidColorBrush(Colors.Black);
-                r1.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas1.Children.Add(r1);
+                for (int i = 10; i < 248; i = i + 10)
+                {
+                    Rectangle r1 = new Rectangle();
+                    r1.Height = .2;
+                    r1.Width = 248;
+                    Canvas.SetLeft(r1, 0);
+                    Canvas.SetTop(r1, i);
+                    r1.Stroke = new SolidColorBrush(Colors.Black);
+                    r1.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas1.Children.Add(r1);
 
-                Rectangle r2 = new Rectangle();
-                r2.Height = .2;
-                r2.Width = 248;
-                Canvas.SetLeft(r2, 0);
-                Canvas.SetTop(r2, i);
-                r2.Stroke = new SolidColorBrush(Colors.Black);
-                r2.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas2.Children.Add(r2);
+                    Rectangle r2 = new Rectangle();
+                    r2.Height = .2;
+                    r2.Width = 248;
+                    Canvas.SetLeft(r2, 0);
+                    Canvas.SetTop(r2, i);
+                    r2.Stroke = new SolidColorBrush(Colors.Black);
+                    r2.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas2.Children.Add(r2);
 
-                Rectangle r3 = new Rectangle();
-                r3.Height = .2;
-                r3.Width = 248;
-                Canvas.SetLeft(r3, 0);
-                Canvas.SetTop(r3, i);
-                r3.Stroke = new SolidColorBrush(Colors.Black);
-                r3.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas3.Children.Add(r3);
+                    Rectangle r3 = new Rectangle();
+                    r3.Height = .2;
+                    r3.Width = 248;
+                    Canvas.SetLeft(r3, 0);
+                    Canvas.SetTop(r3, i);
+                    r3.Stroke = new SolidColorBrush(Colors.Black);
+                    r3.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas3.Children.Add(r3);
 
-                Rectangle r4 = new Rectangle();
-                r4.Height = .2;
-                r4.Width = 248;
-                Canvas.SetLeft(r4, 0);
-                Canvas.SetTop(r4, i);
-                r4.Stroke = new SolidColorBrush(Colors.Black);
-                r4.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas4.Children.Add(r4);
+                    Rectangle r4 = new Rectangle();
+                    r4.Height = .2;
+                    r4.Width = 248;
+                    Canvas.SetLeft(r4, 0);
+                    Canvas.SetTop(r4, i);
+                    r4.Stroke = new SolidColorBrush(Colors.Black);
+                    r4.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas4.Children.Add(r4);
 
-                Rectangle r5 = new Rectangle();
-                r5.Height = .2;
-                r5.Width = 248;
-                Canvas.SetLeft(r5, 0);
-                Canvas.SetTop(r5, i);
-                r5.Stroke = new SolidColorBrush(Colors.Black);
-                r5.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas5.Children.Add(r5);
+                    Rectangle r5 = new Rectangle();
+                    r5.Height = .2;
+                    r5.Width = 248;
+                    Canvas.SetLeft(r5, 0);
+                    Canvas.SetTop(r5, i);
+                    r5.Stroke = new SolidColorBrush(Colors.Black);
+                    r5.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas5.Children.Add(r5);
 
-                Rectangle r6 = new Rectangle();
-                r6.Height = .2;
-                r6.Width = 248;
-                Canvas.SetLeft(r6, 0);
-                Canvas.SetTop(r6, i);
-                r6.Stroke = new SolidColorBrush(Colors.Black);
-                r6.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas6.Children.Add(r6);
+                    Rectangle r6 = new Rectangle();
+                    r6.Height = .2;
+                    r6.Width = 248;
+                    Canvas.SetLeft(r6, 0);
+                    Canvas.SetTop(r6, i);
+                    r6.Stroke = new SolidColorBrush(Colors.Black);
+                    r6.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas6.Children.Add(r6);
 
-                Rectangle r7 = new Rectangle();
-                r7.Height = .2;
-                r7.Width = 248;
-                Canvas.SetLeft(r7, 0);
-                Canvas.SetTop(r7, i);
-                r7.Stroke = new SolidColorBrush(Colors.Black);
-                r7.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas7.Children.Add(r7);
+                    Rectangle r7 = new Rectangle();
+                    r7.Height = .2;
+                    r7.Width = 248;
+                    Canvas.SetLeft(r7, 0);
+                    Canvas.SetTop(r7, i);
+                    r7.Stroke = new SolidColorBrush(Colors.Black);
+                    r7.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas7.Children.Add(r7);
 
-                Rectangle r8 = new Rectangle();
-                r8.Height = .2;
-                r8.Width = 248;
-                Canvas.SetLeft(r8, 0);
-                Canvas.SetTop(r8, i);
-                r8.Stroke = new SolidColorBrush(Colors.Black);
-                r8.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas8.Children.Add(r8);
+                    Rectangle r8 = new Rectangle();
+                    r8.Height = .2;
+                    r8.Width = 248;
+                    Canvas.SetLeft(r8, 0);
+                    Canvas.SetTop(r8, i);
+                    r8.Stroke = new SolidColorBrush(Colors.Black);
+                    r8.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas8.Children.Add(r8);
 
-                Rectangle rectangle1 = new Rectangle();
-                rectangle1.Height = 250;
-                rectangle1.Width = .1;
-                Canvas.SetLeft(rectangle1, i);
-                Canvas.SetTop(rectangle1, 0);
-                rectangle1.Stroke = new SolidColorBrush(Colors.Black);
-                rectangle1.Fill = new SolidColorBrush(Colors.LightGray);
+                    Rectangle rectangle1 = new Rectangle();
+                    rectangle1.Height = 250;
+                    rectangle1.Width = .1;
+                    Canvas.SetLeft(rectangle1, i);
+                    Canvas.SetTop(rectangle1, 0);
+                    rectangle1.Stroke = new SolidColorBrush(Colors.Black);
+                    rectangle1.Fill = new SolidColorBrush(Colors.LightGray);
 
 
-                Rectangle rr1 = new Rectangle();
-                rr1.Height = 250;
-                rr1.Width = .1;
-                Canvas.SetLeft(rr1, i);
-                Canvas.SetTop(rr1, 0);
-                rr1.Stroke = new SolidColorBrush(Colors.Black);
-                rr1.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas1.Children.Add(rr1);
+                    Rectangle rr1 = new Rectangle();
+                    rr1.Height = 250;
+                    rr1.Width = .1;
+                    Canvas.SetLeft(rr1, i);
+                    Canvas.SetTop(rr1, 0);
+                    rr1.Stroke = new SolidColorBrush(Colors.Black);
+                    rr1.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas1.Children.Add(rr1);
 
-                Rectangle rr2 = new Rectangle();
-                rr2.Height = 250;
-                rr2.Width = .1;
-                Canvas.SetLeft(rr2, i);
-                Canvas.SetTop(rr2, 0);
-                rr2.Stroke = new SolidColorBrush(Colors.Black);
-                rr2.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas2.Children.Add(rr2);
+                    Rectangle rr2 = new Rectangle();
+                    rr2.Height = 250;
+                    rr2.Width = .1;
+                    Canvas.SetLeft(rr2, i);
+                    Canvas.SetTop(rr2, 0);
+                    rr2.Stroke = new SolidColorBrush(Colors.Black);
+                    rr2.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas2.Children.Add(rr2);
 
-                Rectangle rr3 = new Rectangle();
-                rr3.Height = 250;
-                rr3.Width = .1;
-                Canvas.SetLeft(rr3, i);
-                Canvas.SetTop(rr3, 0);
-                rr3.Stroke = new SolidColorBrush(Colors.Black);
-                rr3.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas3.Children.Add(rr3);
+                    Rectangle rr3 = new Rectangle();
+                    rr3.Height = 250;
+                    rr3.Width = .1;
+                    Canvas.SetLeft(rr3, i);
+                    Canvas.SetTop(rr3, 0);
+                    rr3.Stroke = new SolidColorBrush(Colors.Black);
+                    rr3.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas3.Children.Add(rr3);
 
-                Rectangle rr4 = new Rectangle();
-                rr4.Height = 250;
-                rr4.Width = .1;
-                Canvas.SetLeft(rr4, i);
-                Canvas.SetTop(rr4, 0);
-                rr4.Stroke = new SolidColorBrush(Colors.Black);
-                rr4.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas4.Children.Add(rr4);
+                    Rectangle rr4 = new Rectangle();
+                    rr4.Height = 250;
+                    rr4.Width = .1;
+                    Canvas.SetLeft(rr4, i);
+                    Canvas.SetTop(rr4, 0);
+                    rr4.Stroke = new SolidColorBrush(Colors.Black);
+                    rr4.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas4.Children.Add(rr4);
 
-                Rectangle rr5 = new Rectangle();
-                rr5.Height = 250;
-                rr5.Width = .1;
-                Canvas.SetLeft(rr5, i);
-                Canvas.SetTop(rr5, 0);
-                rr5.Stroke = new SolidColorBrush(Colors.Black);
-                rr5.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas5.Children.Add(rr5);
+                    Rectangle rr5 = new Rectangle();
+                    rr5.Height = 250;
+                    rr5.Width = .1;
+                    Canvas.SetLeft(rr5, i);
+                    Canvas.SetTop(rr5, 0);
+                    rr5.Stroke = new SolidColorBrush(Colors.Black);
+                    rr5.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas5.Children.Add(rr5);
 
-                Rectangle rr6 = new Rectangle();
-                rr6.Height = 250;
-                rr6.Width = .1;
-                Canvas.SetLeft(rr6, i);
-                Canvas.SetTop(rr6, 0);
-                rr6.Stroke = new SolidColorBrush(Colors.Black);
-                rr6.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas6.Children.Add(rr6);
+                    Rectangle rr6 = new Rectangle();
+                    rr6.Height = 250;
+                    rr6.Width = .1;
+                    Canvas.SetLeft(rr6, i);
+                    Canvas.SetTop(rr6, 0);
+                    rr6.Stroke = new SolidColorBrush(Colors.Black);
+                    rr6.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas6.Children.Add(rr6);
 
-                Rectangle rr7 = new Rectangle();
-                rr7.Height = 250;
-                rr7.Width = .1;
-                Canvas.SetLeft(rr7, i);
-                Canvas.SetTop(rr7, 0);
-                rr7.Stroke = new SolidColorBrush(Colors.Black);
-                rr7.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas7.Children.Add(rr7);
+                    Rectangle rr7 = new Rectangle();
+                    rr7.Height = 250;
+                    rr7.Width = .1;
+                    Canvas.SetLeft(rr7, i);
+                    Canvas.SetTop(rr7, 0);
+                    rr7.Stroke = new SolidColorBrush(Colors.Black);
+                    rr7.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas7.Children.Add(rr7);
 
-                Rectangle rr8 = new Rectangle();
-                rr8.Height = 250;
-                rr8.Width = .1;
-                Canvas.SetLeft(rr8, i);
-                Canvas.SetTop(rr8, 0);
-                rr8.Stroke = new SolidColorBrush(Colors.Black);
-                rr8.Fill = new SolidColorBrush(Colors.LightGray);
-                Canvas8.Children.Add(rr8);
+                    Rectangle rr8 = new Rectangle();
+                    rr8.Height = 250;
+                    rr8.Width = .1;
+                    Canvas.SetLeft(rr8, i);
+                    Canvas.SetTop(rr8, 0);
+                    rr8.Stroke = new SolidColorBrush(Colors.Black);
+                    rr8.Fill = new SolidColorBrush(Colors.LightGray);
+                    Canvas8.Children.Add(rr8);
+                }
             }
 
             PortCOM.graphDatas = new List<GraphData>();
@@ -260,14 +266,14 @@ namespace _8F
 
         }
 
-        public void ImplementChanges()
+        public void ImplementChanges(int ChangeType)
         {
-            foreach(GraphData graphData in PortCOM.graphDatas)
+            foreach (GraphData graphData in PortCOM.graphDatas)
             {
-                if (graphData.Id ==1 )
+                if (graphData.Id == 1)
                 {
-                    lblFreq1.Text = graphData.Name +"-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-                    
+                    lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
                     el1.Height = graphData.height;
                     el1.Width = graphData.width;
                     tt1.X = graphData.ex;
@@ -278,7 +284,7 @@ namespace _8F
                 }
                 else if (graphData.Id == 2)
                 {
-                    lblFreq2.Text = graphData.Name +"-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                    lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
                     el2.Height = graphData.height;
                     el2.Width = graphData.width;
@@ -377,11 +383,22 @@ namespace _8F
                 }
 
             }
-            
+
+        }
+        private void D_Click(object sender, RoutedEventArgs e)
+        {
+            ellipsesPop = new CircleSetting(((Button)sender).Name);
+            ellipsesPop.Closing += ellipsesPop_Closing;
+            ellipsesPop.ShowDialog();
         }
 
-
-       
+        private void ellipsesPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (ellipsesPop.IsSaved)
+            {
+                ImplementChanges(2);
+            }
+        }
     }
 
     public class MenuItemViewModel
@@ -395,6 +412,8 @@ namespace _8F
 
         public string Header { get; set; }
         public Freq freqPop { get; set; }
+        string filename { get; set; }
+        public CircleSetting ellipsesPop { get; set; }
         public MainWindow mainWindow { get; set; }
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
 
@@ -416,13 +435,131 @@ namespace _8F
                 freqPop.Closing += freqPop_Closing;
                 freqPop.ShowDialog();
             }
+            else if (Header == "Ellipses Setting")
+            {
+                ellipsesPop = new CircleSetting("D1");
+                ellipsesPop.Closing += ellipsesPop_Closing;
+                ellipsesPop.ShowDialog();
+            }
+            else if (Header == "Save")
+            {
+                try
+                {
+                    if (String.IsNullOrEmpty(filename))
+                    {
+                        Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                        dlg.FileName = "Document"; // Default file name
+                        dlg.DefaultExt = ".text"; // Default file extension
+                        dlg.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+
+                        // Show save file dialog box
+                        Nullable<bool> result = dlg.ShowDialog();
+
+                        // Process save file dialog box results
+                        if (result == true)
+                        {
+                            // Save document
+                            filename = dlg.FileName;
+                        }
+                    }
+                    string conecnt = JsonConvert.SerializeObject(PortCOM.graphDatas);
+                    File.WriteAllText(filename, conecnt);
+
+                    MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error while saving the configation file!!!!");
+                }
+
+            }
+            else if (Header == "Save As")
+            {
+                try
+                {
+                    Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                    dlg.FileName = "Document"; // Default file name
+                    dlg.DefaultExt = ".text"; // Default file extension
+                    dlg.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+
+                    // Show save file dialog box
+                    Nullable<bool> result = dlg.ShowDialog();
+
+                    // Process save file dialog box results
+                    if (result == true)
+                    {
+                        // Save document
+                        filename = dlg.FileName;
+                    }
+
+                    string conecnt = JsonConvert.SerializeObject(PortCOM.graphDatas);
+                    File.WriteAllText(filename, conecnt);
+
+                    MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error while saving the configation file!!!!");
+                }
+            }
+            else if (Header == "Open")
+            {
+                try
+                {
+                    var dialog = new Microsoft.Win32.OpenFileDialog();
+                    dialog.FileName = "Document"; // Default file name
+                    dialog.DefaultExt = ".txt"; // Default file extension
+                    dialog.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+
+                    // Show open file dialog box
+                    bool? result = dialog.ShowDialog();
+
+                    // Process open file dialog box results
+                    if (result == true)
+                    {
+                        string data = File.ReadAllText(dialog.FileName);
+                        PortCOM.graphDatas = JsonConvert.DeserializeObject<List<GraphData>>(data)
+                            ;
+                        // Open document
+                        filename = dialog.FileName;
+                    }
+
+                    mainWindow.ImplementChanges(0);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error while loading the configation file!!!!");
+                }
+
+            }
+
+            else if (Header == "New")
+            {
+                filename = null;
+                mainWindow.InitialGraphData(false);
+                mainWindow.ImplementChanges(0);
+            }
+
+            else if (Header == "Exit")
+            {
+                mainWindow.Close();
+            }
         }
+
 
         private void freqPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if(freqPop.IsSaved)
+            if (freqPop.IsSaved)
             {
-                mainWindow.ImplementChanges();
+                mainWindow.ImplementChanges(1);
+            }
+        }
+
+        private void ellipsesPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (ellipsesPop.IsSaved)
+            {
+                mainWindow.ImplementChanges(2);
             }
         }
     }

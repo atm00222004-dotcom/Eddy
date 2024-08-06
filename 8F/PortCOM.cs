@@ -152,10 +152,12 @@ namespace _8F
         public double ex = -33;
         public double ey = -48;
         public double angel = 0;
+    }
 
-        public int? x;
-        public int? y;
-
-        public bool? result;
+    public class Result
+    {
+        public int x;
+        public int y;
+        public bool result;
     }
 }

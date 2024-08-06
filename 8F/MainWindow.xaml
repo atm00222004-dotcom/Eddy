@@ -44,13 +44,13 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Border Cursor="Hand" x:Name="D1" Margin="2,2,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
+            <Border Cursor="Hand" x:Name="BD1" Margin="2,2,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
                 <Canvas  x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
-                    
                     <Rectangle Width="248" Fill="White"
                         Height="250"
                         Canvas.Left="0"
                         Canvas.Top="0" />
+
                     <TextBlock Name="lblFreq1" > 
                        
                     </TextBlock>
@@ -111,6 +111,9 @@
                         </Ellipse>-->
                         
                     </Canvas>
+
+                    <Button Content="Setting" Name="D1" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
+
                 </Canvas>
             </Border>
 
@@ -159,6 +162,8 @@
                             </Ellipse.RenderTransform>
                         </Ellipse>
                     </Canvas>
+
+                    <Button Content="Setting" Name="D2" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
             </Border>
 
@@ -207,6 +212,9 @@ Canvas.Top="227" />
                             </Ellipse.RenderTransform>
                         </Ellipse>
                     </Canvas>
+
+                    <Button Content="Setting" Name="D3" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
+                    
                 </Canvas>
             </Border>
 
@@ -255,6 +263,8 @@ Canvas.Top="227" />
                             </Ellipse.RenderTransform>
                         </Ellipse>
                     </Canvas>
+
+                    <Button Content="Setting" Name="D4" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
             </Border>
 
@@ -303,6 +313,7 @@ Canvas.Top="227" />
                             </Ellipse.RenderTransform>
                         </Ellipse>
                     </Canvas>
+                    <Button Content="Setting" Name="D5" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
             </Border>
 
@@ -351,6 +362,7 @@ Canvas.Top="227" />
                             </Ellipse.RenderTransform>
                         </Ellipse>
                     </Canvas>
+                    <Button Content="Setting" Name="D6" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
             </Border>
 
@@ -399,6 +411,7 @@ Canvas.Top="227" />
                             </Ellipse.RenderTransform>
                         </Ellipse>
                     </Canvas>
+                    <Button Content="Setting" Name="D7" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
             </Border>
 
@@ -447,6 +460,7 @@ Canvas.Top="227" />
                             </Ellipse.RenderTransform>
                         </Ellipse>
                     </Canvas>
+                    <Button Content="Setting" Name="D8" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
             </Border>
 
