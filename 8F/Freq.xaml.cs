@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,13 +21,14 @@ namespace _8F
     public partial class Freq : Window
     {
         public bool IsSaved = false; 
+        public PortCOM portCOM;
         public Freq()
         {
             InitializeComponent();
 
-            ddlFrChennel.ItemsSource = PortCOM.graphDatas.Select(x=> x.Name).ToList();
+            ddlFrChennel.ItemsSource = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.Select(x=> x.Name).ToList();
             ddlFrChennel.SelectedIndex = 0;
-            var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == "D1");
+            var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == "D1");
             if (Gdata != null)
             {
                 txtFreq.Text = Gdata.freq;
@@ -50,7 +52,8 @@ namespace _8F
         {
             try
             {
-                var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
+                var ch = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+                var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
                 if (Gdata != null)
                 {
                     Gdata.freq = txtFreq.Text;
@@ -62,6 +65,14 @@ namespace _8F
                     //Gdata.ex = Convert.ToDouble(txtX_Shift.Text);
                     //Gdata.ey = Convert.ToDouble(txtY_Shift.Text);
                     //Gdata.angel = Convert.ToDouble(txtAngel.Text);
+                    FrequencyWrite frequencyWrite = new FrequencyWrite();
+                    frequencyWrite.FC = 4;
+                    frequencyWrite.CN = ch.Id;
+                    frequencyWrite.FD = new List<Frequency>();
+
+                    Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase };
+                    frequencyWrite.FD.Add(frequency);
+                    portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
 
                 }
                 IsSaved = true;
@@ -75,7 +86,7 @@ namespace _8F
 
         private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
+            var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
             if (Gdata != null)
             {
                 txtFreq.Text = Gdata.freq;

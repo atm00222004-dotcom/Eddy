@@ -10,7 +10,7 @@ namespace _8F
     public class PortCOM
     {
         public SerialPort port;
-        public static List<GraphData> graphDatas;
+        public static List<ChannelData> channelDatas;
         public void InitialPort(string portName)
         {
             port = new SerialPort
@@ -89,6 +89,39 @@ namespace _8F
 
             return false;
         }
+
+        public bool WriteData(string data)
+        {
+            try
+            {
+                if (!port.IsOpen)
+                {
+                    port.Open();
+                }
+                this.port.ReadExisting();
+                this.port.Write(data);
+                int toread = 1;
+                int offset = 0;
+                char[] result = new char[toread];
+                while (toread > 0)
+                {
+                    int r = this.port.Read(result, offset, toread);
+                    offset += r;
+                    toread -= r;
+                }
+
+                if (result[0] == '0')
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
         public bool ReadGraphData()
         {
             if (!port.IsOpen)
@@ -140,6 +173,12 @@ namespace _8F
 
     }
 
+    public class ChannelData
+    {
+        public int Id = 0;
+        public bool IsSeleted = false;
+        public List<GraphData> graphDatas;
+    }
     public class GraphData
     {
         public int Id = 0;
@@ -154,10 +193,52 @@ namespace _8F
         public double angel = 0;
     }
 
-    public class Result
+    public class Response
     {
-        public int x;
-        public int y;
-        public bool result;
+        public int FC;
+        public int CN;
+        public int R;
+        public List<FreqResult> FD;
     }
+    public class FreqResult
+    {
+        public int FN;
+        public int R;
+        public int X;
+        public int Y;
+    }
+
+    public class FrequencyWrite
+    {
+        public int FC;
+        public int CN;
+        public List<Frequency> FD;
+    }
+
+    public class Frequency
+    {
+        public int FN;
+        public string F;
+        public string G;
+        public string P;
+    }
+
+    public class ElliplseWrite
+    {
+        public int FC;
+        public int CN;
+        public List<Elliplse> ED;
+    }
+
+    public class Elliplse
+    {
+        public int FN;
+        public int EId;
+        public double a;
+        public double b;
+        public double t;
+        public double x;
+        public double y;
+    } 
+
 }

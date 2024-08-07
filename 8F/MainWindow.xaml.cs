@@ -2,6 +2,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,9 +24,12 @@ namespace _8F
     {
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
         public CircleSetting ellipsesPop { get; set; }
+        PortCOM portCOM;
         public MainWindow()
         {
             InitializeComponent();
+            portCOM = new PortCOM();
+            portCOM.InitialPort("COM10");
 
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
@@ -43,7 +47,8 @@ namespace _8F
                     MenuItems = new ObservableCollection<MenuItemViewModel>
                         {
                             new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
-                            new MenuItemViewModel { Header = "Ellipses Setting", mainWindow = this },
+                            new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
+                            new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                         }
                 },
             };
@@ -221,169 +226,197 @@ namespace _8F
                     Canvas8.Children.Add(rr8);
                 }
             }
+            PortCOM.channelDatas = new List<ChannelData>();
 
-            PortCOM.graphDatas = new List<GraphData>();
+            ChannelData channelData = new ChannelData();
+            channelData.Id = 1;
+            channelData.IsSeleted = true;
+            channelData.graphDatas = IniGdata();
+            PortCOM.channelDatas.Add(channelData);
+
+            ChannelData channelData1 = new ChannelData();
+            channelData1.Id = 2;
+            channelData1.graphDatas = IniGdata();
+            PortCOM.channelDatas.Add(channelData1);
+
+            ChannelData channelData2 = new ChannelData();
+            channelData2.Id = 3;
+            channelData2.graphDatas = IniGdata();
+            PortCOM.channelDatas.Add(channelData2);
+
+            ChannelData channelData3 = new ChannelData();
+            channelData3.Id = 4;
+            channelData3.graphDatas = IniGdata();
+            PortCOM.channelDatas.Add(channelData3);
+
+            btnCh1.Background = new SolidColorBrush(Colors.DarkGray);
+            btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
+            btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
+            btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
+
+            btnCh1.Background = new SolidColorBrush(Colors.LightGreen);
+        }
+
+        public List<GraphData> IniGdata()
+        {
+            List<GraphData> graphDatas = new List<GraphData>();
 
             GraphData graphD1 = new GraphData();
             graphD1.Id = 1;
             graphD1.Name = "D1";
-            PortCOM.graphDatas.Add(graphD1);
+            graphDatas.Add(graphD1);
 
             GraphData graphD2 = new GraphData();
             graphD2.Id = 2;
             graphD2.Name = "D2";
-            PortCOM.graphDatas.Add(graphD2);
+            graphDatas.Add(graphD2);
 
             GraphData graphD3 = new GraphData();
             graphD3.Id = 3;
             graphD3.Name = "D3";
-            PortCOM.graphDatas.Add(graphD3);
+            graphDatas.Add(graphD3);
 
             GraphData graphD4 = new GraphData();
             graphD4.Id = 4;
             graphD4.Name = "D4";
-            PortCOM.graphDatas.Add(graphD4);
+            graphDatas.Add(graphD4);
 
             GraphData graphD5 = new GraphData();
             graphD5.Id = 5;
             graphD5.Name = "D5";
-            PortCOM.graphDatas.Add(graphD5);
+            graphDatas.Add(graphD5);
 
             GraphData graphD6 = new GraphData();
             graphD6.Id = 6;
             graphD6.Name = "D6";
-            PortCOM.graphDatas.Add(graphD6);
+            graphDatas.Add(graphD6);
 
             GraphData graphD7 = new GraphData();
             graphD7.Id = 7;
             graphD7.Name = "D7";
-            PortCOM.graphDatas.Add(graphD7);
+            graphDatas.Add(graphD7);
 
             GraphData graphD8 = new GraphData();
             graphD8.Id = 8;
             graphD8.Name = "D8";
-            PortCOM.graphDatas.Add(graphD8);
+            graphDatas.Add(graphD8);
 
+            return graphDatas;
         }
 
         public void ImplementChanges(int ChangeType)
         {
-            foreach (GraphData graphData in PortCOM.graphDatas)
+            foreach (var ch in PortCOM.channelDatas)
             {
-                if (graphData.Id == 1)
+                foreach (GraphData graphData in ch.graphDatas)
                 {
-                    lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                    FrequencyWrite frequencyWrite = new FrequencyWrite();
+                    frequencyWrite.FC = 4;
+                    frequencyWrite.CN = ch.Id;
+                    frequencyWrite.FD = new List<Frequency>();
 
-                    el1.Height = graphData.height;
-                    el1.Width = graphData.width;
-                    tt1.X = graphData.ex;
-                    tt1.Y = graphData.ey;
-                    rtAngel1.Angle = graphData.angel;
+                    ElliplseWrite ellipseWrite = new ElliplseWrite();
+                    ellipseWrite.FC = 5;
+                    ellipseWrite.CN = ch.Id;
+                    ellipseWrite.ED = new List<Elliplse>();
 
-                    // Data to Port;
+                    if (ch.IsSeleted == true)
+                    {
+                        if (graphData.Id == 1)
+                        {
+                            lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
+                            el1.Height = graphData.height;
+                            el1.Width = graphData.width;
+                            tt1.X = graphData.ex;
+                            tt1.Y = graphData.ey;
+                            rtAngel1.Angle = graphData.angel;
+                        }
+                        else if (graphData.Id == 2)
+                        {
+                            lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
+                            el2.Height = graphData.height;
+                            el2.Width = graphData.width;
+                            tt2.X = graphData.ex;
+                            tt2.Y = graphData.ey;
+                            rtAngel2.Angle = graphData.angel;
+                        }
+                        else if (graphData.Id == 3)
+                        {
+                            lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
+                            el3.Height = graphData.height;
+                            el3.Width = graphData.width;
+                            tt3.X = graphData.ex;
+                            tt3.Y = graphData.ey;
+                            rtAngel3.Angle = graphData.angel;
+                        }
+                        else if (graphData.Id == 4)
+                        {
+                            lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
+                            el4.Height = graphData.height;
+                            el4.Width = graphData.width;
+                            tt4.X = graphData.ex;
+                            tt4.Y = graphData.ey;
+                            rtAngel4.Angle = graphData.angel;
+                        }
+                        else if (graphData.Id == 5)
+                        {
+                            lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
+                            el5.Height = graphData.height;
+                            el5.Width = graphData.width;
+                            tt5.X = graphData.ex;
+                            tt5.Y = graphData.ey;
+                            rtAngel5.Angle = graphData.angel;
+                        }
+                        else if (graphData.Id == 6)
+                        {
+                            lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
+                            el6.Height = graphData.height;
+                            el6.Width = graphData.width;
+                            tt6.X = graphData.ex;
+                            tt6.Y = graphData.ey;
+                            rtAngel6.Angle = graphData.angel;
+                        }
+                        else if (graphData.Id == 7)
+                        {
+                            lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
+                            el7.Height = graphData.height;
+                            el7.Width = graphData.width;
+                            tt7.X = graphData.ex;
+                            tt7.Y = graphData.ey;
+                            rtAngel7.Angle = graphData.angel;
+                        }
+                        else if (graphData.Id == 8)
+                        {
+                            lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+
+                            el8.Height = graphData.height;
+                            el8.Width = graphData.width;
+                            tt8.X = graphData.ex;
+                            tt8.Y = graphData.ey;
+                            rtAngel8.Angle = graphData.angel;
+                        }
+                    }
+
+                    if (ChangeType == 0)
+                    {
+                        // write data to port for freq and setting
+                        Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase };
+                        frequencyWrite.FD.Add(frequency);
+                        portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+
+                        Elliplse elliplse = new Elliplse() { FN= graphData.Id, EId= graphData.Id, a = graphData.height, b= graphData.width, t = graphData.angel, x = graphData.ex, y = graphData.ey };
+                        ellipseWrite.ED.Add(elliplse);
+                        portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+                    }
                 }
-                else if (graphData.Id == 2)
-                {
-                    lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-
-                    el2.Height = graphData.height;
-                    el2.Width = graphData.width;
-                    tt2.X = graphData.ex;
-                    tt2.Y = graphData.ey;
-                    rtAngel2.Angle = graphData.angel;
-
-                    // Data to Port;
-                }
-
-                else if (graphData.Id == 3)
-                {
-                    lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-
-                    el3.Height = graphData.height;
-                    el3.Width = graphData.width;
-                    tt3.X = graphData.ex;
-                    tt3.Y = graphData.ey;
-                    rtAngel3.Angle = graphData.angel;
-
-                    // Data to Port;
-                }
-
-                else if (graphData.Id == 4)
-                {
-                    lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-
-                    el4.Height = graphData.height;
-                    el4.Width = graphData.width;
-                    tt4.X = graphData.ex;
-                    tt4.Y = graphData.ey;
-                    rtAngel4.Angle = graphData.angel;
-
-                    // Data to Port;
-                }
-
-                else if (graphData.Id == 5)
-                {
-                    lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-
-                    el5.Height = graphData.height;
-                    el5.Width = graphData.width;
-                    tt5.X = graphData.ex;
-                    tt5.Y = graphData.ey;
-                    rtAngel5.Angle = graphData.angel;
-
-                    // Data to Port;
-                }
-                else if (graphData.Id == 6)
-                {
-                    lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-
-                    el6.Height = graphData.height;
-                    el6.Width = graphData.width;
-                    tt6.X = graphData.ex;
-                    tt6.Y = graphData.ey;
-                    rtAngel6.Angle = graphData.angel;
-
-                    // Data to Port;
-                }
-                else if (graphData.Id == 7)
-                {
-                    lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-
-                    el7.Height = graphData.height;
-                    el7.Width = graphData.width;
-                    tt7.X = graphData.ex;
-                    tt7.Y = graphData.ey;
-                    rtAngel7.Angle = graphData.angel;
-
-                    // Data to Port;
-                }
-                else if (graphData.Id == 8)
-                {
-                    lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-
-                    el8.Height = graphData.height;
-                    el8.Width = graphData.width;
-                    tt8.X = graphData.ex;
-                    tt8.Y = graphData.ey;
-                    rtAngel8.Angle = graphData.angel;
-
-                    // Data to Port;
-                }
-                else if (graphData.Id == 2)
-                {
-                    lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
-
-                    el1.Height = graphData.height;
-                    el1.Width = graphData.width;
-                    tt1.X = graphData.ex;
-                    tt1.Y = graphData.ey;
-                    rtAngel1.Angle = graphData.angel;
-
-                    // Data to Port;
-                }
-
             }
-
         }
         private void D_Click(object sender, RoutedEventArgs e)
         {
@@ -397,6 +430,43 @@ namespace _8F
             if (ellipsesPop.IsSaved)
             {
                 ImplementChanges(2);
+            }
+        }
+
+        public void SelectCh1()
+        {
+            
+
+            var currentChannel = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+            if (currentChannel?.Id != 1)
+            {
+                currentChannel.IsSeleted = false;
+                var nextCh = PortCOM.channelDatas.FirstOrDefault(c => c.Id == 1);
+                nextCh.IsSeleted = true;
+                btnCh1.Background = new SolidColorBrush(Colors.DarkGray);
+                btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
+                btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
+                btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
+
+                btnCh1.Background = new SolidColorBrush(Colors.LightGreen);                
+            }
+        }
+
+        private void btnCh_Click(object sender, RoutedEventArgs e)
+        {
+            var chId = Convert.ToUInt32(((Button)sender).Tag);
+            var currentChannel = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+            if (currentChannel?.Id != chId)
+            {
+                currentChannel.IsSeleted = false;
+                var nextCh = PortCOM.channelDatas.FirstOrDefault(c => c.Id == chId);
+                nextCh.IsSeleted = true;
+                btnCh1.Background = new SolidColorBrush(Colors.DarkGray);
+                btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
+                btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
+                btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
+                ((Button)sender).Background = new SolidColorBrush(Colors.LightGreen);
+                ImplementChanges(1);
             }
         }
     }
@@ -435,11 +505,23 @@ namespace _8F
                 freqPop.Closing += freqPop_Closing;
                 freqPop.ShowDialog();
             }
-            else if (Header == "Ellipses Setting")
+            else if (Header == "Threshold Setting")
             {
                 ellipsesPop = new CircleSetting("D1");
                 ellipsesPop.Closing += ellipsesPop_Closing;
                 ellipsesPop.ShowDialog();
+            }
+            else if (Header == "Write Configuration")
+            {
+                try
+                {
+                    mainWindow.ImplementChanges(0);
+                    MessageBox.Show("Configuation Write successfully!!");
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show("Error while writing the configuration!!!!");
+                }
             }
             else if (Header == "Save")
             {
@@ -460,12 +542,21 @@ namespace _8F
                         {
                             // Save document
                             filename = dlg.FileName;
-                        }
-                    }
-                    string conecnt = JsonConvert.SerializeObject(PortCOM.graphDatas);
-                    File.WriteAllText(filename, conecnt);
 
-                    MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                            string conecnt = JsonConvert.SerializeObject(PortCOM.channelDatas);
+                            File.WriteAllText(filename, conecnt);
+
+                            //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                        }
+
+                    } else
+                    {
+                        string conecnt = JsonConvert.SerializeObject(PortCOM.channelDatas);
+                        File.WriteAllText(filename, conecnt);
+
+                        //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                    }
+                    
                 }
                 catch (Exception ex)
                 {
@@ -490,16 +581,18 @@ namespace _8F
                     {
                         // Save document
                         filename = dlg.FileName;
+
+                        string conecnt = JsonConvert.SerializeObject(PortCOM.channelDatas);
+                        File.WriteAllText(filename, conecnt);
+
+                        //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                     }
 
-                    string conecnt = JsonConvert.SerializeObject(PortCOM.graphDatas);
-                    File.WriteAllText(filename, conecnt);
-
-                    MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                    
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error while saving the configation file!!!!");
+                    MessageBox.Show("Error while saving the configuration file!!!!");
                 }
             }
             else if (Header == "Open")
@@ -518,19 +611,19 @@ namespace _8F
                     if (result == true)
                     {
                         string data = File.ReadAllText(dialog.FileName);
-                        PortCOM.graphDatas = JsonConvert.DeserializeObject<List<GraphData>>(data)
-                            ;
+                        PortCOM.channelDatas = JsonConvert.DeserializeObject<List<ChannelData>>(data);
                         // Open document
                         filename = dialog.FileName;
+                        mainWindow.SelectCh1();
+                        mainWindow.ImplementChanges(0);
                     }
 
-                    mainWindow.ImplementChanges(0);
+                    
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error while loading the configation file!!!!");
+                    MessageBox.Show("Error while loading the configuration file!!!!");
                 }
-
             }
 
             else if (Header == "New")

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,14 +20,15 @@ namespace _8F
     /// </summary>
     public partial class CircleSetting : Window
     {
-        public bool IsSaved = false; 
+        public bool IsSaved = false;
+        public PortCOM portCOM;
         public CircleSetting(string selectChannel)
         {
             InitializeComponent();
 
-            ddlFrChennel.ItemsSource = PortCOM.graphDatas.Select(x=> x.Name).ToList();
+            ddlFrChennel.ItemsSource = PortCOM.channelDatas.FirstOrDefault(c=> c.IsSeleted == true).graphDatas.Select(x=> x.Name).ToList();
             ddlFrChennel.SelectedIndex = 0;
-            var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == selectChannel);
+            var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == selectChannel);
             if (Gdata != null)
             {
                 //txtFreq.Text = Gdata.freq;
@@ -50,7 +52,8 @@ namespace _8F
         {
             try
             {
-                var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
+                var ch = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+                var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
                 if (Gdata != null)
                 {
                     //Gdata.freq = txtFreq.Text;
@@ -61,6 +64,15 @@ namespace _8F
                     Gdata.ex = Convert.ToDouble(txtX_Shift.Text);
                     Gdata.ey = Convert.ToDouble(txtY_Shift.Text);
                     Gdata.angel = Convert.ToDouble(txtAngel.Text);
+
+                    ElliplseWrite ellipseWrite = new ElliplseWrite();
+                    ellipseWrite.FC = 5;
+                    ellipseWrite.CN = ch.Id;
+                    ellipseWrite.ED = new List<Elliplse>();
+
+                    Elliplse elliplse = new Elliplse() { FN = Gdata.Id, EId = Gdata.Id, a = Gdata.height, b = Gdata.width, t = Gdata.angel, x = Gdata.ex, y = Gdata.ey };
+                    ellipseWrite.ED.Add(elliplse);
+                    portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
                 }
                 IsSaved = true;
                 lblMsg.Content = "Configuration Saved!!!";
@@ -73,7 +85,7 @@ namespace _8F
 
         private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var Gdata = PortCOM.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
+            var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
             if (Gdata != null)
             {
                 //txtFreq.Text = Gdata.freq;
