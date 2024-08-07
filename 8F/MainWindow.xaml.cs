@@ -24,7 +24,7 @@ namespace _8F
     {
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
         public CircleSetting ellipsesPop { get; set; }
-        PortCOM portCOM;
+        public PortCOM portCOM;
         public MainWindow()
         {
             InitializeComponent();
@@ -422,6 +422,7 @@ namespace _8F
         {
             ellipsesPop = new CircleSetting(((Button)sender).Name);
             ellipsesPop.Closing += ellipsesPop_Closing;
+            ellipsesPop.portCOM = portCOM;
             ellipsesPop.ShowDialog();
         }
 
@@ -503,12 +504,14 @@ namespace _8F
             {
                 freqPop = new Freq();
                 freqPop.Closing += freqPop_Closing;
+                freqPop.portCOM = mainWindow.portCOM;
                 freqPop.ShowDialog();
             }
             else if (Header == "Threshold Setting")
             {
                 ellipsesPop = new CircleSetting("D1");
                 ellipsesPop.Closing += ellipsesPop_Closing;
+                ellipsesPop.portCOM = mainWindow.portCOM;
                 ellipsesPop.ShowDialog();
             }
             else if (Header == "Write Configuration")
