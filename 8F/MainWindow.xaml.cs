@@ -35,7 +35,38 @@ namespace _8F
         {
             InitializeComponent();
             portCOM = new PortCOM();
-            portCOM.InitialPort("COM6");
+            string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
+            portCOM.InitialPort(portName);
+
+            int chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]); 
+            if (chNo == 1)
+            {
+                btnCh1.Visibility = Visibility.Visible;
+                btnCh2.Visibility = Visibility.Hidden;
+                btnCh3.Visibility = Visibility.Hidden;
+                btnCh4.Visibility = Visibility.Hidden;
+            }
+            else if (chNo == 2)
+            {
+                btnCh1.Visibility = Visibility.Visible;
+                btnCh2.Visibility = Visibility.Visible;
+                btnCh3.Visibility = Visibility.Hidden;
+                btnCh4.Visibility = Visibility.Hidden;
+            }
+            else if (chNo == 3)
+            {
+                btnCh1.Visibility = Visibility.Visible;
+                btnCh2.Visibility = Visibility.Visible;
+                btnCh3.Visibility = Visibility.Visible;
+                btnCh4.Visibility = Visibility.Hidden;
+            }
+            else if (chNo == 4)
+            {
+                btnCh1.Visibility = Visibility.Visible;
+                btnCh2.Visibility = Visibility.Visible;
+                btnCh3.Visibility = Visibility.Visible;
+                btnCh4.Visibility = Visibility.Visible;
+            }
 
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
@@ -67,13 +98,7 @@ namespace _8F
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(10000000);
             dispatcherTimer.Start();
-            //PortCOM portCOM = new PortCOM();
-            //portCOM.InitialPort("COM4");
-            //portCOM.ReadFreqAndGain();
-
-            //portCOM.WriteBalance();
-            //portCOM.ReadGraphData();
-            //portCOM.WriteFreqAndGain("1", "03590", "45");
+           
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
