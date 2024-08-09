@@ -78,11 +78,11 @@
                         Canvas.Left="0"
                         Canvas.Top="0" />
 
-                    <TextBlock Name="lblFreq1" > 
+                    <TextBlock Name="lblFreq1" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" > 
                        
                     </TextBlock>
 
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY1" > 
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY1"  > 
                        
                     </TextBlock>
 
@@ -132,11 +132,11 @@
         Height="250"
         Canvas.Left="0"
         Canvas.Top="0" />
-                    <TextBlock Name="lblFreq2" >
+                    <TextBlock Name="lblFreq2" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
                     
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY2" >
+                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY2"  >
 
                     </TextBlock>
 
@@ -184,7 +184,7 @@
 Height="250"
 Canvas.Left="0"
 Canvas.Top="0" />
-                    <TextBlock Name="lblFreq3" >
+                    <TextBlock Name="lblFreq3" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
 
@@ -237,7 +237,7 @@ Canvas.Top="227" />
 Height="250"
 Canvas.Left="0"
 Canvas.Top="0" />
-                    <TextBlock Name="lblFreq4" >
+                    <TextBlock Name="lblFreq4" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
 
@@ -289,7 +289,7 @@ Canvas.Top="227" />
 Height="250"
 Canvas.Left="0"
 Canvas.Top="0" />
-                    <TextBlock Name="lblFreq5" >
+                    <TextBlock Name="lblFreq5" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
 
@@ -340,7 +340,7 @@ Canvas.Top="227" />
 Height="250"
 Canvas.Left="0"
 Canvas.Top="0" />
-                    <TextBlock Name="lblFreq6" >
+                    <TextBlock Name="lblFreq6" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
 
@@ -391,7 +391,7 @@ Canvas.Top="227" />
 Height="250"
 Canvas.Left="0"
 Canvas.Top="0" />
-                    <TextBlock Name="lblFreq7" >
+                    <TextBlock Name="lblFreq7" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
 
@@ -442,7 +442,7 @@ Canvas.Top="227" />
 Height="250"
 Canvas.Left="0"
 Canvas.Top="0" />
-                    <TextBlock Name="lblFreq8" >
+                    <TextBlock Name="lblFreq8" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
 
@@ -498,13 +498,31 @@ Canvas.Top="227" />
                 <ColumnDefinition/>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Button Content="Balance" Click="btnBalance_Click" Name="btnBalance" Grid.Column="0" Grid.Row="0" />
-            <Button Content="Test" Name="btnTest" Click="btnTest_Click" Grid.Column="1" Grid.Row="0" />
-            <Button Content="Clear" Name="btnClear" Click="btnClear_Click" Grid.Column="2" Grid.Row="0" />
-            <Button Content="Result Count - 0" Name="btnCounter"  Grid.Column="3" Grid.Row="0" />
-            <Button Content="Reset Counter" Name="btnResetCounter" Click="btnResetCounter_Click" Grid.Column="4" Grid.Row="0" />
+            <Border Width="150" Height="80" Name="btnConfigSave" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Balance" ></Label>
+            </Border>
+
+            <Border Width="150" Height="80" Name="btnTest_Click" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Test" ></Label>
+            </Border>
+
+            <Border Width="150" Height="80" Name="btnClear_Click" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Clear" ></Label>
+            </Border>
+
+            <Border Width="150" Height="80" Name="btnResetCounter_Click" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="3" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Reset Count" ></Label>
+            </Border>
+
+            <!--<Button Content="Balance" Click="btnBalance_Click" Name="btnBalance" Grid.Column="0" Grid.Row="0" />-->
+            <!--<Button Content="Test" Name="btnTest" Click="btnTest_Click" Grid.Column="1" Grid.Row="0" />-->
+            <!--<Button Content="Clear" Name="btnClear" Click="btnClear_Click" Grid.Column="2" Grid.Row="0" />-->
+            <!--<Button Content="Reset Counter" Name="btnResetCounter" Click="btnResetCounter_Click" Grid.Column="3" Grid.Row="0" />-->
+            <Button Content="Result Count - 0" Name="btnCounter"  Grid.Column="4" Grid.Row="0" />
+            <Button Content="" Name="btnOverallResult"  Grid.Column="5" Grid.Row="0" />
 
 
         </Grid>

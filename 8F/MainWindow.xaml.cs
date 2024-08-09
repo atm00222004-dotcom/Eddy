@@ -30,6 +30,7 @@ namespace _8F
         public CircleSetting ellipsesPop { get; set; }
         public PortCOM portCOM;
         DispatcherTimer dispatcherTimer;
+        int chNo;
         int factor = 20;
         public MainWindow()
         {
@@ -38,7 +39,7 @@ namespace _8F
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
             portCOM.InitialPort(portName);
 
-            int chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]); 
+            chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]); 
             if (chNo == 1)
             {
                 btnCh1.Visibility = Visibility.Visible;
@@ -355,7 +356,7 @@ namespace _8F
         {
             if (ChangeType== 0)
             {
-                FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = 8, NC = 4 };
+                FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = 8, NC = chNo };
                 portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
 
                 Mode mode = new Mode() { FC = 2, M = 0 };
@@ -380,7 +381,7 @@ namespace _8F
                     {
                         if (graphData.Id == 1)
                         {
-                            lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                            lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
                             el1.Height = graphData.height/ factor;
                             el1.Width = graphData.width/ factor;
@@ -390,7 +391,7 @@ namespace _8F
                         }
                         else if (graphData.Id == 2)
                         {
-                            lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                            lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
                             el2.Height = graphData.height / factor;
                             el2.Width = graphData.width / factor;
@@ -400,7 +401,7 @@ namespace _8F
                         }
                         else if (graphData.Id == 3)
                         {
-                            lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                            lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
                             el3.Height = graphData.height / factor;
                             el3.Width = graphData.width / factor;
@@ -410,7 +411,7 @@ namespace _8F
                         }
                         else if (graphData.Id == 4)
                         {
-                            lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                            lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
                             el4.Height = graphData.height / factor;
                             el4.Width = graphData.width / factor;
@@ -420,7 +421,7 @@ namespace _8F
                         }
                         else if (graphData.Id == 5)
                         {
-                            lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                            lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
                             el5.Height = graphData.height / factor;
                             el5.Width = graphData.width / factor;
@@ -430,7 +431,7 @@ namespace _8F
                         }
                         else if (graphData.Id == 6)
                         {
-                            lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                            lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
                             el6.Height = graphData.height / factor;
                             el6.Width = graphData.width / factor;
@@ -440,7 +441,7 @@ namespace _8F
                         }
                         else if (graphData.Id == 7)
                         {
-                            lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                            lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
                             el7.Height = graphData.height / factor;
                             el7.Width = graphData.width / factor;
@@ -450,7 +451,7 @@ namespace _8F
                         }
                         else if (graphData.Id == 8)
                         {
-                            lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
+                            lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
                             el8.Height = graphData.height / factor;
                             el8.Width = graphData.width / factor;
