@@ -31,9 +31,9 @@ namespace _8F
             var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == "D1");
             if (Gdata != null)
             {
-                txtFreq.Text = Gdata.freq;
-                txtGain.Text = Gdata.gain;
-                txtPhase.Text = Gdata.phase;
+                txtFreq.Text = Gdata.freq.ToString();
+                txtGain.Text = Gdata.gain.ToString();
+                txtPhase.Text = Gdata.phase.ToString();
 
                 //txtHeight.Text = Gdata.height.ToString();
                 //txtWidth.Text = Gdata.width.ToString();
@@ -56,9 +56,9 @@ namespace _8F
                 var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
                 if (Gdata != null)
                 {
-                    Gdata.freq = txtFreq.Text;
-                    Gdata.gain = txtGain.Text;
-                    Gdata.phase = txtPhase.Text;
+                    Gdata.freq = Convert.ToInt16(txtFreq.Text);
+                    Gdata.gain = Convert.ToInt16(txtGain.Text);
+                    Gdata.phase = Convert.ToInt16(txtPhase.Text);
 
                     //Gdata.height = Convert.ToDouble(txtHeight.Text);
                     //Gdata.width = Convert.ToDouble(txtWidth.Text);
@@ -89,9 +89,9 @@ namespace _8F
             var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
             if (Gdata != null)
             {
-                txtFreq.Text = Gdata.freq;
-                txtGain.Text = Gdata.gain;
-                txtPhase.Text = Gdata.phase;
+                txtFreq.Text = Gdata.freq.ToString();
+                txtGain.Text = Gdata.gain.ToString();
+                txtPhase.Text = Gdata.phase.ToString();
 
                 //txtHeight.Text = Gdata.height.ToString();
                 //txtWidth.Text = Gdata.width.ToString();

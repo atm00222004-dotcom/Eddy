@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
@@ -11,6 +12,9 @@ namespace _8F
     {
         public SerialPort port;
         public static List<ChannelData> channelDatas;
+        public static List<Response> responses;
+        public static bool IsResponseRefreshRequired = false;
+        public static int ResultCount = 0;
         public void InitialPort(string portName)
         {
             port = new SerialPort
@@ -24,6 +28,8 @@ namespace _8F
                 ReadTimeout = 500,
                 WriteTimeout = 2000
             };
+            responses = new List<Response>();
+            //port.DataReceived +=serialPort_DataReceived;
         }
         public bool ReadFreqAndGain()
         {
@@ -90,10 +96,41 @@ namespace _8F
             return false;
         }
 
+        private void serialPort_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
+        {
+            try
+            {
+                SerialPort sp = (SerialPort)sender;
+                string indata = sp.ReadExisting();
+                if (!string.IsNullOrEmpty(indata))
+                {
+                    var res = JsonConvert.DeserializeObject<Response>(indata);
+                    //foreach (var item in res.FD)
+                    //{
+                    //    item.X = item.X / 10;
+                    //    item.Y = item.X / 10;
+                    //}
+                    responses.Add(res);
+                    ResultCount = ResultCount + 1;
+                    IsResponseRefreshRequired = true;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
         public bool WriteData(string data)
         {
             try
             {
+                if (port.IsOpen)
+                {
+                    port.Close();
+                }
+
+                port.DataReceived += null;
                 if (!port.IsOpen)
                 {
                     port.Open();
@@ -109,9 +146,19 @@ namespace _8F
                     offset += r;
                     toread -= r;
                 }
+                if (port.IsOpen)
+                {
+                    port.Close();
+                }
 
+                port.DataReceived += serialPort_DataReceived;
+                if (!port.IsOpen)
+                {
+                    port.Open();
+                }
                 if (result[0] == '0')
                 {
+
                     return true;
                 }
 
@@ -171,6 +218,7 @@ namespace _8F
             return false;
         }
 
+
     }
 
     public class ChannelData
@@ -183,13 +231,13 @@ namespace _8F
     {
         public int Id = 0;
         public string Name = "D";
-        public string freq = "00100";
-        public string gain = "0";
-        public string phase = "0";
-        public double height = 100;
-        public double width = 70;
-        public double ex = -33;
-        public double ey = -48;
+        public int freq = 100;
+        public int gain = 10;
+        public int phase = 10;
+        public double height = 2000;
+        public double width = 1400;
+        public double ex = -660;
+        public double ey = -960;
         public double angel = 0;
     }
 
@@ -197,7 +245,7 @@ namespace _8F
     {
         public int FC;
         public int CN;
-        public int R;
+        public int OR;
         public List<FreqResult> FD;
     }
     public class FreqResult
@@ -218,9 +266,9 @@ namespace _8F
     public class Frequency
     {
         public int FN;
-        public string F;
-        public string G;
-        public string P;
+        public int F;
+        public int G;
+        public int P;
     }
 
     public class ElliplseWrite
@@ -239,6 +287,25 @@ namespace _8F
         public double t;
         public double x;
         public double y;
-    } 
+    }
+
+    public class FrequencyCount
+    {
+        public int FC;
+        public int C;
+        public int NC;
+    }
+
+    public class Mode
+    {
+        public int FC;
+        public int M;
+    }
+
+    public class BalanceTest
+    {
+        public int FC;
+        public int CN;
+    }
 
 }

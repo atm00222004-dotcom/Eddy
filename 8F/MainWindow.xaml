@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:_8F"
         mc:Ignorable="d"
         Title="8F" 
-        WindowState="Maximized" ResizeMode="NoResize"
+        WindowState="Maximized" ResizeMode="NoResize" Closed="Window_Closed"
         >
 
     <Grid Background="Black">
@@ -115,28 +115,9 @@
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
+                        <Canvas Name="cn1" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
 
-                        <!--<Ellipse Width="4"
-                            Height="4"
-                            Canvas.Left="10"
-                            Canvas.Top="20"
-                             Fill="Green">  
-                        </Ellipse>
-
-                        <Ellipse Width="4"
-                            Height="4"
-                            Canvas.Left="-30"
-                            Canvas.Top="-40"
-                             Fill="Red">        
-                        </Ellipse>
-                        
-                        <Ellipse Width="4"
-                            Height="4"
-                            Canvas.Left="0"
-                            Canvas.Top="0"
-                             Fill="Blue">       
-                        </Ellipse>-->
-                        
                     </Canvas>
 
                     <Button Content="Setting" Name="D1" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
@@ -188,6 +169,8 @@
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
+                        <Canvas Name="cn2" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
                     </Canvas>
 
                     <Button Content="Setting" Name="D2" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
@@ -238,6 +221,8 @@ Canvas.Top="227" />
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
+                        <Canvas Name="cn3" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
                     </Canvas>
 
                     <Button Content="Setting" Name="D3" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
@@ -289,6 +274,8 @@ Canvas.Top="227" />
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
+                        <Canvas Name="cn4" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
                     </Canvas>
 
                     <Button Content="Setting" Name="D4" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
@@ -339,6 +326,8 @@ Canvas.Top="227" />
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
+                        <Canvas Name="cn5" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
                     </Canvas>
                     <Button Content="Setting" Name="D5" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
@@ -388,6 +377,8 @@ Canvas.Top="227" />
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
+                        <Canvas Name="cn6" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
                     </Canvas>
                     <Button Content="Setting" Name="D6" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
@@ -437,6 +428,8 @@ Canvas.Top="227" />
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
+                        <Canvas Name="cn7" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
                     </Canvas>
                     <Button Content="Setting" Name="D7" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
@@ -486,6 +479,8 @@ Canvas.Top="227" />
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
+                        <Canvas Name="cn8" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
                     </Canvas>
                     <Button Content="Setting" Name="D8" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
                 </Canvas>
@@ -505,11 +500,11 @@ Canvas.Top="227" />
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Button Content="Balance" Grid.Column="0" Grid.Row="0" />
-            <Button Content="Test" Grid.Column="1" Grid.Row="0" />
-            <Button Content="Clear" Grid.Column="2" Grid.Row="0" />
-            <Button Content="Counter" Grid.Column="3" Grid.Row="0" />
-            <Button Content="Reset Counter" Grid.Column="4" Grid.Row="0" />
+            <Button Content="Balance" Click="btnBalance_Click" Name="btnBalance" Grid.Column="0" Grid.Row="0" />
+            <Button Content="Test" Name="btnTest" Click="btnTest_Click" Grid.Column="1" Grid.Row="0" />
+            <Button Content="Clear" Name="btnClear" Click="btnClear_Click" Grid.Column="2" Grid.Row="0" />
+            <Button Content="Result Count - 0" Name="btnCounter"  Grid.Column="3" Grid.Row="0" />
+            <Button Content="Reset Counter" Name="btnResetCounter" Click="btnResetCounter_Click" Grid.Column="4" Grid.Row="0" />
 
 
         </Grid>

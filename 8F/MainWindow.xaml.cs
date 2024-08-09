@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
+using System.IO.Ports;
 using System.Reflection;
 using System.Text;
 using System.Windows;
@@ -14,6 +16,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using File = System.IO.File;
 
 namespace _8F
 {
@@ -25,11 +29,13 @@ namespace _8F
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
         public CircleSetting ellipsesPop { get; set; }
         public PortCOM portCOM;
+        DispatcherTimer dispatcherTimer;
+        int factor = 20;
         public MainWindow()
         {
             InitializeComponent();
             portCOM = new PortCOM();
-            portCOM.InitialPort("COM10");
+            portCOM.InitialPort("COM6");
 
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
@@ -57,6 +63,10 @@ namespace _8F
             InitialGraphData(true);
             ImplementChanges(0);
 
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(10000000);
+            dispatcherTimer.Start();
             //PortCOM portCOM = new PortCOM();
             //portCOM.InitialPort("COM4");
             //portCOM.ReadFreqAndGain();
@@ -66,10 +76,22 @@ namespace _8F
             //portCOM.WriteFreqAndGain("1", "03590", "45");
         }
 
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            if (PortCOM.IsResponseRefreshRequired)
+            {
+                RefreshResponse();
+                btnCounter.Content = "Result Count - " + PortCOM.ResultCount.ToString();
+                PortCOM.IsResponseRefreshRequired = false;
+            }
+        }
+
         public void InitialGraphData(bool IsPayLaod )
         {
             if (IsPayLaod)
             {
+                ClearGraphData();
+
                 for (int i = 10; i < 248; i = i + 10)
                 {
                     Rectangle r1 = new Rectangle();
@@ -306,6 +328,15 @@ namespace _8F
 
         public void ImplementChanges(int ChangeType)
         {
+            if (ChangeType== 0)
+            {
+                FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = 8, NC = 4 };
+                portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
+
+                Mode mode = new Mode() { FC = 2, M = 0 };
+                portCOM.WriteData(JsonConvert.SerializeObject(mode));
+            }
+
             foreach (var ch in PortCOM.channelDatas)
             {
                 foreach (GraphData graphData in ch.graphDatas)
@@ -326,80 +357,80 @@ namespace _8F
                         {
                             lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
-                            el1.Height = graphData.height;
-                            el1.Width = graphData.width;
-                            tt1.X = graphData.ex;
-                            tt1.Y = graphData.ey;
+                            el1.Height = graphData.height/ factor;
+                            el1.Width = graphData.width/ factor;
+                            tt1.X = graphData.ex/ factor;
+                            tt1.Y = graphData.ey/ factor;
                             rtAngel1.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 2)
                         {
                             lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
-                            el2.Height = graphData.height;
-                            el2.Width = graphData.width;
-                            tt2.X = graphData.ex;
-                            tt2.Y = graphData.ey;
+                            el2.Height = graphData.height / factor;
+                            el2.Width = graphData.width / factor;
+                            tt2.X = graphData.ex/ factor;
+                            tt2.Y = graphData.ey / factor;
                             rtAngel2.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 3)
                         {
                             lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
-                            el3.Height = graphData.height;
-                            el3.Width = graphData.width;
-                            tt3.X = graphData.ex;
-                            tt3.Y = graphData.ey;
+                            el3.Height = graphData.height / factor;
+                            el3.Width = graphData.width / factor;
+                            tt3.X = graphData.ex / factor;
+                            tt3.Y = graphData.ey / factor;
                             rtAngel3.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 4)
                         {
                             lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
-                            el4.Height = graphData.height;
-                            el4.Width = graphData.width;
-                            tt4.X = graphData.ex;
-                            tt4.Y = graphData.ey;
+                            el4.Height = graphData.height / factor;
+                            el4.Width = graphData.width / factor;
+                            tt4.X = graphData.ex / factor;
+                            tt4.Y = graphData.ey / factor;
                             rtAngel4.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 5)
                         {
                             lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
-                            el5.Height = graphData.height;
-                            el5.Width = graphData.width;
-                            tt5.X = graphData.ex;
-                            tt5.Y = graphData.ey;
+                            el5.Height = graphData.height / factor;
+                            el5.Width = graphData.width / factor;
+                            tt5.X = graphData.ex / factor;
+                            tt5.Y = graphData.ey / factor;
                             rtAngel5.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 6)
                         {
                             lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
-                            el6.Height = graphData.height;
-                            el6.Width = graphData.width;
-                            tt6.X = graphData.ex;
-                            tt6.Y = graphData.ey;
+                            el6.Height = graphData.height / factor;
+                            el6.Width = graphData.width / factor;
+                            tt6.X = graphData.ex / factor;
+                            tt6.Y = graphData.ey / factor;
                             rtAngel6.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 7)
                         {
                             lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
-                            el7.Height = graphData.height;
-                            el7.Width = graphData.width;
-                            tt7.X = graphData.ex;
-                            tt7.Y = graphData.ey;
+                            el7.Height = graphData.height / factor;
+                            el7.Width = graphData.width / factor;
+                            tt7.X = graphData.ex / factor;
+                            tt7.Y = graphData.ey / factor;
                             rtAngel7.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 8)
                         {
                             lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz," + graphData.gain + "dBP," + graphData.phase + "bD";
 
-                            el8.Height = graphData.height;
-                            el8.Width = graphData.width;
-                            tt8.X = graphData.ex;
-                            tt8.Y = graphData.ey;
+                            el8.Height = graphData.height / factor;
+                            el8.Width = graphData.width / factor;
+                            tt8.X = graphData.ex / factor;
+                            tt8.Y = graphData.ey / factor;
                             rtAngel8.Angle = graphData.angel;
                         }
                     }
@@ -449,7 +480,8 @@ namespace _8F
                 btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
 
-                btnCh1.Background = new SolidColorBrush(Colors.LightGreen);                
+                btnCh1.Background = new SolidColorBrush(Colors.LightGreen);
+                
             }
         }
 
@@ -468,7 +500,211 @@ namespace _8F
                 btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
                 ((Button)sender).Background = new SolidColorBrush(Colors.LightGreen);
                 ImplementChanges(1);
+                PortCOM.IsResponseRefreshRequired = true;
             }
+        }
+
+        private void btnBalance_Click(object sender, RoutedEventArgs e)
+        {
+            BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
+            portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+            
+        }
+
+        private void btnTest_Click(object sender, RoutedEventArgs e)
+        {
+            BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
+            portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+        }
+
+        private void btnClear_Click(object sender, RoutedEventArgs e)
+        {
+            ClearGraphData();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (portCOM.port.IsOpen)
+                portCOM.port.Close();
+        }
+        
+        public void ClearGraphData(bool IsDataClear = true)
+        {
+            if (IsDataClear)
+            {
+                PortCOM.responses = new List<Response>();
+            }
+            cn1.Children.Clear();
+            rResult1.Fill = new SolidColorBrush(Colors.White);
+
+            cn2.Children.Clear();
+            rResult2.Fill = new SolidColorBrush(Colors.White);
+
+            cn3.Children.Clear();
+            rResult3.Fill = new SolidColorBrush(Colors.White);
+
+            cn4.Children.Clear();
+            rResult4.Fill = new SolidColorBrush(Colors.White);
+
+            cn5.Children.Clear();
+            rResult5.Fill = new SolidColorBrush(Colors.White);
+
+            cn6.Children.Clear();
+            rResult6.Fill = new SolidColorBrush(Colors.White);
+
+            cn7.Children.Clear();
+            rResult7.Fill = new SolidColorBrush(Colors.White);
+
+            cn8.Children.Clear();
+            rResult8.Fill = new SolidColorBrush(Colors.White);
+        }
+
+        public void RefreshResponse()
+        {
+            ClearGraphData(false);
+            var selectedChannel = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
+            var selectedChannelData = PortCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList();
+            foreach (var item in selectedChannelData)
+            {
+                foreach (var fd in item.FD)
+                {
+                    Ellipse el1 = new Ellipse();
+                    el1.Height = 4;
+                    el1.Width = 4;
+                    var left = fd.X / factor;
+                    var top = fd.Y / factor;
+                    if (left >125 )
+                    {
+                        left = 125;
+                    }
+                    if (top > 125)
+                    {
+                        top = 125;
+                    }
+                    Canvas.SetLeft(el1, left);
+                    Canvas.SetTop(el1, top);
+                    //r1.Stroke = new SolidColorBrush(Colors.Black);
+                    if (selectedChannelData.IndexOf(item) == selectedChannelData.Count-1)
+                    {
+                        el1.Fill = new SolidColorBrush(Colors.Blue);
+                    }
+                    else
+                    {
+                        if (fd.R == 1)
+                        {
+                            el1.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            el1.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                    
+                    if (fd.FN == 1)
+                    {
+                        cn1.Children.Add(el1);
+                        if (fd.R == 1)
+                        {
+                            rResult1.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            rResult1.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                    else if (fd.FN == 2)
+                    {
+                        cn2.Children.Add(el1);
+                        if (fd.R == 1)
+                        {
+                            rResult2.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            rResult2.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                    else if (fd.FN == 3)
+                    {
+                        cn3.Children.Add(el1);
+                        if (fd.R == 1)
+                        {
+                            rResult3.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            rResult3.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                    else if (fd.FN == 4)
+                    {
+                        cn4.Children.Add(el1);
+                        if (fd.R == 1)
+                        {
+                            rResult4.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            rResult4.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                    else if (fd.FN == 5)
+                    {
+                        cn5.Children.Add(el1);
+                        if (fd.R == 1)
+                        {
+                            rResult5.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            rResult5.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                    else if (fd.FN == 6)
+                    {
+                        cn6.Children.Add(el1);
+                        if (fd.R == 1)
+                        {
+                            rResult6.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            rResult6.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                    else if (fd.FN == 7)
+                    {
+                        cn7.Children.Add(el1);
+                        if (fd.R == 1)
+                        {
+                            rResult7.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            rResult7.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                    else if (fd.FN == 8)
+                    {
+                        cn8.Children.Add(el1);
+                        if (fd.R == 1)
+                        {
+                            rResult8.Fill = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            rResult8.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                    }
+                }
+                
+            }
+        }
+
+        private void btnResetCounter_Click(object sender, RoutedEventArgs e)
+        {
+            PortCOM.ResultCount = 0;
+            btnCounter.Content = "Result Count - " + PortCOM.ResultCount.ToString();
         }
     }
 
@@ -618,6 +854,8 @@ namespace _8F
                         // Open document
                         filename = dialog.FileName;
                         mainWindow.SelectCh1();
+                        mainWindow.ClearGraphData();
+                        
                         mainWindow.ImplementChanges(0);
                     }
 
@@ -633,6 +871,7 @@ namespace _8F
             {
                 filename = null;
                 mainWindow.InitialGraphData(false);
+                mainWindow.ClearGraphData();                
                 mainWindow.ImplementChanges(0);
             }
 
