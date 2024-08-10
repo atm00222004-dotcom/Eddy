@@ -367,18 +367,18 @@ namespace _8F
 
             foreach (var ch in PortCOM.channelDatas)
             {
+                FrequencyWrite frequencyWrite = new FrequencyWrite();
+                frequencyWrite.FC = 4;
+                frequencyWrite.CN = ch.Id;
+                frequencyWrite.FD = new List<Frequency>();
+
+                ElliplseWrite ellipseWrite = new ElliplseWrite();
+                ellipseWrite.FC = 5;
+                ellipseWrite.CN = ch.Id;
+                ellipseWrite.ED = new List<Elliplse>();
+
                 foreach (GraphData graphData in ch.graphDatas)
                 {
-                    FrequencyWrite frequencyWrite = new FrequencyWrite();
-                    frequencyWrite.FC = 4;
-                    frequencyWrite.CN = ch.Id;
-                    frequencyWrite.FD = new List<Frequency>();
-
-                    ElliplseWrite ellipseWrite = new ElliplseWrite();
-                    ellipseWrite.FC = 5;
-                    ellipseWrite.CN = ch.Id;
-                    ellipseWrite.ED = new List<Elliplse>();
-
                     if (ch.IsSeleted == true)
                     {
                         if (graphData.Id == 1)
@@ -474,6 +474,12 @@ namespace _8F
                         ellipseWrite.ED.Add(elliplse);
                         portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
                     }
+                }
+
+                if (ChangeType == 0)
+                {  
+                    portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                    portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
                 }
             }
         }
