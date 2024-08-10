@@ -468,11 +468,11 @@ namespace _8F
                         // write data to port for freq and setting
                         Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase };
                         frequencyWrite.FD.Add(frequency);
-                        portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        
 
                         Elliplse elliplse = new Elliplse() { FN= graphData.Id, EId= graphData.Id, a = graphData.height, b= graphData.width, t = graphData.angel, x = graphData.ex, y = graphData.ey };
                         ellipseWrite.ED.Add(elliplse);
-                        portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+  
                     }
                 }
 
