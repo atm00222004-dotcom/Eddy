@@ -17,8 +17,10 @@ namespace _8F
         public static int ResultCount = 0;
         public static int ResultOkCount = 0;
         public static int ResultOkNotCount = 0;
+        public static string PortName; 
         public void InitialPort(string portName)
         {
+            PortName = portName;
             port = new SerialPort
             {
                 BaudRate = 115200,
@@ -141,7 +143,8 @@ namespace _8F
                     port.Close();
                 }
 
-                port.DataReceived += null;
+                InitialPort(PortName);
+
                 if (!port.IsOpen)
                 {
                     port.Open();
