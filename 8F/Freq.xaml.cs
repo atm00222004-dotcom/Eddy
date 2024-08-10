@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -52,36 +53,84 @@ namespace _8F
         {
             try
             {
-                var ch = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
-                var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
-                if (Gdata != null)
+                var msg = Validaton();
+                if (msg.Count == 0)
                 {
-                    Gdata.freq = Convert.ToInt16(txtFreq.Text);
-                    Gdata.gain = Convert.ToInt16(txtGain.Text);
-                    Gdata.phase = Convert.ToInt16(txtPhase.Text);
+                    var ch = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+                    var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
+                    if (Gdata != null)
+                    {
+                        Gdata.freq = Convert.ToInt32(txtFreq.Text);
+                        Gdata.gain = Convert.ToInt32(txtGain.Text);
+                        Gdata.phase = Convert.ToInt32(txtPhase.Text);
 
-                    //Gdata.height = Convert.ToDouble(txtHeight.Text);
-                    //Gdata.width = Convert.ToDouble(txtWidth.Text);
-                    //Gdata.ex = Convert.ToDouble(txtX_Shift.Text);
-                    //Gdata.ey = Convert.ToDouble(txtY_Shift.Text);
-                    //Gdata.angel = Convert.ToDouble(txtAngel.Text);
-                    FrequencyWrite frequencyWrite = new FrequencyWrite();
-                    frequencyWrite.FC = 4;
-                    frequencyWrite.CN = ch.Id;
-                    frequencyWrite.FD = new List<Frequency>();
+                        FrequencyWrite frequencyWrite = new FrequencyWrite();
+                        frequencyWrite.FC = 4;
+                        frequencyWrite.CN = ch.Id;
+                        frequencyWrite.FD = new List<Frequency>();
 
-                    Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase };
-                    frequencyWrite.FD.Add(frequency);
-                    portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase };
+                        frequencyWrite.FD.Add(frequency);
+                        portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
 
+                    }
+                    IsSaved = true;
+                    lblMsg.Content = "Configuration Saved!!!";
                 }
-                IsSaved = true;
-                lblMsg.Content = "Configuration Saved!!!";
+                else
+                {
+                    lblMsg.Content = "Validatoin Error:-";
+                    foreach (var m in msg)
+                    {
+                        lblMsg.Content = lblMsg.Content + "\r\n" + (msg.IndexOf(m) + 1).ToString() + ". " + m ;
+                    }
+                    //lblMsg.Content = "Error while saving the Configuration!!!";
+                }
             }
             catch (Exception ex)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
+        }
+
+        public List<String> Validaton()
+        {
+            List<String> validationMsg = new List<string>();
+            if (string.IsNullOrEmpty(txtFreq.Text))
+            {
+                validationMsg.Add("Frequency is required and the range is 400 to 50000.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtFreq.Text) < 400 || Convert.ToInt32(txtFreq.Text) > 50000)
+                {
+                    validationMsg.Add("Frequency is required and the range is 400 to 50000.");
+                }
+            }
+            if (string.IsNullOrEmpty(txtGain.Text))
+            {
+                validationMsg.Add("Gain is required and the range is 10 to 56.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtGain.Text) < 10 || Convert.ToInt32(txtGain.Text) > 56)
+                {
+                    validationMsg.Add("Gain is required and the range is 10 to 56.");
+                }
+            }
+            if (string.IsNullOrEmpty(txtPhase.Text))
+            {
+                validationMsg.Add("Phase is required and the range is 0 to 359.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtPhase.Text) < 0 || Convert.ToInt32(txtPhase.Text) > 359)
+                {
+                    validationMsg.Add("Phase is required and the range is 0 to 359.");
+                }
+            }
+
+            return validationMsg;
         }
 
         private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -101,5 +150,13 @@ namespace _8F
             }
 
         }
+
+        private void PreviewTextInput_NumericOnly(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+       
     }
 }

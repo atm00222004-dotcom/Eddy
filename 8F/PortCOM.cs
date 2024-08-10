@@ -15,6 +15,8 @@ namespace _8F
         public static List<Response> responses;
         public static bool IsResponseRefreshRequired = false;
         public static int ResultCount = 0;
+        public static int ResultOkCount = 0;
+        public static int ResultOkNotCount = 0;
         public void InitialPort(string portName)
         {
             port = new SerialPort
@@ -110,8 +112,17 @@ namespace _8F
                     //    item.X = item.X / 10;
                     //    item.Y = item.X / 10;
                     //}
+                    
                     responses.Add(res);
-                    ResultCount = ResultCount + 1;
+                    if (res.OR == 1)
+                    {
+                        ResultOkCount = ResultOkCount + 1;
+                    }
+                    else
+                    {
+                        ResultOkNotCount = ResultOkNotCount + 1;
+                    }
+                    ResultCount = ResultOkCount+ ResultOkNotCount;
                     IsResponseRefreshRequired = true;
                 }
             }
@@ -231,9 +242,9 @@ namespace _8F
     {
         public int Id = 0;
         public string Name = "D";
-        public int freq = 100;
+        public int freq = 400;
         public int gain = 10;
-        public int phase = 10;
+        public int phase = 0;
         public double height = 2000;
         public double width = 1400;
         public double ex = -660;

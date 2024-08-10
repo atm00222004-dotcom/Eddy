@@ -6,12 +6,13 @@
         xmlns:local="clr-namespace:_8F"
         mc:Ignorable="d"
         Title="8F" 
+WindowStyle="None" 
         WindowState="Maximized" ResizeMode="NoResize" Closed="Window_Closed"
         >
 
-    <Grid Background="Black">
+    <Grid Background="Black" Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height=".5*"/>
+            <RowDefinition Height=".8*"/>
             <RowDefinition Height=".6*"/>
             <RowDefinition Height="7*"/>
             <RowDefinition Height="2*"/>
@@ -20,7 +21,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Menu VerticalAlignment="Stretch" FontSize="16" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
+        <Menu Background="SaddleBrown"  VerticalAlignment="Center" Height="50" FontSize="28" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
             <Menu.ItemContainerStyle>
                 <Style TargetType="{x:Type MenuItem}">
                     <Setter Property="Command" Value="{Binding Command}" />
@@ -52,10 +53,10 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <Button Background="DarkGray" Name="btnCh1" Tag="1" Click="btnCh_Click" Content="Channel-1" Grid.Column="0" Grid.Row="0" />
-                <Button Background="DarkGray" Name="btnCh2" Tag="2" Content="Channel-2" Click="btnCh_Click" Grid.Column="1" Grid.Row="0" />
-                <Button Background="DarkGray" Name="btnCh3" Tag="3" Content="Channel-3" Click="btnCh_Click" Grid.Column="2" Grid.Row="0" />
-                <Button Background="DarkGray" Name="btnCh4"  Tag="4" Content="Channel-4" Click="btnCh_Click" Grid.Column="3" Grid.Row="0" />
+                <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh1" Tag="1" Click="btnCh_Click" Content="Channel-1" Grid.Column="0" Grid.Row="0" />
+                <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh2" Tag="2" Content="Channel-2" Click="btnCh_Click" Grid.Column="1" Grid.Row="0" />
+                <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh3" Tag="3" Content="Channel-3" Click="btnCh_Click" Grid.Column="2" Grid.Row="0" />
+                <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh4"  Tag="4" Content="Channel-4" Click="btnCh_Click" Grid.Column="3" Grid.Row="0" />
             </Grid>
         </Grid>
 
@@ -71,7 +72,7 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Border Cursor="Hand" x:Name="br1" Margin="2,2,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
+            <Border x:Name="br1" Margin="2,2,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
                 <Canvas  x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Rectangle Width="248" Fill="White"
                         Height="250"
@@ -82,9 +83,10 @@
                        
                     </TextBlock>
 
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY1"  > 
-                       
-                    </TextBlock>
+                    <Canvas Canvas.Left="248" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right" Canvas.Right="1" Name="lblGraphXY1" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+                        </TextBlock>
+                    </Canvas>
 
                     <Rectangle Width="248"
                         Height=".5"
@@ -98,7 +100,7 @@
                         Fill="Black"
                         Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult1"
+                    <Rectangle Width="20" Name="rResult1" Panel.ZIndex="1000"
                         Height="20"
                         Canvas.Left="225"
                         Fill="white"
@@ -120,12 +122,14 @@
 
                     </Canvas>
 
-                    <Button Content="Setting" Name="D1" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
-
+                    <!--<Button Content="Setting" Name="D1" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>-->
+                    <Border Cursor="Hand" Panel.ZIndex="1000" Width="42" Height="24" Name="D1" MouseDown="D_Click" Canvas.Left="5" Canvas.Top="225" Background="#305371" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                        <Label Foreground="White" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Setting" ></Label>
+                    </Border>
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br2" Margin="2,2,2,2" Grid.Row="0" Grid.Column="1" BorderThickness="2" >
+            <Border x:Name="br2" Margin="2,2,2,2" Grid.Row="0" Grid.Column="1" BorderThickness="2" >
                 <Canvas  x:Name="Canvas2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
 
                     <Rectangle Width="248" Fill="White"
@@ -135,10 +139,10 @@
                     <TextBlock Name="lblFreq2" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
-                    
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY2"  >
-
-                    </TextBlock>
+                    <Canvas Canvas.Left="248" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right" Canvas.Right="1" Name="lblGraphXY2" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+                        </TextBlock>
+                    </Canvas>
 
                     <Rectangle Width="248"
         Height=".5"
@@ -152,7 +156,7 @@
         Fill="Black"
         Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult2"
+                    <Rectangle Width="20" Name="rResult2" Panel.ZIndex="1000"
         Height="20"
         Canvas.Left="225"
         Fill="white"
@@ -173,11 +177,13 @@
                         </Canvas>
                     </Canvas>
 
-                    <Button Content="Setting" Name="D2" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
+                    <Border Cursor="Hand" Panel.ZIndex="1000" Width="42" Height="24" Name="D2" MouseDown="D_Click" Canvas.Left="5" Canvas.Top="225" Background="#305371" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                        <Label Foreground="White" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Setting" ></Label>
+                    </Border>
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br3" Margin="2,2,2,2" Grid.Row="0" Grid.Column="2" BorderThickness="2" >
+            <Border x:Name="br3" Margin="2,2,2,2" Grid.Row="0" Grid.Column="2" BorderThickness="2" >
                 <Canvas  x:Name="Canvas3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
 
                     <Rectangle Width="248" Fill="White"
@@ -188,9 +194,10 @@ Canvas.Top="0" />
 
                     </TextBlock>
 
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY3" >
-
-                    </TextBlock>
+                    <Canvas Canvas.Left="248" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right" Canvas.Right="1" Name="lblGraphXY3" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+                        </TextBlock>
+                    </Canvas>
 
                     <Rectangle Width="248"
 Height=".5"
@@ -204,7 +211,7 @@ Canvas.Left="124"
 Fill="Black"
 Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult3"
+                    <Rectangle Width="20" Name="rResult3" Panel.ZIndex="1000"
 Height="20"
 Canvas.Left="225"
 Fill="white"
@@ -225,12 +232,14 @@ Canvas.Top="227" />
                         </Canvas>
                     </Canvas>
 
-                    <Button Content="Setting" Name="D3" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
-                    
+                    <Border Cursor="Hand" Panel.ZIndex="1000" Width="42" Height="24" Name="D3" MouseDown="D_Click" Canvas.Left="5" Canvas.Top="225" Background="#305371" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                        <Label Foreground="White" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Setting" ></Label>
+                    </Border>
+
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br4" Margin="2,2,2,2" Grid.Row="0" Grid.Column="3" BorderThickness="2" >
+            <Border x:Name="br4" Margin="2,2,2,2" Grid.Row="0" Grid.Column="3" BorderThickness="2" >
                 <Canvas  x:Name="Canvas4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
 
                     <Rectangle Width="248" Fill="White"
@@ -241,9 +250,10 @@ Canvas.Top="0" />
 
                     </TextBlock>
 
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY4" >
-
-                    </TextBlock>
+                    <Canvas Canvas.Left="248" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right" Canvas.Right="1" Name="lblGraphXY4" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+                        </TextBlock>
+                    </Canvas>
 
                     <Rectangle Width="248"
 Height=".5"
@@ -257,7 +267,7 @@ Canvas.Left="124"
 Fill="Black"
 Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult4"
+                    <Rectangle Width="20" Name="rResult4" Panel.ZIndex="1000"
 Height="20"
 Canvas.Left="225"
 Fill="white"
@@ -278,24 +288,27 @@ Canvas.Top="227" />
                         </Canvas>
                     </Canvas>
 
-                    <Button Content="Setting" Name="D4" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
+                    <Border Cursor="Hand" Panel.ZIndex="1000" Width="42" Height="24" Name="D4" MouseDown="D_Click" Canvas.Left="5" Canvas.Top="225" Background="#305371" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                        <Label Foreground="White" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Setting" ></Label>
+                    </Border>
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand"  x:Name="br5" Margin="2,2,2,2" Grid.Row="1" Grid.Column="0" BorderThickness="2" >
+            <Border x:Name="br5" Margin="2,2,2,2" Grid.Row="1" Grid.Column="0" BorderThickness="2" >
                 <Canvas  x:Name="Canvas5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
 
                     <Rectangle Width="248" Fill="White"
 Height="250"
 Canvas.Left="0"
 Canvas.Top="0" />
+
                     <TextBlock Name="lblFreq5" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
 
                     </TextBlock>
-
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY5" >
-
-                    </TextBlock>
+                    <Canvas Canvas.Left="248" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right" Canvas.Right="1" Name="lblGraphXY5" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+                        </TextBlock>
+                    </Canvas>
 
                     <Rectangle Width="248"
 Height=".5"
@@ -309,7 +322,7 @@ Canvas.Left="124"
 Fill="Black"
 Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult5"
+                    <Rectangle Width="20" Name="rResult5" Panel.ZIndex="1000"
 Height="20"
 Canvas.Left="225"
 Fill="white"
@@ -329,11 +342,13 @@ Canvas.Top="227" />
                         <Canvas Name="cn5" Canvas.Left="0" Canvas.Top="0">
                         </Canvas>
                     </Canvas>
-                    <Button Content="Setting" Name="D5" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
+                    <Border Cursor="Hand" Panel.ZIndex="1000" Width="42" Height="24" Name="D5" MouseDown="D_Click" Canvas.Left="5" Canvas.Top="225" Background="#305371" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                        <Label Foreground="White" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Setting" ></Label>
+                    </Border>
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br6" Margin="2,2,2,2" Grid.Row="1" Grid.Column="1" BorderThickness="2" >
+            <Border x:Name="br6" Margin="2,2,2,2" Grid.Row="1" Grid.Column="1" BorderThickness="2" >
                 <Canvas  x:Name="Canvas6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
 
                     <Rectangle Width="248" Fill="White"
@@ -344,9 +359,10 @@ Canvas.Top="0" />
 
                     </TextBlock>
 
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY6" >
-
-                    </TextBlock>
+                    <Canvas Canvas.Left="248" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right" Canvas.Right="1" Name="lblGraphXY6" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+                        </TextBlock>
+                    </Canvas>
 
                     <Rectangle Width="248"
 Height=".5"
@@ -360,7 +376,7 @@ Canvas.Left="124"
 Fill="Black"
 Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult6"
+                    <Rectangle Width="20" Name="rResult6" Panel.ZIndex="1000"
 Height="20"
 Canvas.Left="225"
 Fill="white"
@@ -380,11 +396,13 @@ Canvas.Top="227" />
                         <Canvas Name="cn6" Canvas.Left="0" Canvas.Top="0">
                         </Canvas>
                     </Canvas>
-                    <Button Content="Setting" Name="D6" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
+                    <Border Cursor="Hand" Panel.ZIndex="1000" Width="42" Height="24" Name="D6" MouseDown="D_Click" Canvas.Left="5" Canvas.Top="225" Background="#305371" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                        <Label Foreground="White" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Setting" ></Label>
+                    </Border>
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand"  x:Name="br7" Margin="2,2,2,2" Grid.Row="1" Grid.Column="2" BorderThickness="2" >
+            <Border x:Name="br7" Margin="2,2,2,2" Grid.Row="1" Grid.Column="2" BorderThickness="2" >
                 <Canvas  x:Name="Canvas7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
 
                     <Rectangle Width="248" Fill="White"
@@ -395,9 +413,10 @@ Canvas.Top="0" />
 
                     </TextBlock>
 
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY7" >
-
-                    </TextBlock>
+                    <Canvas Canvas.Left="248" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right" Canvas.Right="1" Name="lblGraphXY7" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+                        </TextBlock>
+                    </Canvas>
 
                     <Rectangle Width="248"
 Height=".5"
@@ -411,7 +430,7 @@ Canvas.Left="124"
 Fill="Black"
 Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult7"
+                    <Rectangle Width="20" Name="rResult7" Panel.ZIndex="1000"
 Height="20"
 Canvas.Left="225"
 Fill="white"
@@ -431,11 +450,13 @@ Canvas.Top="227" />
                         <Canvas Name="cn7" Canvas.Left="0" Canvas.Top="0">
                         </Canvas>
                     </Canvas>
-                    <Button Content="Setting" Name="D7" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
+                    <Border Cursor="Hand" Panel.ZIndex="1000" Width="42" Height="24" Name="D7" MouseDown="D_Click" Canvas.Left="5" Canvas.Top="225" Background="#305371" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                        <Label Foreground="White" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Setting" ></Label>
+                    </Border>
                 </Canvas>
             </Border>
 
-            <Border Cursor="Hand" x:Name="br8" Margin="2,2,2,2" Grid.Row="1" Grid.Column="3" BorderThickness="2" >
+            <Border x:Name="br8" Margin="2,2,2,2" Grid.Row="1" Grid.Column="3" BorderThickness="2" >
                 <Canvas  x:Name="Canvas8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
 
                     <Rectangle Width="248" Fill="White"
@@ -446,9 +467,10 @@ Canvas.Top="0" />
 
                     </TextBlock>
 
-                    <TextBlock HorizontalAlignment="Right" Canvas.Left="185" Name="lblGraphXY8" >
-
-                    </TextBlock>
+                    <Canvas Canvas.Left="248" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right" Canvas.Right="1" Name="lblGraphXY8" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+                        </TextBlock>
+                    </Canvas>
 
                     <Rectangle Width="248"
 Height=".5"
@@ -462,7 +484,7 @@ Canvas.Left="124"
 Fill="Black"
 Canvas.Top="0" />
 
-                    <Rectangle Width="20" Name="rResult8"
+                    <Rectangle Width="20" Name="rResult8" Panel.ZIndex="1000"
 Height="20"
 Canvas.Left="225"
 Fill="white"
@@ -482,7 +504,9 @@ Canvas.Top="227" />
                         <Canvas Name="cn8" Canvas.Left="0" Canvas.Top="0">
                         </Canvas>
                     </Canvas>
-                    <Button Content="Setting" Name="D8" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>
+                    <Border Cursor="Hand" Panel.ZIndex="1000" Width="42" Height="24" Name="D8" MouseDown="D_Click" Canvas.Left="5" Canvas.Top="225" Background="#305371" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                        <Label Foreground="White" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Setting" ></Label>
+                    </Border>
                 </Canvas>
             </Border>
 
@@ -501,19 +525,19 @@ Canvas.Top="227" />
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Border Width="150" Height="80" Name="btnConfigSave" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Cursor="Hand" Width="150" Height="80" Name="btnBalance" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Balance" ></Label>
             </Border>
 
-            <Border Width="150" Height="80" Name="btnTest_Click" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Cursor="Hand" Width="150" Height="80" Name="btnTest" MouseDown="btnTest_Click" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Test" ></Label>
             </Border>
 
-            <Border Width="150" Height="80" Name="btnClear_Click" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Cursor="Hand" Width="150" Height="80" Name="btnClear" MouseDown="btnClear_Click" Margin="8" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Clear" ></Label>
             </Border>
 
-            <Border Width="150" Height="80" Name="btnResetCounter_Click" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="3" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Cursor="Hand" Width="150" Height="80" Name="btnResetCounter" MouseDown="btnResetCounter_Click" Margin="8" Background="#305371" Grid.Column="3" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Reset Count" ></Label>
             </Border>
 
@@ -521,8 +545,32 @@ Canvas.Top="227" />
             <!--<Button Content="Test" Name="btnTest" Click="btnTest_Click" Grid.Column="1" Grid.Row="0" />-->
             <!--<Button Content="Clear" Name="btnClear" Click="btnClear_Click" Grid.Column="2" Grid.Row="0" />-->
             <!--<Button Content="Reset Counter" Name="btnResetCounter" Click="btnResetCounter_Click" Grid.Column="3" Grid.Row="0" />-->
-            <Button Content="Result Count - 0" Name="btnCounter"  Grid.Column="4" Grid.Row="0" />
-            <Button Content="" Name="btnOverallResult"  Grid.Column="5" Grid.Row="0" />
+            <!--<Button Content="Result Count - 0" Name="btnCounter"  Grid.Column="4" Grid.Row="0" />-->
+
+            <Grid Grid.Column="4" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Border Cursor="Hand" HorizontalAlignment="Center" Width="150" Height="40" Margin="4" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="16" Name="lblTCount" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Total Count - 0" ></Label>
+                </Border>
+                <Border Cursor="Hand" HorizontalAlignment="Center" Width="150" Height="40" Margin="4" Background="Green" Grid.Column="0" Grid.Row="1" BorderBrush="Green" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="16" Name="lblOkCount" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="OK Count - 0" ></Label>
+                </Border>
+                <Border Cursor="Hand" HorizontalAlignment="Center" Width="150" Height="40" Margin="4" Background="Red" Grid.Column="0" Grid.Row="2" BorderBrush="Red" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="16" Name="lblNotOkCount" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Not Ok Count - 0" ></Label>
+                </Border>
+            </Grid>
+
+            <Border Width="150" Height="135" Name="btnOverallResult" MouseDown="btnResetCounter_Click" Margin="2" Background="LightBlue" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Overall Result" ></Label>
+            </Border>
+
 
 
         </Grid>

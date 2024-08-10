@@ -11,12 +11,12 @@
     <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.15*"/>
+                <RowDefinition Height="0.2*"/>
                 <RowDefinition Height="0.04*"/>
                 <RowDefinition Height="0.7*"/>
                 <RowDefinition Height="0.04*"/>
                 <RowDefinition Height="0.25*"/>
-                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="0.5*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -44,18 +44,18 @@
                 <Label Margin="20,0,0,0" Content="Freq Channel" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
                 <ComboBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="0" Grid.Column="1" SelectionChanged="ddlFrChennel_SelectionChanged" Name="ddlFrChennel" />
 
-                <Label Content="Angel" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtAngel" />
+                <Label Content="Angle" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtAngel" />
                 
                 <Label Margin="20,0,0,0" Content="Height" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtHeight" />
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtHeight" />
                 <Label Content="Width" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtWidth" />
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtWidth" />
 
-                <Label Margin="20,0,0,0" Content="X_Shift" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtX_Shift" />
-                <Label Content="Y_Shift" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtY_Shift" />
+                <Label Margin="20,0,0,0" Content="X Offset" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericWithNegativeOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtX_Shift" />
+                <Label Content="Y Offset" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericWithNegativeOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtY_Shift" />
 
 
                 <!--<Label Content="Frequency" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
@@ -69,11 +69,11 @@
             <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
             <!--<Button FontWeight="Bold"  Margin="20,0,0,0" MaxWidth="150" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0" Content="Save Config" Name="btnConfigSave" Click="btnConfigSave_Click" ></Button>-->
 
-            <Border Width="250" Name="btnConfigSave" MouseDown="btnConfigSave_Click" Margin="18" Background="#305371" Grid.Column="0" Grid.Row="4" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Width="250" Name="btnConfigSave" MouseDown="btnConfigSave_Click" Margin="1" Background="#305371" Grid.Column="0" Grid.Row="4" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Save Config" ></Label>
             </Border>
 
-            <Label Content="" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
+            <Label Content="" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
 
         </Grid>
     </Border>

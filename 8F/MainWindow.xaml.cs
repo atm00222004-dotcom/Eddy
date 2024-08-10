@@ -107,7 +107,9 @@ namespace _8F
             if (PortCOM.IsResponseRefreshRequired)
             {
                 RefreshResponse();
-                btnCounter.Content = "Result Count - " + PortCOM.ResultCount.ToString();
+                lblTCount.Content = "Total Count - " + PortCOM.ResultCount.ToString();
+                lblOkCount.Content = "OK Count - " + PortCOM.ResultOkCount.ToString();
+                lblNotOkCount.Content = "Not Ok Count - " + PortCOM.ResultOkNotCount.ToString();
                 PortCOM.IsResponseRefreshRequired = false;
             }
         }
@@ -477,7 +479,7 @@ namespace _8F
         }
         private void D_Click(object sender, RoutedEventArgs e)
         {
-            ellipsesPop = new CircleSetting(((Button)sender).Name);
+            ellipsesPop = new CircleSetting(((Border)sender).Name);
             ellipsesPop.Closing += ellipsesPop_Closing;
             ellipsesPop.portCOM = portCOM;
             ellipsesPop.ShowDialog();
@@ -583,6 +585,17 @@ namespace _8F
 
             cn8.Children.Clear();
             rResult8.Fill = new SolidColorBrush(Colors.White);
+
+            btnOverallResult.Background = new SolidColorBrush(Colors.LightBlue);
+
+            lblGraphXY1.Text = "";
+            lblGraphXY2.Text = "";
+            lblGraphXY3.Text = "";
+            lblGraphXY4.Text = "";
+            lblGraphXY5.Text = "";
+            lblGraphXY6.Text = "";
+            lblGraphXY7.Text = "";
+            lblGraphXY8.Text = "";
         }
 
         public void RefreshResponse()
@@ -613,6 +626,14 @@ namespace _8F
                     if (selectedChannelData.IndexOf(item) == selectedChannelData.Count-1)
                     {
                         el1.Fill = new SolidColorBrush(Colors.Blue);
+                        if (item.OR == 1)
+                        {
+                            btnOverallResult.Background = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            btnOverallResult.Background = new SolidColorBrush(Colors.Red);
+                        }
                     }
                     else
                     {
@@ -629,6 +650,7 @@ namespace _8F
                     if (fd.FN == 1)
                     {
                         cn1.Children.Add(el1);
+                        lblGraphXY1.Text = fd.X.ToString() + "," + fd.Y.ToString();
                         if (fd.R == 1)
                         {
                             rResult1.Fill = new SolidColorBrush(Colors.Green);
@@ -641,6 +663,7 @@ namespace _8F
                     else if (fd.FN == 2)
                     {
                         cn2.Children.Add(el1);
+                        lblGraphXY2.Text = fd.X.ToString() + "," + fd.Y.ToString();
                         if (fd.R == 1)
                         {
                             rResult2.Fill = new SolidColorBrush(Colors.Green);
@@ -653,6 +676,7 @@ namespace _8F
                     else if (fd.FN == 3)
                     {
                         cn3.Children.Add(el1);
+                        lblGraphXY3.Text = fd.X.ToString() + "," + fd.Y.ToString();
                         if (fd.R == 1)
                         {
                             rResult3.Fill = new SolidColorBrush(Colors.Green);
@@ -665,6 +689,7 @@ namespace _8F
                     else if (fd.FN == 4)
                     {
                         cn4.Children.Add(el1);
+                        lblGraphXY4.Text = fd.X.ToString() + "," + fd.Y.ToString();
                         if (fd.R == 1)
                         {
                             rResult4.Fill = new SolidColorBrush(Colors.Green);
@@ -677,6 +702,7 @@ namespace _8F
                     else if (fd.FN == 5)
                     {
                         cn5.Children.Add(el1);
+                        lblGraphXY5.Text = fd.X.ToString() + "," + fd.Y.ToString();
                         if (fd.R == 1)
                         {
                             rResult5.Fill = new SolidColorBrush(Colors.Green);
@@ -689,6 +715,7 @@ namespace _8F
                     else if (fd.FN == 6)
                     {
                         cn6.Children.Add(el1);
+                        lblGraphXY6.Text = fd.X.ToString() + "," + fd.Y.ToString();
                         if (fd.R == 1)
                         {
                             rResult6.Fill = new SolidColorBrush(Colors.Green);
@@ -701,6 +728,7 @@ namespace _8F
                     else if (fd.FN == 7)
                     {
                         cn7.Children.Add(el1);
+                        lblGraphXY7.Text = fd.X.ToString() + "," + fd.Y.ToString();
                         if (fd.R == 1)
                         {
                             rResult7.Fill = new SolidColorBrush(Colors.Green);
@@ -713,6 +741,7 @@ namespace _8F
                     else if (fd.FN == 8)
                     {
                         cn8.Children.Add(el1);
+                        lblGraphXY8.Text = fd.X.ToString() + "," + fd.Y.ToString();
                         if (fd.R == 1)
                         {
                             rResult8.Fill = new SolidColorBrush(Colors.Green);
@@ -730,7 +759,13 @@ namespace _8F
         private void btnResetCounter_Click(object sender, RoutedEventArgs e)
         {
             PortCOM.ResultCount = 0;
-            btnCounter.Content = "Result Count - " + PortCOM.ResultCount.ToString();
+            PortCOM.ResultOkCount = 0;
+            PortCOM.ResultOkNotCount = 0;
+
+            lblTCount.Content = "Total Count - " + PortCOM.ResultCount.ToString();
+            lblOkCount.Content = "OK Count - " + PortCOM.ResultOkCount.ToString();
+            lblNotOkCount.Content = "Not Ok Count - " + PortCOM.ResultOkNotCount.ToString();
+
         }
     }
 

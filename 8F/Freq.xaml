@@ -16,7 +16,7 @@
                 <RowDefinition Height="0.6*"/>
                 <RowDefinition Height="0.04*"/>
                 <RowDefinition Height="0.25*"/>
-                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="0.3*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -44,11 +44,11 @@
                 <Label Margin="20,0,0,0" Content="Freq Channel" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
                 <ComboBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="0" Grid.Column="1" SelectionChanged="ddlFrChennel_SelectionChanged" Name="ddlFrChennel" />
                 <Label Content="Frequency" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtFreq" />
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtFreq" />
                 <Label Margin="20,0,0,0"  FontSize="16" FontWeight="Bold" Content="Gain"  Grid.Row="1" Grid.Column="0"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtGain" />
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtGain" />
                 <Label Content="Phase" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtPhase" />
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtPhase" />
 
                 <!--<Label Margin="20,0,0,0" Content="Height" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
                 <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtHeight" />
@@ -71,7 +71,7 @@
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Save Config" ></Label>
             </Border>
 
-            <Label Content="" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
+            <Label Content="" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
 
         </Grid>
     </Border>
