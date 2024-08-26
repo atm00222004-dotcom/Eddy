@@ -389,7 +389,7 @@ namespace _8F
                             el1.Height = graphData.height/ factor;
                             el1.Width = graphData.width/ factor;
                             tt1.X = (graphData.ex - (graphData.width / 2) )/ factor;
-                            tt1.Y = (graphData.ey - (graphData.height / 2)) / factor;
+                            tt1.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
                             rtAngel1.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 2)
@@ -399,7 +399,7 @@ namespace _8F
                             el2.Height = graphData.height / factor;
                             el2.Width = graphData.width / factor;
                             tt2.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt2.Y = (graphData.ey - (graphData.height / 2)) / factor;
+                            tt2.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
                             rtAngel2.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 3)
@@ -409,7 +409,7 @@ namespace _8F
                             el3.Height = graphData.height / factor;
                             el3.Width = graphData.width / factor;
                             tt3.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt3.Y = (graphData.ey - (graphData.height / 2)) / factor;
+                            tt3.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
                             rtAngel3.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 4)
@@ -419,7 +419,7 @@ namespace _8F
                             el4.Height = graphData.height / factor;
                             el4.Width = graphData.width / factor;
                             tt4.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt4.Y = (graphData.ey - (graphData.height / 2)) / factor;
+                            tt4.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
                             rtAngel4.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 5)
@@ -429,7 +429,7 @@ namespace _8F
                             el5.Height = graphData.height / factor;
                             el5.Width = graphData.width / factor;
                             tt5.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt5.Y = (graphData.ey - (graphData.height / 2)) / factor;
+                            tt5.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
                             rtAngel5.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 6)
@@ -439,7 +439,7 @@ namespace _8F
                             el6.Height = graphData.height / factor;
                             el6.Width = graphData.width / factor;
                             tt6.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt6.Y = (graphData.ey - (graphData.height / 2)) / factor;
+                            tt6.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
                             rtAngel6.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 7)
@@ -449,7 +449,7 @@ namespace _8F
                             el7.Height = graphData.height / factor;
                             el7.Width = graphData.width / factor;
                             tt7.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt7.Y = (graphData.ey - (graphData.height / 2)) / factor;
+                            tt7.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
                             rtAngel7.Angle = graphData.angel;
                         }
                         else if (graphData.Id == 8)
@@ -459,7 +459,7 @@ namespace _8F
                             el8.Height = graphData.height / factor;
                             el8.Width = graphData.width / factor;
                             tt8.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt8.Y = (graphData.ey - (graphData.height / 2)) / factor;
+                            tt8.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
                             rtAngel8.Angle = graphData.angel;
                         }
                     }
@@ -618,7 +618,7 @@ namespace _8F
                     el1.Height = 4;
                     el1.Width = 4;
                     var left = fd.X / factor;
-                    var top = fd.Y / factor;
+                    var top = (fd.Y * -1) / factor;
                     if (left >125 )
                     {
                         left = 125;
