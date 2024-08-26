@@ -17,13 +17,16 @@ namespace _8F
         public static int ResultCount = 0;
         public static int ResultOkCount = 0;
         public static int ResultOkNotCount = 0;
-        public static string PortName; 
-        public void InitialPort(string portName)
+        public static string PortName;
+        public static int BaudRate;
+        public void InitialPort(string portName,int baudRate = 115200)
         {
             PortName = portName;
+            BaudRate = baudRate;
+
             port = new SerialPort
             {
-                BaudRate = 128000, //115200,
+                BaudRate = BaudRate,
                 DataBits = 8,
                 Handshake = Handshake.None,
                 Parity = Parity.None,
@@ -143,7 +146,7 @@ namespace _8F
                     port.Close();
                 }
 
-                InitialPort(PortName);
+                InitialPort(PortName, BaudRate);
 
                 if (!port.IsOpen)
                 {

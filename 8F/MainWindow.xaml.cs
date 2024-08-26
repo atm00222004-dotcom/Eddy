@@ -37,7 +37,8 @@ namespace _8F
             InitializeComponent();
             portCOM = new PortCOM();
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
-            portCOM.InitialPort(portName);
+            int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
+            portCOM.InitialPort(portName, baudRate);
 
             chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]); 
             if (chNo == 1)
