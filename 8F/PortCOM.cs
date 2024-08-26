@@ -23,7 +23,7 @@ namespace _8F
             PortName = portName;
             port = new SerialPort
             {
-                BaudRate = 115200,
+                BaudRate = 128000, //115200,
                 DataBits = 8,
                 Handshake = Handshake.None,
                 Parity = Parity.None,
@@ -250,8 +250,8 @@ namespace _8F
         public int phase = 0;
         public double height = 2000;
         public double width = 1400;
-        public double ex = -660;
-        public double ey = -960;
+        public double ex = 0;
+        public double ey = 0;
         public double angel = 0;
     }
 
