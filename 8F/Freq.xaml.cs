@@ -35,12 +35,6 @@ namespace _8F
                 txtFreq.Text = Gdata.freq.ToString();
                 txtGain.Text = Gdata.gain.ToString();
                 txtPhase.Text = Gdata.phase.ToString();
-
-                //txtHeight.Text = Gdata.height.ToString();
-                //txtWidth.Text = Gdata.width.ToString();
-                //txtX_Shift.Text = Gdata.ex.ToString();
-                //txtY_Shift.Text = Gdata.ey.ToString();
-                //txtAngel.Text = Gdata.angel.ToString();
             }
         }
 
@@ -141,12 +135,6 @@ namespace _8F
                 txtFreq.Text = Gdata.freq.ToString();
                 txtGain.Text = Gdata.gain.ToString();
                 txtPhase.Text = Gdata.phase.ToString();
-
-                //txtHeight.Text = Gdata.height.ToString();
-                //txtWidth.Text = Gdata.width.ToString();
-                //txtX_Shift.Text = Gdata.ex.ToString();
-                //txtY_Shift.Text = Gdata.ey.ToString();
-                //txtAngel.Text = Gdata.angel.ToString();
             }
 
         }
