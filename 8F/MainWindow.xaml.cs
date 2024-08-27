@@ -39,7 +39,7 @@ namespace _8F
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
             int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             portCOM.InitialPort(portName, baudRate);
-
+            PortCOM.responses = new List<Response>();
             chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]); 
             if (chNo == 1)
             {
@@ -480,6 +480,7 @@ namespace _8F
                 if (ChangeType == 0)
                 {  
                     portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                    //System.Threading.Thread.Sleep(500);
                     portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
                 }
             }

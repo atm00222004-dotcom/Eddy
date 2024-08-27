@@ -35,7 +35,7 @@ namespace _8F
                 ReadTimeout = 500,
                 WriteTimeout = 2000
             };
-            responses = new List<Response>();
+            //responses = new List<Response>();
             //port.DataReceived +=serialPort_DataReceived;
         }
         public bool ReadFreqAndGain()

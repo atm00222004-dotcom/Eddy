@@ -157,7 +157,8 @@ namespace _8F
 
         private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
+            var text = e.AddedItems[0].ToString();
+            var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == text);
             if (Gdata != null)
             {
                 txtHeight.Text = Gdata.height.ToString();
