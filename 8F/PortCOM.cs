@@ -19,6 +19,7 @@ namespace _8F
         public static int ResultOkNotCount = 0;
         public static string PortName;
         public static int BaudRate;
+        public static int ChannelNo =4;
         public void InitialPort(string portName,int baudRate = 115200)
         {
             PortName = portName;
@@ -117,18 +118,20 @@ namespace _8F
                     //    item.X = item.X / 10;
                     //    item.Y = item.X / 10;
                     //}
-                    
-                    responses.Add(res);
-                    if (res.OR == 1)
+                    if (ChannelNo >= res?.CN)
                     {
-                        ResultOkCount = ResultOkCount + 1;
+                        responses.Add(res);
+                        if (res.OR == 1)
+                        {
+                            ResultOkCount = ResultOkCount + 1;
+                        }
+                        else
+                        {
+                            ResultOkNotCount = ResultOkNotCount + 1;
+                        }
+                        ResultCount = ResultOkCount + ResultOkNotCount;
+                        IsResponseRefreshRequired = true;
                     }
-                    else
-                    {
-                        ResultOkNotCount = ResultOkNotCount + 1;
-                    }
-                    ResultCount = ResultOkCount+ ResultOkNotCount;
-                    IsResponseRefreshRequired = true;
                 }
             }
             catch (Exception ex)

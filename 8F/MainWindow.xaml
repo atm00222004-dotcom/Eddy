@@ -10,7 +10,7 @@ WindowStyle="None"
         WindowState="Maximized" ResizeMode="NoResize" Closed="Window_Closed"
         >
 
-    <Grid Background="Black" Margin="10">
+    <Grid Background="Black" Margin="2">
         <Grid.RowDefinitions>
             <RowDefinition Height=".8*"/>
             <RowDefinition Height=".6*"/>

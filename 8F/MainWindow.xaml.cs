@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Reflection;
 using System.Text;
+using System.Threading.Channels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -40,7 +41,8 @@ namespace _8F
             int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             portCOM.InitialPort(portName, baudRate);
             PortCOM.responses = new List<Response>();
-            chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]); 
+            chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]);
+            PortCOM.ChannelNo = chNo;
             if (chNo == 1)
             {
                 btnCh1.Visibility = Visibility.Visible;
@@ -368,120 +370,123 @@ namespace _8F
 
             foreach (var ch in PortCOM.channelDatas)
             {
-                FrequencyWrite frequencyWrite = new FrequencyWrite();
-                frequencyWrite.FC = 4;
-                frequencyWrite.CN = ch.Id;
-                frequencyWrite.FD = new List<Frequency>();
-
-                ElliplseWrite ellipseWrite = new ElliplseWrite();
-                ellipseWrite.FC = 5;
-                ellipseWrite.CN = ch.Id;
-                ellipseWrite.ED = new List<Elliplse>();
-
-                foreach (GraphData graphData in ch.graphDatas)
+                if (ch.Id <= chNo)
                 {
-                    if (ch.IsSeleted == true)
+                    FrequencyWrite frequencyWrite = new FrequencyWrite();
+                    frequencyWrite.FC = 4;
+                    frequencyWrite.CN = ch.Id;
+                    frequencyWrite.FD = new List<Frequency>();
+
+                    ElliplseWrite ellipseWrite = new ElliplseWrite();
+                    ellipseWrite.FC = 5;
+                    ellipseWrite.CN = ch.Id;
+                    ellipseWrite.ED = new List<Elliplse>();
+
+                    foreach (GraphData graphData in ch.graphDatas)
                     {
-                        if (graphData.Id == 1)
+                        if (ch.IsSeleted == true)
                         {
-                            lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                            if (graphData.Id == 1)
+                            {
+                                lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                            el1.Height = graphData.height/ factor;
-                            el1.Width = graphData.width/ factor;
-                            tt1.X = (graphData.ex - (graphData.width / 2) )/ factor;
-                            tt1.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                            rtAngel1.Angle = graphData.angel;
+                                el1.Height = graphData.height / factor;
+                                el1.Width = graphData.width / factor;
+                                tt1.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                tt1.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+                                rtAngel1.Angle = graphData.angel;
+                            }
+                            else if (graphData.Id == 2)
+                            {
+                                lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                el2.Height = graphData.height / factor;
+                                el2.Width = graphData.width / factor;
+                                tt2.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                tt2.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+                                rtAngel2.Angle = graphData.angel;
+                            }
+                            else if (graphData.Id == 3)
+                            {
+                                lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                el3.Height = graphData.height / factor;
+                                el3.Width = graphData.width / factor;
+                                tt3.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                tt3.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+                                rtAngel3.Angle = graphData.angel;
+                            }
+                            else if (graphData.Id == 4)
+                            {
+                                lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                el4.Height = graphData.height / factor;
+                                el4.Width = graphData.width / factor;
+                                tt4.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                tt4.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+                                rtAngel4.Angle = graphData.angel;
+                            }
+                            else if (graphData.Id == 5)
+                            {
+                                lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                el5.Height = graphData.height / factor;
+                                el5.Width = graphData.width / factor;
+                                tt5.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                tt5.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+                                rtAngel5.Angle = graphData.angel;
+                            }
+                            else if (graphData.Id == 6)
+                            {
+                                lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                el6.Height = graphData.height / factor;
+                                el6.Width = graphData.width / factor;
+                                tt6.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                tt6.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+                                rtAngel6.Angle = graphData.angel;
+                            }
+                            else if (graphData.Id == 7)
+                            {
+                                lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                el7.Height = graphData.height / factor;
+                                el7.Width = graphData.width / factor;
+                                tt7.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                tt7.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+                                rtAngel7.Angle = graphData.angel;
+                            }
+                            else if (graphData.Id == 8)
+                            {
+                                lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                el8.Height = graphData.height / factor;
+                                el8.Width = graphData.width / factor;
+                                tt8.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                tt8.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+                                rtAngel8.Angle = graphData.angel;
+                            }
                         }
-                        else if (graphData.Id == 2)
-                        {
-                            lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                            el2.Height = graphData.height / factor;
-                            el2.Width = graphData.width / factor;
-                            tt2.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt2.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                            rtAngel2.Angle = graphData.angel;
-                        }
-                        else if (graphData.Id == 3)
+                        if (ChangeType == 0)
                         {
-                            lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                            // write data to port for freq and setting
+                            Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase };
+                            frequencyWrite.FD.Add(frequency);
 
-                            el3.Height = graphData.height / factor;
-                            el3.Width = graphData.width / factor;
-                            tt3.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt3.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                            rtAngel3.Angle = graphData.angel;
-                        }
-                        else if (graphData.Id == 4)
-                        {
-                            lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                            el4.Height = graphData.height / factor;
-                            el4.Width = graphData.width / factor;
-                            tt4.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt4.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                            rtAngel4.Angle = graphData.angel;
-                        }
-                        else if (graphData.Id == 5)
-                        {
-                            lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                            Elliplse elliplse = new Elliplse() { FN = graphData.Id, EId = graphData.Id, a = graphData.height, b = graphData.width, t = graphData.angel, x = graphData.ex, y = graphData.ey };
+                            ellipseWrite.ED.Add(elliplse);
 
-                            el5.Height = graphData.height / factor;
-                            el5.Width = graphData.width / factor;
-                            tt5.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt5.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                            rtAngel5.Angle = graphData.angel;
-                        }
-                        else if (graphData.Id == 6)
-                        {
-                            lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz";
-
-                            el6.Height = graphData.height / factor;
-                            el6.Width = graphData.width / factor;
-                            tt6.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt6.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                            rtAngel6.Angle = graphData.angel;
-                        }
-                        else if (graphData.Id == 7)
-                        {
-                            lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz";
-
-                            el7.Height = graphData.height / factor;
-                            el7.Width = graphData.width / factor;
-                            tt7.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt7.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                            rtAngel7.Angle = graphData.angel;
-                        }
-                        else if (graphData.Id == 8)
-                        {
-                            lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz";
-
-                            el8.Height = graphData.height / factor;
-                            el8.Width = graphData.width / factor;
-                            tt8.X = (graphData.ex - (graphData.width / 2)) / factor;
-                            tt8.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                            rtAngel8.Angle = graphData.angel;
                         }
                     }
 
                     if (ChangeType == 0)
                     {
-                        // write data to port for freq and setting
-                        Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase };
-                        frequencyWrite.FD.Add(frequency);
-                        
-
-                        Elliplse elliplse = new Elliplse() { FN= graphData.Id, EId= graphData.Id, a = graphData.height, b= graphData.width, t = graphData.angel, x = graphData.ex, y = graphData.ey };
-                        ellipseWrite.ED.Add(elliplse);
-  
+                        portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        //System.Threading.Thread.Sleep(500);
+                        portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
                     }
-                }
-
-                if (ChangeType == 0)
-                {  
-                    portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
-                    //System.Threading.Thread.Sleep(500);
-                    portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
                 }
             }
         }
