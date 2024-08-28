@@ -5,6 +5,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace _8F
 {
@@ -19,8 +20,8 @@ namespace _8F
         public static int ResultOkNotCount = 0;
         public static string PortName;
         public static int BaudRate;
-        public static int ChannelNo =4;
-        public void InitialPort(string portName,int baudRate = 115200)
+        public static int ChannelNo = 4;
+        public void InitialPort(string portName, int baudRate = 115200)
         {
             PortName = portName;
             BaudRate = baudRate;
@@ -108,8 +109,25 @@ namespace _8F
         {
             try
             {
+                System.Threading.Thread.Sleep(50);
                 SerialPort sp = (SerialPort)sender;
                 string indata = sp.ReadExisting();
+                new Thread(() =>
+                {
+                    ProcessPortData(indata);
+                }).Start();
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        private static void ProcessPortData(string indata)
+        {
+            try
+            {
                 if (!string.IsNullOrEmpty(indata))
                 {
                     var res = JsonConvert.DeserializeObject<Response>(indata);
