@@ -107,11 +107,11 @@ WindowStyle="None"
                         Canvas.Top="227" />
 
                     <Canvas Name="cnBr1" Canvas.Left="122" Canvas.Top="123">
-                        <Ellipse x:Name="el1" HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse x:Name="el1"  HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                             <Ellipse.RenderTransform>
                                 <TransformGroup>
-                                    <ScaleTransform/>
-                                    <SkewTransform/>
+                                    <!--<ScaleTransform/>
+                                    <SkewTransform />-->
                                     <RotateTransform x:Name="rtAngel1" Angle="0"/>
                                     <TranslateTransform x:Name="tt1" X="-23" Y="-33"/>
                                 </TransformGroup>
