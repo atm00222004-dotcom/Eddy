@@ -92,13 +92,13 @@ namespace _8F
             List<String> validationMsg = new List<string>();
             if (string.IsNullOrEmpty(txtFreq.Text))
             {
-                validationMsg.Add("Frequency is required and the range is 400 to 50000.");
+                validationMsg.Add("Frequency is required and the range is 100 to 50000.");
             }
             else
             {
-                if (Convert.ToInt32(txtFreq.Text) < 400 || Convert.ToInt32(txtFreq.Text) > 50000)
+                if (Convert.ToInt32(txtFreq.Text) < 100 || Convert.ToInt32(txtFreq.Text) > 50000)
                 {
-                    validationMsg.Add("Frequency is required and the range is 400 to 50000.");
+                    validationMsg.Add("Frequency is required and the range is 100 to 50000.");
                 }
             }
             if (string.IsNullOrEmpty(txtGain.Text))
