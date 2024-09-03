@@ -15,6 +15,7 @@ namespace _8F
         public static List<ChannelData> channelDatas;
         public static List<Response> responses;
         public static bool IsResponseRefreshRequired = false;
+        public static bool IsResponseClearRequired = false;
         public static int ResultCount = 0;
         public static int ResultOkCount = 0;
         public static int ResultOkNotCount = 0;
@@ -63,20 +64,28 @@ namespace _8F
                 if (!string.IsNullOrEmpty(indata))
                 {
                     var res = JsonConvert.DeserializeObject<Response>(indata);
-                    if (ChannelNo >= res?.CN)
+
+                    if (res.FC == 19)
                     {
-                        responses.Add(res);
-                        if (res.OR == 1)
+                        IsResponseClearRequired = true;
+                    }
+                    else if (res.FC == 20)
+                    {
+                        if (ChannelNo >= res?.CN)
                         {
-                            ResultOkCount = ResultOkCount + 1;
+                            responses.Add(res);
+                            if (res.OR == 1)
+                            {
+                                ResultOkCount = ResultOkCount + 1;
+                            }
+                            else
+                            {
+                                ResultOkNotCount = ResultOkNotCount + 1;
+                            }
+                            ResultCount = ResultOkCount + ResultOkNotCount;
+                            IsResponseRefreshRequired = true;
+                            // Maintain logs 
                         }
-                        else
-                        {
-                            ResultOkNotCount = ResultOkNotCount + 1;
-                        }
-                        ResultCount = ResultOkCount + ResultOkNotCount;
-                        IsResponseRefreshRequired = true;
-                        // Maintain logs 
                     }
                 }
             }

@@ -115,6 +115,11 @@ namespace _8F
                 lblNotOkCount.Content = "Not Ok Count - " + PortCOM.ResultOkNotCount.ToString();
                 PortCOM.IsResponseRefreshRequired = false;
             }
+
+            if (PortCOM.IsResponseClearRequired)
+            {
+                ClearGraphData();
+            }
         }
 
         public void InitialGraphData(bool IsPayLaod )
@@ -573,7 +578,8 @@ namespace _8F
         {
             BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
             portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
-            
+
+            ClearGraphData();
         }
 
         private void btnTest_Click(object sender, RoutedEventArgs e)
