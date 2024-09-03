@@ -29,20 +29,20 @@ namespace _8F
     {
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
         public CircleSetting ellipsesPop { get; set; }
-        public PortCOM portCOM;
+        public DeviceCOM portCOM;
         DispatcherTimer dispatcherTimer;
         int chNo;
         int factor = 20;
         public MainWindow()
         {
             InitializeComponent();
-            portCOM = new PortCOM();
+            portCOM = new DeviceCOM();
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
             int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             portCOM.InitialPort(portName, baudRate);
-            PortCOM.responses = new List<Response>();
+            DeviceCOM.responses = new List<Response>();
             chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]);
-            PortCOM.ChannelNo = chNo;
+            DeviceCOM.ChannelNo = chNo;
             if (chNo == 1)
             {
                 btnCh1.Visibility = Visibility.Visible;
@@ -107,16 +107,16 @@ namespace _8F
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            if (PortCOM.IsResponseRefreshRequired)
+            if (DeviceCOM.IsResponseRefreshRequired)
             {
                 RefreshResponse();
-                lblTCount.Content = "Total Count - " + PortCOM.ResultCount.ToString();
-                lblOkCount.Content = "OK Count - " + PortCOM.ResultOkCount.ToString();
-                lblNotOkCount.Content = "Not Ok Count - " + PortCOM.ResultOkNotCount.ToString();
-                PortCOM.IsResponseRefreshRequired = false;
+                lblTCount.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
+                lblOkCount.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
+                lblNotOkCount.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
+                DeviceCOM.IsResponseRefreshRequired = false;
             }
 
-            if (PortCOM.IsResponseClearRequired)
+            if (DeviceCOM.IsResponseClearRequired)
             {
                 ClearGraphData();
             }
@@ -284,28 +284,28 @@ namespace _8F
                     Canvas8.Children.Add(rr8);
                 }
             }
-            PortCOM.channelDatas = new List<ChannelData>();
+            DeviceCOM.channelDatas = new List<ChannelData>();
 
             ChannelData channelData = new ChannelData();
             channelData.Id = 1;
             channelData.IsSeleted = true;
             channelData.graphDatas = IniGdata();
-            PortCOM.channelDatas.Add(channelData);
+            DeviceCOM.channelDatas.Add(channelData);
 
             ChannelData channelData1 = new ChannelData();
             channelData1.Id = 2;
             channelData1.graphDatas = IniGdata();
-            PortCOM.channelDatas.Add(channelData1);
+            DeviceCOM.channelDatas.Add(channelData1);
 
             ChannelData channelData2 = new ChannelData();
             channelData2.Id = 3;
             channelData2.graphDatas = IniGdata();
-            PortCOM.channelDatas.Add(channelData2);
+            DeviceCOM.channelDatas.Add(channelData2);
 
             ChannelData channelData3 = new ChannelData();
             channelData3.Id = 4;
             channelData3.graphDatas = IniGdata();
-            PortCOM.channelDatas.Add(channelData3);
+            DeviceCOM.channelDatas.Add(channelData3);
 
             btnCh1.Background = new SolidColorBrush(Colors.DarkGray);
             btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
@@ -373,7 +373,7 @@ namespace _8F
                 portCOM.WriteData(JsonConvert.SerializeObject(mode));
             }
 
-            foreach (var ch in PortCOM.channelDatas)
+            foreach (var ch in DeviceCOM.channelDatas)
             {
                 if (ch.Id <= chNo)
                 {
@@ -539,11 +539,11 @@ namespace _8F
         {
             
 
-            var currentChannel = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+            var currentChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
             if (currentChannel?.Id != 1)
             {
                 currentChannel.IsSeleted = false;
-                var nextCh = PortCOM.channelDatas.FirstOrDefault(c => c.Id == 1);
+                var nextCh = DeviceCOM.channelDatas.FirstOrDefault(c => c.Id == 1);
                 nextCh.IsSeleted = true;
                 btnCh1.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
@@ -558,11 +558,11 @@ namespace _8F
         private void btnCh_Click(object sender, RoutedEventArgs e)
         {
             var chId = Convert.ToUInt32(((Button)sender).Tag);
-            var currentChannel = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+            var currentChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
             if (currentChannel?.Id != chId)
             {
                 currentChannel.IsSeleted = false;
-                var nextCh = PortCOM.channelDatas.FirstOrDefault(c => c.Id == chId);
+                var nextCh = DeviceCOM.channelDatas.FirstOrDefault(c => c.Id == chId);
                 nextCh.IsSeleted = true;
                 btnCh1.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
@@ -570,7 +570,7 @@ namespace _8F
                 btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
                 ((Button)sender).Background = new SolidColorBrush(Colors.LightGreen);
                 ImplementChanges(1);
-                PortCOM.IsResponseRefreshRequired = true;
+                DeviceCOM.IsResponseRefreshRequired = true;
             }
         }
 
@@ -603,7 +603,7 @@ namespace _8F
         {
             if (IsDataClear)
             {
-                PortCOM.responses = new List<Response>();
+                DeviceCOM.responses = new List<Response>();
             }
             cn1.Children.Clear();
             rResult1.Fill = new SolidColorBrush(Colors.White);
@@ -644,8 +644,8 @@ namespace _8F
         public void RefreshResponse()
         {
             ClearGraphData(false);
-            var selectedChannel = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
-            var selectedChannelData = PortCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList();
+            var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
+            var selectedChannelData = DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList();
             foreach (var item in selectedChannelData)
             {
                 foreach (var fd in item.FD)
@@ -801,13 +801,13 @@ namespace _8F
 
         private void btnResetCounter_Click(object sender, RoutedEventArgs e)
         {
-            PortCOM.ResultCount = 0;
-            PortCOM.ResultOkCount = 0;
-            PortCOM.ResultOkNotCount = 0;
+            DeviceCOM.ResultCount = 0;
+            DeviceCOM.ResultOkCount = 0;
+            DeviceCOM.ResultOkNotCount = 0;
 
-            lblTCount.Content = "Total Count - " + PortCOM.ResultCount.ToString();
-            lblOkCount.Content = "OK Count - " + PortCOM.ResultOkCount.ToString();
-            lblNotOkCount.Content = "Not Ok Count - " + PortCOM.ResultOkNotCount.ToString();
+            lblTCount.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
+            lblOkCount.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
+            lblNotOkCount.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
 
         }
     }
@@ -886,7 +886,7 @@ namespace _8F
                             // Save document
                             filename = dlg.FileName;
 
-                            string conecnt = JsonConvert.SerializeObject(PortCOM.channelDatas);
+                            string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                             File.WriteAllText(filename, conecnt);
 
                             //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
@@ -894,7 +894,7 @@ namespace _8F
 
                     } else
                     {
-                        string conecnt = JsonConvert.SerializeObject(PortCOM.channelDatas);
+                        string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                         File.WriteAllText(filename, conecnt);
 
                         //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
@@ -925,7 +925,7 @@ namespace _8F
                         // Save document
                         filename = dlg.FileName;
 
-                        string conecnt = JsonConvert.SerializeObject(PortCOM.channelDatas);
+                        string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                         File.WriteAllText(filename, conecnt);
 
                         //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
@@ -954,7 +954,7 @@ namespace _8F
                     if (result == true)
                     {
                         string data = File.ReadAllText(dialog.FileName);
-                        PortCOM.channelDatas = JsonConvert.DeserializeObject<List<ChannelData>>(data);
+                        DeviceCOM.channelDatas = JsonConvert.DeserializeObject<List<ChannelData>>(data);
                         // Open document
                         filename = dialog.FileName;
                         mainWindow.SelectCh1();

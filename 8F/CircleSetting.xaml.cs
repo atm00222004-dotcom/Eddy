@@ -22,14 +22,14 @@ namespace _8F
     public partial class CircleSetting : Window
     {
         public bool IsSaved = false;
-        public PortCOM portCOM;
+        public DeviceCOM portCOM;
         public CircleSetting(string selectChannel)
         {
             InitializeComponent();
 
-            ddlFrChennel.ItemsSource = PortCOM.channelDatas.FirstOrDefault(c=> c.IsSeleted == true).graphDatas.Select(x=> x.Name).ToList();
+            ddlFrChennel.ItemsSource = DeviceCOM.channelDatas.FirstOrDefault(c=> c.IsSeleted == true).graphDatas.Select(x=> x.Name).ToList();
             ddlFrChennel.SelectedIndex = 0;
-            var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == selectChannel);
+            var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == selectChannel);
             if (Gdata != null)
             {
                 ddlFrChennel.SelectedItem = selectChannel;
@@ -53,7 +53,7 @@ namespace _8F
                 var msg = Validaton();
                 if (msg.Count == 0)
                 {
-                    var ch = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+                    var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
                     var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
                     if (Gdata != null)
                     {
@@ -158,7 +158,7 @@ namespace _8F
         private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var text = e.AddedItems[0].ToString();
-            var Gdata = PortCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == text);
+            var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == text);
             if (Gdata != null)
             {
                 txtHeight.Text = Gdata.height.ToString();

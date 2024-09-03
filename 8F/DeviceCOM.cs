@@ -9,7 +9,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace _8F
 {
-    public class PortCOM
+    public class DeviceCOM
     {
         public SerialPort port;
         public static List<ChannelData> channelDatas;
