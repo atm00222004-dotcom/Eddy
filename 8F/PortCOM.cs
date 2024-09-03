@@ -37,74 +37,7 @@ namespace _8F
                 ReadTimeout = 500,
                 WriteTimeout = 2000
             };
-            //responses = new List<Response>();
-            //port.DataReceived +=serialPort_DataReceived;
         }
-        public bool ReadFreqAndGain()
-        {
-            if (!port.IsOpen)
-            {
-                port.Open();
-            }
-
-            this.port.ReadExisting();
-            this.port.Write("0");
-            int toread = 91;
-            int offset = 0;
-            char[] result = new char[toread];
-            while (toread > 0)
-            {
-                int r = this.port.Read(result, offset, toread);
-                offset += r;
-                toread -= r;
-            }
-
-            var FreqAndGainData = new string(result).Split(',');
-
-            return true;
-        }
-        public bool WriteFreqAndGain(string chId, string frenq, string gain)
-        {
-            if (!port.IsOpen)
-            {
-                port.Open();
-            }
-            this.port.ReadExisting();
-            this.port.Write("6");
-            int toread = 3;
-            int offset = 0;
-            char[] result = new char[toread];
-            while (toread > 0)
-            {
-                int r = this.port.Read(result, offset, toread);
-                offset += r;
-                toread -= r;
-            }
-
-            if (result[2] == '1')
-            {
-                toread = 12;
-                offset = 0;
-                char[] result1 = new char[toread];
-                this.port.ReadExisting();
-                string dataToWrite = chId + frenq + gain;
-                this.port.Write(dataToWrite);
-                while (toread > 0)
-                {
-                    int r = this.port.Read(result1, offset, toread);
-                    offset += r;
-                    toread -= r;
-                }
-
-                if (result1[11] == '1')
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private void serialPort_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             try
@@ -123,7 +56,6 @@ namespace _8F
 
             }
         }
-
         private static void ProcessPortData(string indata)
         {
             try
@@ -131,11 +63,6 @@ namespace _8F
                 if (!string.IsNullOrEmpty(indata))
                 {
                     var res = JsonConvert.DeserializeObject<Response>(indata);
-                    //foreach (var item in res.FD)
-                    //{
-                    //    item.X = item.X / 10;
-                    //    item.Y = item.X / 10;
-                    //}
                     if (ChannelNo >= res?.CN)
                     {
                         responses.Add(res);
@@ -149,6 +76,7 @@ namespace _8F
                         }
                         ResultCount = ResultOkCount + ResultOkNotCount;
                         IsResponseRefreshRequired = true;
+                        // Maintain logs 
                     }
                 }
             }
@@ -157,7 +85,6 @@ namespace _8F
 
             }
         }
-
         public bool WriteData(string data)
         {
             try
@@ -207,58 +134,7 @@ namespace _8F
                 return false;
             }
         }
-        public bool ReadGraphData()
-        {
-            if (!port.IsOpen)
-            {
-                port.Open();
-            }
-
-            this.port.ReadExisting();
-            this.port.Write("4");
-            int toread = 19;
-            int offset = 0;
-            char[] result = new char[toread];
-            while (toread > 0)
-            {
-                int r = this.port.Read(result, offset, toread);
-                offset += r;
-                toread -= r;
-            }
-
-            var GraphData = new string(result).Split(',');
-
-            return true;
-        }
-        public bool WriteBalance()
-        {
-            if (!port.IsOpen)
-            {
-                port.Open();
-            }
-            this.port.ReadExisting();
-            this.port.Write("1");
-            int toread = 3;
-            int offset = 0;
-            char[] result = new char[toread];
-            while (toread > 0)
-            {
-                int r = this.port.Read(result, offset, toread);
-                offset += r;
-                toread -= r;
-            }
-
-            if (result[2] == '1')
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-
     }
-
     public class ChannelData
     {
         public int Id = 0;
@@ -278,7 +154,6 @@ namespace _8F
         public double ey = 0;
         public double angel = 0;
     }
-
     public class Response
     {
         public int FC;
@@ -293,14 +168,12 @@ namespace _8F
         public int X;
         public int Y;
     }
-
     public class FrequencyWrite
     {
         public int FC;
         public int CN;
         public List<Frequency> FD;
     }
-
     public class Frequency
     {
         public int FN;
@@ -308,14 +181,12 @@ namespace _8F
         public int G;
         public int P;
     }
-
     public class ElliplseWrite
     {
         public int FC;
         public int CN;
         public List<Elliplse> ED;
     }
-
     public class Elliplse
     {
         public int FN;
@@ -326,24 +197,20 @@ namespace _8F
         public double x;
         public double y;
     }
-
     public class FrequencyCount
     {
         public int FC;
         public int C;
         public int NC;
     }
-
     public class Mode
     {
         public int FC;
         public int M;
     }
-
     public class BalanceTest
     {
         public int FC;
         public int CN;
     }
-
 }
