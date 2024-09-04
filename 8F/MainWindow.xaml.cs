@@ -33,13 +33,21 @@ namespace _8F
         DispatcherTimer dispatcherTimer;
         int chNo;
         int factor = 20;
+        int CommunicationType = 0;
         public MainWindow()
         {
             InitializeComponent();
             portCOM = new DeviceCOM();
+            CommunicationType = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CommunicationType"]);
+ 
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
             int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
-            portCOM.InitialPort(portName, baudRate);
+
+            string IpAddress = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["IP"]);
+            int Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]);
+
+            portCOM.InitialPort(CommunicationType, portName, baudRate, IpAddress, Port);
+
             DeviceCOM.responses = new List<Response>();
             chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]);
             DeviceCOM.ChannelNo = chNo;
@@ -595,8 +603,11 @@ namespace _8F
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            if (portCOM.port.IsOpen)
-                portCOM.port.Close();
+            if (CommunicationType == 0)
+            {
+                if (portCOM.port.IsOpen)
+                    portCOM.port.Close();
+            }
         }
         
         public void ClearGraphData(bool IsDataClear = true)

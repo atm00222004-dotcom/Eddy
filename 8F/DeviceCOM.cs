@@ -7,6 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
+using System;
+using System.Threading.Tasks;
+using System.Net.WebSockets;
+using System.Net;
+using System.Printing;
+using System.Windows.Threading;
+using System.Net.Sockets;
+using System.IO;
+
+
+
 namespace _8F
 {
     public class DeviceCOM
@@ -19,25 +30,81 @@ namespace _8F
         public static int ResultCount = 0;
         public static int ResultOkCount = 0;
         public static int ResultOkNotCount = 0;
+        public static int CommunicationType;
         public static string PortName;
         public static int BaudRate;
+        public static string IpAddress;
+        public static int SPort;
         public static int ChannelNo = 4;
-        public void InitialPort(string portName, int baudRate = 115200)
+        DispatcherTimer dispatcherTimer;
+        TcpClient client;
+        NetworkStream stream;
+        public void InitialPort(int communicationType, string portName, int baudRate, string ipAddress, int sport )
         {
+            CommunicationType = communicationType;
             PortName = portName;
             BaudRate = baudRate;
+            IpAddress = ipAddress;
+            SPort = sport;
 
-            port = new SerialPort
+            if (CommunicationType == 0)
             {
-                BaudRate = BaudRate,
-                DataBits = 8,
-                Handshake = Handshake.None,
-                Parity = Parity.None,
-                PortName = portName,
-                StopBits = StopBits.One,
-                ReadTimeout = 500,
-                WriteTimeout = 2000
-            };
+                port = new SerialPort
+                {
+                    BaudRate = BaudRate,
+                    DataBits = 8,
+                    Handshake = Handshake.None,
+                    Parity = Parity.None,
+                    PortName = portName,
+                    StopBits = StopBits.One,
+                    ReadTimeout = 500,
+                    WriteTimeout = 2000
+                };
+            }
+            else if (CommunicationType == 1)
+            {
+                dispatcherTimer = new DispatcherTimer();
+                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimer.Interval = new TimeSpan(10000000);
+                dispatcherTimer.Start();
+
+                client = new TcpClient();
+            }
+
+        }
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            client.NoDelay = false;
+            if (!client.Connected)
+            {
+                client = new TcpClient();
+                IPAddress iPAddress = IPAddress.Parse(IpAddress);
+                var ipEndPoint = new IPEndPoint(iPAddress, SPort);
+                client.Connect(ipEndPoint);
+            }
+            if (client.Connected)
+            {
+                stream = client.GetStream();
+                if (stream.DataAvailable)
+                {                    
+                    try
+                    {
+                        var buffer = new byte[client.Available];
+                        int received = stream.Read(buffer);
+                        var message = Encoding.UTF8.GetString(buffer, 0, received);
+                        new Thread(() =>
+                        {
+                            ProcessPortData(message);
+                        }).Start();
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                }
+            }
         }
         private void serialPort_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
@@ -98,51 +165,86 @@ namespace _8F
         {
             try
             {
-                if (port.IsOpen)
+                if (CommunicationType == 0)
                 {
-                    port.Close();
-                }
+                    if (port.IsOpen)
+                    {
+                        port.Close();
+                    }
 
-                InitialPort(PortName, BaudRate);
+                    InitialPort(CommunicationType, PortName, BaudRate, IpAddress, SPort);
 
-                if (!port.IsOpen)
-                {
-                    port.Open();
-                }
-                this.port.ReadExisting();
-                this.port.Write(data);
-                int toread = 1;
-                int offset = 0;
-                char[] result = new char[toread];
-                while (toread > 0)
-                {
-                    int r = this.port.Read(result, offset, toread);
-                    offset += r;
-                    toread -= r;
-                }
-                if (port.IsOpen)
-                {
-                    port.Close();
-                }
+                    if (!port.IsOpen)
+                    {
+                        port.Open();
+                    }
+                    this.port.ReadExisting();
+                    this.port.Write(data);
+                    int toread = 1;
+                    int offset = 0;
+                    char[] result = new char[toread];
+                    while (toread > 0)
+                    {
+                        int r = this.port.Read(result, offset, toread);
+                        offset += r;
+                        toread -= r;
+                    }
+                    if (port.IsOpen)
+                    {
+                        port.Close();
+                    }
 
-                port.DataReceived += serialPort_DataReceived;
-                if (!port.IsOpen)
-                {
-                    port.Open();
-                }
-                if (result[0] == '0')
-                {
+                    port.DataReceived += serialPort_DataReceived;
+                    if (!port.IsOpen)
+                    {
+                        port.Open();
+                    }
+                    if (result[0] == '0')
+                    {
 
-                    return true;
-                }
+                        return true;
+                    }
 
+                    return false;
+                }
+                else if (CommunicationType == 1)
+                {
+                    dispatcherTimer.Stop();
+                    if (!client.Connected)
+                    {
+                        client = new TcpClient();
+                        IPAddress iPAddress = IPAddress.Parse(IpAddress);
+                        var ipEndPoint = new IPEndPoint(iPAddress, SPort);
+                        client.Connect(ipEndPoint);
+                    }
+
+                    if (client.Connected)
+                    {
+                        var messageBytes = Encoding.UTF8.GetBytes(data);
+                        stream = client.GetStream();
+                        stream.Write(messageBytes, 0, messageBytes.Length);
+                        stream = client.GetStream();
+                        var buffer = new byte[client.Available];
+                        int received = stream.Read(buffer);
+                        stream.Flush();
+                        dispatcherTimer.Start();
+                        return true;
+                    }
+                    dispatcherTimer.Start();
+                    return false;
+                }
                 return false;
             }
             catch (Exception e)
             {
+                if (CommunicationType == 1)
+                {
+                    dispatcherTimer.Start();
+                }
+
                 return false;
             }
-        }
+        }    
     }
     public class ChannelData
     {
