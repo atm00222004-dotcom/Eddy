@@ -38,6 +38,8 @@ namespace _8F
         {
             InitializeComponent();
             portCOM = new DeviceCOM();
+
+            factor = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
             CommunicationType = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CommunicationType"]);
  
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
