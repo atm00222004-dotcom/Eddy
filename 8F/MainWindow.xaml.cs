@@ -33,6 +33,7 @@ namespace _8F
         DispatcherTimer dispatcherTimer;
         int chNo;
         int factor = 20;
+        
         int CommunicationType = 0;
         public MainWindow()
         {
@@ -40,6 +41,8 @@ namespace _8F
             portCOM = new DeviceCOM();
 
             factor = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
+            DeviceCOM.DefaultWidth = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width"]);
+            DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height"]);
             CommunicationType = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CommunicationType"]);
  
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
@@ -590,6 +593,17 @@ namespace _8F
             portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
 
             ClearGraphData();
+
+            foreach (var ch in DeviceCOM.channelDatas)
+            {
+                var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
+                var res = JsonConvert.DeserializeObject<Response>(rData);
+                res.CN = ch.Id;
+                res.IsBalacenced = true;
+                DeviceCOM.responses.Add(res);
+            }
+            DeviceCOM.IsResponseRefreshRequired = true;
+
         }
 
         private void btnTest_Click(object sender, RoutedEventArgs e)
@@ -681,25 +695,39 @@ namespace _8F
                     //r1.Stroke = new SolidColorBrush(Colors.Black);
                     if (selectedChannelData.IndexOf(item) == selectedChannelData.Count-1)
                     {
-                        el1.Fill = new SolidColorBrush(Colors.Blue);
-                        if (item.OR == 1)
+                        if (item.IsBalacenced)
                         {
-                            btnOverallResult.Background = new SolidColorBrush(Colors.Green);
-                        }
+                            el1.Fill = new SolidColorBrush(Colors.Brown);
+                        } 
                         else
                         {
-                            btnOverallResult.Background = new SolidColorBrush(Colors.Red);
+                            el1.Fill = new SolidColorBrush(Colors.Blue);
+                            if (item.OR == 1)
+                            {
+                                btnOverallResult.Background = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                btnOverallResult.Background = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     else
                     {
-                        if (fd.R == 1)
+                        if (item.IsBalacenced)
                         {
-                            el1.Fill = new SolidColorBrush(Colors.Green);
+                            el1.Fill = new SolidColorBrush(Colors.Brown);
                         }
                         else
-                        {
-                            el1.Fill = new SolidColorBrush(Colors.Red);
+                        { 
+                            if (fd.R == 1)
+                            {
+                                el1.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                el1.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     
@@ -707,104 +735,128 @@ namespace _8F
                     {
                         cn1.Children.Add(el1);
                         lblGraphXY1.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                        if (fd.R == 1)
+                        if (!item.IsBalacenced)
                         {
-                            rResult1.Fill = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            rResult1.Fill = new SolidColorBrush(Colors.Red);
+                            if (fd.R == 1)
+                            {
+                                rResult1.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                rResult1.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     else if (fd.FN == 2)
                     {
                         cn2.Children.Add(el1);
                         lblGraphXY2.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                        if (fd.R == 1)
+                        if (!item.IsBalacenced)
                         {
-                            rResult2.Fill = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            rResult2.Fill = new SolidColorBrush(Colors.Red);
+                            if (fd.R == 1)
+                            {
+                                rResult2.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                rResult2.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     else if (fd.FN == 3)
                     {
                         cn3.Children.Add(el1);
                         lblGraphXY3.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                        if (fd.R == 1)
+                        if (!item.IsBalacenced)
                         {
-                            rResult3.Fill = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            rResult3.Fill = new SolidColorBrush(Colors.Red);
+                            if (fd.R == 1)
+                            {
+                                rResult3.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                rResult3.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     else if (fd.FN == 4)
                     {
                         cn4.Children.Add(el1);
                         lblGraphXY4.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                        if (fd.R == 1)
+                        if (!item.IsBalacenced)
                         {
-                            rResult4.Fill = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            rResult4.Fill = new SolidColorBrush(Colors.Red);
+                            if (fd.R == 1)
+                            {
+                                rResult4.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                rResult4.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     else if (fd.FN == 5)
                     {
                         cn5.Children.Add(el1);
                         lblGraphXY5.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                        if (fd.R == 1)
+                        if (!item.IsBalacenced)
                         {
-                            rResult5.Fill = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            rResult5.Fill = new SolidColorBrush(Colors.Red);
+                            if (fd.R == 1)
+                            {
+                                rResult5.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                rResult5.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     else if (fd.FN == 6)
                     {
                         cn6.Children.Add(el1);
                         lblGraphXY6.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                        if (fd.R == 1)
+                        if (!item.IsBalacenced)
                         {
-                            rResult6.Fill = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            rResult6.Fill = new SolidColorBrush(Colors.Red);
+                            if (fd.R == 1)
+                            {
+                                rResult6.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                rResult6.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     else if (fd.FN == 7)
                     {
                         cn7.Children.Add(el1);
                         lblGraphXY7.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                        if (fd.R == 1)
+                        if (!item.IsBalacenced)
                         {
-                            rResult7.Fill = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            rResult7.Fill = new SolidColorBrush(Colors.Red);
+                            if (fd.R == 1)
+                            {
+                                rResult7.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                rResult7.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                     else if (fd.FN == 8)
                     {
                         cn8.Children.Add(el1);
                         lblGraphXY8.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                        if (fd.R == 1)
+                        if (!item.IsBalacenced)
                         {
-                            rResult8.Fill = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            rResult8.Fill = new SolidColorBrush(Colors.Red);
+                            if (fd.R == 1)
+                            {
+                                rResult8.Fill = new SolidColorBrush(Colors.Green);
+                            }
+                            else
+                            {
+                                rResult8.Fill = new SolidColorBrush(Colors.Red);
+                            }
                         }
                     }
                 }

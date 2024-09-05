@@ -36,6 +36,8 @@ namespace _8F
         public static string IpAddress;
         public static int SPort;
         public static int ChannelNo = 4;
+        public static int DefaultHeight = 0;
+        public static int DefaultWidth = 0;
         DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;
@@ -259,8 +261,8 @@ namespace _8F
         public int freq = 400;
         public int gain = 10;
         public int phase = 0;
-        public double height = 2000;
-        public double width = 1400;
+        public double height = DeviceCOM.DefaultHeight;
+        public double width = DeviceCOM.DefaultWidth;
         public double ex = 0;
         public double ey = 0;
         public double angel = 0;
@@ -270,6 +272,7 @@ namespace _8F
         public int FC;
         public int CN;
         public int OR;
+        public bool IsBalacenced = false;
         public List<FreqResult> FD;
     }
     public class FreqResult
