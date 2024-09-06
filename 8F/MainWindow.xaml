@@ -526,24 +526,24 @@ Canvas.Top="227" />
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Border Cursor="Hand" Width="150" Height="80" Name="btnBalance" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Cursor="Hand" Width="130" Height="80" Name="btnBalance" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Balance" ></Label>
             </Border>
 
-            <Border Cursor="Hand" Width="150" Height="80" Name="btnTest" MouseDown="btnTest_Click" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Cursor="Hand" Width="130" Height="80" Name="btnTest" MouseDown="btnTest_Click" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Test" ></Label>
             </Border>
 
-            <Border Cursor="Hand" Width="150" Height="80" Name="btnClear" MouseDown="btnClear_Click" Margin="8" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Cursor="Hand" Width="130" Height="80" Name="btnClear" MouseDown="btnClear_Click" Margin="8" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Clear" ></Label>
             </Border>
 
-            <Border Visibility="Hidden" Cursor="Hand" Width="150" Height="80" Name="btnLog" MouseDown="btnLog_MouseDown"  Margin="8" Background="#305371" Grid.Column="3" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Name="lblLog" HorizontalAlignment="Center" Content="Start Logs" ></Label>
+            <Border Visibility="Visible" Cursor="Hand" Width="130" Height="80" Name="btnLog" MouseDown="btnLog_MouseDown"  Margin="8" Background="#305371" Grid.Column="3" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Name="lblLog" HorizontalAlignment="Center" Content="Start Log" ></Label>
             </Border>
 
-            <Border Cursor="Hand" Width="150" Height="80" Name="btnResetCounter" MouseDown="btnResetCounter_Click" Margin="8" Background="#305371" Grid.Column="4" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Reset Count" ></Label>
+            <Border Cursor="Hand" Width="130" Height="80" Name="btnResetCounter" MouseDown="btnResetCounter_Click" Margin="8" Background="#305371" Grid.Column="4" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Reset Count" ></Label>
             </Border>
 
             <!--<Button Content="Balance" Click="btnBalance_Click" Name="btnBalance" Grid.Column="0" Grid.Row="0" />-->
@@ -572,7 +572,7 @@ Canvas.Top="227" />
                 </Border>
             </Grid>
 
-            <Border Width="150" Height="135" Name="btnOverallResult" Margin="2" Background="LightBlue" Grid.Column="6" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Width="130" Height="135" Name="btnOverallResult" Margin="2" Background="LightBlue" Grid.Column="6" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Overall Result" ></Label>
             </Border>
 

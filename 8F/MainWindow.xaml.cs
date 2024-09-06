@@ -979,7 +979,7 @@ namespace _8F
                     {
                         string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                         File.WriteAllText(filename, conecnt);
-                        this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                        //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                         DeviceCOM.FileName = filename;
                         //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                     }
@@ -1011,7 +1011,7 @@ namespace _8F
 
                         string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                         File.WriteAllText(filename, conecnt);
-                        this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                        //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                         //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                         DeviceCOM.FileName = filename;
                     }
@@ -1046,7 +1046,7 @@ namespace _8F
                         mainWindow.ClearGraphData();
                         
                         mainWindow.ImplementChanges(0);
-                        this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                        //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                         DeviceCOM.FileName = filename;
                     }
 
@@ -1067,12 +1067,12 @@ namespace _8F
                 DeviceCOM.IsLogEnable = false;
                 DeviceCOM.FileName = "None";
                 this.mainWindow.lblLog.Content = "Start Log";
-                this.mainWindow.btnLog.Visibility = Visibility.Hidden;
+                //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
             }
 
             else if (Header == "Exit")
             {
-                this.mainWindow.btnLog.Visibility = Visibility.Hidden;
+                //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
                 DeviceCOM.FileName = "None";
                 mainWindow.Close();
             }
