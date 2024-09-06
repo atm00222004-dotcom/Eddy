@@ -523,6 +523,7 @@ Canvas.Top="227" />
                 <ColumnDefinition/>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
             <Border Cursor="Hand" Width="150" Height="80" Name="btnBalance" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
@@ -537,7 +538,11 @@ Canvas.Top="227" />
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Clear" ></Label>
             </Border>
 
-            <Border Cursor="Hand" Width="150" Height="80" Name="btnResetCounter" MouseDown="btnResetCounter_Click" Margin="8" Background="#305371" Grid.Column="3" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Visibility="Hidden" Cursor="Hand" Width="150" Height="80" Name="btnLog" MouseDown="btnLog_MouseDown"  Margin="8" Background="#305371" Grid.Column="3" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Name="lblLog" HorizontalAlignment="Center" Content="Start Logs" ></Label>
+            </Border>
+
+            <Border Cursor="Hand" Width="150" Height="80" Name="btnResetCounter" MouseDown="btnResetCounter_Click" Margin="8" Background="#305371" Grid.Column="4" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Reset Count" ></Label>
             </Border>
 
@@ -547,7 +552,7 @@ Canvas.Top="227" />
             <!--<Button Content="Reset Counter" Name="btnResetCounter" Click="btnResetCounter_Click" Grid.Column="3" Grid.Row="0" />-->
             <!--<Button Content="Result Count - 0" Name="btnCounter"  Grid.Column="4" Grid.Row="0" />-->
 
-            <Grid Grid.Column="4" Grid.Row="0">
+            <Grid Grid.Column="5" Grid.Row="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
@@ -567,7 +572,7 @@ Canvas.Top="227" />
                 </Border>
             </Grid>
 
-            <Border Width="150" Height="135" Name="btnOverallResult" MouseDown="btnResetCounter_Click" Margin="2" Background="LightBlue" Grid.Column="5" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Width="150" Height="135" Name="btnOverallResult" Margin="2" Background="LightBlue" Grid.Column="6" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Overall Result" ></Label>
             </Border>
 

@@ -15,6 +15,7 @@ using System.Printing;
 using System.Windows.Threading;
 using System.Net.Sockets;
 using System.IO;
+using Npgsql;
 
 
 
@@ -38,10 +39,16 @@ namespace _8F
         public static int ChannelNo = 4;
         public static int DefaultHeight = 0;
         public static int DefaultWidth = 0;
+        public static string ConnectionString;
+        public static bool IsLogEnable = false;
+        public static int LogType = 0;
+        public static string LogFilePath;
+        public static string FileName = "None";
         DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;
-        public void InitialPort(int communicationType, string portName, int baudRate, string ipAddress, int sport )
+
+        public void InitialPort(int communicationType, string portName, int baudRate, string ipAddress, int sport)
         {
             CommunicationType = communicationType;
             PortName = portName;
@@ -88,7 +95,7 @@ namespace _8F
             {
                 stream = client.GetStream();
                 if (stream.DataAvailable)
-                {                    
+                {
                     try
                     {
                         var buffer = new byte[client.Available];
@@ -126,7 +133,7 @@ namespace _8F
 
             }
         }
-        private static void ProcessPortData(string indata)
+        private void ProcessPortData(string indata)
         {
             try
             {
@@ -153,7 +160,11 @@ namespace _8F
                             }
                             ResultCount = ResultOkCount + ResultOkNotCount;
                             IsResponseRefreshRequired = true;
-                            // Maintain logs 
+                            // Maintain logs ==> ChId, Overall Result, File Name, TimeStamp 
+                            if (IsLogEnable)
+                            {
+                                WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now);
+                            }
                         }
                     }
                 }
@@ -163,6 +174,52 @@ namespace _8F
 
             }
         }
+
+        public void WriteLog(int ChId, bool Result, DateTime TimeStamp)
+        {
+            try
+            {
+                if (LogType ==0 )
+                {
+                    string realpath = LogFilePath + "Logs_" + System.DateTime.Now.ToShortDateString() + ".csv";
+                    List<string> data = new List<string>();
+                    if (!File.Exists(realpath))
+                    {
+                        string header = "ChId,FileName,Result,TimeStamp";
+                        data.Add(header);
+                    }
+
+                    string log = ChId.ToString() + "," + FileName + "," + Result.ToString() + "," + TimeStamp.ToString();
+                    data.Add(log);
+                    File.AppendAllLines(realpath, data);
+                    
+                }
+                else if (LogType == 1)
+                {
+                    using (var con = new NpgsqlConnection(ConnectionString))
+                    {
+                        string sql = string.Empty;
+                        con.Open();
+
+                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"FileName\", \"Result\", \"TimeStamp\")\r\n\t" +
+                            "VALUES (" +
+                            ChId + ", '" +
+                            FileName + "', " +
+                            Result + ", '" +
+                           TimeStamp + "'); SELECT max(\"Id\") \r\n\tFROM public.\"Logs\";";
+
+                        var cmd = new NpgsqlCommand(sql, con);
+                        var id = cmd.ExecuteScalar();
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    
         public bool WriteData(string data)
         {
             try

@@ -44,12 +44,15 @@ namespace _8F
             DeviceCOM.DefaultWidth = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width"]);
             DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height"]);
             CommunicationType = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CommunicationType"]);
- 
-            string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
             int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
+            DeviceCOM.LogFilePath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogFilePath"]);
+            string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
+            DeviceCOM.LogType = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["LogType"]);
 
             string IpAddress = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["IP"]);
             int Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]);
+
+            DeviceCOM.ConnectionString = System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"];
 
             portCOM.InitialPort(CommunicationType, portName, baudRate, IpAddress, Port);
 
@@ -92,8 +95,8 @@ namespace _8F
                         {
                             new MenuItemViewModel { Header = "New", mainWindow =this },
                             new MenuItemViewModel { Header = "Open" ,mainWindow =this },
-                            new MenuItemViewModel { Header = "Save",  },
-                            new MenuItemViewModel { Header = "Save As" },
+                            new MenuItemViewModel { Header = "Save", mainWindow =this },
+                            new MenuItemViewModel { Header = "Save As", mainWindow =this },
                             new MenuItemViewModel { Header = "Exit" ,mainWindow =this }
                         }
                 },
@@ -875,6 +878,20 @@ namespace _8F
             lblNotOkCount.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
 
         }
+
+        private void btnLog_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (DeviceCOM.IsLogEnable)
+            {
+                DeviceCOM.IsLogEnable = false;
+                lblLog.Content = "Start Log";
+            }
+            else
+            {
+                DeviceCOM.IsLogEnable = true;
+                lblLog.Content = "Stop Log";
+            }
+        }
     }
 
     public class MenuItemViewModel
@@ -953,7 +970,8 @@ namespace _8F
 
                             string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                             File.WriteAllText(filename, conecnt);
-
+                            this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                            DeviceCOM.FileName = filename;
                             //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                         }
 
@@ -961,7 +979,8 @@ namespace _8F
                     {
                         string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                         File.WriteAllText(filename, conecnt);
-
+                        this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                        DeviceCOM.FileName = filename;
                         //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                     }
                     
@@ -992,8 +1011,9 @@ namespace _8F
 
                         string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                         File.WriteAllText(filename, conecnt);
-
+                        this.mainWindow.btnLog.Visibility = Visibility.Visible;
                         //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                        DeviceCOM.FileName = filename;
                     }
 
                     
@@ -1026,6 +1046,8 @@ namespace _8F
                         mainWindow.ClearGraphData();
                         
                         mainWindow.ImplementChanges(0);
+                        this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                        DeviceCOM.FileName = filename;
                     }
 
                     
@@ -1042,10 +1064,16 @@ namespace _8F
                 mainWindow.InitialGraphData(false);
                 mainWindow.ClearGraphData();                
                 mainWindow.ImplementChanges(0);
+                DeviceCOM.IsLogEnable = false;
+                DeviceCOM.FileName = "None";
+                this.mainWindow.lblLog.Content = "Start Log";
+                this.mainWindow.btnLog.Visibility = Visibility.Hidden;
             }
 
             else if (Header == "Exit")
             {
+                this.mainWindow.btnLog.Visibility = Visibility.Hidden;
+                DeviceCOM.FileName = "None";
                 mainWindow.Close();
             }
         }
