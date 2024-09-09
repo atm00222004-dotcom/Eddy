@@ -41,15 +41,15 @@ namespace _8F
         public static int DefaultWidth = 0;
         public static string ConnectionString;
         public static bool IsLogEnable = false;
-        public static int LogType = 0;
-        public static string LogFilePath;
-        public static string FileName = "None";
+        public static Part part;
+
         DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;
 
         public void InitialPort(int communicationType, string portName, int baudRate, string ipAddress, int sport)
         {
+            DeviceCOM.part = new Part();
             CommunicationType = communicationType;
             PortName = portName;
             BaudRate = baudRate;
@@ -179,39 +179,30 @@ namespace _8F
         {
             try
             {
-                if (LogType ==0 )
+                using (var con = new NpgsqlConnection(ConnectionString))
                 {
-                    string realpath = LogFilePath + "Logs_" + System.DateTime.Now.ToShortDateString() + ".csv";
-                    List<string> data = new List<string>();
-                    if (!File.Exists(realpath))
+                    string sql = string.Empty;
+                    con.Open();
+                    var fdData = JsonConvert.SerializeObject(DeviceCOM.channelDatas.FirstOrDefault( r=> r.Id == ChId ).graphDatas);
+                    var partData = JsonConvert.SerializeObject(DeviceCOM.part);
+                    sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PatData\", \"PartName\", \"BatchNo\", \"TimeStamp\")\r\n\t" +
+                        "VALUES (" +
+                        ChId + ", '" +
+                        Result + "', '" +
+                        fdData + "', '" +
+                        partData + "', '" +
+                        DeviceCOM.part.Name + "', " +
+                        DeviceCOM.part.BatchNo + ", '" +
+                        TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"PartName\" = '" + DeviceCOM.part.Name + "' and \"BatchNo\" = "+DeviceCOM.part.BatchNo + " ;";
+
+                    var cmd = new NpgsqlCommand(sql, con);
+                    var count = cmd.ExecuteScalar();
+
+                    if (DeviceCOM.part.BatchType == 1 && Convert.ToInt32(count) >= DeviceCOM.part.BatchSize)
                     {
-                        string header = "ChId,FileName,Result,TimeStamp";
-                        data.Add(header);
+                        DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
                     }
 
-                    string log = ChId.ToString() + "," + FileName + "," + Result.ToString() + "," + TimeStamp.ToString();
-                    data.Add(log);
-                    File.AppendAllLines(realpath, data);
-                    
-                }
-                else if (LogType == 1)
-                {
-                    using (var con = new NpgsqlConnection(ConnectionString))
-                    {
-                        string sql = string.Empty;
-                        con.Open();
-
-                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"FileName\", \"Result\", \"TimeStamp\")\r\n\t" +
-                            "VALUES (" +
-                            ChId + ", '" +
-                            FileName + "', " +
-                            Result + ", '" +
-                           TimeStamp + "'); SELECT max(\"Id\") \r\n\tFROM public.\"Logs\";";
-
-                        var cmd = new NpgsqlCommand(sql, con);
-                        var id = cmd.ExecuteScalar();
-
-                    }
                 }
             }
             catch (Exception ex)
@@ -383,5 +374,16 @@ namespace _8F
     {
         public int FC;
         public int CN;
+    }
+
+    public class Part
+    {
+        public string Name = "";
+        public string Grade = "";
+        public string CheckedBy = "";
+        public string CompanyName = "";
+        public int BatchType= 0;
+        public int BatchSize = 5;
+        public int BatchNo = 1;
     }
 }

@@ -16,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="PartConfig.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="CircleSetting.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

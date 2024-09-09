@@ -5,6 +5,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.IO.Ports;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Channels;
 using System.Windows;
@@ -29,6 +30,7 @@ namespace _8F
     {
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
         public CircleSetting ellipsesPop { get; set; }
+        public PartConfig partConfig { get; set; }
         public DeviceCOM portCOM;
         DispatcherTimer dispatcherTimer;
         int chNo;
@@ -45,9 +47,7 @@ namespace _8F
             DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height"]);
             CommunicationType = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CommunicationType"]);
             int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
-            DeviceCOM.LogFilePath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogFilePath"]);
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
-            DeviceCOM.LogType = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["LogType"]);
 
             string IpAddress = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["IP"]);
             int Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]);
@@ -135,6 +135,17 @@ namespace _8F
             if (DeviceCOM.IsResponseClearRequired)
             {
                 ClearGraphData();
+
+                foreach (var ch in DeviceCOM.channelDatas)
+                {
+                    var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
+                    var res = JsonConvert.DeserializeObject<Response>(rData);
+                    res.CN = ch.Id;
+                    res.IsBalacenced = true;
+                    DeviceCOM.responses.Add(res);
+                }
+                DeviceCOM.IsResponseRefreshRequired = true;
+                DeviceCOM.IsResponseClearRequired = false;
             }
         }
 
@@ -593,19 +604,25 @@ namespace _8F
         private void btnBalance_Click(object sender, RoutedEventArgs e)
         {
             BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
-            portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
-
-            ClearGraphData();
-
-            foreach (var ch in DeviceCOM.channelDatas)
+            var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+            if (rat)
             {
-                var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
-                var res = JsonConvert.DeserializeObject<Response>(rData);
-                res.CN = ch.Id;
-                res.IsBalacenced = true;
-                DeviceCOM.responses.Add(res);
+                ClearGraphData();
+
+                foreach (var ch in DeviceCOM.channelDatas)
+                {
+                    var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
+                    var res = JsonConvert.DeserializeObject<Response>(rData);
+                    res.CN = ch.Id;
+                    res.IsBalacenced = true;
+                    DeviceCOM.responses.Add(res);
+                }
+                DeviceCOM.IsResponseRefreshRequired = true;
             }
-            DeviceCOM.IsResponseRefreshRequired = true;
+            else
+            {
+                MessageBox.Show("Error Information", "Unable to balance due to the error in the communication!");
+            }
 
         }
 
@@ -885,11 +902,27 @@ namespace _8F
             {
                 DeviceCOM.IsLogEnable = false;
                 lblLog.Content = "Start Log";
+                lblPartLogs.Content = "";
             }
             else
             {
-                DeviceCOM.IsLogEnable = true;
+                partConfig = new PartConfig();
+                partConfig.Closing += partConfig_Closing;
+                partConfig.ShowDialog();
+
+            }
+        }
+
+        private void partConfig_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (DeviceCOM.IsLogEnable)
+            {
                 lblLog.Content = "Stop Log";
+                lblPartLogs.Content = DeviceCOM.part.Name + ", " + DeviceCOM.part.Grade + ", " + DeviceCOM.part.CompanyName;
+            }
+            else
+            {
+                lblPartLogs.Content = "";
             }
         }
     }
@@ -971,8 +1004,8 @@ namespace _8F
                             string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                             File.WriteAllText(filename, conecnt);
                             this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                            DeviceCOM.FileName = filename;
                             //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                            this.mainWindow.lblConfigFileName.Content = filename;
                         }
 
                     } else
@@ -980,7 +1013,6 @@ namespace _8F
                         string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                         File.WriteAllText(filename, conecnt);
                         //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                        DeviceCOM.FileName = filename;
                         //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                     }
                     
@@ -1013,7 +1045,7 @@ namespace _8F
                         File.WriteAllText(filename, conecnt);
                         //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                         //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
-                        DeviceCOM.FileName = filename;
+                        this.mainWindow.lblConfigFileName.Content = filename;
                     }
 
                     
@@ -1047,7 +1079,7 @@ namespace _8F
                         
                         mainWindow.ImplementChanges(0);
                         //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                        DeviceCOM.FileName = filename;
+                        this.mainWindow.lblConfigFileName.Content = filename;
                     }
 
                     
@@ -1065,15 +1097,16 @@ namespace _8F
                 mainWindow.ClearGraphData();                
                 mainWindow.ImplementChanges(0);
                 DeviceCOM.IsLogEnable = false;
-                DeviceCOM.FileName = "None";
                 this.mainWindow.lblLog.Content = "Start Log";
+                DeviceCOM.part = new Part();
+                this.mainWindow.lblPartLogs.Content = "";
+                this.mainWindow.lblConfigFileName.Content = "";
                 //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
             }
 
             else if (Header == "Exit")
             {
                 //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
-                DeviceCOM.FileName = "None";
                 mainWindow.Close();
             }
         }
