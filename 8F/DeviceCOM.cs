@@ -185,7 +185,7 @@ namespace _8F
                     con.Open();
                     var fdData = JsonConvert.SerializeObject(DeviceCOM.channelDatas.FirstOrDefault( r=> r.Id == ChId ).graphDatas);
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
-                    sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PatData\", \"PartName\", \"BatchNo\", \"TimeStamp\")\r\n\t" +
+                    sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchNo\", \"TimeStamp\")\r\n\t" +
                         "VALUES (" +
                         ChId + ", '" +
                         Result + "', '" +
