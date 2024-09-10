@@ -48,6 +48,12 @@ namespace _8F
             try
             {
                 var msg = Validaton();
+
+                if (msg.Count == 0 && DeviceCOM.IsSystemBusy)
+                {
+                    msg.Add("System is busy so you can not perform this command, please wait...");
+                }
+
                 if (msg.Count == 0)
                 {
                     var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);

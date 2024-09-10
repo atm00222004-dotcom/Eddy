@@ -41,6 +41,7 @@ namespace _8F
         public static int DefaultWidth = 0;
         public static string ConnectionString;
         public static bool IsLogEnable = false;
+        public static bool IsSystemBusy = false;
         public static Part part;
 
         DispatcherTimer dispatcherTimer;
@@ -166,6 +167,14 @@ namespace _8F
                                 WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now);
                             }
                         }
+                    }
+                    else if (res.FC == 21)
+                    {
+                        IsSystemBusy = true;
+                    }
+                    else if (res.FC == 22)
+                    {
+                        IsSystemBusy = false;
                     }
                 }
             }
@@ -294,7 +303,90 @@ namespace _8F
 
                 return false;
             }
-        }    
+        }
+
+        public void GetSystemStatus(string data)
+        {
+            try
+            {
+                if (CommunicationType == 0)
+                {
+                    if (port.IsOpen)
+                    {
+                        port.Close();
+                    }
+
+                    InitialPort(CommunicationType, PortName, BaudRate, IpAddress, SPort);
+
+                    if (!port.IsOpen)
+                    {
+                        port.Open();
+                    }
+                    this.port.ReadExisting();
+                    this.port.Write(data);
+                    int toread = 1;
+                    int offset = 0;
+                    char[] result = new char[toread];
+                    while (toread > 0)
+                    {
+                        int r = this.port.Read(result, offset, toread);
+                        offset += r;
+                        toread -= r;
+                    }
+                    if (port.IsOpen)
+                    {
+                        port.Close();
+                    }
+
+                    port.DataReceived += serialPort_DataReceived;
+                    if (!port.IsOpen)
+                    {
+                        port.Open();
+                    }
+                    if (result[0] == 21)
+                    {
+                        DeviceCOM.IsSystemBusy = true;                       
+                    }
+                }
+                else if (CommunicationType == 1)
+                {
+                    dispatcherTimer.Stop();
+                    if (!client.Connected)
+                    {
+                        client = new TcpClient();
+                        IPAddress iPAddress = IPAddress.Parse(IpAddress);
+                        var ipEndPoint = new IPEndPoint(iPAddress, SPort);
+                        client.Connect(ipEndPoint);
+                    }
+
+                    if (client.Connected)
+                    {
+                        var messageBytes = Encoding.UTF8.GetBytes(data);
+                        stream = client.GetStream();
+                        stream.Write(messageBytes, 0, messageBytes.Length);
+                        stream = client.GetStream();
+                        var buffer = new byte[client.Available];
+                        int received = stream.Read(buffer);
+                        stream.Flush();
+                        dispatcherTimer.Start();
+                        if (buffer[0] == 21)
+                        {
+                            DeviceCOM.IsSystemBusy = true;
+                        }
+                    }
+                    dispatcherTimer.Start();
+                }                
+            }
+            catch (Exception e)
+            {
+                if (CommunicationType == 1)
+                {
+                    dispatcherTimer.Start();
+                }
+
+                return false;
+            }
+        }
     }
     public class ChannelData
     {
@@ -369,6 +461,10 @@ namespace _8F
     {
         public int FC;
         public int M;
+    }
+    public class Status
+    {
+        public int FC;        
     }
     public class BalanceTest
     {
