@@ -134,6 +134,14 @@ namespace _8F
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
+            if(DeviceCOM.IsSystemBusy)
+            {
+                brStatus.Background = new SolidColorBrush(Colors.DarkGreen);                
+            }
+            else
+            {
+                brStatus.Background = new SolidColorBrush(Colors.DarkRed);
+            }
             if (DeviceCOM.IsResponseRefreshRequired)
             {
                 RefreshResponse();
@@ -668,7 +676,7 @@ namespace _8F
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
-            ClearGraphData();
+            ClearGraphDataWithoutBalance();
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -679,12 +687,26 @@ namespace _8F
                     portCOM.port.Close();
             }
         }
-        
+        public void ClearGraphDataWithoutBalance()
+        {
+            var balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced).ToList();
+            ClearGraphData();
+            if (balaceData.Count > 0)
+            {
+                DeviceCOM.responses.AddRange(balaceData);
+            }
+            DeviceCOM.IsResponseRefreshRequired = true;
+        }
         public void ClearGraphData(bool IsDataClear = true)
         {
             if (IsDataClear)
             {
+                var balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced).ToList();
                 DeviceCOM.responses = new List<Response>();
+                if (balaceData.Count>0)
+                {
+
+                }
             }
             cn1.Children.Clear();
             rResult1.Fill = new SolidColorBrush(Colors.White);
