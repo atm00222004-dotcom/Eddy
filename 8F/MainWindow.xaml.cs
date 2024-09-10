@@ -111,8 +111,6 @@ namespace _8F
             };
             DataContext = this;
 
-
-
             InitialGraphData(true);
 
             dispatcherTimer = new DispatcherTimer();
@@ -121,9 +119,9 @@ namespace _8F
             dispatcherTimer.Start();
 
             Status status = new Status() { FC = 23 };
-            portCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
+            var rat= portCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
 
-            if (DeviceCOM.IsSystemBusy)
+            if (DeviceCOM.IsSystemBusy || !rat)
             {
                 ImplementChanges(1);
             }

@@ -305,7 +305,7 @@ namespace _8F
             }
         }
 
-        public void GetSystemStatus(string data)
+        public bool GetSystemStatus(string data)
         {
             try
             {
@@ -375,7 +375,8 @@ namespace _8F
                         }
                     }
                     dispatcherTimer.Start();
-                }                
+                }
+                return true;
             }
             catch (Exception e)
             {
