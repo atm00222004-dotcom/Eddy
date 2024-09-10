@@ -136,11 +136,11 @@ namespace _8F
         {
             if(DeviceCOM.IsSystemBusy)
             {
-                brStatus.Background = new SolidColorBrush(Colors.DarkGreen);                
+                brStatus.Background = new SolidColorBrush(Colors.DarkRed);
             }
             else
             {
-                brStatus.Background = new SolidColorBrush(Colors.DarkRed);
+                brStatus.Background = new SolidColorBrush(Colors.DarkGreen); 
             }
             if (DeviceCOM.IsResponseRefreshRequired)
             {
