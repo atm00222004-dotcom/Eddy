@@ -137,6 +137,11 @@ namespace _8F
             if(DeviceCOM.IsSystemBusy)
             {
                 brStatus.Background = new SolidColorBrush(Colors.DarkRed);
+
+                if (DeviceCOM.busyStamp.AddSeconds(20) < System.DateTime.Now)
+                {
+                    DeviceCOM.IsSystemBusy = false;
+                }
             }
             else
             {
@@ -625,34 +630,35 @@ namespace _8F
             if (DeviceCOM.IsSystemBusy)
             {
                 MessageBox.Show("System is busy so you can not perform this command, please wait...", "System Information");
-                return;
-            }
-
-            if (DeviceCOM.IsLogEnable)
-            {
-                MessageBox.Show("While logging you can not perform this command, please stop the log.", "Command Conflict");
             }
             else
             {
-                BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
-                var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
-                if (rat)
+                if (DeviceCOM.IsLogEnable)
                 {
-                    ClearGraphData();
-
-                    foreach (var ch in DeviceCOM.channelDatas)
-                    {
-                        var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
-                        var res = JsonConvert.DeserializeObject<Response>(rData);
-                        res.CN = ch.Id;
-                        res.IsBalacenced = true;
-                        DeviceCOM.responses.Add(res);
-                    }
-                    DeviceCOM.IsResponseRefreshRequired = true;
+                    MessageBox.Show("While logging you can not perform this command, please stop the log.", "Command Conflict");
                 }
                 else
                 {
-                    MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
+                    BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
+                    var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                    if (rat)
+                    {
+                        ClearGraphData();
+
+                        foreach (var ch in DeviceCOM.channelDatas)
+                        {
+                            var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
+                            var res = JsonConvert.DeserializeObject<Response>(rData);
+                            res.CN = ch.Id;
+                            res.IsBalacenced = true;
+                            DeviceCOM.responses.Add(res);
+                        }
+                        DeviceCOM.IsResponseRefreshRequired = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
+                    }
                 }
             }
 
@@ -663,14 +669,16 @@ namespace _8F
             if (DeviceCOM.IsSystemBusy)
             {
                 MessageBox.Show("System is busy so you can not perform this command, please wait...", "System Information");
-                return;
-            }
 
-            BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
-            var rat =  portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
-            if (!rat)
+            }
+            else
             {
-                MessageBox.Show("Unable to start test due to the error in the communication!", "Error Information");
+                BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
+                var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                if (!rat)
+                {
+                    MessageBox.Show("Unable to start test due to the error in the communication!", "Error Information");
+                }
             }
         }
 
@@ -1020,39 +1028,81 @@ namespace _8F
                 if ((Header == "Open" || Header == "New" || Header == "Write Configuration") && DeviceCOM.IsSystemBusy)
                 {
                     MessageBox.Show("System is busy so you can not perform this command, please wait...", "System Information");
-                    return;
                 }
-                if (Header == "Change Configuration")
+                else
                 {
-                    freqPop = new Freq();
-                    freqPop.Closing += freqPop_Closing;
-                    freqPop.portCOM = mainWindow.portCOM;
-                    freqPop.ShowDialog();
-                }
-                else if (Header == "Threshold Setting")
-                {
-                    ellipsesPop = new CircleSetting("D1");
-                    ellipsesPop.Closing += ellipsesPop_Closing;
-                    ellipsesPop.portCOM = mainWindow.portCOM;
-                    ellipsesPop.ShowDialog();
-                }
-                else if (Header == "Write Configuration")
-                {
-                    try
+                    if (Header == "Change Configuration")
                     {
-                        mainWindow.ImplementChanges(0);
-                        MessageBox.Show("Configuation Write successfully!!", "Information");
+                        freqPop = new Freq();
+                        freqPop.Closing += freqPop_Closing;
+                        freqPop.portCOM = mainWindow.portCOM;
+                        freqPop.ShowDialog();
                     }
-                    catch (Exception ex)
+                    else if (Header == "Threshold Setting")
                     {
-                        MessageBox.Show("Error while writing the configuration!!!!", "Information");
+                        ellipsesPop = new CircleSetting("D1");
+                        ellipsesPop.Closing += ellipsesPop_Closing;
+                        ellipsesPop.portCOM = mainWindow.portCOM;
+                        ellipsesPop.ShowDialog();
                     }
-                }
-                else if (Header == "Save")
-                {
-                    try
+                    else if (Header == "Write Configuration")
                     {
-                        if (String.IsNullOrEmpty(filename))
+                        try
+                        {
+                            mainWindow.ImplementChanges(0);
+                            MessageBox.Show("Configuation Write successfully!!", "Information");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error while writing the configuration!!!!", "Information");
+                        }
+                    }
+                    else if (Header == "Save")
+                    {
+                        try
+                        {
+                            if (String.IsNullOrEmpty(filename))
+                            {
+                                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                                dlg.FileName = "Document"; // Default file name
+                                dlg.DefaultExt = ".text"; // Default file extension
+                                dlg.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+
+                                // Show save file dialog box
+                                Nullable<bool> result = dlg.ShowDialog();
+
+                                // Process save file dialog box results
+                                if (result == true)
+                                {
+                                    // Save document
+                                    filename = dlg.FileName;
+
+                                    string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
+                                    File.WriteAllText(filename, conecnt);
+                                    this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                                    //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                                    this.mainWindow.lblConfigFileName.Content = filename;
+                                }
+
+                            }
+                            else
+                            {
+                                string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
+                                File.WriteAllText(filename, conecnt);
+                                //this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                                //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error while saving the configation file!!!!", "Error Information");
+                        }
+
+                    }
+                    else if (Header == "Save As")
+                    {
+                        try
                         {
                             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
                             dlg.FileName = "Document"; // Default file name
@@ -1070,110 +1120,70 @@ namespace _8F
 
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                                 File.WriteAllText(filename, conecnt);
-                                this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                                //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                 //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                                 this.mainWindow.lblConfigFileName.Content = filename;
                             }
 
+
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                            File.WriteAllText(filename, conecnt);
-                            //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                            //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                            MessageBox.Show("Error while saving the configuration file!!!!", "Error Information");
                         }
-
                     }
-                    catch (Exception ex)
+                    else if (Header == "Open")
                     {
-                        MessageBox.Show("Error while saving the configation file!!!!", "Error Information");
-                    }
-
-                }
-                else if (Header == "Save As")
-                {
-                    try
-                    {
-                        Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                        dlg.FileName = "Document"; // Default file name
-                        dlg.DefaultExt = ".text"; // Default file extension
-                        dlg.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
-
-                        // Show save file dialog box
-                        Nullable<bool> result = dlg.ShowDialog();
-
-                        // Process save file dialog box results
-                        if (result == true)
+                        try
                         {
-                            // Save document
-                            filename = dlg.FileName;
+                            var dialog = new Microsoft.Win32.OpenFileDialog();
+                            dialog.FileName = "Document"; // Default file name
+                            dialog.DefaultExt = ".txt"; // Default file extension
+                            dialog.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
 
-                            string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                            File.WriteAllText(filename, conecnt);
-                            //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                            //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
-                            this.mainWindow.lblConfigFileName.Content = filename;
+                            // Show open file dialog box
+                            bool? result = dialog.ShowDialog();
+
+                            // Process open file dialog box results
+                            if (result == true)
+                            {
+                                string data = File.ReadAllText(dialog.FileName);
+                                DeviceCOM.channelDatas = JsonConvert.DeserializeObject<List<ChannelData>>(data);
+                                // Open document
+                                filename = dialog.FileName;
+                                mainWindow.SelectCh1();
+                                mainWindow.ClearGraphData();
+
+                                mainWindow.ImplementChanges(0);
+                                //this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                                this.mainWindow.lblConfigFileName.Content = filename;
+                            }
+
+
                         }
-
-
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error while saving the configuration file!!!!", "Error Information");
-                    }
-                }
-                else if (Header == "Open")
-                {
-                    try
-                    {
-                        var dialog = new Microsoft.Win32.OpenFileDialog();
-                        dialog.FileName = "Document"; // Default file name
-                        dialog.DefaultExt = ".txt"; // Default file extension
-                        dialog.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
-
-                        // Show open file dialog box
-                        bool? result = dialog.ShowDialog();
-
-                        // Process open file dialog box results
-                        if (result == true)
+                        catch (Exception ex)
                         {
-                            string data = File.ReadAllText(dialog.FileName);
-                            DeviceCOM.channelDatas = JsonConvert.DeserializeObject<List<ChannelData>>(data);
-                            // Open document
-                            filename = dialog.FileName;
-                            mainWindow.SelectCh1();
-                            mainWindow.ClearGraphData();
-
-                            mainWindow.ImplementChanges(0);
-                            //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                            this.mainWindow.lblConfigFileName.Content = filename;
+                            MessageBox.Show("Error while loading the configuration file!!!!", "Error Information");
                         }
-
-
                     }
-                    catch (Exception ex)
+                    else if (Header == "New")
                     {
-                        MessageBox.Show("Error while loading the configuration file!!!!", "Error Information");
+                        filename = null;
+                        mainWindow.InitialGraphData(false);
+                        mainWindow.ClearGraphData();
+                        mainWindow.ImplementChanges(0);
+                        DeviceCOM.IsLogEnable = false;
+                        this.mainWindow.lblLog.Content = "Start Log";
+                        DeviceCOM.part = new Part();
+                        this.mainWindow.lblPartLogs.Content = "";
+                        this.mainWindow.lblConfigFileName.Content = "";
+                        //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
                     }
-                }
-                else if (Header == "New")
-                {
-                    filename = null;
-                    mainWindow.InitialGraphData(false);
-                    mainWindow.ClearGraphData();
-                    mainWindow.ImplementChanges(0);
-                    DeviceCOM.IsLogEnable = false;
-                    this.mainWindow.lblLog.Content = "Start Log";
-                    DeviceCOM.part = new Part();
-                    this.mainWindow.lblPartLogs.Content = "";
-                    this.mainWindow.lblConfigFileName.Content = "";
-                    //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
-                }
-                else if (Header == "Exit")
-                {
-                    //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
-                    mainWindow.Close();
+                    else if (Header == "Exit")
+                    {
+                        //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
+                        mainWindow.Close();
+                    }
                 }
             }
         }

@@ -42,6 +42,7 @@ namespace _8F
         public static string ConnectionString;
         public static bool IsLogEnable = false;
         public static bool IsSystemBusy = false;
+        public static DateTime busyStamp = System.DateTime.Now; 
         public static Part part;
 
         DispatcherTimer dispatcherTimer;
@@ -171,6 +172,7 @@ namespace _8F
                     else if (res.FC == 21)
                     {
                         IsSystemBusy = true;
+                        busyStamp = System.DateTime.Now;
                     }
                     else if (res.FC == 22)
                     {
@@ -258,9 +260,13 @@ namespace _8F
                     {
                         port.Open();
                     }
-                    if (result[0] == '0')
+                    if (result[0] == '0' || result[0] == '2')
                     {
-
+                        if (result[0] == '2')
+                        {
+                            DeviceCOM.IsSystemBusy = true;
+                            busyStamp = System.DateTime.Now;
+                        }
                         return true;
                     }
 
@@ -286,6 +292,18 @@ namespace _8F
                         var buffer = new byte[client.Available];
                         int received = stream.Read(buffer);
                         stream.Flush();
+                        if (buffer.Length > 0)
+                        {
+                            if (buffer[0] == '0' || buffer[0] == '2')
+                            {
+                                if (buffer[0] == '2')
+                                {
+                                    DeviceCOM.IsSystemBusy = true;
+                                    busyStamp = System.DateTime.Now;
+                                }
+                                return true;
+                            }
+                        }
                         dispatcherTimer.Start();
                         return true;
                     }
@@ -345,7 +363,8 @@ namespace _8F
                     }
                     if (result[0] == 21)
                     {
-                        DeviceCOM.IsSystemBusy = true;                       
+                        DeviceCOM.IsSystemBusy = true;
+                        busyStamp = System.DateTime.Now;
                     }
                 }
                 else if (CommunicationType == 1)
