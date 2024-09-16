@@ -33,7 +33,7 @@ namespace _8F
         public PartConfig partConfig { get; set; }
         public DeviceCOM portCOM;
         DispatcherTimer dispatcherTimer;
-        int chNo;
+        public int chNo;
         int factor = 20;
         
         int CommunicationType = 0;
@@ -106,6 +106,7 @@ namespace _8F
                             new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
                             new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
+                            new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
                         }
                 },
             };
@@ -1056,6 +1057,31 @@ namespace _8F
                         {
                             MessageBox.Show("Error while writing the configuration!!!!", "Information");
                         }
+                    }
+                    else if (Header == "Copy Channel-1 Configuration")
+                    {
+                        var chNo1 = DeviceCOM.channelDatas.FirstOrDefault(c => c.Id == 1);
+                        foreach (var ch in DeviceCOM.channelDatas)
+                        {
+                            if (ch.Id <= mainWindow.chNo && ch.Id != 1)
+                            {
+                                foreach (var item in ch.graphDatas)
+                                {
+                                    var freq = chNo1?.graphDatas.FirstOrDefault(g => g.Id == item.Id);
+                                    item.freq = freq.freq;
+                                    item.gain = freq.gain;
+                                    item.phase = freq.phase;
+                                    item.height = freq.height;
+                                    item.width = freq.width;
+                                    item.ex = freq.ex;
+                                    item.ey = freq.ey;
+                                    item.angel = freq.angel;
+                                }
+                            }
+                        }
+                        mainWindow.ImplementChanges(0);
+                        MessageBox.Show("Channel-1 Configuration copied to others successfully!!", "Information");
+
                     }
                     else if (Header == "Save")
                     {
