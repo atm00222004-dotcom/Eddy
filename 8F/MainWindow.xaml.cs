@@ -35,11 +35,50 @@ namespace _8F
         DispatcherTimer dispatcherTimer;
         public int chNo;
         int factor = 20;
-        
+
+        int ScreenId = 1;
+        int BoxSize1 = 430;
+        int BoxSize2 = 0;
+        int BoxSize3 = 0;
+        int BoxSize4 = 0;
+        int seqLength = 0;
         int CommunicationType = 0;
         public MainWindow()
         {
             InitializeComponent();
+
+            ScreenId = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["ScreenId"]);
+            BoxSize1 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize1"]);
+            BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize2"]);
+            BoxSize3 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize3"]);
+            BoxSize4 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize4"]);
+            if (ScreenId == 1)
+            {
+                seqLength = BoxSize1;
+                menuHeight.Height = new GridLength(0.5, GridUnitType.Star);
+                chennelHeight.Height = new GridLength(0.7, GridUnitType.Star);
+                buttonBarHeight.Height = new GridLength(0.0, GridUnitType.Star);
+                buttonBarWidth.Width = new GridLength(.38, GridUnitType.Star);
+
+            }
+            else if(ScreenId == 2)
+            {
+                seqLength = BoxSize2;
+            }
+            else if (ScreenId == 3)
+            {
+                seqLength = BoxSize3;
+            }
+            else if (ScreenId == 4)
+            {
+                seqLength = BoxSize4;
+
+                menuHeight.Height = new GridLength(0.8, GridUnitType.Star);
+                chennelHeight.Height = new GridLength(0.6, GridUnitType.Star);
+                buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
+                buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
+            }
+
             portCOM = new DeviceCOM();
 
             factor = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
@@ -154,6 +193,10 @@ namespace _8F
                 lblTCount.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
                 lblOkCount.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
                 lblNotOkCount.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
+
+                lblTCount1.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
+                lblOkCount1.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
+                lblNotOkCount1.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
                 DeviceCOM.IsResponseRefreshRequired = false;
             }
 
@@ -180,11 +223,115 @@ namespace _8F
             {
                 ClearGraphData();
 
-                for (int i = 10; i < 248; i = i + 10)
+                br1_rec1.Height = seqLength;
+                br1_rec1.Width = seqLength;
+                Canvas.SetLeft(br1_can1, seqLength);
+                br1_rec2.Width = seqLength;
+                Canvas.SetTop(br1_rec2, seqLength/2);
+                br1_rec3.Height = seqLength;
+                Canvas.SetLeft(br1_rec3, seqLength / 2);
+                Canvas.SetLeft(rResult1, seqLength -25);
+                Canvas.SetTop(rResult1, seqLength - 25);
+                Canvas.SetLeft(cnBr1, seqLength / 2);
+                Canvas.SetTop(cnBr1, seqLength / 2);
+                Canvas.SetTop(D1, seqLength - 25);
+
+                br2_rec1.Height = seqLength;
+                br2_rec1.Width = seqLength;
+                Canvas.SetLeft(br2_can1, seqLength);
+                br2_rec2.Width = seqLength;
+                Canvas.SetTop(br2_rec2, seqLength / 2);
+                br2_rec3.Height = seqLength;
+                Canvas.SetLeft(br2_rec3, seqLength / 2);
+                Canvas.SetLeft(rResult2, seqLength - 25);
+                Canvas.SetTop(rResult2, seqLength - 25);
+                Canvas.SetLeft(cnBr2, seqLength / 2);
+                Canvas.SetTop(cnBr2, seqLength / 2);
+                Canvas.SetTop(D2, seqLength - 25);
+
+                br3_rec1.Height = seqLength;
+                br3_rec1.Width = seqLength;
+                Canvas.SetLeft(br3_can1, seqLength);
+                br3_rec2.Width = seqLength;
+                Canvas.SetTop(br3_rec2, seqLength / 2);
+                br3_rec3.Height = seqLength;
+                Canvas.SetLeft(br3_rec3, seqLength / 2);
+                Canvas.SetLeft(rResult3, seqLength - 25);
+                Canvas.SetTop(rResult3, seqLength - 25);
+                Canvas.SetLeft(cnBr3, seqLength / 2);
+                Canvas.SetTop(cnBr3, seqLength / 2);
+                Canvas.SetTop(D3, seqLength - 25);
+
+                br4_rec1.Height = seqLength;
+                br4_rec1.Width = seqLength;
+                Canvas.SetLeft(br4_can1, seqLength);
+                br4_rec2.Width = seqLength;
+                Canvas.SetTop(br4_rec2, seqLength / 2);
+                br4_rec3.Height = seqLength;
+                Canvas.SetLeft(br4_rec3, seqLength / 2);
+                Canvas.SetLeft(rResult4, seqLength - 25);
+                Canvas.SetTop(rResult4, seqLength - 25);
+                Canvas.SetLeft(cnBr4, seqLength / 2);
+                Canvas.SetTop(cnBr4, seqLength / 2);
+                Canvas.SetTop(D4, seqLength - 25);
+
+                br5_rec1.Height = seqLength;
+                br5_rec1.Width = seqLength;
+                Canvas.SetLeft(br5_can1, seqLength);
+                br5_rec2.Width = seqLength;
+                Canvas.SetTop(br5_rec2, seqLength / 2);
+                br5_rec3.Height = seqLength;
+                Canvas.SetLeft(br5_rec3, seqLength / 2);
+                Canvas.SetLeft(rResult5, seqLength - 25);
+                Canvas.SetTop(rResult5, seqLength - 25);
+                Canvas.SetLeft(cnBr5, seqLength / 2);
+                Canvas.SetTop(cnBr5, seqLength / 2);
+                Canvas.SetTop(D5, seqLength - 25);
+
+                br6_rec1.Height = seqLength;
+                br6_rec1.Width = seqLength;
+                Canvas.SetLeft(br6_can1, seqLength);
+                br6_rec2.Width = seqLength;
+                Canvas.SetTop(br6_rec2, seqLength / 2);
+                br6_rec3.Height = seqLength;
+                Canvas.SetLeft(br6_rec3, seqLength / 2);
+                Canvas.SetLeft(rResult6, seqLength - 25);
+                Canvas.SetTop(rResult6, seqLength - 25);
+                Canvas.SetLeft(cnBr6, seqLength / 2);
+                Canvas.SetTop(cnBr6, seqLength / 2);
+                Canvas.SetTop(D6, seqLength - 25);
+
+                br7_rec1.Height = seqLength;
+                br7_rec1.Width = seqLength;
+                Canvas.SetLeft(br7_can1, seqLength);
+                br7_rec2.Width = seqLength;
+                Canvas.SetTop(br7_rec2, seqLength / 2);
+                br7_rec3.Height = seqLength;
+                Canvas.SetLeft(br7_rec3, seqLength / 2);
+                Canvas.SetLeft(rResult7, seqLength - 25);
+                Canvas.SetTop(rResult7, seqLength - 25);
+                Canvas.SetLeft(cnBr7, seqLength / 2);
+                Canvas.SetTop(cnBr7, seqLength / 2);
+                Canvas.SetTop(D7, seqLength - 25);
+
+                br8_rec1.Height = seqLength;
+                br8_rec1.Width = seqLength;
+                Canvas.SetLeft(br8_can1, seqLength);
+                br8_rec2.Width = seqLength;
+                Canvas.SetTop(br8_rec2, seqLength / 2);
+                br8_rec3.Height = seqLength;
+                Canvas.SetLeft(br8_rec3, seqLength / 2);
+                Canvas.SetLeft(rResult8, seqLength - 25);
+                Canvas.SetTop(rResult8, seqLength - 25);
+                Canvas.SetLeft(cnBr8, seqLength / 2);
+                Canvas.SetTop(cnBr8, seqLength / 2);
+                Canvas.SetTop(D8, seqLength - 25);
+
+                for (int i = 10; i < seqLength; i = i + 10)
                 {
                     Rectangle r1 = new Rectangle();
                     r1.Height = .2;
-                    r1.Width = 248;
+                    r1.Width = seqLength;
                     Canvas.SetLeft(r1, 0);
                     Canvas.SetTop(r1, i);
                     r1.Stroke = new SolidColorBrush(Colors.Black);
@@ -193,7 +340,7 @@ namespace _8F
 
                     Rectangle r2 = new Rectangle();
                     r2.Height = .2;
-                    r2.Width = 248;
+                    r2.Width = seqLength;
                     Canvas.SetLeft(r2, 0);
                     Canvas.SetTop(r2, i);
                     r2.Stroke = new SolidColorBrush(Colors.Black);
@@ -202,7 +349,7 @@ namespace _8F
 
                     Rectangle r3 = new Rectangle();
                     r3.Height = .2;
-                    r3.Width = 248;
+                    r3.Width = seqLength;
                     Canvas.SetLeft(r3, 0);
                     Canvas.SetTop(r3, i);
                     r3.Stroke = new SolidColorBrush(Colors.Black);
@@ -211,7 +358,7 @@ namespace _8F
 
                     Rectangle r4 = new Rectangle();
                     r4.Height = .2;
-                    r4.Width = 248;
+                    r4.Width = seqLength;
                     Canvas.SetLeft(r4, 0);
                     Canvas.SetTop(r4, i);
                     r4.Stroke = new SolidColorBrush(Colors.Black);
@@ -220,7 +367,7 @@ namespace _8F
 
                     Rectangle r5 = new Rectangle();
                     r5.Height = .2;
-                    r5.Width = 248;
+                    r5.Width = seqLength;
                     Canvas.SetLeft(r5, 0);
                     Canvas.SetTop(r5, i);
                     r5.Stroke = new SolidColorBrush(Colors.Black);
@@ -229,7 +376,7 @@ namespace _8F
 
                     Rectangle r6 = new Rectangle();
                     r6.Height = .2;
-                    r6.Width = 248;
+                    r6.Width = seqLength;
                     Canvas.SetLeft(r6, 0);
                     Canvas.SetTop(r6, i);
                     r6.Stroke = new SolidColorBrush(Colors.Black);
@@ -238,7 +385,7 @@ namespace _8F
 
                     Rectangle r7 = new Rectangle();
                     r7.Height = .2;
-                    r7.Width = 248;
+                    r7.Width = seqLength;
                     Canvas.SetLeft(r7, 0);
                     Canvas.SetTop(r7, i);
                     r7.Stroke = new SolidColorBrush(Colors.Black);
@@ -247,7 +394,7 @@ namespace _8F
 
                     Rectangle r8 = new Rectangle();
                     r8.Height = .2;
-                    r8.Width = 248;
+                    r8.Width = seqLength;
                     Canvas.SetLeft(r8, 0);
                     Canvas.SetTop(r8, i);
                     r8.Stroke = new SolidColorBrush(Colors.Black);
@@ -255,7 +402,7 @@ namespace _8F
                     Canvas8.Children.Add(r8);
 
                     Rectangle rectangle1 = new Rectangle();
-                    rectangle1.Height = 250;
+                    rectangle1.Height = seqLength;
                     rectangle1.Width = .1;
                     Canvas.SetLeft(rectangle1, i);
                     Canvas.SetTop(rectangle1, 0);
@@ -264,8 +411,8 @@ namespace _8F
 
 
                     Rectangle rr1 = new Rectangle();
-                    rr1.Height = 250;
-                    rr1.Width = .1;
+                    rr1.Height = seqLength;
+                    rr1.Width = .2;
                     Canvas.SetLeft(rr1, i);
                     Canvas.SetTop(rr1, 0);
                     rr1.Stroke = new SolidColorBrush(Colors.Black);
@@ -273,8 +420,8 @@ namespace _8F
                     Canvas1.Children.Add(rr1);
 
                     Rectangle rr2 = new Rectangle();
-                    rr2.Height = 250;
-                    rr2.Width = .1;
+                    rr2.Height = seqLength;
+                    rr2.Width = .2;
                     Canvas.SetLeft(rr2, i);
                     Canvas.SetTop(rr2, 0);
                     rr2.Stroke = new SolidColorBrush(Colors.Black);
@@ -282,8 +429,8 @@ namespace _8F
                     Canvas2.Children.Add(rr2);
 
                     Rectangle rr3 = new Rectangle();
-                    rr3.Height = 250;
-                    rr3.Width = .1;
+                    rr3.Height = seqLength;
+                    rr3.Width = .2;
                     Canvas.SetLeft(rr3, i);
                     Canvas.SetTop(rr3, 0);
                     rr3.Stroke = new SolidColorBrush(Colors.Black);
@@ -291,8 +438,8 @@ namespace _8F
                     Canvas3.Children.Add(rr3);
 
                     Rectangle rr4 = new Rectangle();
-                    rr4.Height = 250;
-                    rr4.Width = .1;
+                    rr4.Height = seqLength;
+                    rr4.Width = .2;
                     Canvas.SetLeft(rr4, i);
                     Canvas.SetTop(rr4, 0);
                     rr4.Stroke = new SolidColorBrush(Colors.Black);
@@ -300,8 +447,8 @@ namespace _8F
                     Canvas4.Children.Add(rr4);
 
                     Rectangle rr5 = new Rectangle();
-                    rr5.Height = 250;
-                    rr5.Width = .1;
+                    rr5.Height = seqLength;
+                    rr5.Width = .2;
                     Canvas.SetLeft(rr5, i);
                     Canvas.SetTop(rr5, 0);
                     rr5.Stroke = new SolidColorBrush(Colors.Black);
@@ -309,8 +456,8 @@ namespace _8F
                     Canvas5.Children.Add(rr5);
 
                     Rectangle rr6 = new Rectangle();
-                    rr6.Height = 250;
-                    rr6.Width = .1;
+                    rr6.Height = seqLength;
+                    rr6.Width = .2;
                     Canvas.SetLeft(rr6, i);
                     Canvas.SetTop(rr6, 0);
                     rr6.Stroke = new SolidColorBrush(Colors.Black);
@@ -318,8 +465,8 @@ namespace _8F
                     Canvas6.Children.Add(rr6);
 
                     Rectangle rr7 = new Rectangle();
-                    rr7.Height = 250;
-                    rr7.Width = .1;
+                    rr7.Height = seqLength;
+                    rr7.Width = .2;
                     Canvas.SetLeft(rr7, i);
                     Canvas.SetTop(rr7, 0);
                     rr7.Stroke = new SolidColorBrush(Colors.Black);
@@ -327,8 +474,8 @@ namespace _8F
                     Canvas7.Children.Add(rr7);
 
                     Rectangle rr8 = new Rectangle();
-                    rr8.Height = 250;
-                    rr8.Width = .1;
+                    rr8.Height = seqLength;
+                    rr8.Width = .2;
                     Canvas.SetLeft(rr8, i);
                     Canvas.SetTop(rr8, 0);
                     rr8.Stroke = new SolidColorBrush(Colors.Black);
@@ -742,6 +889,7 @@ namespace _8F
             rResult8.Fill = new SolidColorBrush(Colors.White);
 
             btnOverallResult.Background = new SolidColorBrush(Colors.LightBlue);
+            btnOverallResult1.Background = new SolidColorBrush(Colors.LightBlue);
 
             lblGraphXY1.Text = "";
             lblGraphXY2.Text = "";
@@ -767,13 +915,13 @@ namespace _8F
                     el1.Width = 4;
                     var left = fd.X / factor;
                     var top = (fd.Y * -1) / factor;
-                    if (left >125 )
+                    if (left >180 )
                     {
-                        left = 125;
+                        left = 180;
                     }
-                    if (top > 125)
+                    if (top > 180)
                     {
-                        top = 125;
+                        top = 180;
                     }
                     Canvas.SetLeft(el1, left);
                     Canvas.SetTop(el1, top);
@@ -790,10 +938,12 @@ namespace _8F
                             if (item.OR == 1)
                             {
                                 btnOverallResult.Background = new SolidColorBrush(Colors.Green);
+                                btnOverallResult1.Background = new SolidColorBrush(Colors.Green);
                             }
                             else
                             {
                                 btnOverallResult.Background = new SolidColorBrush(Colors.Red);
+                                btnOverallResult1.Background = new SolidColorBrush(Colors.Red);
                             }
                         }
                     }
@@ -959,6 +1109,10 @@ namespace _8F
             lblOkCount.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
             lblNotOkCount.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
 
+            lblTCount1.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
+            lblOkCount1.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
+            lblNotOkCount1.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
+
         }
 
         private void btnLog_MouseDown(object sender, MouseButtonEventArgs e)
@@ -967,6 +1121,7 @@ namespace _8F
             {
                 DeviceCOM.IsLogEnable = false;
                 lblLog.Content = "Start Log";
+                lblLog1.Content = "Start Log";
                 lblPartLogs.Content = "";
             }
             else
@@ -983,6 +1138,7 @@ namespace _8F
             if (DeviceCOM.IsLogEnable)
             {
                 lblLog.Content = "Stop Log";
+                lblLog1.Content = "Stop Log";
                 lblPartLogs.Content = DeviceCOM.part.Name + ", " + DeviceCOM.part.Grade + ", " + DeviceCOM.part.CompanyName;
             }
             else
@@ -1106,6 +1262,7 @@ namespace _8F
                                     string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                                     File.WriteAllText(filename, conecnt);
                                     this.mainWindow.btnLog.Visibility = Visibility.Visible;
+                                    this.mainWindow.btnLog1.Visibility = Visibility.Visible;
                                     //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                                     this.mainWindow.lblConfigFileName.Content = filename;
                                 }
@@ -1200,6 +1357,7 @@ namespace _8F
                         mainWindow.ImplementChanges(0);
                         DeviceCOM.IsLogEnable = false;
                         this.mainWindow.lblLog.Content = "Start Log";
+                        this.mainWindow.lblLog1.Content = "Start Log";
                         DeviceCOM.part = new Part();
                         this.mainWindow.lblPartLogs.Content = "";
                         this.mainWindow.lblConfigFileName.Content = "";
