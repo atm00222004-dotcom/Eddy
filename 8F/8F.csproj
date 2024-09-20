@@ -16,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Report.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="PartConfig.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.IO.Ports;
@@ -32,6 +33,7 @@ namespace _8F
         public CircleSetting ellipsesPop { get; set; }
         public PartConfig partConfig { get; set; }
         public DeviceCOM portCOM;
+        public Report report;
         DispatcherTimer dispatcherTimer;
         public int chNo;
         int factor = 20;
@@ -43,9 +45,14 @@ namespace _8F
         int BoxSize4 = 0;
         int seqLength = 0;
         int CommunicationType = 0;
+        public string WebPage;
         public MainWindow()
         {
             InitializeComponent();
+            string LogoPath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogoPath"]);
+            imgLogo.Source = new BitmapImage(new Uri(LogoPath));
+
+            WebPage = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["WebPage"]);
 
             ScreenId = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["ScreenId"]);
             BoxSize1 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize1"]);
@@ -152,6 +159,7 @@ namespace _8F
                             new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                             new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
+                            new MenuItemViewModel { Header = "Data Log", mainWindow = this },
                         }
                 },
             };
@@ -1243,6 +1251,18 @@ namespace _8F
                         }
                         mainWindow.ImplementChanges(0);
                         MessageBox.Show("Channel-1 Configuration copied to others successfully!!", "Information");
+
+                    }
+                    else if ( Header == "Data Log")
+                    {
+                        //mainWindow.report = new Report();
+                        //mainWindow.report.ShowDialog();
+
+                        System.Diagnostics.Process.Start(new ProcessStartInfo
+                        {
+                            FileName = this.mainWindow.WebPage,
+                            UseShellExecute = true
+                        });
 
                     }
                     else if (Header == "Save")
