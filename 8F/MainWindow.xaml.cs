@@ -59,20 +59,26 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.7, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(0.0, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(.38, GridUnitType.Star);
-
             }
             else if(ScreenId == 2)
             {
                 seqLength = BoxSize2;
+                menuHeight.Height = new GridLength(0.8, GridUnitType.Star);
+                chennelHeight.Height = new GridLength(0.6, GridUnitType.Star);
+                buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
+                buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
             }
             else if (ScreenId == 3)
             {
                 seqLength = BoxSize3;
+                menuHeight.Height = new GridLength(0.5, GridUnitType.Star);
+                chennelHeight.Height = new GridLength(0.7, GridUnitType.Star);
+                buttonBarHeight.Height = new GridLength(0.0, GridUnitType.Star);
+                buttonBarWidth.Width = new GridLength(.38, GridUnitType.Star);
             }
             else if (ScreenId == 4)
             {
                 seqLength = BoxSize4;
-
                 menuHeight.Height = new GridLength(0.8, GridUnitType.Star);
                 chennelHeight.Height = new GridLength(0.6, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
