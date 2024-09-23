@@ -59,6 +59,16 @@ namespace _8F
             BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize2"]);
             BoxSize3 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize3"]);
             BoxSize4 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize4"]);
+
+            var LogEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["LogEnable"]);
+            if (!LogEnabled)
+            {
+                btnLog.Visibility = Visibility.Hidden;
+                btnLog1.Visibility = Visibility.Hidden;
+                LogWidth.Width = new GridLength(0.0, GridUnitType.Star);
+                LogHeight.Height = new GridLength(0.0, GridUnitType.Star);
+            }
+
             if (ScreenId == 1)
             {
                 seqLength = BoxSize1;
@@ -66,6 +76,7 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.7, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(0.0, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(.38, GridUnitType.Star);
+                LogoWidth.Width = new GridLength(1.0, GridUnitType.Star);
             }
             else if(ScreenId == 2)
             {
@@ -74,6 +85,8 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.6, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
+                LogoWidth.Width = new GridLength(1.3, GridUnitType.Star);
+
             }
             else if (ScreenId == 3)
             {
@@ -82,6 +95,7 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.7, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(0.0, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(.38, GridUnitType.Star);
+                LogoWidth.Width = new GridLength(1.0, GridUnitType.Star);
             }
             else if (ScreenId == 4)
             {
@@ -90,6 +104,7 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.6, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
+                LogoWidth.Width = new GridLength(1.7, GridUnitType.Star);
             }
 
             portCOM = new DeviceCOM();
@@ -204,6 +219,7 @@ namespace _8F
             if (DeviceCOM.IsResponseRefreshRequired)
             {
                 RefreshResponse();
+
                 lblTCount.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
                 lblOkCount.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
                 lblNotOkCount.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
@@ -211,6 +227,7 @@ namespace _8F
                 lblTCount1.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
                 lblOkCount1.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
                 lblNotOkCount1.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
+
                 DeviceCOM.IsResponseRefreshRequired = false;
             }
 
@@ -801,20 +818,34 @@ namespace _8F
                 }
                 else
                 {
-                    BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
+                    var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll");
+                    var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                    int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
+                    BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
                     var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
                     if (rat)
                     {
-                        ClearGraphData();
+                        if (IsBalaneAll)
+                        {
+                            ClearGraphData();
+                        }
+                        else
+                        {
+                            ClearGraphDataByChId(Convert.ToInt32(SChId));
+                        }
 
                         foreach (var ch in DeviceCOM.channelDatas)
                         {
-                            var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
-                            var res = JsonConvert.DeserializeObject<Response>(rData);
-                            res.CN = ch.Id;
-                            res.IsBalacenced = true;
-                            DeviceCOM.responses.Add(res);
+                            if (IsBalaneAll || ch.IsSeleted)
+                            {
+                                var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
+                                var res = JsonConvert.DeserializeObject<Response>(rData);
+                                res.CN = ch.Id;
+                                res.IsBalacenced = true;
+                                DeviceCOM.responses.Add(res);
+                            }
                         }
+
                         DeviceCOM.IsResponseRefreshRequired = true;
                     }
                     else
@@ -835,7 +866,11 @@ namespace _8F
             }
             else
             {
-                BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
+                var IsTestAll = (((Border)sender).Name == "btnTest1All") || (((Border)sender).Name == "btnTestAll");
+                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                int ChId = IsTestAll ? 0 : Convert.ToInt32(SChId);
+
+                BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = ChId };
                 var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
                 if (!rat)
                 {
@@ -846,7 +881,8 @@ namespace _8F
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
-            ClearGraphDataWithoutBalance();
+            var IsClearAll = (((Border)sender).Name == "btnClear1All") || (((Border)sender).Name == "btnClearAll");
+            ClearGraphDataWithoutBalance(IsClearAll);
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -857,13 +893,26 @@ namespace _8F
                     portCOM.port.Close();
             }
         }
-        public void ClearGraphDataWithoutBalance()
+        public void ClearGraphDataWithoutBalance(bool IsClearAll)
         {
-            var balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced).ToList();
-            ClearGraphData();
-            if (balaceData.Count > 0)
+            if (IsClearAll)
             {
-                DeviceCOM.responses.AddRange(balaceData);
+                var balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced).ToList();
+                ClearGraphData();
+                if (balaceData.Count > 0)
+                {
+                    DeviceCOM.responses.AddRange(balaceData);
+                }
+            }
+            else
+            {
+                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                var balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced && r.CN == SChId).ToList();
+                ClearGraphDataByChId(Convert.ToInt32(SChId));
+                if (balaceData.Count > 0)
+                {
+                    DeviceCOM.responses.AddRange(balaceData);
+                }
             }
             DeviceCOM.IsResponseRefreshRequired = true;
         }
@@ -871,12 +920,7 @@ namespace _8F
         {
             if (IsDataClear)
             {
-                var balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced).ToList();
                 DeviceCOM.responses = new List<Response>();
-                if (balaceData.Count>0)
-                {
-
-                }
             }
             cn1.Children.Clear();
             rResult1.Fill = new SolidColorBrush(Colors.White);
@@ -914,12 +958,77 @@ namespace _8F
             lblGraphXY7.Text = "";
             lblGraphXY8.Text = "";
         }
+        public void ClearGraphDataByChId(int chId)
+        {
+            var rs = DeviceCOM.responses.Where(r=> r.CN == chId).FirstOrDefault();
 
+            if (rs != null)
+            {
+                DeviceCOM.responses.Remove(rs);
+            }
+
+            if (chId == 1)
+            {
+                cn1.Children.Clear();
+                rResult1.Fill = new SolidColorBrush(Colors.White);
+                lblGraphXY1.Text = "";
+            }
+            else if (chId == 2)
+            {
+                cn2.Children.Clear();
+                rResult2.Fill = new SolidColorBrush(Colors.White);
+                lblGraphXY2.Text = "";
+            }
+            else if (chId == 3)
+            {
+                cn3.Children.Clear();
+                rResult3.Fill = new SolidColorBrush(Colors.White);
+                lblGraphXY3.Text = "";
+            }
+            else if (chId == 4)
+            {
+                cn4.Children.Clear();
+                rResult4.Fill = new SolidColorBrush(Colors.White);
+                lblGraphXY4.Text = "";
+            }
+            else if (chId == 5)
+            {
+                cn5.Children.Clear();
+                rResult5.Fill = new SolidColorBrush(Colors.White);
+                lblGraphXY5.Text = "";
+            }
+            else if (chId == 6)
+            {
+                cn6.Children.Clear();
+                rResult6.Fill = new SolidColorBrush(Colors.White);
+                lblGraphXY6.Text = "";
+            }
+            else if (chId == 7)
+            {
+                cn7.Children.Clear();
+                rResult7.Fill = new SolidColorBrush(Colors.White);
+                lblGraphXY7.Text = "";
+            }
+            else if (chId == 8)
+            {
+                cn8.Children.Clear();
+                rResult8.Fill = new SolidColorBrush(Colors.White);
+                lblGraphXY8.Text = "";
+            }
+
+            btnOverallResult.Background = new SolidColorBrush(Colors.LightBlue);
+            btnOverallResult1.Background = new SolidColorBrush(Colors.LightBlue);
+        }
         public void RefreshResponse()
         {
             ClearGraphData(false);
             var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
             var selectedChannelData = DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList();
+
+            DeviceCOM.ResultCount = 0;
+            DeviceCOM.ResultOkCount = 0;
+            DeviceCOM.ResultOkNotCount = 0;
+
             foreach (var item in selectedChannelData)
             {
                 foreach (var fd in item.FD)
@@ -929,14 +1038,23 @@ namespace _8F
                     el1.Width = 4;
                     var left = fd.X / factor;
                     var top = (fd.Y * -1) / factor;
-                    if (left >180 )
+                    if (left > (seqLength /2))
                     {
-                        left = 180;
+                        left = (seqLength / 2);
                     }
-                    if (top > 180)
+                    if (top > (seqLength / 2))
                     {
-                        top = 180;
+                        top = (seqLength / 2);
                     }
+
+                    if (left < ((seqLength / 2)* -1))
+                    {
+                        left = ((seqLength / 2) * -1);
+                    }
+                    if (top < ((seqLength / 2) * -1))
+                    {
+                        top = ((seqLength / 2) * -1);
+                    } 
                     Canvas.SetLeft(el1, left);
                     Canvas.SetTop(el1, top);
                     //r1.Stroke = new SolidColorBrush(Colors.Black);
@@ -1110,7 +1228,16 @@ namespace _8F
                     }
                 }
                 
+                if (item.OR == 1)
+                {
+                    DeviceCOM.ResultOkCount++;
+                }
+                else
+                {
+                    DeviceCOM.ResultOkNotCount++;
+                }
             }
+            DeviceCOM.ResultCount = DeviceCOM.ResultOkCount + DeviceCOM.ResultOkNotCount;
         }
 
         private void btnResetCounter_Click(object sender, RoutedEventArgs e)
