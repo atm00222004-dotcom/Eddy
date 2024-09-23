@@ -168,13 +168,20 @@ namespace _8F
                         }
                 },
                 new MenuItemViewModel { Header = "Configuration",
-                    MenuItems = new ObservableCollection<MenuItemViewModel>
+                    MenuItems = LogEnabled ? new ObservableCollection<MenuItemViewModel>
                         {
                             new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
                             new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                             new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
-                            new MenuItemViewModel { Header = "Data Log", mainWindow = this },
+                            new MenuItemViewModel { Header = "Data Log", mainWindow = this }
+                        } : 
+                        new ObservableCollection<MenuItemViewModel>
+                        {
+                            new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
+                            new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
+                            new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
+                            new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this }
                         }
                 },
             };
@@ -1237,6 +1244,7 @@ namespace _8F
                     DeviceCOM.ResultOkNotCount++;
                 }
             }
+
             DeviceCOM.ResultCount = DeviceCOM.ResultOkCount + DeviceCOM.ResultOkNotCount;
         }
 
