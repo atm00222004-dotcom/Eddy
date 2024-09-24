@@ -1234,14 +1234,17 @@ namespace _8F
                         }
                     }
                 }
-                
-                if (item.OR == 1)
+
+                if (!item.IsBalacenced)
                 {
-                    DeviceCOM.ResultOkCount++;
-                }
-                else
-                {
-                    DeviceCOM.ResultOkNotCount++;
+                    if (item.OR == 1)
+                    {
+                        DeviceCOM.ResultOkCount++;
+                    }
+                    else
+                    {
+                        DeviceCOM.ResultOkNotCount++;
+                    }
                 }
             }
 
