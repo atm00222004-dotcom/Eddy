@@ -24,12 +24,12 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Grid Background="SaddleBrown"   Grid.Row="0" Grid.Column="0">
+        <Grid Background="LightGray"   Grid.Row="0" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="9*"/>
                 <ColumnDefinition Name="LogoWidth" Width="1.7*"/>
             </Grid.ColumnDefinitions>
-            <Menu Background="SaddleBrown"  VerticalAlignment="Center" Height="50" FontSize="28" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
+            <Menu Background="LightGray"  VerticalAlignment="Center" Height="50" FontSize="28" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
                 <Menu.ItemContainerStyle>
                     <Style TargetType="{x:Type MenuItem}">
                         <Setter Property="Command" Value="{Binding Command}" />
@@ -52,8 +52,8 @@
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width=".1*"/>
+                <ColumnDefinition Width=".12*"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0" Grid.Row="0">
                 <Grid.RowDefinitions>
@@ -66,10 +66,30 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh1" Tag="1" Click="btnCh_Click" Content="Channel-1" Grid.Column="0" Grid.Row="0" />
-                <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh2" Tag="2" Content="Channel-2" Click="btnCh_Click" Grid.Column="1" Grid.Row="0" />
+                <Border Cursor="Hand" Name="btnCh1"  Tag="1" MouseDown="btnCh_Click" Margin="3" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="Black" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Channel-1" ></Label>
+                </Border>
+
+                <Border Cursor="Hand" Name="btnCh2"  Tag="2" MouseDown="btnCh_Click" Margin="3" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="Black" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Channel-2" ></Label>
+                </Border>
+
+                <Border Cursor="Hand" Name="btnCh3"  Tag="3" MouseDown="btnCh_Click" Margin="3" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="Black" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Channel-3" ></Label>
+                </Border>
+
+                <Border Cursor="Hand" Name="btnCh4"  Tag="4" MouseDown="btnCh_Click" Margin="3" Background="#305371" Grid.Column="3" Grid.Row="0" BorderBrush="#FF000000" BorderThickness=".5" CornerRadius="10">
+                    <Label Foreground="Black" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Channel-4" ></Label>
+                </Border>
+
+                <!--<Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh1" Tag="1" Click="btnCh_Click" Content="Channel-1" Grid.Column="0" Grid.Row="0" />-->
+                
+                <!--<Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh2" Tag="2" Content="Channel-2" Click="btnCh_Click" Grid.Column="1" Grid.Row="0" />
+                
                 <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh3" Tag="3" Content="Channel-3" Click="btnCh_Click" Grid.Column="2" Grid.Row="0" />
-                <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh4"  Tag="4" Content="Channel-4" Click="btnCh_Click" Grid.Column="3" Grid.Row="0" />
+                
+                <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh4"  Tag="4" Content="Channel-4" Click="btnCh_Click" Grid.Column="3" Grid.Row="0" />-->
+                
             </Grid>
             <Grid Grid.Column="1" Grid.Row="0">
                 <Grid.RowDefinitions>

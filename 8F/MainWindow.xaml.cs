@@ -212,7 +212,7 @@ namespace _8F
         {
             if(DeviceCOM.IsSystemBusy)
             {
-                brStatus.Background = new SolidColorBrush(Colors.DarkRed);
+                brStatus.Background = new SolidColorBrush(Colors.Red);
 
                 if (DeviceCOM.busyStamp.AddSeconds(20) < System.DateTime.Now)
                 {
@@ -221,7 +221,7 @@ namespace _8F
             }
             else
             {
-                brStatus.Background = new SolidColorBrush(Colors.DarkGreen); 
+                brStatus.Background = new SolidColorBrush(Colors.Green); 
             }
 
             if (DeviceCOM.IsResponseRefreshRequired)
@@ -766,6 +766,7 @@ namespace _8F
             ellipsesPop = new CircleSetting(((Border)sender).Name);
             ellipsesPop.Closing += ellipsesPop_Closing;
             ellipsesPop.portCOM = portCOM;
+            ellipsesPop.Owner = this;
             ellipsesPop.ShowDialog();
         }
 
@@ -799,7 +800,7 @@ namespace _8F
 
         private void btnCh_Click(object sender, RoutedEventArgs e)
         {
-            var chId = Convert.ToUInt32(((Button)sender).Tag);
+            var chId = Convert.ToUInt32(((Border)sender).Tag);
             var currentChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
             if (currentChannel?.Id != chId)
             {
@@ -810,7 +811,7 @@ namespace _8F
                 btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
-                ((Button)sender).Background = new SolidColorBrush(Colors.LightGreen);
+                ((Border)sender).Background = new SolidColorBrush(Colors.LightGreen);
                 ImplementChanges(1);
                 DeviceCOM.IsResponseRefreshRequired = true;
             }
@@ -1266,6 +1267,7 @@ namespace _8F
             {
                 partConfig = new PartConfig();
                 partConfig.Closing += partConfig_Closing;
+                partConfig.Owner = this;
                 partConfig.ShowDialog();
 
             }
@@ -1331,6 +1333,7 @@ namespace _8F
                         freqPop = new Freq();
                         freqPop.Closing += freqPop_Closing;
                         freqPop.portCOM = mainWindow.portCOM;
+                        freqPop.Owner = mainWindow;
                         freqPop.ShowDialog();
                     }
                     else if (Header == "Threshold Setting")
@@ -1338,6 +1341,7 @@ namespace _8F
                         ellipsesPop = new CircleSetting("D1");
                         ellipsesPop.Closing += ellipsesPop_Closing;
                         ellipsesPop.portCOM = mainWindow.portCOM;
+                        ellipsesPop.Owner = mainWindow;
                         ellipsesPop.ShowDialog();
                     }
                     else if (Header == "Write Configuration")
