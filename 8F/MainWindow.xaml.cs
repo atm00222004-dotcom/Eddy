@@ -223,17 +223,22 @@ namespace _8F
             {
                 brStatus.Background = new SolidColorBrush(Colors.DarkGreen); 
             }
+
             if (DeviceCOM.IsResponseRefreshRequired)
             {
                 RefreshResponse();
 
-                lblTCount.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
-                lblOkCount.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
-                lblNotOkCount.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
+                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
 
-                lblTCount1.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
-                lblOkCount1.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
-                lblNotOkCount1.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
+                var cnt =  DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
+
+                lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
+                lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+
+                lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
+                lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
                 DeviceCOM.IsResponseRefreshRequired = false;
             }
@@ -967,12 +972,7 @@ namespace _8F
         }
         public void ClearGraphDataByChId(int chId)
         {
-            var rs = DeviceCOM.responses.Where(r=> r.CN == chId).FirstOrDefault();
-
-            if (rs != null)
-            {
-                DeviceCOM.responses.Remove(rs);
-            }
+            DeviceCOM.responses.RemoveAll(r => r.CN == chId);
 
             if (chId == 1)
             {
@@ -1032,10 +1032,6 @@ namespace _8F
             var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
             var selectedChannelData = DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList();
 
-            DeviceCOM.ResultCount = 0;
-            DeviceCOM.ResultOkCount = 0;
-            DeviceCOM.ResultOkNotCount = 0;
-
             foreach (var item in selectedChannelData)
             {
                 foreach (var fd in item.FD)
@@ -1062,8 +1058,8 @@ namespace _8F
                     {
                         top = ((seqLength / 2) * -1);
                     } 
-                    Canvas.SetLeft(el1, left);
-                    Canvas.SetTop(el1, top);
+                    Canvas.SetLeft(el1, left-2);
+                    Canvas.SetTop(el1, top-2);
                     //r1.Stroke = new SolidColorBrush(Colors.Black);
                     if (selectedChannelData.IndexOf(item) == selectedChannelData.Count-1)
                     {
@@ -1234,36 +1230,26 @@ namespace _8F
                         }
                     }
                 }
-
-                if (!item.IsBalacenced)
-                {
-                    if (item.OR == 1)
-                    {
-                        DeviceCOM.ResultOkCount++;
-                    }
-                    else
-                    {
-                        DeviceCOM.ResultOkNotCount++;
-                    }
-                }
             }
 
-            DeviceCOM.ResultCount = DeviceCOM.ResultOkCount + DeviceCOM.ResultOkNotCount;
         }
 
         private void btnResetCounter_Click(object sender, RoutedEventArgs e)
         {
-            DeviceCOM.ResultCount = 0;
-            DeviceCOM.ResultOkCount = 0;
-            DeviceCOM.ResultOkNotCount = 0;
+            var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+            var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
 
-            lblTCount.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
-            lblOkCount.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
-            lblNotOkCount.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
+            cnt.ResultCount = 0;
+            cnt.ResultOkCount = 0;
+            cnt.ResultOkNotCount = 0;
 
-            lblTCount1.Content = "Total Count - " + DeviceCOM.ResultCount.ToString();
-            lblOkCount1.Content = "OK Count - " + DeviceCOM.ResultOkCount.ToString();
-            lblNotOkCount1.Content = "Not Ok Count - " + DeviceCOM.ResultOkNotCount.ToString();
+            lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
+            lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+            lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+
+            lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
+            lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+            lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
         }
 

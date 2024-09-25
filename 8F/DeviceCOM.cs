@@ -16,6 +16,7 @@ using System.Windows.Threading;
 using System.Net.Sockets;
 using System.IO;
 using Npgsql;
+using System.Diagnostics.Metrics;
 
 
 
@@ -28,9 +29,6 @@ namespace _8F
         public static List<Response> responses;
         public static bool IsResponseRefreshRequired = false;
         public static bool IsResponseClearRequired = false;
-        public static int ResultCount = 0;
-        public static int ResultOkCount = 0;
-        public static int ResultOkNotCount = 0;
         public static int CommunicationType;
         public static string PortName;
         public static int BaudRate;
@@ -44,6 +42,7 @@ namespace _8F
         public static bool IsSystemBusy = false;
         public static DateTime busyStamp = System.DateTime.Now; 
         public static Part part;
+        public static List<Counter> counter;
 
         DispatcherTimer dispatcherTimer;
         TcpClient client;
@@ -80,6 +79,26 @@ namespace _8F
                 dispatcherTimer.Start();
 
                 client = new TcpClient();
+            }
+
+            if (counter == null)
+            {
+                counter = new List<Counter>();
+                var cnt1 = new Counter();
+                cnt1.Id = 1;
+                counter.Add(cnt1);
+
+                var cnt2 = new Counter();
+                cnt2.Id = 2;
+                counter.Add(cnt2);
+
+                var cnt3 = new Counter();
+                cnt3.Id = 3;
+                counter.Add(cnt3);
+
+                var cnt4 = new Counter();
+                cnt4.Id = 4;
+                counter.Add(cnt4);
             }
 
         }
@@ -152,15 +171,16 @@ namespace _8F
                         if (ChannelNo >= res?.CN)
                         {
                             responses.Add(res);
+                            var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
                             if (res.OR == 1)
                             {
-                                ResultOkCount = ResultOkCount + 1;
+                                cnt.ResultOkCount = cnt.ResultOkCount + 1;
                             }
                             else
                             {
-                                ResultOkNotCount = ResultOkNotCount + 1;
+                                cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
                             }
-                            ResultCount = ResultOkCount + ResultOkNotCount;
+                            cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             IsResponseRefreshRequired = true;
                             // Maintain logs ==> ChId, Overall Result, File Name, TimeStamp 
                             if (IsLogEnable)
@@ -413,6 +433,14 @@ namespace _8F
         public int Id = 0;
         public bool IsSeleted = false;
         public List<GraphData> graphDatas;
+    }
+
+    public class Counter
+    {
+        public int Id = 0;
+        public int ResultCount = 0;
+        public int ResultOkCount = 0;
+        public int ResultOkNotCount = 0;
     }
     public class GraphData
     {
