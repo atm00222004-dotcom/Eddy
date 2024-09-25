@@ -554,7 +554,7 @@ namespace _8F
             btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
             btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
 
-            btnCh1.Background = new SolidColorBrush(Colors.LightGreen);
+            btnCh1.Background = new SolidColorBrush(Colors.Green);
         }
 
         public List<GraphData> IniGdata()
@@ -793,7 +793,7 @@ namespace _8F
                 btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
 
-                btnCh1.Background = new SolidColorBrush(Colors.LightGreen);
+                btnCh1.Background = new SolidColorBrush(Colors.Green);
                 
             }
         }
@@ -811,7 +811,7 @@ namespace _8F
                 btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
-                ((Border)sender).Background = new SolidColorBrush(Colors.LightGreen);
+                ((Border)sender).Background = new SolidColorBrush(Colors.Green);
                 ImplementChanges(1);
                 DeviceCOM.IsResponseRefreshRequired = true;
             }
