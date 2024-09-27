@@ -44,7 +44,7 @@ namespace _8F
             txtCheckedBy.Text = DeviceCOM.part.CheckedBy;
             txtCompanyName.Text = DeviceCOM.part.CompanyName;
             txtBatchSize.Text = DeviceCOM.part.BatchSize.ToString();
-            txtBatchNo.Text = DeviceCOM.part.BatchNo.ToString(); ;
+            txtBatchNo.Text = DeviceCOM.part.BatchNo.ToString();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

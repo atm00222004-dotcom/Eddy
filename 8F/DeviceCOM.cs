@@ -28,6 +28,8 @@ namespace _8F
         public static List<ChannelData> channelDatas;
         public static List<Response> responses;
         public static bool IsResponseRefreshRequired = false;
+        public static bool IsBalanceAll = false;
+        public static bool IsBalanceBusyEnable = false;
         public static bool IsResponseClearRequired = false;
         public static int CommunicationType;
         public static string PortName;
@@ -197,6 +199,11 @@ namespace _8F
                     else if (res.FC == 22)
                     {
                         IsSystemBusy = false;
+                        if (IsBalanceBusyEnable)
+                        {
+                            IsResponseClearRequired = true;
+                            IsBalanceBusyEnable = false;
+                        }
                     }
                 }
             }

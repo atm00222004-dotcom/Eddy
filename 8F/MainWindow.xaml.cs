@@ -46,6 +46,8 @@ namespace _8F
         int seqLength = 0;
         int CommunicationType = 0;
         public string WebPage;
+        //bool IsBalanceAll = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -245,16 +247,39 @@ namespace _8F
 
             if (DeviceCOM.IsResponseClearRequired)
             {
-                ClearGraphData();
+                //ClearGraphData();
+
+                //foreach (var ch in DeviceCOM.channelDatas)
+                //{
+                //    var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
+                //    var res = JsonConvert.DeserializeObject<Response>(rData);
+                //    res.CN = ch.Id;
+                //    res.IsBalacenced = true;
+                //    DeviceCOM.responses.Add(res);
+                //}
+
+                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                if (DeviceCOM.IsBalanceAll)
+                {
+                    ClearGraphData();
+                }
+                else
+                {
+                    ClearGraphDataByChId(Convert.ToInt32(SChId));
+                }
 
                 foreach (var ch in DeviceCOM.channelDatas)
                 {
-                    var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
-                    var res = JsonConvert.DeserializeObject<Response>(rData);
-                    res.CN = ch.Id;
-                    res.IsBalacenced = true;
-                    DeviceCOM.responses.Add(res);
+                    if (DeviceCOM.IsBalanceAll || ch.IsSeleted)
+                    {
+                        var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
+                        var res = JsonConvert.DeserializeObject<Response>(rData);
+                        res.CN = ch.Id;
+                        res.IsBalacenced = true;
+                        DeviceCOM.responses.Add(res);
+                    }
                 }
+
                 DeviceCOM.IsResponseRefreshRequired = true;
                 DeviceCOM.IsResponseClearRequired = false;
             }
@@ -838,28 +863,8 @@ namespace _8F
                     var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
                     if (rat)
                     {
-                        if (IsBalaneAll)
-                        {
-                            ClearGraphData();
-                        }
-                        else
-                        {
-                            ClearGraphDataByChId(Convert.ToInt32(SChId));
-                        }
-
-                        foreach (var ch in DeviceCOM.channelDatas)
-                        {
-                            if (IsBalaneAll || ch.IsSeleted)
-                            {
-                                var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
-                                var res = JsonConvert.DeserializeObject<Response>(rData);
-                                res.CN = ch.Id;
-                                res.IsBalacenced = true;
-                                DeviceCOM.responses.Add(res);
-                            }
-                        }
-
-                        DeviceCOM.IsResponseRefreshRequired = true;
+                        DeviceCOM.IsBalanceAll = IsBalaneAll;
+                        DeviceCOM.IsBalanceBusyEnable = true;
                     }
                     else
                     {
@@ -1105,9 +1110,10 @@ namespace _8F
                     if (fd.FN == 1)
                     {
                         cn1.Children.Add(el1);
-                        lblGraphXY1.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                        
                         if (!item.IsBalacenced)
                         {
+                            lblGraphXY1.Text = fd.X.ToString() + "," + fd.Y.ToString();
                             if (fd.R == 1)
                             {
                                 rResult1.Fill = new SolidColorBrush(Colors.Green);
@@ -1121,9 +1127,10 @@ namespace _8F
                     else if (fd.FN == 2)
                     {
                         cn2.Children.Add(el1);
-                        lblGraphXY2.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                        
                         if (!item.IsBalacenced)
                         {
+                            lblGraphXY2.Text = fd.X.ToString() + "," + fd.Y.ToString();
                             if (fd.R == 1)
                             {
                                 rResult2.Fill = new SolidColorBrush(Colors.Green);
@@ -1137,9 +1144,10 @@ namespace _8F
                     else if (fd.FN == 3)
                     {
                         cn3.Children.Add(el1);
-                        lblGraphXY3.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                        
                         if (!item.IsBalacenced)
                         {
+                            lblGraphXY3.Text = fd.X.ToString() + "," + fd.Y.ToString();
                             if (fd.R == 1)
                             {
                                 rResult3.Fill = new SolidColorBrush(Colors.Green);
@@ -1153,9 +1161,10 @@ namespace _8F
                     else if (fd.FN == 4)
                     {
                         cn4.Children.Add(el1);
-                        lblGraphXY4.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                        
                         if (!item.IsBalacenced)
                         {
+                            lblGraphXY4.Text = fd.X.ToString() + "," + fd.Y.ToString();
                             if (fd.R == 1)
                             {
                                 rResult4.Fill = new SolidColorBrush(Colors.Green);
@@ -1169,9 +1178,10 @@ namespace _8F
                     else if (fd.FN == 5)
                     {
                         cn5.Children.Add(el1);
-                        lblGraphXY5.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                        
                         if (!item.IsBalacenced)
                         {
+                            lblGraphXY5.Text = fd.X.ToString() + "," + fd.Y.ToString();
                             if (fd.R == 1)
                             {
                                 rResult5.Fill = new SolidColorBrush(Colors.Green);
@@ -1185,9 +1195,10 @@ namespace _8F
                     else if (fd.FN == 6)
                     {
                         cn6.Children.Add(el1);
-                        lblGraphXY6.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                        
                         if (!item.IsBalacenced)
                         {
+                            lblGraphXY6.Text = fd.X.ToString() + "," + fd.Y.ToString();
                             if (fd.R == 1)
                             {
                                 rResult6.Fill = new SolidColorBrush(Colors.Green);
@@ -1201,9 +1212,10 @@ namespace _8F
                     else if (fd.FN == 7)
                     {
                         cn7.Children.Add(el1);
-                        lblGraphXY7.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                        
                         if (!item.IsBalacenced)
                         {
+                            lblGraphXY7.Text = fd.X.ToString() + "," + fd.Y.ToString();
                             if (fd.R == 1)
                             {
                                 rResult7.Fill = new SolidColorBrush(Colors.Green);
@@ -1217,9 +1229,10 @@ namespace _8F
                     else if (fd.FN == 8)
                     {
                         cn8.Children.Add(el1);
-                        lblGraphXY8.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                        
                         if (!item.IsBalacenced)
                         {
+                            lblGraphXY8.Text = fd.X.ToString() + "," + fd.Y.ToString();
                             if (fd.R == 1)
                             {
                                 rResult8.Fill = new SolidColorBrush(Colors.Green);
