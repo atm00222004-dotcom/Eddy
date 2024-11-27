@@ -456,6 +456,7 @@ namespace _8F
         public int freq = 400;
         public int gain = 10;
         public int phase = 0;
+        public bool isEnable = true;
         public double height = DeviceCOM.DefaultHeight;
         public double width = DeviceCOM.DefaultWidth;
         public double ex = 0;
@@ -489,6 +490,7 @@ namespace _8F
         public int F;
         public int G;
         public int P;
+        public int E;
     }
     public class ElliplseWrite
     {

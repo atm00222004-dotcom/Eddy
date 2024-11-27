@@ -29,7 +29,7 @@
                 <ColumnDefinition Width="9*"/>
                 <ColumnDefinition Name="LogoWidth" Width="1.7*"/>
             </Grid.ColumnDefinitions>
-            <Menu Background="LightGray"  VerticalAlignment="Center" Height="50" FontSize="28" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
+            <Menu Background="LightGray"  VerticalAlignment="Center" Height="30" FontSize="18" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
                 <Menu.ItemContainerStyle>
                     <Style TargetType="{x:Type MenuItem}">
                         <Setter Property="Command" Value="{Binding Command}" />
@@ -42,7 +42,7 @@
                 </Menu.ItemTemplate>
             </Menu>
 
-            <Image Name="imgLogo"  Width="180" Panel.ZIndex="999" Grid.Row="0" Grid.Column="1" />
+            <Image Name="imgLogo" Visibility="Hidden"  Width="180" Panel.ZIndex="999" Grid.Row="0" Grid.Column="1" />
 
         </Grid>
        

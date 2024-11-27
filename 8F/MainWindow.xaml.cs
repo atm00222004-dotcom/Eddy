@@ -130,7 +130,7 @@ namespace _8F
             DeviceCOM.ChannelNo = chNo;
             if (chNo == 1)
             {
-                btnCh1.Visibility = Visibility.Visible;
+                btnCh1.Visibility = Visibility.Hidden;
                 btnCh2.Visibility = Visibility.Hidden;
                 btnCh3.Visibility = Visibility.Hidden;
                 btnCh4.Visibility = Visibility.Hidden;
@@ -648,7 +648,6 @@ namespace _8F
                     frequencyWrite.FC = 4;
                     frequencyWrite.CN = ch.Id;
                     frequencyWrite.FD = new List<Frequency>();
-
                     ElliplseWrite ellipseWrite = new ElliplseWrite();
                     ellipseWrite.FC = 5;
                     ellipseWrite.CN = ch.Id;
@@ -658,6 +657,7 @@ namespace _8F
                     {
                         if (ch.IsSeleted == true)
                         {
+                            // Gdata.isEnable
                             if (graphData.Id == 1)
                             {
                                 lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz";
@@ -767,7 +767,7 @@ namespace _8F
                         if (ChangeType == 0)
                         {
                             // write data to port for freq and setting
-                            Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase };
+                            Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase, E = graphData.isEnable ? 1 : 0 };
                             frequencyWrite.FD.Add(frequency);
 
 
@@ -1107,6 +1107,7 @@ namespace _8F
                         }
                     }
                     
+                    // isEnable
                     if (fd.FN == 1)
                     {
                         cn1.Children.Add(el1);

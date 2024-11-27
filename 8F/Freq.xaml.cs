@@ -35,6 +35,7 @@ namespace _8F
                 txtFreq.Text = Gdata.freq.ToString();
                 txtGain.Text = Gdata.gain.ToString();
                 txtPhase.Text = Gdata.phase.ToString();
+                // Gdata.isEnable
             }
         }
 
@@ -63,13 +64,14 @@ namespace _8F
                         Gdata.freq = Convert.ToInt32(txtFreq.Text);
                         Gdata.gain = Convert.ToInt32(txtGain.Text);
                         Gdata.phase = Convert.ToInt32(txtPhase.Text);
+                        // Gdata.isEnable
 
                         FrequencyWrite frequencyWrite = new FrequencyWrite();
                         frequencyWrite.FC = 4;
                         frequencyWrite.CN = ch.Id;
                         frequencyWrite.FD = new List<Frequency>();
 
-                        Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase };
+                        Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase, E = Gdata.isEnable ? 1 : 0 };
                         frequencyWrite.FD.Add(frequency);
                         portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
 
@@ -142,6 +144,7 @@ namespace _8F
                 txtFreq.Text = Gdata.freq.ToString();
                 txtGain.Text = Gdata.gain.ToString();
                 txtPhase.Text = Gdata.phase.ToString();
+                // Gdata.isEnable
             }
 
         }
