@@ -1106,8 +1106,8 @@ namespace _8F
                             }
                         }
                     }
-                    
-                    // isEnable
+
+                    // Gdata.isEnable
                     if (fd.FN == 1)
                     {
                         cn1.Children.Add(el1);
