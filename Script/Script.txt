@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS public."Logs"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9999999 CACHE 1 ),
+    "ChId" integer NOT NULL,
+    "FullName" text COLLATE pg_catalog."default",
+    "Result" boolean NOT NULL,
+	"TimeStamp" timestamp with time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Logs"
+    OWNER to postgres;
+	
