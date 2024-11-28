@@ -31,6 +31,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
                     <!--<RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>-->
@@ -50,11 +51,11 @@
                 <Label Content="Phase" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtPhase" />
 
-                <!--<Label Margin="20,0,0,0" Content="Height" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtHeight" />
+                <Label Margin="20,0,0,0" Content="Status" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
+                <ComboBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="2" Grid.Column="1" Name="ddlStatus" />
+                <!--
                 <Label Content="Width" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
                 <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtWidth" />
-
                 <Label Margin="20,0,0,0" Content="X_Shift" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="0"></Label>
                 <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="1" Name="txtX_Shift" />
                 <Label Content="Y_Shift" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="2"></Label>

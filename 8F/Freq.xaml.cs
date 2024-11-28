@@ -28,6 +28,10 @@ namespace _8F
             InitializeComponent();
 
             ddlFrChennel.ItemsSource = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.Select(x=> x.Name).ToList();
+            List<String> statuses = new List<string>();
+            statuses.Add("True");
+            statuses.Add("False");
+            ddlStatus.ItemsSource = statuses;
             ddlFrChennel.SelectedIndex = 0;
             var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == "D1");
             if (Gdata != null)
@@ -35,7 +39,14 @@ namespace _8F
                 txtFreq.Text = Gdata.freq.ToString();
                 txtGain.Text = Gdata.gain.ToString();
                 txtPhase.Text = Gdata.phase.ToString();
-                // Gdata.isEnable
+                if (Gdata.isEnable)
+                {
+                    ddlStatus.SelectedIndex = 0;
+                }
+                else
+                {
+                    ddlStatus.SelectedIndex = 1;
+                }
             }
         }
 
@@ -64,7 +75,15 @@ namespace _8F
                         Gdata.freq = Convert.ToInt32(txtFreq.Text);
                         Gdata.gain = Convert.ToInt32(txtGain.Text);
                         Gdata.phase = Convert.ToInt32(txtPhase.Text);
-                        // Gdata.isEnable
+                        
+                        if (ddlStatus.SelectedIndex == 0)
+                        {
+                            Gdata.isEnable = true; 
+                        }
+                        else
+                        {
+                            Gdata.isEnable = false;
+                        }
 
                         FrequencyWrite frequencyWrite = new FrequencyWrite();
                         frequencyWrite.FC = 4;
@@ -144,7 +163,15 @@ namespace _8F
                 txtFreq.Text = Gdata.freq.ToString();
                 txtGain.Text = Gdata.gain.ToString();
                 txtPhase.Text = Gdata.phase.ToString();
-                // Gdata.isEnable
+
+                if (Gdata.isEnable)
+                {
+                    ddlStatus.SelectedIndex = 0;
+                }
+                else
+                {
+                    ddlStatus.SelectedIndex = 1;
+                }
             }
 
         }

@@ -47,9 +47,11 @@ namespace _8F
         int CommunicationType = 0;
         public string WebPage;
         //bool IsBalanceAll = false;
-
+        public SolidColorBrush disableColor = new SolidColorBrush(Colors.DarkGray);
+        public SolidColorBrush enableColor = new SolidColorBrush(Colors.White);
         public MainWindow()
         {
+            
             InitializeComponent();
             string LogoPath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogoPath"]);
             imgLogo.Source = new BitmapImage(new Uri(LogoPath));
@@ -657,110 +659,218 @@ namespace _8F
                     {
                         if (ch.IsSeleted == true)
                         {
-                            // Gdata.isEnable
-                            if (graphData.Id == 1)
-                            {
-                                lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                            // Gdata.isEnable enable/disable the frequency graph 
 
-                                el1.Height = graphData.height / factor;
-                                el1.Width = graphData.width / factor;
-                                tt1.X = ((graphData.ex - (graphData.width / 2)) / factor);
-                                tt1.Y = (((graphData.ey * -1) - (graphData.height / 2)) / factor);
-                                
-                                rtAngel1.CenterX = (el1.Width / 2);
-                                rtAngel1.CenterY = (el1.Height / 2);
-                                rtAngel1.Angle = graphData.angel;
+                            if (graphData.Id == 1)
+                            { 
+                                if (graphData.isEnable)
+                                {
+                                    lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                    el1.Height = graphData.height / factor;
+                                    el1.Width = graphData.width / factor;
+                                    tt1.X = ((graphData.ex - (graphData.width / 2)) / factor);
+                                    tt1.Y = (((graphData.ey * -1) - (graphData.height / 2)) / factor);
+
+                                    rtAngel1.CenterX = (el1.Width / 2);
+                                    rtAngel1.CenterY = (el1.Height / 2);
+                                    rtAngel1.Angle = graphData.angel;
+
+                                    br1_rec1.Fill = enableColor;
+                                    D1.IsEnabled = true;
+                                    br1.IsEnabled = true;
+
+
+                                }
+                                else
+                                {
+                                    br1_rec1.Fill = disableColor;
+                                    D1.IsEnabled = false;
+                                    br1.IsEnabled = false;
+                                }
                             }
                             else if (graphData.Id == 2)
                             {
-                                lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                                if (graphData.isEnable)
+                                {
+                                    lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                el2.Height = graphData.height / factor;
-                                el2.Width = graphData.width / factor;
-                                tt2.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                tt2.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                                
-                                rtAngel2.CenterX = (el2.Width / 2);
-                                rtAngel2.CenterY = (el2.Height / 2);
-                                rtAngel2.Angle = graphData.angel;
+                                    el2.Height = graphData.height / factor;
+                                    el2.Width = graphData.width / factor;
+                                    tt2.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                    tt2.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+
+                                    rtAngel2.CenterX = (el2.Width / 2);
+                                    rtAngel2.CenterY = (el2.Height / 2);
+                                    rtAngel2.Angle = graphData.angel;
+
+                                    br2_rec1.Fill = enableColor;
+                                    D2.IsEnabled = true;
+                                    br2.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    br2_rec1.Fill = disableColor;
+                                    D2.IsEnabled = false;
+                                    br2.IsEnabled = false;
+                                }
                             }
                             else if (graphData.Id == 3)
                             {
-                                lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                                if (graphData.isEnable)
+                                {
+                                    lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                el3.Height = graphData.height / factor;
-                                el3.Width = graphData.width / factor;
-                                tt3.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                tt3.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                                
-                                rtAngel3.CenterX = (el3.Width / 2);
-                                rtAngel3.CenterY = (el3.Height / 2);
-                                rtAngel3.Angle = graphData.angel;
+                                    el3.Height = graphData.height / factor;
+                                    el3.Width = graphData.width / factor;
+                                    tt3.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                    tt3.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+
+                                    rtAngel3.CenterX = (el3.Width / 2);
+                                    rtAngel3.CenterY = (el3.Height / 2);
+                                    rtAngel3.Angle = graphData.angel;
+
+                                    br3_rec1.Fill = enableColor;
+                                    D3.IsEnabled = true;
+                                    br3.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    br3_rec1.Fill = disableColor;
+                                    D3.IsEnabled = false;
+                                    br3.IsEnabled = false;
+                                }
                             }
                             else if (graphData.Id == 4)
                             {
-                                lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                                if (graphData.isEnable)
+                                {
+                                    lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                el4.Height = graphData.height / factor;
-                                el4.Width = graphData.width / factor;
-                                tt4.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                tt4.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                                
-                                rtAngel4.CenterX = (el4.Width / 2);
-                                rtAngel4.CenterY = (el4.Height / 2);
-                                rtAngel4.Angle = graphData.angel;
+                                    el4.Height = graphData.height / factor;
+                                    el4.Width = graphData.width / factor;
+                                    tt4.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                    tt4.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+
+                                    rtAngel4.CenterX = (el4.Width / 2);
+                                    rtAngel4.CenterY = (el4.Height / 2);
+                                    rtAngel4.Angle = graphData.angel;
+
+                                    br4_rec1.Fill = enableColor;
+                                    D4.IsEnabled = true;
+                                    br4.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    br4_rec1.Fill = disableColor;
+                                    D4.IsEnabled = false;
+                                    br4.IsEnabled = false;
+                                }
                             }
                             else if (graphData.Id == 5)
                             {
-                                lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                                if (graphData.isEnable)
+                                {
 
-                                el5.Height = graphData.height / factor;
-                                el5.Width = graphData.width / factor;
-                                tt5.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                tt5.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                                
-                                rtAngel5.CenterX = (el5.Width / 2);
-                                rtAngel5.CenterY = (el5.Height / 2);
-                                rtAngel5.Angle = graphData.angel;
+                                    lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz";
+
+                                    el5.Height = graphData.height / factor;
+                                    el5.Width = graphData.width / factor;
+                                    tt5.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                    tt5.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+
+                                    rtAngel5.CenterX = (el5.Width / 2);
+                                    rtAngel5.CenterY = (el5.Height / 2);
+                                    rtAngel5.Angle = graphData.angel;
+
+                                    br5_rec1.Fill = enableColor;
+                                    D5.IsEnabled = true;
+                                    br5.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    br5_rec1.Fill = disableColor;
+                                    D5.IsEnabled = false;
+                                    br5.IsEnabled = false;
+                                }
                             }
                             else if (graphData.Id == 6)
                             {
-                                lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                                if (graphData.isEnable)
+                                {
+                                    lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                el6.Height = graphData.height / factor;
-                                el6.Width = graphData.width / factor;
-                                tt6.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                tt6.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                                
-                                rtAngel6.CenterX = (el6.Width / 2);
-                                rtAngel6.CenterY = (el6.Height / 2);
-                                rtAngel6.Angle = graphData.angel;
+                                    el6.Height = graphData.height / factor;
+                                    el6.Width = graphData.width / factor;
+                                    tt6.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                    tt6.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+
+                                    rtAngel6.CenterX = (el6.Width / 2);
+                                    rtAngel6.CenterY = (el6.Height / 2);
+                                    rtAngel6.Angle = graphData.angel;
+
+                                    br6_rec1.Fill = enableColor;
+                                    D6.IsEnabled = true;
+                                    br6.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    br6_rec1.Fill = disableColor;
+                                    D6.IsEnabled = false;
+                                    br6.IsEnabled = false;
+                                }
                             }
                             else if (graphData.Id == 7)
                             {
-                                lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                                if (graphData.isEnable)
+                                {
+                                    lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                el7.Height = graphData.height / factor;
-                                el7.Width = graphData.width / factor;
-                                tt7.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                tt7.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                                
-                                rtAngel7.CenterX = (el7.Width / 2);
-                                rtAngel7.CenterY = (el7.Height / 2);
-                                rtAngel7.Angle = graphData.angel;
+                                    el7.Height = graphData.height / factor;
+                                    el7.Width = graphData.width / factor;
+                                    tt7.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                    tt7.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+
+                                    rtAngel7.CenterX = (el7.Width / 2);
+                                    rtAngel7.CenterY = (el7.Height / 2);
+                                    rtAngel7.Angle = graphData.angel;
+
+                                    br7_rec1.Fill = enableColor;
+                                    D7.IsEnabled = true;
+                                    br7.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    br7_rec1.Fill = disableColor;
+                                    D7.IsEnabled = false;
+                                    br7.IsEnabled = false;
+                                }
                             }
                             else if (graphData.Id == 8)
                             {
-                                lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz";
+                                if (graphData.isEnable)
+                                {
+                                    lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                el8.Height = graphData.height / factor;
-                                el8.Width = graphData.width / factor;
-                                tt8.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                tt8.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-                                
-                                rtAngel8.CenterX = (el8.Width / 2);
-                                rtAngel8.CenterY = (el8.Height / 2);
-                                rtAngel8.Angle = graphData.angel;
+                                    el8.Height = graphData.height / factor;
+                                    el8.Width = graphData.width / factor;
+                                    tt8.X = (graphData.ex - (graphData.width / 2)) / factor;
+                                    tt8.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
+
+                                    rtAngel8.CenterX = (el8.Width / 2);
+                                    rtAngel8.CenterY = (el8.Height / 2);
+                                    rtAngel8.Angle = graphData.angel;
+
+                                    br8_rec1.Fill = enableColor;
+                                    D8.IsEnabled = true;
+                                    br8.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    br8_rec1.Fill = disableColor;
+                                    D8.IsEnabled = false;
+                                    br8.IsEnabled = false;
+                                }
                             }
                         }
 
@@ -1107,7 +1217,7 @@ namespace _8F
                         }
                     }
 
-                    // Gdata.isEnable
+                    // Gdata.isEnable 
                     if (fd.FN == 1)
                     {
                         cn1.Children.Add(el1);
@@ -1257,7 +1367,7 @@ namespace _8F
             cnt.ResultCount = 0;
             cnt.ResultOkCount = 0;
             cnt.ResultOkNotCount = 0;
-
+            
             lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
             lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
             lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
