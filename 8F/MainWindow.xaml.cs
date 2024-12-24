@@ -49,6 +49,7 @@ namespace _8F
         //bool IsBalanceAll = false;
         public SolidColorBrush disableColor = new SolidColorBrush(Colors.DarkGray);
         public SolidColorBrush enableColor = new SolidColorBrush(Colors.White);
+        bool IsSerialmatch = false;
         public MainWindow()
         {
             
@@ -199,7 +200,7 @@ namespace _8F
             dispatcherTimer.Start();
 
             Status status = new Status() { FC = 23 };
-            var rat= portCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
+            var rat = portCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
 
             if (DeviceCOM.IsSystemBusy || !rat)
             {
@@ -208,12 +209,62 @@ namespace _8F
             else
             {
                 ImplementChanges(0);
+            }            
+
+        }
+
+        public string Reverse(string Input)
+        {
+
+            // Converting string to character array 
+            char[] charArray = Input.ToCharArray();
+
+            // Declaring an empty string
+            string reversedString = String.Empty;
+
+            int length, index;
+            length = charArray.Length - 1;
+            index = length;
+
+            // Iterating the each character from right to left  
+            while (index > -1)
+            {
+
+                // Appending character to the reversedstring.
+                reversedString = reversedString + charArray[index];
+                index--;
             }
 
+            // Return the reversed string.
+            return reversedString;
+        }
+
+        private void CheckSerailNumber()
+        {
+            // Get Serial Numner 
+            var serial = portCOM.GetSeialNumber();
+            string sNumber = System.Configuration.ConfigurationSettings.AppSettings["SerialNumber"]; ;
+
+            sNumber = Reverse(serial.S1 + sNumber + serial.S2); 
+
+            if (sNumber == serial.S)
+            {
+                IsSerialmatch = true;
+            }
+            if (!IsSerialmatch)
+            {
+                MessageBox.Show("Serial number is mistmatch!", "System Information");
+                this.Close();
+            }
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
+            if (!IsSerialmatch)
+            {
+                CheckSerailNumber();
+            }
+
             if(DeviceCOM.IsSystemBusy)
             {
                 brStatus.Background = new SolidColorBrush(Colors.Red);

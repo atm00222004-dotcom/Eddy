@@ -434,6 +434,57 @@ namespace _8F
                 return false;
             }
         }
+
+        public GetSerialNumber GetSeialNumber()
+        {
+            SetSerialNumber setSerialNumber = new SetSerialNumber { FC = 31, S1 = 1234, S2 = 5678};
+            string data = JsonConvert.SerializeObject(setSerialNumber);
+            GetSerialNumber getSerialNumber = new GetSerialNumber(); 
+            try
+            {
+                if (port.IsOpen)
+                {
+                    port.Close();
+                }
+
+                InitialPort(CommunicationType, PortName, BaudRate, IpAddress, SPort);
+
+                if (!port.IsOpen)
+                {
+                    port.Open();
+                }
+                this.port.ReadExisting();
+                this.port.Write(data);
+                Thread.Sleep(100);
+                string sData = this.port.ReadExisting();
+
+                if (port.IsOpen)
+                {
+                    port.Close();
+                }
+
+                port.DataReceived += serialPort_DataReceived;
+                if (!port.IsOpen)
+                {
+                    port.Open();
+                }
+                
+                if (!string.IsNullOrEmpty(sData))
+                {
+                    getSerialNumber = JsonConvert.DeserializeObject<GetSerialNumber>(sData);
+                    getSerialNumber.S1 = setSerialNumber.S1;
+                    getSerialNumber.S2 = setSerialNumber.S2;
+
+                }
+            }
+            catch (Exception e)
+            {
+                
+            }
+
+            return getSerialNumber;
+        }
+            
     }
     public class ChannelData
     {
@@ -538,5 +589,21 @@ namespace _8F
         public int BatchType= 0;
         public int BatchSize = 5;
         public int BatchNo = 1;
+    }
+
+    public class SetSerialNumber
+    {
+        public int FC;
+        public int S1;
+        public int S2;
+    }
+
+
+    public class GetSerialNumber
+    {
+        public int FC;
+        public string S;
+        public int S1;
+        public int S2;
     }
 }
