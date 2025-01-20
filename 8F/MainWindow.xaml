@@ -114,16 +114,56 @@
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0*"/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Name="FrequencySpace" Width="0*"/>
+                <ColumnDefinition Name="FrequencySpaceCol1"/>
+                <ColumnDefinition Name="FrequencySpaceCol2"/>
+                <ColumnDefinition Name="FrequencySpaceCol3"/>
+                <ColumnDefinition Name="FrequencySpaceCol4"/>
                 <ColumnDefinition Name="buttonBarWidth" Width=".38*"/> 
                 <!--change it from backend--> 
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="5" Grid.Row="0">
+            <Grid Name="buttonbar2" Visibility="Hidden" Grid.Column="5" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Border Cursor="Hand" Width="150" Height="64" Name="btnBalance2" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Balance" ></Label>
+                </Border>
+
+                <Border Cursor="Hand" Width="150" Height="64" Name="btnBalance2All" MouseDown="btnBalance_Click" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Balance All" ></Label>
+                </Border>
+
+                <Border Cursor="Hand" Width="150" Height="64" Name="btnTest2" MouseDown="btnTest_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="1" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Test" ></Label>
+                </Border>
+
+                <Border Cursor="Hand" Width="150" Height="64" Name="btnTest2All" MouseDown="btnTest_Click" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="1" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Test All" ></Label>
+                </Border>
+
+                <Border Cursor="Hand" Width="150" Height="64" Name="btnClear2" MouseDown="btnClear_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="2" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Clear" ></Label>
+                </Border>
+
+                <Border Cursor="Hand" Width="150" Height="64" Name="btnClear2All" MouseDown="btnClear_Click" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="2" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Clear All" ></Label>
+                </Border>
+
+                <Border Visibility="Visible" Cursor="Hand" Width="150" Height="64" Name="btnLog2" MouseDown="btnLog_MouseDown"  Margin="8" Background="#305371" Grid.Column="0" Grid.Row="3" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Name="lblLog2" HorizontalAlignment="Center" Content="Start Log" ></Label>
+                </Border>
+            </Grid>
+
+            <Grid Name="buttonbar1" Grid.Column="5" Grid.Row="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
@@ -604,7 +644,7 @@ Canvas.Top="227" />
                 </Canvas>
             </Border>
 
-            <Grid Grid.Column="5" Grid.Row="1">
+            <Grid Name="counterbar1"  Grid.Column="5" Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height=".5*"/>
                     <RowDefinition Height="2*"/>
@@ -643,8 +683,57 @@ Canvas.Top="227" />
                     <Label Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Overall Result" ></Label>
                 </Border>
             </Grid>
-            
-           
+
+            <Grid Name="counterbar2" Visibility="Hidden" Grid.Column="5" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="1.5*"/>
+                    <RowDefinition Height="1.5*"/>
+                    <RowDefinition Height=".1*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+              
+                <Grid Grid.Column="0" Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Border Cursor="Hand" HorizontalAlignment="Center" Width="150" Height="40" Margin="4" Background="Brown" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                        <Label Foreground="White" FontSize="16" Name="lblTCount2" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Total Count - 0" ></Label>
+                    </Border>
+                    <Border Cursor="Hand" HorizontalAlignment="Center" Width="150" Height="40" Margin="4" Background="Green" Grid.Column="0" Grid.Row="1" BorderBrush="Green" BorderThickness="1" CornerRadius="10">
+                        <Label Foreground="White" FontSize="16" Name="lblOkCount2" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="OK Count - 0" ></Label>
+                    </Border>
+                    <Border Cursor="Hand" HorizontalAlignment="Center" Width="150" Height="40" Margin="4" Background="Red" Grid.Column="1" Grid.Row="1" BorderBrush="Red" BorderThickness="1" CornerRadius="10">
+                        <Label Foreground="White" FontSize="16" Name="lblNotOkCount2" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Not Ok Count - 0" ></Label>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Column="0" Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height=".5*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Cursor="Hand" Width="150" Height="70" Name="btnResetCounter2" MouseDown="btnResetCounter_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Reset Count" ></Label>
+                </Border>
+                
+                <Border Width="150" Height="70" Name="btnOverallResult2" Margin="2" Background="LightBlue" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Overall Result" ></Label>
+                </Border>
+                </Grid>
+            </Grid>
         </Grid>
 
         <Grid Grid.Column="0" Grid.Row="3">

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Channels;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -45,11 +46,12 @@ namespace _8F
         int BoxSize4 = 0;
         int seqLength = 0;
         int CommunicationType = 0;
+        int FrequencyNo = 8; 
         public string WebPage;
         //bool IsBalanceAll = false;
         public SolidColorBrush disableColor = new SolidColorBrush(Colors.DarkGray);
         public SolidColorBrush enableColor = new SolidColorBrush(Colors.White);
-        bool IsSerialmatch = false;
+        bool IsSerialmatch = true;
         public MainWindow()
         {
             
@@ -64,12 +66,14 @@ namespace _8F
             BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize2"]);
             BoxSize3 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize3"]);
             BoxSize4 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize4"]);
+            FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrequencyNo"]);
 
             var LogEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["LogEnable"]);
             if (!LogEnabled)
             {
                 btnLog.Visibility = Visibility.Hidden;
                 btnLog1.Visibility = Visibility.Hidden;
+                btnLog2.Visibility = Visibility.Hidden;
                 LogWidth.Width = new GridLength(0.0, GridUnitType.Star);
                 LogHeight.Height = new GridLength(0.0, GridUnitType.Star);
             }
@@ -110,6 +114,39 @@ namespace _8F
                 buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
                 LogoWidth.Width = new GridLength(1.7, GridUnitType.Star);
+
+                if (FrequencyNo == 4 || FrequencyNo == 1)
+                {
+                    Grid.SetRow(br3, 1);
+                    Grid.SetColumn(br3, 1);
+                    Grid.SetRow(br4, 1);
+                    Grid.SetColumn(br4, 2);
+
+                    buttonbar2.Visibility = Visibility.Visible;
+                    buttonbar1.Visibility = Visibility.Hidden;
+                    counterbar2.Visibility = Visibility.Visible;
+                    counterbar1.Visibility = Visibility.Hidden;
+
+                    menuHeight.Height = new GridLength(0.35, GridUnitType.Star);
+                    chennelHeight.Height = new GridLength(0.5, GridUnitType.Star);
+                    buttonBarWidth.Width = new GridLength(1, GridUnitType.Star);
+                    FrequencySpaceCol3.Width = new GridLength(0, GridUnitType.Star);
+                    FrequencySpaceCol4.Width = new GridLength(0, GridUnitType.Star);
+                    buttonBarHeight.Height = new GridLength(0, GridUnitType.Star);
+
+                    br5.Visibility = Visibility.Hidden;
+                    br6.Visibility = Visibility.Hidden;
+                    br7.Visibility = Visibility.Hidden;
+                    br8.Visibility = Visibility.Hidden;
+                    
+                    if (FrequencyNo == 1)
+                    {
+                        br2.Visibility = Visibility.Hidden;
+                        br3.Visibility = Visibility.Hidden;
+                        br4.Visibility = Visibility.Hidden;
+                    }
+                    
+                }
             }
 
             portCOM = new DeviceCOM();
@@ -294,6 +331,10 @@ namespace _8F
                 lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
                 lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
                 lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+
+                lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
+                lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
                 DeviceCOM.IsResponseRefreshRequired = false;
             }
@@ -686,7 +727,7 @@ namespace _8F
         {
             if (ChangeType== 0 )
             {
-                FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = 8, NC = chNo };
+                FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = FrequencyNo, NC = chNo };
                 portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
 
                 Mode mode = new Mode() { FC = 2, M = 0 };
@@ -740,7 +781,7 @@ namespace _8F
                                     br1.IsEnabled = false;
                                 }
                             }
-                            else if (graphData.Id == 2)
+                            else if (graphData.Id == 2 && graphData.Id <= FrequencyNo)
                             {
                                 if (graphData.isEnable)
                                 {
@@ -766,7 +807,7 @@ namespace _8F
                                     br2.IsEnabled = false;
                                 }
                             }
-                            else if (graphData.Id == 3)
+                            else if (graphData.Id == 3 && graphData.Id <= FrequencyNo)
                             {
                                 if (graphData.isEnable)
                                 {
@@ -792,7 +833,7 @@ namespace _8F
                                     br3.IsEnabled = false;
                                 }
                             }
-                            else if (graphData.Id == 4)
+                            else if (graphData.Id == 4 && graphData.Id <= FrequencyNo)
                             {
                                 if (graphData.isEnable)
                                 {
@@ -818,7 +859,7 @@ namespace _8F
                                     br4.IsEnabled = false;
                                 }
                             }
-                            else if (graphData.Id == 5)
+                            else if (graphData.Id == 5 && graphData.Id <= FrequencyNo)
                             {
                                 if (graphData.isEnable)
                                 {
@@ -845,7 +886,7 @@ namespace _8F
                                     br5.IsEnabled = false;
                                 }
                             }
-                            else if (graphData.Id == 6)
+                            else if (graphData.Id == 6 && graphData.Id <= FrequencyNo)
                             {
                                 if (graphData.isEnable)
                                 {
@@ -871,7 +912,7 @@ namespace _8F
                                     br6.IsEnabled = false;
                                 }
                             }
-                            else if (graphData.Id == 7)
+                            else if (graphData.Id == 7 && graphData.Id <= FrequencyNo)
                             {
                                 if (graphData.isEnable)
                                 {
@@ -897,7 +938,7 @@ namespace _8F
                                     br7.IsEnabled = false;
                                 }
                             }
-                            else if (graphData.Id == 8)
+                            else if (graphData.Id == 8 && graphData.Id <= FrequencyNo)
                             {
                                 if (graphData.isEnable)
                                 {
@@ -925,7 +966,7 @@ namespace _8F
                             }
                         }
 
-                        if (ChangeType == 0)
+                        if (ChangeType == 0 && graphData.Id <= FrequencyNo)
                         {
                             // write data to port for freq and setting
                             Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase, E = graphData.isEnable ? 1 : 0 };
@@ -934,7 +975,6 @@ namespace _8F
 
                             Elliplse elliplse = new Elliplse() { FN = graphData.Id, EId = graphData.Id, a = graphData.height, b = graphData.width, t = graphData.angel, x = graphData.ex, y = graphData.ey };
                             ellipseWrite.ED.Add(elliplse);
-
                         }
                     }
 
@@ -1017,7 +1057,7 @@ namespace _8F
                 }
                 else
                 {
-                    var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll");
+                    var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll" ) || (((Border)sender).Name == "btnBalance2All");
                     var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
                     int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
                     BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
@@ -1045,7 +1085,7 @@ namespace _8F
             }
             else
             {
-                var IsTestAll = (((Border)sender).Name == "btnTest1All") || (((Border)sender).Name == "btnTestAll");
+                var IsTestAll = (((Border)sender).Name == "btnTest1All") || (((Border)sender).Name == "btnTestAll") || (((Border)sender).Name == "btnTest2All");
                 var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
                 int ChId = IsTestAll ? 0 : Convert.ToInt32(SChId);
 
@@ -1060,7 +1100,7 @@ namespace _8F
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
-            var IsClearAll = (((Border)sender).Name == "btnClear1All") || (((Border)sender).Name == "btnClearAll");
+            var IsClearAll = (((Border)sender).Name == "btnClear1All") || (((Border)sender).Name == "btnClearAll") || (((Border)sender).Name == "btnClear2All");
             ClearGraphDataWithoutBalance(IsClearAll);
         }
 
@@ -1427,6 +1467,10 @@ namespace _8F
             lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
             lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
+            lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
+            lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+            lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+
         }
 
         private void btnLog_MouseDown(object sender, MouseButtonEventArgs e)
@@ -1436,6 +1480,7 @@ namespace _8F
                 DeviceCOM.IsLogEnable = false;
                 lblLog.Content = "Start Log";
                 lblLog1.Content = "Start Log";
+                lblLog2.Content = "Start Log";
                 lblPartLogs.Content = "";
             }
             else
@@ -1454,6 +1499,7 @@ namespace _8F
             {
                 lblLog.Content = "Stop Log";
                 lblLog1.Content = "Stop Log";
+                lblLog2.Content = "Stop Log";
                 lblPartLogs.Content = DeviceCOM.part.Name + ", " + DeviceCOM.part.Grade + ", " + DeviceCOM.part.CompanyName;
             }
             else
@@ -1687,6 +1733,7 @@ namespace _8F
                         DeviceCOM.IsLogEnable = false;
                         this.mainWindow.lblLog.Content = "Start Log";
                         this.mainWindow.lblLog1.Content = "Start Log";
+                        this.mainWindow.lblLog2.Content = "Start Log";
                         DeviceCOM.part = new Part();
                         this.mainWindow.lblPartLogs.Content = "";
                         this.mainWindow.lblConfigFileName.Content = "";
