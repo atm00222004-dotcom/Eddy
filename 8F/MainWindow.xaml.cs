@@ -14,6 +14,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -683,41 +684,65 @@ namespace _8F
             GraphData graphD1 = new GraphData();
             graphD1.Id = 1;
             graphD1.Name = "D1";
+            Ellips elliplse1 = new Ellips();
+            elliplse1.Id = 1;
+            graphD1.ellipses.Add(elliplse1);
             graphDatas.Add(graphD1);
 
             GraphData graphD2 = new GraphData();
             graphD2.Id = 2;
             graphD2.Name = "D2";
+            Ellips elliplse2 = new Ellips();
+            elliplse2.Id = 1;
+            graphD2.ellipses.Add(elliplse2);
             graphDatas.Add(graphD2);
 
             GraphData graphD3 = new GraphData();
             graphD3.Id = 3;
             graphD3.Name = "D3";
+            Ellips elliplse3 = new Ellips();
+            elliplse3.Id = 1;
+            graphD3.ellipses.Add(elliplse3);
             graphDatas.Add(graphD3);
 
             GraphData graphD4 = new GraphData();
             graphD4.Id = 4;
             graphD4.Name = "D4";
+            Ellips elliplse4 = new Ellips();
+            elliplse4.Id = 1;
+            graphD4.ellipses.Add(elliplse4);
             graphDatas.Add(graphD4);
 
             GraphData graphD5 = new GraphData();
             graphD5.Id = 5;
             graphD5.Name = "D5";
+            Ellips elliplse5 = new Ellips();
+            elliplse5.Id = 1;
+            graphD5.ellipses.Add(elliplse5);
             graphDatas.Add(graphD5);
 
             GraphData graphD6 = new GraphData();
             graphD6.Id = 6;
             graphD6.Name = "D6";
+            Ellips elliplse6 = new Ellips();
+            elliplse6.Id = 1;
+            graphD6.ellipses.Add(elliplse6);
             graphDatas.Add(graphD6);
 
             GraphData graphD7 = new GraphData();
             graphD7.Id = 7;
             graphD7.Name = "D7";
+            Ellips elliplse7 = new Ellips();
+            elliplse7.Id = 1;
+            graphD7.ellipses.Add(elliplse7);
             graphDatas.Add(graphD7);
 
             GraphData graphD8 = new GraphData();
             graphD8.Id = 8;
             graphD8.Name = "D8";
+            Ellips elliplse8 = new Ellips();
+            elliplse8.Id = 1;
+            graphD8.ellipses.Add(elliplse8);
             graphDatas.Add(graphD8);
 
             return graphDatas;
@@ -745,7 +770,7 @@ namespace _8F
                     ElliplseWrite ellipseWrite = new ElliplseWrite();
                     ellipseWrite.FC = 5;
                     ellipseWrite.CN = ch.Id;
-                    ellipseWrite.ED = new List<Elliplse>();
+                    ellipseWrite.FD = new List<Frequ>();
 
                     foreach (GraphData graphData in ch.graphDatas)
                     {
@@ -759,14 +784,7 @@ namespace _8F
                                 {
                                     lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                    el1.Height = graphData.height / factor;
-                                    el1.Width = graphData.width / factor;
-                                    tt1.X = ((graphData.ex - (graphData.width / 2)) / factor);
-                                    tt1.Y = (((graphData.ey * -1) - (graphData.height / 2)) / factor);
-
-                                    rtAngel1.CenterX = (el1.Width / 2);
-                                    rtAngel1.CenterY = (el1.Height / 2);
-                                    rtAngel1.Angle = graphData.angel;
+                                    AddEllipses(cnBr1, graphData);
 
                                     br1_rec1.Fill = enableColor;
                                     D1.IsEnabled = true;
@@ -787,14 +805,7 @@ namespace _8F
                                 {
                                     lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                    el2.Height = graphData.height / factor;
-                                    el2.Width = graphData.width / factor;
-                                    tt2.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                    tt2.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-
-                                    rtAngel2.CenterX = (el2.Width / 2);
-                                    rtAngel2.CenterY = (el2.Height / 2);
-                                    rtAngel2.Angle = graphData.angel;
+                                    AddEllipses(cnBr2, graphData);
 
                                     br2_rec1.Fill = enableColor;
                                     D2.IsEnabled = true;
@@ -813,14 +824,7 @@ namespace _8F
                                 {
                                     lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                    el3.Height = graphData.height / factor;
-                                    el3.Width = graphData.width / factor;
-                                    tt3.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                    tt3.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-
-                                    rtAngel3.CenterX = (el3.Width / 2);
-                                    rtAngel3.CenterY = (el3.Height / 2);
-                                    rtAngel3.Angle = graphData.angel;
+                                    AddEllipses(cnBr3, graphData);
 
                                     br3_rec1.Fill = enableColor;
                                     D3.IsEnabled = true;
@@ -839,14 +843,7 @@ namespace _8F
                                 {
                                     lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                    el4.Height = graphData.height / factor;
-                                    el4.Width = graphData.width / factor;
-                                    tt4.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                    tt4.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-
-                                    rtAngel4.CenterX = (el4.Width / 2);
-                                    rtAngel4.CenterY = (el4.Height / 2);
-                                    rtAngel4.Angle = graphData.angel;
+                                    AddEllipses(cnBr4, graphData);
 
                                     br4_rec1.Fill = enableColor;
                                     D4.IsEnabled = true;
@@ -866,14 +863,7 @@ namespace _8F
 
                                     lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                    el5.Height = graphData.height / factor;
-                                    el5.Width = graphData.width / factor;
-                                    tt5.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                    tt5.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-
-                                    rtAngel5.CenterX = (el5.Width / 2);
-                                    rtAngel5.CenterY = (el5.Height / 2);
-                                    rtAngel5.Angle = graphData.angel;
+                                    AddEllipses(cnBr5, graphData);
 
                                     br5_rec1.Fill = enableColor;
                                     D5.IsEnabled = true;
@@ -892,14 +882,7 @@ namespace _8F
                                 {
                                     lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                    el6.Height = graphData.height / factor;
-                                    el6.Width = graphData.width / factor;
-                                    tt6.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                    tt6.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-
-                                    rtAngel6.CenterX = (el6.Width / 2);
-                                    rtAngel6.CenterY = (el6.Height / 2);
-                                    rtAngel6.Angle = graphData.angel;
+                                    AddEllipses(cnBr6, graphData);
 
                                     br6_rec1.Fill = enableColor;
                                     D6.IsEnabled = true;
@@ -918,14 +901,7 @@ namespace _8F
                                 {
                                     lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                    el7.Height = graphData.height / factor;
-                                    el7.Width = graphData.width / factor;
-                                    tt7.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                    tt7.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-
-                                    rtAngel7.CenterX = (el7.Width / 2);
-                                    rtAngel7.CenterY = (el7.Height / 2);
-                                    rtAngel7.Angle = graphData.angel;
+                                    AddEllipses(cnBr7, graphData);
 
                                     br7_rec1.Fill = enableColor;
                                     D7.IsEnabled = true;
@@ -944,14 +920,7 @@ namespace _8F
                                 {
                                     lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
-                                    el8.Height = graphData.height / factor;
-                                    el8.Width = graphData.width / factor;
-                                    tt8.X = (graphData.ex - (graphData.width / 2)) / factor;
-                                    tt8.Y = ((graphData.ey * -1) - (graphData.height / 2)) / factor;
-
-                                    rtAngel8.CenterX = (el8.Width / 2);
-                                    rtAngel8.CenterY = (el8.Height / 2);
-                                    rtAngel8.Angle = graphData.angel;
+                                    AddEllipses(cnBr8, graphData);
 
                                     br8_rec1.Fill = enableColor;
                                     D8.IsEnabled = true;
@@ -970,23 +939,67 @@ namespace _8F
                         {
                             // write data to port for freq and setting
                             Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase, E = graphData.isEnable ? 1 : 0 };
+                            Frequ frequ = new Frequ() { FN = graphData.Id, ED = new List<Elliplse>() };
+                            foreach (var el in graphData.ellipses)
+                            {
+                                Elliplse elliplse = new Elliplse() { FN = graphData.Id, EId = el.Id, a = el.height, b = el.width, t = el.angel, x = el.ex, y = el.ey };
+                                frequ.ED.Add(elliplse);
+                            }
                             frequencyWrite.FD.Add(frequency);
 
-
-                            Elliplse elliplse = new Elliplse() { FN = graphData.Id, EId = graphData.Id, a = graphData.height, b = graphData.width, t = graphData.angel, x = graphData.ex, y = graphData.ey };
-                            ellipseWrite.ED.Add(elliplse);
+                            ellipseWrite.FD.Add(frequ);
                         }
                     }
 
                     if (ChangeType == 0)
                     {
                         portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
-                        //System.Threading.Thread.Sleep(500);
+                        System.Threading.Thread.Sleep(500);
                         portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
                     }
                 }
             }
         }
+
+        public void AddEllipses(Canvas cnBr1, GraphData graphData)
+        {
+            // cnBr1
+
+            cnBr1.Children.Clear();
+
+            foreach (var item in graphData.ellipses)
+            {
+                var index = graphData.ellipses.IndexOf(item);
+                Ellipse el1 = new Ellipse();
+                el1.Height = item.height / factor;
+                el1.Width = item.width / factor;
+                el1.HorizontalAlignment = HorizontalAlignment.Center;
+                el1.Stroke = new SolidColorBrush(MyColor.GetColor(index));
+                el1.VerticalAlignment = VerticalAlignment.Center;
+                Canvas.SetLeft(el1, 0);
+                Canvas.SetTop(el1, 0);
+                el1.RenderTransformOrigin = new Point(0, 0);
+
+                TranslateTransform tt1 = new TranslateTransform();
+                tt1.X = ((item.ex - (item.width / 2)) / factor);
+                tt1.Y = (((item.ey * -1) - (item.height / 2)) / factor);
+
+                RotateTransform rtAngel1 = new RotateTransform();
+                rtAngel1.CenterX = (el1.Width / 2);
+                rtAngel1.CenterY = (el1.Height / 2);
+                rtAngel1.Angle = item.angel;
+
+                TransformGroup transformGroup = new TransformGroup();
+                transformGroup.Children.Add(rtAngel1);
+                transformGroup.Children.Add(tt1);
+
+                el1.RenderTransform = transformGroup;
+                cnBr1.Children.Add(el1);
+            }
+            
+        }
+
+        
         private void D_Click(object sender, RoutedEventArgs e)
         {
             ellipsesPop = new CircleSetting(((Border)sender).Name);

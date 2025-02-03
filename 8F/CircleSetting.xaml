@@ -11,60 +11,52 @@
     <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.2*"/>
+                <RowDefinition Height="0.45*"/>
                 <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.7*"/>
+                <RowDefinition Height="2*"/>
                 <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.25*"/>
                 <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="0.3*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Label Margin="0,10,0,0" Content="System Configuration" VerticalAlignment="Top" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0"></Label>
+            <Label Margin="0,10,0,0" Content="System Configuration" VerticalAlignment="Top" FontSize="22" FontWeight="Bold" Name="lblHeader" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0"></Label>
             <!--<Image Name="btnClose" Margin="0,15,25,0" VerticalAlignment="Top" Width="30" MouseUp="Button_Click" HorizontalAlignment="Right" Source="/Images/Group 48.png" />-->
+            <Border Width="80" Name="btnNew" Margin="25,15,0,0" MouseDown="btnNew_MouseDown"  Background="#305371" HorizontalAlignment="Left" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Add New" ></Label>
+            </Border>
+            
             <Border Width="80" Name="btnClose" Margin="0,15,25,0" MouseDown="Button_Click" Background="#305371" HorizontalAlignment="Right" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Close" ></Label>
             </Border>
             <Separator VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
-            <Grid Margin="20,30,30,20" Grid.Row="2" Grid.Column="0">
+            <Grid  Grid.Row="2" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <!--<RowDefinition/>
-                    <RowDefinition/>-->
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label Margin="20,0,0,0" Content="Freq Channel" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
-                <ComboBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="0" Grid.Column="1" SelectionChanged="ddlFrChennel_SelectionChanged" Name="ddlFrChennel" />
-
-                <Label Content="Angle" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtAngel" />
-                
-                <Label Margin="20,0,0,0" Content="Height" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtHeight" />
-                <Label Content="Width" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtWidth" />
-
-                <Label Margin="20,0,0,0" Content="X Offset" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericWithNegativeOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtX_Shift" />
-                <Label Content="Y Offset" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericWithNegativeOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtY_Shift" />
-
-
-                <!--<Label Content="Frequency" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtFreq" />
-                <Label Margin="20,0,0,0"  FontSize="16" FontWeight="Bold" Content="Gain"  Grid.Row="1" Grid.Column="0"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtGain" />
-                <Label Content="Phase" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtPhase" />-->
-
+                <Border Grid.Row="0" Grid.Column="0" Margin="0,0,0,5"  BorderThickness="1" CornerRadius="10">
+                    <DataGrid SelectionMode="Single" FontSize="18" CanUserAddRows="false" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="2" AutoGenerateColumns="False" Name="gdFreq" VerticalAlignment="Top">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Width="200*" Header = "Height" Binding = "{Binding height}" />
+                            <DataGridTextColumn Width="200*" Header = "Width" Binding = "{Binding width}"/>
+                            <DataGridTextColumn Width="200*" Header = "X" Binding = "{Binding ex}"/>
+                            <DataGridTextColumn Width="200*" Header = "Y" Binding = "{Binding ey}"/>
+                            <DataGridTextColumn Width="200*" Header = "Angel" Binding = "{Binding angel}"/>
+                            <DataGridTextColumn Width="200*" Header = "Angel" Binding = "{Binding ColorName}"/>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button x:Name="btn_installSnippet" Click="btn_installSnippet_Click">Remove</Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
             </Grid>
             <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
             <!--<Button FontWeight="Bold"  Margin="20,0,0,0" MaxWidth="150" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0" Content="Save Config" Name="btnConfigSave" Click="btnConfigSave_Click" ></Button>-->

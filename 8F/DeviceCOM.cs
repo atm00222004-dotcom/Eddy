@@ -17,6 +17,7 @@ using System.Net.Sockets;
 using System.IO;
 using Npgsql;
 using System.Diagnostics.Metrics;
+using System.Windows.Media;
 
 
 
@@ -510,11 +511,33 @@ namespace _8F
         public bool isEnable = true;
         public double height = DeviceCOM.DefaultHeight;
         public double width = DeviceCOM.DefaultWidth;
+        public double ex = 30;
+        public double ey = 30;
+        public double angel = 30;
+        public List<Ellips> ellipses = new List<Ellips>(); 
+    }
+    public class Ellips
+    {
+        public int Id = 0;
+        public double height = DeviceCOM.DefaultHeight;
+        public double width = DeviceCOM.DefaultWidth;
         public double ex = 0;
         public double ey = 0;
         public double angel = 0;
     }
-    public class Response
+
+    public class EllipsDTO
+    {
+        public int Id { get; set; }
+        public double height { get; set; }
+        public double width { get; set; }
+        public double ex { get; set; }
+        public double ey { get; set; }
+        public double angel { get; set; }
+        public string ColorName { get; set; }
+    }
+    
+public class Response
     {
         public int FC;
         public int CN;
@@ -542,12 +565,18 @@ namespace _8F
         public int G;
         public int P;
         public int E;
+        
+    }
+    public class Frequ
+    {
+        public int FN;
+        public List<Elliplse> ED;
     }
     public class ElliplseWrite
     {
         public int FC;
         public int CN;
-        public List<Elliplse> ED;
+        public List<Frequ> FD;
     }
     public class Elliplse
     {
@@ -605,5 +634,88 @@ namespace _8F
         public string S;
         public int S1;
         public int S2;
+    }
+
+    public class MyColor
+    {
+        public static string GetColorName(int index)
+        {
+            string MyColor = "Black";
+            if (index == 0)
+            {
+                MyColor = "Black";
+            }
+            else if (index == 1)
+            {
+                MyColor = "Blue"; 
+            }
+            else if (index == 2)
+            {
+                MyColor = "Red";
+            }
+
+            else if (index == 3)
+            {
+                MyColor = "Green";  
+            }
+
+            else if (index == 4)
+            {
+                MyColor = "Brown";
+            }
+
+            else if (index == 5)
+            {
+                MyColor = "Yellow";
+            }
+
+            else if (index == 6)
+            {
+                MyColor = "Blue"; 
+            }
+
+            return MyColor;
+
+        }
+        public static Color GetColor(int index)
+        {
+            Color MyColor = Colors.Black;
+            if (index == 0)
+            {
+                MyColor = Colors.Black;
+            }
+            else if (index == 1)
+            {
+                MyColor = Colors.Blue;
+            }
+            else if (index == 2)
+            {
+                MyColor = Colors.Red;
+            }
+
+            else if (index == 3)
+            {
+                MyColor = Colors.Green;
+            }
+
+            else if (index == 4)
+            {
+                MyColor = Colors.Brown;
+            }
+
+            else if (index == 5)
+            {
+                MyColor = Colors.Yellow;
+            }
+
+            else if (index == 6)
+            {
+                MyColor = Colors.Blue;
+            }
+
+            return MyColor;
+
+        }
+
     }
 }
