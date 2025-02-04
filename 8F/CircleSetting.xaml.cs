@@ -75,6 +75,7 @@ namespace _8F
         {
             try
             {
+                
                 var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
                 ElliplseWrite ellipseWrite = new ElliplseWrite();
                 ellipseWrite.FC = 5;
@@ -184,21 +185,6 @@ namespace _8F
             return validationMsg;
         }
 
-        //private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    var text = e.AddedItems[0].ToString();
-        //    var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == text);
-        //    if (Gdata != null)
-        //    {
-        //        txtHeight.Text = Gdata.height.ToString();
-        //        txtWidth.Text = Gdata.width.ToString();
-        //        txtX_Shift.Text = Gdata.ex.ToString();
-        //        txtY_Shift.Text = Gdata.ey.ToString();
-        //        txtAngel.Text = Gdata.angel.ToString();
-        //    }
-
-        //}
-
         private void PreviewTextInput_NumericOnly(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
@@ -234,5 +220,7 @@ namespace _8F
                 gdFreq.ItemsSource = ellipses;
             }
         }
+
+      
     }
 }
