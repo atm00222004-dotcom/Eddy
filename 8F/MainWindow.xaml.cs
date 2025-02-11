@@ -56,8 +56,11 @@ namespace _8F
         {
             
             InitializeComponent();
-            string LogoPath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogoPath"]);
-            imgLogo.Source = new BitmapImage(new Uri(LogoPath));
+            if (imgLogo.Visibility == Visibility.Visible)
+            {
+                string LogoPath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogoPath"]);
+                imgLogo.Source = new BitmapImage(new Uri(LogoPath));
+            }
 
             WebPage = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["WebPage"]);
 
