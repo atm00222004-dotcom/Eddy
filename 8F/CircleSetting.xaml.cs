@@ -111,25 +111,25 @@ namespace _8F
             }
             if (string.IsNullOrEmpty(txtHeight.Text))
             {
-                validationMsg.Add("Height is required and the range is 100 to 5000.");
+                validationMsg.Add("Height is required and the range is 10 to 5000.");
             }
             else
             {
-                if (Convert.ToInt32(txtHeight.Text) < 100 || Convert.ToInt32(txtHeight.Text) > 5000)
+                if (Convert.ToInt32(txtHeight.Text) < 10 || Convert.ToInt32(txtHeight.Text) > 5000)
                 {
-                    validationMsg.Add("Height is required and the range is 100 to 5000.");
+                    validationMsg.Add("Height is required and the range is 10 to 5000.");
                 }
             }
 
             if (string.IsNullOrEmpty(txtWidth.Text))
             {
-                validationMsg.Add("Width is required and the range is 100 to 5000.");
+                validationMsg.Add("Width is required and the range is 10 to 5000.");
             }
             else
             {
-                if (Convert.ToInt32(txtWidth.Text) < 100 || Convert.ToInt32(txtWidth.Text) > 5000)
+                if (Convert.ToInt32(txtWidth.Text) < 10 || Convert.ToInt32(txtWidth.Text) > 5000)
                 {
-                    validationMsg.Add("Width is required and the range is 100 to 5000.");
+                    validationMsg.Add("Width is required and the range is 10 to 5000.");
                 }
             }
 
