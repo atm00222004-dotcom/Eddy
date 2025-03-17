@@ -619,4 +619,13 @@ namespace _8F
         public int S1;
         public int S2;
     }
+
+    public class LogData
+    {
+        public string LogDate { get; set; }
+        public int PassCount { get; set; }
+        public int FailCount { get; set; }
+        public int TotalCount { get; set; }
+
+    }
 }
