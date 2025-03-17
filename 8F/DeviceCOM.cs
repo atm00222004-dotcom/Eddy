@@ -45,6 +45,7 @@ namespace _8F
         public static DateTime busyStamp = System.DateTime.Now; 
         public static Part part;
         public static List<Counter> counter;
+        public static bool IsLogDisable = false;
 
         DispatcherTimer dispatcherTimer;
         TcpClient client;
@@ -185,10 +186,11 @@ namespace _8F
                             cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             IsResponseRefreshRequired = true;
                             // Maintain logs ==> ChId, Overall Result, File Name, TimeStamp 
-                            if (IsLogEnable)
+                            if (!IsLogDisable)
                             {
                                 WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now);
                             }
+                            DeviceCOM.IsLogDisable = false;
                         }
                     }
                     else if (res.FC == 21)
@@ -221,26 +223,37 @@ namespace _8F
                 {
                     string sql = string.Empty;
                     con.Open();
-                    var fdData = JsonConvert.SerializeObject(DeviceCOM.channelDatas.FirstOrDefault( r=> r.Id == ChId ).graphDatas);
+                    var fdData = JsonConvert.SerializeObject(DeviceCOM.channelDatas.FirstOrDefault(r => r.Id == ChId).graphDatas);
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
-                    sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchNo\", \"TimeStamp\")\r\n\t" +
-                        "VALUES (" +
-                        ChId + ", '" +
-                        Result + "', '" +
-                        fdData + "', '" +
-                        partData + "', '" +
-                        DeviceCOM.part.Name + "', " +
-                        DeviceCOM.part.BatchNo + ", '" +
-                        TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"PartName\" = '" + DeviceCOM.part.Name + "' and \"BatchNo\" = "+DeviceCOM.part.BatchNo + " ;";
-
-                    var cmd = new NpgsqlCommand(sql, con);
-                    var count = cmd.ExecuteScalar();
-
-                    if (DeviceCOM.part.BatchType == 1 && Convert.ToInt32(count) >= DeviceCOM.part.BatchSize)
+                    if (ChId == 1)
                     {
-                        DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
-                    }
+                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchNo\", \"TimeStamp\")\r\n\t" +
+                            "VALUES (" +
+                            ChId + ", '" +
+                            Result + "', '" +
+                            fdData + "', '" +
+                            partData + "', '" +
+                            DeviceCOM.part.Name + "', " +
+                            DeviceCOM.part.BatchNo + ", '" +
+                            TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"PartName\" = '" + DeviceCOM.part.Name + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
 
+                        var cmd = new NpgsqlCommand(sql, con);
+                        var count = cmd.ExecuteScalar();
+
+                        if (DeviceCOM.part.BatchType == 1 && Convert.ToInt32(count) >= DeviceCOM.part.BatchSize)
+                        {
+                            DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
+                        }
+                    }
+                    else
+                    {
+                        if (!Result)
+                        {
+                            sql = "update public.\"Logs\"  set \"Result\" = 'false' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
+                            var cmd = new NpgsqlCommand(sql, con);
+                            var count = cmd.ExecuteScalar();
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -248,7 +261,7 @@ namespace _8F
 
             }
         }
-    
+
         public bool WriteData(string data)
         {
             try

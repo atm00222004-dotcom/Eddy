@@ -56,11 +56,11 @@ namespace _8F
         {
             
             InitializeComponent();
-            if (imgLogo.Visibility == Visibility.Visible)
-            {
-                string LogoPath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogoPath"]);
-                imgLogo.Source = new BitmapImage(new Uri(LogoPath));
-            }
+            //if (imgLogo.Visibility == Visibility.Visible)
+            //{
+            //    string LogoPath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogoPath"]);
+            //    imgLogo.Source = new BitmapImage(new Uri(LogoPath));
+            //}
 
             WebPage = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["WebPage"]);
 
@@ -229,6 +229,7 @@ namespace _8F
                             new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this }
                         }
                 },
+                new MenuItemViewModel { Header = "View Log" },
             };
             DataContext = this;
 
@@ -1098,6 +1099,10 @@ namespace _8F
                 {
                     MessageBox.Show("Unable to start test due to the error in the communication!", "Error Information");
                 }
+                else
+                {
+                    DeviceCOM.IsLogDisable = true;
+                }
             }
         }
 
@@ -1746,6 +1751,11 @@ namespace _8F
                     {
                         //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
                         mainWindow.Close();
+                    }
+                    else if (Header == "View Log")
+                    {
+                        Logs logs = new Logs();
+                        logs.ShowDialog();
                     }
                 }
             }
