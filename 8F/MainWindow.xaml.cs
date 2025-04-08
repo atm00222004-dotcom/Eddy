@@ -49,6 +49,8 @@ namespace _8F
         int CommunicationType = 0;
         int FrequencyNo = 8; 
         public string WebPage;
+
+        int modeApp = 0;
         //bool IsBalanceAll = false;
         public SolidColorBrush disableColor = new SolidColorBrush(Colors.DarkGray);
         public SolidColorBrush enableColor = new SolidColorBrush(Colors.White);
@@ -70,8 +72,7 @@ namespace _8F
             BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize2"]);
             BoxSize3 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize3"]);
             BoxSize4 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize4"]);
-            FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrequencyNo"]);
-
+            FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrequencyNo"]);            
             var LogEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["LogEnable"]);
             if (!LogEnabled)
             {
@@ -118,39 +119,9 @@ namespace _8F
                 buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
                 LogoWidth.Width = new GridLength(1.7, GridUnitType.Star);
-
-                if (FrequencyNo == 4 || FrequencyNo == 1)
-                {
-                    Grid.SetRow(br3, 1);
-                    Grid.SetColumn(br3, 1);
-                    Grid.SetRow(br4, 1);
-                    Grid.SetColumn(br4, 2);
-
-                    buttonbar2.Visibility = Visibility.Visible;
-                    buttonbar1.Visibility = Visibility.Hidden;
-                    counterbar2.Visibility = Visibility.Visible;
-                    counterbar1.Visibility = Visibility.Hidden;
-
-                    menuHeight.Height = new GridLength(0.35, GridUnitType.Star);
-                    chennelHeight.Height = new GridLength(0.5, GridUnitType.Star);
-                    buttonBarWidth.Width = new GridLength(1, GridUnitType.Star);
-                    FrequencySpaceCol3.Width = new GridLength(0, GridUnitType.Star);
-                    FrequencySpaceCol4.Width = new GridLength(0, GridUnitType.Star);
-                    buttonBarHeight.Height = new GridLength(0, GridUnitType.Star);
-
-                    br5.Visibility = Visibility.Hidden;
-                    br6.Visibility = Visibility.Hidden;
-                    br7.Visibility = Visibility.Hidden;
-                    br8.Visibility = Visibility.Hidden;
-                    
-                    if (FrequencyNo == 1)
-                    {
-                        br2.Visibility = Visibility.Hidden;
-                        br3.Visibility = Visibility.Hidden;
-                        br4.Visibility = Visibility.Hidden;
-                    }
-                    
-                }
+                modeApp = 1;                
+               
+                SetFrequencey();
             }
 
             portCOM = new DeviceCOM();
@@ -250,8 +221,50 @@ namespace _8F
             else
             {
                 ImplementChanges(0);
-            }            
+            }
+        }
+        void SetFrequencey()
+        {
 
+            if (FrequencyNo == 4 || FrequencyNo == 1 || modeApp == 1)
+            {
+                if (modeApp == 1)
+                {
+                    BoxSize4 = 670;
+                    seqLength = BoxSize4;
+
+                }
+
+                Grid.SetRow(br3, 1);
+                Grid.SetColumn(br3, 1);
+                Grid.SetRow(br4, 1);
+                Grid.SetColumn(br4, 2);
+
+                buttonbar2.Visibility = Visibility.Visible;
+                buttonbar1.Visibility = Visibility.Hidden;
+                counterbar2.Visibility = Visibility.Visible;
+                counterbar1.Visibility = Visibility.Hidden;
+
+                menuHeight.Height = new GridLength(0.35, GridUnitType.Star);
+                chennelHeight.Height = new GridLength(0.5, GridUnitType.Star);
+                buttonBarWidth.Width = new GridLength(1, GridUnitType.Star);
+                FrequencySpaceCol3.Width = new GridLength(0, GridUnitType.Star);
+                FrequencySpaceCol4.Width = new GridLength(0, GridUnitType.Star);
+                buttonBarHeight.Height = new GridLength(0, GridUnitType.Star);
+
+                br5.Visibility = Visibility.Hidden;
+                br6.Visibility = Visibility.Hidden;
+                br7.Visibility = Visibility.Hidden;
+                br8.Visibility = Visibility.Hidden;
+
+                if (FrequencyNo == 1 || modeApp == 1)
+                {
+                    br2.Visibility = Visibility.Hidden;
+                    br3.Visibility = Visibility.Hidden;
+                    br4.Visibility = Visibility.Hidden;
+                }
+
+            }
         }
 
         public string Reverse(string Input)
