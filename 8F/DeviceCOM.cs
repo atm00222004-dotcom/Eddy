@@ -40,6 +40,9 @@ namespace _8F
         public static int ChannelNo = 4;
         public static int DefaultHeight = 0;
         public static int DefaultWidth = 0;
+        public static int DefaultHeight_O = 0;
+        public static int DefaultWidth_O = 0;
+        public static int DefaultAngel_O = 0;
         public static string ConnectionString;
         public static bool IsLogEnable = false;
         public static bool IsSystemBusy = false;
@@ -514,7 +517,13 @@ namespace _8F
         public double ex = 30;
         public double ey = 30;
         public double angel = 30;
-        public List<Ellips> ellipses = new List<Ellips>(); 
+        public List<Ellips> ellipses = new List<Ellips>();
+
+        public double height_O = DeviceCOM.DefaultHeight_O;
+        public double width_O = DeviceCOM.DefaultWidth_O;
+        public double ex_O = 0;
+        public double ey_O = 0;
+        public double angel_O = DeviceCOM.DefaultAngel_O;
     }
     public class Ellips
     {
@@ -598,7 +607,16 @@ public class Response
     {
         public int FC;
         public int M;
+        public OuterElliplse OE;
     }
+
+    public class OuterElliplse
+    {
+        public double a;
+        public double b;
+        public double t;
+    }
+
     public class Status
     {
         public int FC;        

@@ -45,7 +45,7 @@
             <Image Name="imgLogo" Visibility="Hidden"  Width="180" Panel.ZIndex="999" Grid.Row="0" Grid.Column="1" />
 
         </Grid>
-       
+
 
         <Grid Grid.Column="0" Grid.Row="1">
             <Grid.RowDefinitions>
@@ -83,13 +83,13 @@
                 </Border>
 
                 <!--<Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh1" Tag="1" Click="btnCh_Click" Content="Channel-1" Grid.Column="0" Grid.Row="0" />-->
-                
+
                 <!--<Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh2" Tag="2" Content="Channel-2" Click="btnCh_Click" Grid.Column="1" Grid.Row="0" />
                 
                 <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh3" Tag="3" Content="Channel-3" Click="btnCh_Click" Grid.Column="2" Grid.Row="0" />
                 
                 <Button FontSize="18" FontWeight="Bold" Cursor="Hand" Background="DarkGray" Name="btnCh4"  Tag="4" Content="Channel-4" Click="btnCh_Click" Grid.Column="3" Grid.Row="0" />-->
-                
+
             </Grid>
             <Grid Grid.Column="1" Grid.Row="0">
                 <Grid.RowDefinitions>
@@ -119,8 +119,8 @@
                 <ColumnDefinition Name="FrequencySpaceCol2"/>
                 <ColumnDefinition Name="FrequencySpaceCol3"/>
                 <ColumnDefinition Name="FrequencySpaceCol4"/>
-                <ColumnDefinition Name="buttonBarWidth" Width=".38*"/> 
-                <!--change it from backend--> 
+                <ColumnDefinition Name="buttonBarWidth" Width=".38*"/>
+                <!--change it from backend-->
             </Grid.ColumnDefinitions>
 
             <Grid Name="buttonbar2" Visibility="Hidden" Grid.Column="5" Grid.Row="0">
@@ -205,7 +205,7 @@
                     <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Name="lblLog1" HorizontalAlignment="Center" Content="Start Log" ></Label>
                 </Border>
             </Grid>
-            
+
             <Border x:Name="br1" Margin="2,2,2,2" Grid.Row="0" Grid.Column="1" BorderThickness="2" >
                 <Canvas  x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                     <Rectangle Name="br1_rec1" Width="360" Fill="White"
@@ -213,8 +213,8 @@
                         Canvas.Left="0"
                         Canvas.Top="0" />
 
-                    <TextBlock Name="lblFreq1" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" > 
-                       
+                    <TextBlock Name="lblFreq1" Background="LightBlue" FontWeight="Bold" FontSize="14" Panel.ZIndex="1000" >
+
                     </TextBlock>
 
                     <Canvas Name="br1_can1" Canvas.Left="360" HorizontalAlignment="Right" VerticalAlignment="Top">
@@ -241,16 +241,16 @@
                         Canvas.Top="335" />
 
                     <Canvas Name="cnBr1" Canvas.Left="180" Canvas.Top="180">
-                        <!--<Ellipse x:Name="el1"  HorizontalAlignment="Center" Height="70"  Stroke="Black" VerticalAlignment="Center" Width="50" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
+                        <Ellipse x:Name="el11" HorizontalAlignment="Center" Height="650"  Stroke="Black" VerticalAlignment="Center" Width="650" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                             <Ellipse.RenderTransform>
                                 <TransformGroup>
-                                    --><!--<ScaleTransform/>
-                                    <SkewTransform />--><!--
-                                    <RotateTransform x:Name="rtAngel1" Angle="0"/>
-                                    <TranslateTransform x:Name="tt1" X="-23" Y="-33"/>
+                                    <!--<ScaleTransform/>
+                                    <SkewTransform />-->
+                                    <RotateTransform x:Name="rtAngel11" Angle="0"/>
+                                    <TranslateTransform x:Name="tt11" X="-325" Y="-325"/>
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
-                        </Ellipse>-->
+                        </Ellipse>
                         <Canvas Name="cn1" Canvas.Left="0" Canvas.Top="0">
                         </Canvas>
 
@@ -695,7 +695,7 @@ Canvas.Top="227" />
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-              
+
                 <Grid Grid.Column="0" Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
@@ -724,14 +724,14 @@ Canvas.Top="227" />
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <Border Cursor="Hand" Width="150" Height="70" Name="btnResetCounter2" MouseDown="btnResetCounter_Click" Margin="8" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                    <Label Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Reset Count" ></Label>
-                </Border>
-                
-                <Border Width="150" Height="70" Name="btnOverallResult2" Margin="2" Background="LightBlue" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                    <Label Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Overall Result" ></Label>
-                </Border>
+                        <Label Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Reset Count" ></Label>
+                    </Border>
+
+                    <Border Width="150" Height="70" Name="btnOverallResult2" Margin="2" Background="LightBlue" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                        <Label Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Overall Result" ></Label>
+                    </Border>
                 </Grid>
             </Grid>
         </Grid>

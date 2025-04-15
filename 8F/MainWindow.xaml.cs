@@ -129,6 +129,18 @@ namespace _8F
             factor = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
             DeviceCOM.DefaultWidth = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width"]);
             DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height"]);
+            DeviceCOM.DefaultWidth_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width_O"]);
+            DeviceCOM.DefaultHeight_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height_O"]);
+            DeviceCOM.DefaultAngel_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Angel_O"]);
+            modeApp = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["AppMode"]); 
+            if (modeApp == 1)
+            {
+                el11.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                el11.Visibility = Visibility.Hidden;
+            }
             CommunicationType = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CommunicationType"]);
             int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
@@ -323,7 +335,7 @@ namespace _8F
             {
                 brStatus.Background = new SolidColorBrush(Colors.Red);
 
-                if (DeviceCOM.busyStamp.AddSeconds(20) < System.DateTime.Now)
+                if (DeviceCOM.busyStamp.AddSeconds(30) < System.DateTime.Now)
                 {
                     DeviceCOM.IsSystemBusy = false;
                 }
@@ -771,7 +783,13 @@ namespace _8F
                 FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = FrequencyNo, NC = chNo };
                 portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
 
-                Mode mode = new Mode() { FC = 2, M = 0 };
+                Mode mode = new Mode() { FC = 2, M = modeApp };
+
+                if (mode.M == 1)
+                {
+                    mode.OE = new OuterElliplse { a = el11.Height, b = el11.Width, t = rtAngel11.Angle };
+                }
+
                 portCOM.WriteData(JsonConvert.SerializeObject(mode));
             }
 
@@ -805,8 +823,6 @@ namespace _8F
                                     br1_rec1.Fill = enableColor;
                                     D1.IsEnabled = true;
                                     br1.IsEnabled = true;
-
-
                                 }
                                 else
                                 {
@@ -814,6 +830,7 @@ namespace _8F
                                     D1.IsEnabled = false;
                                     br1.IsEnabled = false;
                                 }
+
                             }
                             else if (graphData.Id == 2 && graphData.Id <= FrequencyNo)
                             {
@@ -982,6 +999,45 @@ namespace _8F
             // cnBr1
 
             cnBr1.Children.Clear();
+
+            if (modeApp == 1)
+            {
+                el11.Visibility = Visibility.Visible;
+                el11.Height = graphData.height_O / factor;
+                el11.Width = graphData.width_O / factor;
+                tt11.X = ((graphData.ex_O - (graphData.width_O / 2)) / factor);
+                tt11.Y = (((graphData.ey_O * -1) - (graphData.height_O / 2)) / factor);
+                el11.Stroke = new SolidColorBrush(Colors.DarkOrange);
+                rtAngel11.CenterX = (el11.Width / 2);
+                rtAngel11.CenterY = (el11.Height / 2);
+                rtAngel11.Angle = graphData.angel_O;
+            }
+
+            Ellipse el1_1 = new Ellipse();
+            el1_1.Height = graphData.height_O / factor;
+            el1_1.Width = graphData.width_O / factor;
+            el1_1.HorizontalAlignment = HorizontalAlignment.Center;
+            el1_1.Stroke = new SolidColorBrush(Colors.DarkOrange);
+            el1_1.VerticalAlignment = VerticalAlignment.Center;
+            Canvas.SetLeft(el1_1, 0);
+            Canvas.SetTop(el1_1, 0);
+            el1_1.RenderTransformOrigin = new Point(0, 0);
+
+            TranslateTransform tt1_1 = new TranslateTransform();
+            tt1_1.X = ((graphData.ex_O - (graphData.width_O / 2)) / factor);
+            tt1_1.Y = (((graphData.ey_O * -1) - (graphData.height_O / 2)) / factor);
+
+            RotateTransform rtAngel1_1 = new RotateTransform();
+            rtAngel1_1.CenterX = (graphData.width_O / 2);
+            rtAngel1_1.CenterY = (graphData.height_O / 2);
+            rtAngel1_1.Angle = graphData.angel_O;
+
+            TransformGroup transformGroup_1 = new TransformGroup();
+            transformGroup_1.Children.Add(rtAngel1_1);
+            transformGroup_1.Children.Add(tt1_1);
+
+            el1_1.RenderTransform = transformGroup_1;
+            cnBr1.Children.Add(el1_1);
 
             foreach (var item in graphData.ellipses)
             {
