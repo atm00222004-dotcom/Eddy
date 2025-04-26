@@ -161,6 +161,10 @@
                 <Border Visibility="Visible" Cursor="Hand" Width="150" Height="64" Name="btnLog2" MouseDown="btnLog_MouseDown"  Margin="8" Background="#305371" Grid.Column="0" Grid.Row="3" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                     <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Name="lblLog2" HorizontalAlignment="Center" Content="Start Log" ></Label>
                 </Border>
+
+                <Border MouseDown="btnStop_MouseDown" Visibility="Visible" Cursor="Hand" Width="150" Height="64" Name="btnStop" Margin="8" Background="#305371" Grid.Column="1" Grid.Row="3" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Name="lblStop" HorizontalAlignment="Center" Content="Stop" ></Label>
+                </Border>
             </Grid>
 
             <Grid Name="buttonbar1" Grid.Column="5" Grid.Row="0">
@@ -241,6 +245,8 @@
                         Canvas.Top="335" />
 
                     <Canvas Name="cnBr1" Canvas.Left="180" Canvas.Top="180">
+                        <Canvas Name="cn1" Canvas.Left="0" Canvas.Top="0">
+                        </Canvas>
                         <Ellipse x:Name="el11" HorizontalAlignment="Center" Height="650"  Stroke="Black" VerticalAlignment="Center" Width="650" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                             <Ellipse.RenderTransform>
                                 <TransformGroup>
@@ -251,8 +257,7 @@
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
-                        <Canvas Name="cn1" Canvas.Left="0" Canvas.Top="0">
-                        </Canvas>
+                        
 
                     </Canvas>
 

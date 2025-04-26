@@ -74,6 +74,7 @@ namespace _8F
             BoxSize4 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize4"]);
             FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrequencyNo"]);            
             var LogEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["LogEnable"]);
+            modeApp = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["AppMode"]);
             if (!LogEnabled)
             {
                 btnLog.Visibility = Visibility.Hidden;
@@ -118,8 +119,7 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.6, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
-                LogoWidth.Width = new GridLength(1.7, GridUnitType.Star);
-                modeApp = 1;                
+                LogoWidth.Width = new GridLength(1.7, GridUnitType.Star);              
                
                 SetFrequencey();
             }
@@ -132,7 +132,7 @@ namespace _8F
             DeviceCOM.DefaultWidth_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width_O"]);
             DeviceCOM.DefaultHeight_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height_O"]);
             DeviceCOM.DefaultAngel_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Angel_O"]);
-            modeApp = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["AppMode"]); 
+            
             if (modeApp == 1)
             {
                 el11.Visibility = Visibility.Visible;
@@ -244,7 +244,7 @@ namespace _8F
                 {
                     BoxSize4 = 670;
                     seqLength = BoxSize4;
-
+                    FrequencyNo = 1;
                 }
 
                 Grid.SetRow(br3, 1);
@@ -334,10 +334,12 @@ namespace _8F
             if(DeviceCOM.IsSystemBusy)
             {
                 brStatus.Background = new SolidColorBrush(Colors.Red);
-
-                if (DeviceCOM.busyStamp.AddSeconds(30) < System.DateTime.Now)
+                if (modeApp == 0)
                 {
-                    DeviceCOM.IsSystemBusy = false;
+                    if (DeviceCOM.busyStamp.AddSeconds(30) < System.DateTime.Now)
+                    {
+                        DeviceCOM.IsSystemBusy = false;
+                    }
                 }
             }
             else
@@ -998,7 +1000,13 @@ namespace _8F
         {
             // cnBr1
 
-            cnBr1.Children.Clear();
+            //cnBr1.Children.Clear();
+
+            for (var i = 1; i< cnBr1.Children.Count; i++ )
+            {
+                cnBr1.Children.RemoveAt(1);
+            }
+            
 
             if (modeApp == 1)
             {
@@ -1011,33 +1019,35 @@ namespace _8F
                 rtAngel11.CenterX = (el11.Width / 2);
                 rtAngel11.CenterY = (el11.Height / 2);
                 rtAngel11.Angle = graphData.angel_O;
+
+                Ellipse el1_1 = new Ellipse();
+                el1_1.Height = graphData.height_O / factor;
+                el1_1.Width = graphData.width_O / factor;
+                el1_1.HorizontalAlignment = HorizontalAlignment.Center;
+                el1_1.Stroke = new SolidColorBrush(Colors.DarkOrange);
+                el1_1.VerticalAlignment = VerticalAlignment.Center;
+                Canvas.SetLeft(el1_1, 0);
+                Canvas.SetTop(el1_1, 0);
+                el1_1.RenderTransformOrigin = new Point(0, 0);
+
+                TranslateTransform tt1_1 = new TranslateTransform();
+                tt1_1.X = ((graphData.ex_O - (graphData.width_O / 2)) / factor);
+                tt1_1.Y = (((graphData.ey_O * -1) - (graphData.height_O / 2)) / factor);
+
+                RotateTransform rtAngel1_1 = new RotateTransform();
+                rtAngel1_1.CenterX = (graphData.width_O / 2);
+                rtAngel1_1.CenterY = (graphData.height_O / 2);
+                rtAngel1_1.Angle = graphData.angel_O;
+
+                TransformGroup transformGroup_1 = new TransformGroup();
+                transformGroup_1.Children.Add(rtAngel1_1);
+                transformGroup_1.Children.Add(tt1_1);
+
+                el1_1.RenderTransform = transformGroup_1;
+                cnBr1.Children.Add(el1_1);
             }
 
-            Ellipse el1_1 = new Ellipse();
-            el1_1.Height = graphData.height_O / factor;
-            el1_1.Width = graphData.width_O / factor;
-            el1_1.HorizontalAlignment = HorizontalAlignment.Center;
-            el1_1.Stroke = new SolidColorBrush(Colors.DarkOrange);
-            el1_1.VerticalAlignment = VerticalAlignment.Center;
-            Canvas.SetLeft(el1_1, 0);
-            Canvas.SetTop(el1_1, 0);
-            el1_1.RenderTransformOrigin = new Point(0, 0);
-
-            TranslateTransform tt1_1 = new TranslateTransform();
-            tt1_1.X = ((graphData.ex_O - (graphData.width_O / 2)) / factor);
-            tt1_1.Y = (((graphData.ey_O * -1) - (graphData.height_O / 2)) / factor);
-
-            RotateTransform rtAngel1_1 = new RotateTransform();
-            rtAngel1_1.CenterX = (graphData.width_O / 2);
-            rtAngel1_1.CenterY = (graphData.height_O / 2);
-            rtAngel1_1.Angle = graphData.angel_O;
-
-            TransformGroup transformGroup_1 = new TransformGroup();
-            transformGroup_1.Children.Add(rtAngel1_1);
-            transformGroup_1.Children.Add(tt1_1);
-
-            el1_1.RenderTransform = transformGroup_1;
-            cnBr1.Children.Add(el1_1);
+            
 
             foreach (var item in graphData.ellipses)
             {
@@ -1591,6 +1601,12 @@ namespace _8F
             {
                 lblPartLogs.Content = "";
             }
+        }
+
+        private void btnStop_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Status status = new Status() { FC = 18 };
+            var rat = portCOM.WriteData(JsonConvert.SerializeObject(status));
         }
     }
 
