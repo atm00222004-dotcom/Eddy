@@ -51,6 +51,7 @@ namespace _8F
         public string WebPage;
 
         int modeApp = 0;
+        int mode = 0;
         //bool IsBalanceAll = false;
         public SolidColorBrush disableColor = new SolidColorBrush(Colors.DarkGray);
         public SolidColorBrush enableColor = new SolidColorBrush(Colors.White);
@@ -75,6 +76,10 @@ namespace _8F
             FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrequencyNo"]);            
             var LogEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["LogEnable"]);
             modeApp = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["AppMode"]);
+            if (modeApp == 1)
+            {
+                mode = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Mode"]);
+            }
             if (!LogEnabled)
             {
                 btnLog.Visibility = Visibility.Hidden;
@@ -334,7 +339,7 @@ namespace _8F
             if(DeviceCOM.IsSystemBusy)
             {
                 brStatus.Background = new SolidColorBrush(Colors.Red);
-                if (modeApp == 0)
+                if (mode == 0)
                 {
                     if (DeviceCOM.busyStamp.AddSeconds(30) < System.DateTime.Now)
                     {
@@ -785,11 +790,11 @@ namespace _8F
                 FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = FrequencyNo, NC = chNo };
                 portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
 
-                Mode mode = new Mode() { FC = 2, M = modeApp };
+                Mode _mode = new Mode() { FC = 2, M = mode };
 
-                if (mode.M == 1)
+                if (_mode.M == 1)
                 {
-                    mode.OE = new OuterElliplse { a = el11.Height, b = el11.Width, t = rtAngel11.Angle };
+                    _mode.OE = new OuterElliplse { a = el11.Height, b = el11.Width, t = rtAngel11.Angle };
                 }
 
                 portCOM.WriteData(JsonConvert.SerializeObject(mode));
