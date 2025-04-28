@@ -731,7 +731,7 @@ namespace _8F
         {
             if (ChangeType== 0 )
             {
-                FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = FrequencyNo, NC = chNo };
+                FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = 8, NC = chNo };
                 portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
 
                 Mode mode = new Mode() { FC = 2, M = 0 };
@@ -783,11 +783,12 @@ namespace _8F
                                     br1_rec1.Fill = disableColor;
                                     D1.IsEnabled = false;
                                     br1.IsEnabled = false;
+                                    graphData.isEnable = false;
                                 }
                             }
-                            else if (graphData.Id == 2 && graphData.Id <= FrequencyNo)
+                            else if (graphData.Id == 2)
                             {
-                                if (graphData.isEnable)
+                                if (graphData.isEnable && graphData.Id <= FrequencyNo)
                                 {
                                     lblFreq2.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
@@ -809,11 +810,12 @@ namespace _8F
                                     br2_rec1.Fill = disableColor;
                                     D2.IsEnabled = false;
                                     br2.IsEnabled = false;
+                                    graphData.isEnable = false;
                                 }
                             }
-                            else if (graphData.Id == 3 && graphData.Id <= FrequencyNo)
+                            else if (graphData.Id == 3)
                             {
-                                if (graphData.isEnable)
+                                if (graphData.isEnable && graphData.Id <= FrequencyNo)
                                 {
                                     lblFreq3.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
@@ -835,11 +837,12 @@ namespace _8F
                                     br3_rec1.Fill = disableColor;
                                     D3.IsEnabled = false;
                                     br3.IsEnabled = false;
+                                    graphData.isEnable = false;
                                 }
                             }
-                            else if (graphData.Id == 4 && graphData.Id <= FrequencyNo)
+                            else if (graphData.Id == 4)
                             {
-                                if (graphData.isEnable)
+                                if (graphData.isEnable && graphData.Id <= FrequencyNo)
                                 {
                                     lblFreq4.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
@@ -861,11 +864,12 @@ namespace _8F
                                     br4_rec1.Fill = disableColor;
                                     D4.IsEnabled = false;
                                     br4.IsEnabled = false;
+                                    graphData.isEnable = false;
                                 }
                             }
-                            else if (graphData.Id == 5 && graphData.Id <= FrequencyNo)
+                            else if (graphData.Id == 5)
                             {
-                                if (graphData.isEnable)
+                                if (graphData.isEnable && graphData.Id <= FrequencyNo)
                                 {
 
                                     lblFreq5.Text = graphData.Name + "-" + graphData.freq + "Hz";
@@ -888,11 +892,12 @@ namespace _8F
                                     br5_rec1.Fill = disableColor;
                                     D5.IsEnabled = false;
                                     br5.IsEnabled = false;
+                                    graphData.isEnable = false;
                                 }
                             }
-                            else if (graphData.Id == 6 && graphData.Id <= FrequencyNo)
+                            else if (graphData.Id == 6)
                             {
-                                if (graphData.isEnable)
+                                if (graphData.isEnable && graphData.Id <= FrequencyNo)
                                 {
                                     lblFreq6.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
@@ -914,11 +919,12 @@ namespace _8F
                                     br6_rec1.Fill = disableColor;
                                     D6.IsEnabled = false;
                                     br6.IsEnabled = false;
+                                    graphData.isEnable = false;
                                 }
                             }
-                            else if (graphData.Id == 7 && graphData.Id <= FrequencyNo)
+                            else if (graphData.Id == 7)
                             {
-                                if (graphData.isEnable)
+                                if (graphData.isEnable && graphData.Id <= FrequencyNo)
                                 {
                                     lblFreq7.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
@@ -940,11 +946,12 @@ namespace _8F
                                     br7_rec1.Fill = disableColor;
                                     D7.IsEnabled = false;
                                     br7.IsEnabled = false;
+                                    graphData.isEnable = false;
                                 }
                             }
-                            else if (graphData.Id == 8 && graphData.Id <= FrequencyNo)
+                            else if (graphData.Id == 8)
                             {
-                                if (graphData.isEnable)
+                                if (graphData.isEnable && graphData.Id <= FrequencyNo)
                                 {
                                     lblFreq8.Text = graphData.Name + "-" + graphData.freq + "Hz";
 
@@ -966,11 +973,12 @@ namespace _8F
                                     br8_rec1.Fill = disableColor;
                                     D8.IsEnabled = false;
                                     br8.IsEnabled = false;
+                                    graphData.isEnable = false;
                                 }
                             }
                         }
 
-                        if (ChangeType == 0 && graphData.Id <= FrequencyNo)
+                        if (ChangeType == 0)
                         {
                             // write data to port for freq and setting
                             Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase, E = graphData.isEnable ? 1 : 0 };
