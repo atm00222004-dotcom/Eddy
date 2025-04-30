@@ -38,7 +38,7 @@ namespace _8F
         public Report report;
         DispatcherTimer dispatcherTimer;
         public int chNo;
-        int factor = 20;
+        double factor = 20;
 
         int ScreenId = 1;
         int BoxSize1 = 430;
@@ -131,7 +131,7 @@ namespace _8F
 
             portCOM = new DeviceCOM();
 
-            factor = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
+            factor = Convert.ToDouble(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
             DeviceCOM.DefaultWidth = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width"]);
             DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height"]);
             DeviceCOM.DefaultWidth_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width_O"]);
@@ -1041,8 +1041,8 @@ namespace _8F
                 tt1_1.Y = (((graphData.ey_O * -1) - (graphData.height_O / 2)) / factor);
 
                 RotateTransform rtAngel1_1 = new RotateTransform();
-                rtAngel1_1.CenterX = (graphData.width_O / 2);
-                rtAngel1_1.CenterY = (graphData.height_O / 2);
+                rtAngel1_1.CenterX = (el1_1.Width / 2);
+                rtAngel1_1.CenterY = (el1_1.Height / 2);
                 rtAngel1_1.Angle = graphData.angel_O;
 
                 TransformGroup transformGroup_1 = new TransformGroup();
