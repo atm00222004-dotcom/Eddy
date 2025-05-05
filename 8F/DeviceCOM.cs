@@ -46,6 +46,7 @@ namespace _8F
         public static Part part;
         public static List<Counter> counter;
         public static bool IsLogDisable = false;
+        public static bool IsBalanceRequired = false;
 
         DispatcherTimer dispatcherTimer;
         TcpClient client;
@@ -266,6 +267,7 @@ namespace _8F
         {
             try
             {
+                IsBalanceRequired = false;
                 if (CommunicationType == 0)
                 {
                     if (port.IsOpen)
@@ -300,12 +302,16 @@ namespace _8F
                     {
                         port.Open();
                     }
-                    if (result[0] == '0' || result[0] == '2')
+                    if (result[0] == '0' || result[0] == '2' || result[0] == '3')
                     {
                         if (result[0] == '2')
                         {
                             DeviceCOM.IsSystemBusy = true;
                             busyStamp = System.DateTime.Now;
+                        } 
+                        else if (result[0] == '3')
+                        {
+                            IsBalanceRequired = true;
                         }
                         return true;
                     }

@@ -1109,7 +1109,16 @@ namespace _8F
                 }
                 else
                 {
-                    DeviceCOM.IsLogDisable = true;
+                    
+                    if (DeviceCOM.IsBalanceRequired)
+                    {
+                        MessageBox.Show("Unable to test because of balance command is required!", "Error Information");
+                        DeviceCOM.IsBalanceRequired = false;
+                    }
+                    else
+                    {
+                        DeviceCOM.IsLogDisable = true;
+                    }
                 }
             }
         }
