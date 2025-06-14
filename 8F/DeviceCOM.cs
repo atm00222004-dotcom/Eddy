@@ -51,7 +51,7 @@ namespace _8F
         public static List<Counter> counter;
         public static bool IsLogDisable = false;
         public static bool IsBalanceRequired = false;
-
+        public static int ERRCode = 0; 
         DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;
@@ -207,10 +207,14 @@ namespace _8F
                     else if (res.FC == 22)
                     {
                         IsSystemBusy = false;
-                        if (IsBalanceBusyEnable)
+                        ERRCode = res.ERR;
+                        if (res.ERR != 16 & res.ERR != 17)
                         {
-                            IsResponseClearRequired = true;
-                            IsBalanceBusyEnable = false;
+                            if (IsBalanceBusyEnable)
+                            {
+                                IsResponseClearRequired = true;
+                                IsBalanceBusyEnable = false;
+                            }
                         }
                     }
                 }
@@ -566,13 +570,14 @@ namespace _8F
         public string ColorName { get; set; }
     }
     
-public class Response
+    public class Response
     {
         public int FC;
         public int CN;
         public int OR;
         public bool IsBalacenced = false;
         public List<FreqResult> FD;
+        public int ERR { get; set; }
     }
     public class FreqResult
     {

@@ -16,6 +16,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Ink;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
@@ -127,7 +128,7 @@ namespace _8F
                 LogoWidth.Width = new GridLength(1.7, GridUnitType.Star);              
                
                 SetFrequencey();
-            }
+            } 
 
             portCOM = new DeviceCOM();
 
@@ -238,7 +239,7 @@ namespace _8F
             }
             else
             {
-                ImplementChanges(0);
+               var ratval = ImplementChanges(0);
             }
         }
         void SetFrequencey()
@@ -414,6 +415,18 @@ namespace _8F
                 DeviceCOM.IsResponseRefreshRequired = true;
                 DeviceCOM.IsResponseClearRequired = false;
             }
+
+            if (DeviceCOM.ERRCode== 16)
+            {
+                DeviceCOM.ERRCode = 0;
+                MessageBox.Show("Balance Operation failed, please reboot the board.", "Error Information");
+            }
+            else if(DeviceCOM.ERRCode == 17)
+            {
+                DeviceCOM.ERRCode = 0;
+                MessageBox.Show("Test failed, please reconfigure and rebalance the board.", "Error Information");
+            }
+
         }
 
         public void InitialGraphData(bool IsPayLaod )
@@ -784,8 +797,9 @@ namespace _8F
             return graphDatas;
         }
 
-        public void ImplementChanges(int ChangeType)
+        public bool ImplementChanges(int ChangeType)
         {
+            var rat = false;
             if (ChangeType== 0 )
             {
                 FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = FrequencyNo, NC = chNo };
@@ -994,12 +1008,16 @@ namespace _8F
 
                     if (ChangeType == 0)
                     {
-                        portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        var rat1= portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
                         System.Threading.Thread.Sleep(500);
-                        portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+                        var rat2 = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+
+                        rat = rat1 && rat2;
                     }
                 }
             }
+
+            return rat; 
         }
 
         public void AddEllipses(Canvas cnBr1, GraphData graphData)
@@ -1007,8 +1025,8 @@ namespace _8F
             // cnBr1
 
             //cnBr1.Children.Clear();
-
-            for (var i = 1; i< cnBr1.Children.Count; i++ )
+            
+            for (var i = 1; i< cnBr1.Children.Count; )
             {
                 cnBr1.Children.RemoveAt(1);
             }
@@ -1221,6 +1239,9 @@ namespace _8F
         {
             if (CommunicationType == 0)
             {
+                Status exitData = new Status() { FC = 24 };
+                var rat = portCOM.WriteData(JsonConvert.SerializeObject(exitData));
+
                 if (portCOM.port.IsOpen)
                     portCOM.port.Close();
             }
@@ -1688,8 +1709,14 @@ namespace _8F
                     {
                         try
                         {
-                            mainWindow.ImplementChanges(0);
-                            MessageBox.Show("Configuation Write successfully!!", "Information");
+                            var msg = "Configuation Write successfully!!";
+                            var rat = mainWindow.ImplementChanges(0);
+                            if (!rat)
+                            {
+                                msg = "No response from the system, please reboot the board";
+                            }
+                            
+                            MessageBox.Show(msg, "Information");
                         }
                         catch (Exception ex)
                         {
@@ -1717,8 +1744,13 @@ namespace _8F
                                 }
                             }
                         }
-                        mainWindow.ImplementChanges(0);
-                        MessageBox.Show("Channel-1 Configuration copied to others successfully!!", "Information");
+                        var rat = mainWindow.ImplementChanges(0);
+                        var msg = "Channel-1 Configuration copied to others successfully!!";
+                        if (!rat)
+                        {
+                            msg = "No response from the system, please reboot the board";
+                        }
+                        MessageBox.Show(msg, "Information");
 
                     }
                     else if ( Header == "Data Log")
@@ -1831,7 +1863,13 @@ namespace _8F
                                 mainWindow.SelectCh1();
                                 mainWindow.ClearGraphData();
 
-                                mainWindow.ImplementChanges(0);
+                                var rat = mainWindow.ImplementChanges(0);
+                                if (!rat)
+                                {
+                                    var msg = "No response from the system, please reboot the board";
+                                    MessageBox.Show(msg, "Information");
+                                }
+                                
                                 //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                 this.mainWindow.lblConfigFileName.Content = filename;
                             }
@@ -1848,7 +1886,12 @@ namespace _8F
                         filename = null;
                         mainWindow.InitialGraphData(false);
                         mainWindow.ClearGraphData();
-                        mainWindow.ImplementChanges(0);
+                        var rat = mainWindow.ImplementChanges(0);
+                        if (!rat)
+                        {
+                            var msg = "No response from the system, please reboot the board";
+                            MessageBox.Show(msg, "Information");
+                        }
                         DeviceCOM.IsLogEnable = false;
                         this.mainWindow.lblLog.Content = "Start Log";
                         this.mainWindow.lblLog1.Content = "Start Log";

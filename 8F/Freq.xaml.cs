@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace _8F
 {
@@ -23,9 +25,12 @@ namespace _8F
     {
         public bool IsSaved = false; 
         public DeviceCOM portCOM;
+        private DispatcherTimer clearLabelTimer;
         public Freq()
         {
             InitializeComponent();
+
+
 
             ddlFrChennel.ItemsSource = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.Select(x=> x.Name).ToList();
             List<String> statuses = new List<string>();
@@ -59,6 +64,7 @@ namespace _8F
         {
             try
             {
+                lblMsg.Content = "";
                 var msg = Validaton();
 
                 if (msg.Count == 0 && DeviceCOM.IsSystemBusy)
@@ -92,11 +98,18 @@ namespace _8F
 
                         Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase, E = Gdata.isEnable ? 1 : 0 };
                         frequencyWrite.FD.Add(frequency);
-                        portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        var rat =portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
 
+                        if (rat)
+                        {
+                            lblMsg.Content = "Configuration Saved!!!";
+                        }
+                        else
+                        {
+                            lblMsg.Content = "Configuration Saved but no response from the board, please reboot it and write the configuration again!!!";
+                        }
                     }
                     IsSaved = true;
-                    lblMsg.Content = "Configuration Saved!!!";
                 }
                 else
                 {
@@ -112,6 +125,20 @@ namespace _8F
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
+
+
+            clearLabelTimer = new DispatcherTimer();
+            clearLabelTimer.Interval = TimeSpan.FromSeconds(20);
+            clearLabelTimer.Tick += ClearLabelTimer_Tick;
+            clearLabelTimer.Start();
+
+
+        }
+
+        private void ClearLabelTimer_Tick(object sender, EventArgs e)
+        {
+            lblMsg.Content = string.Empty;
+            clearLabelTimer.Stop(); // Stop the timer after clearing
         }
 
         public List<String> Validaton()
@@ -155,7 +182,8 @@ namespace _8F
         }
 
         private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {             
+        {
+            lblMsg.Content = string.Empty;
             var text = e.AddedItems[0].ToString();
             var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == text);
             if (Gdata != null)

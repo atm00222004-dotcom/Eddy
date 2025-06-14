@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace _8F
 {
@@ -26,6 +27,7 @@ namespace _8F
         public DeviceCOM portCOM;
         string _selectChannel;
         public ObservableCollection<EllipsDTO> ellipses;
+        private DispatcherTimer clearLabelTimer;
         public CircleSetting(string selectChannel)
         {
             InitializeComponent();
@@ -68,6 +70,10 @@ namespace _8F
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if (IsSaved)
+            {
+                btnConfigSave_Click(btnConfigSave, null);
+            }
             this.Close();
         }
 
@@ -75,49 +81,77 @@ namespace _8F
         {
             try
             {
-                
-                var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
-                ElliplseWrite ellipseWrite = new ElliplseWrite();
-                ellipseWrite.FC = 5;
-                ellipseWrite.CN = ch.Id;
-                ellipseWrite.FD = new List<Frequ>();
-                var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == _selectChannel);
-
-                Frequ frequ = new Frequ();
-                frequ.FN = Gdata.Id;
-                frequ.ED = new List<Elliplse>();
-
-                if (Gdata != null)
-                {
-                    Gdata.ellipses.Clear();
-                    foreach (var item in ellipses)
-                    {
-                        Ellips el = new Ellips();
-                        el.Id = Gdata.ellipses.Count+1;
-                        el.height = item.height;
-                        el.width = item.width;
-                        el.ex = item.ex;
-                        el.ey = item.ey;
-                        el.angel = item.angel;
-
-                        Gdata.ellipses.Add(el);
-
-                        Elliplse elliplse = new Elliplse() { FN = Gdata.Id, EId = el.Id, a = el.height, b = el.width, t = el.angel, x = el.ex, y = el.ey };
-                        frequ.ED.Add(elliplse);
-                    }
-                }
-
-                ellipseWrite.FD.Add(frequ);
-                portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+                gdFreq.CommitEdit();
+                //CollectionViewSource.GetDefaultView(gdFreq.ItemsSource)?.Refresh();
+                SaveData();
+                //if (!IsSaved)
+                //    btnConfigSave_Click(sender, e);
 
                 IsSaved = true;
-                lblMsg.Content = "Configuration Saved!!!";
 
             }
             catch (Exception ex)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
+
+            clearLabelTimer = new DispatcherTimer();
+            clearLabelTimer.Interval = TimeSpan.FromSeconds(20);
+            clearLabelTimer.Tick += ClearLabelTimer_Tick;
+            clearLabelTimer.Start();
+        }
+
+        private void ClearLabelTimer_Tick(object sender, EventArgs e)
+        {
+            lblMsg.Content = string.Empty;
+            clearLabelTimer.Stop(); // Stop the timer after clearing
+        }
+
+        private void SaveData()
+        {
+            lblMsg.Content = "";
+            var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+            ElliplseWrite ellipseWrite = new ElliplseWrite();
+            ellipseWrite.FC = 5;
+            ellipseWrite.CN = ch.Id;
+            ellipseWrite.FD = new List<Frequ>();
+            var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == _selectChannel);
+
+            Frequ frequ = new Frequ();
+            frequ.FN = Gdata.Id;
+            frequ.ED = new List<Elliplse>();
+
+            if (Gdata != null)
+            {
+                Gdata.ellipses.Clear();
+                foreach (var item in ellipses)
+                {
+                    Ellips el = new Ellips();
+                    el.Id = Gdata.ellipses.Count + 1;
+                    el.height = item.height;
+                    el.width = item.width;
+                    el.ex = item.ex;
+                    el.ey = item.ey;
+                    el.angel = item.angel;
+
+                    Gdata.ellipses.Add(el);
+
+                    Elliplse elliplse = new Elliplse() { FN = Gdata.Id, EId = el.Id, a = el.height, b = el.width, t = el.angel, x = el.ex, y = el.ey };
+                    frequ.ED.Add(elliplse);
+                }
+            }
+
+            ellipseWrite.FD.Add(frequ);
+            var rat = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+            if (rat)
+            {
+                lblMsg.Content = "Configuration Saved!!!";
+            }
+            else
+            {
+                lblMsg.Content = "Configuration Saved but no response from the board, please reboot it and write the configuration again!!!";
+            }
+
         }
 
         public List<String> Validaton()
