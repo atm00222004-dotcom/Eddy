@@ -62,7 +62,7 @@ namespace Eddy
                             new MenuItemViewModel { Header = "Marker Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Frequency Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
-                        } 
+                        }
                 },
                 new MenuItemViewModel { Header = "View Log" },
             };
@@ -70,7 +70,7 @@ namespace Eddy
             this.DataContext = this;
             myPlot1 = WpfPlot1.Plot;
             myPlot1.Title("D1 Response");
-            myPlot1.Axes.SetLimits(0, 1000, 0, 2000);           
+            myPlot1.Axes.SetLimits(0, 1000, 0, 2000);
             logger1 = myPlot1.Add.DataLogger();
             WpfPlot1.Refresh();
 
@@ -92,7 +92,7 @@ namespace Eddy
             logger4 = myPlot4.Add.DataLogger();
             WpfPlot4.Refresh();
 
-            DeviceCOM.PortName = "COM8"; 
+            DeviceCOM.PortName = "COM8";
             DeviceCOM.BaudRate = 128000;
             DeviceCOM.graphData = new GraphData();
 
@@ -119,7 +119,7 @@ namespace Eddy
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
 
             RPort();
-            
+
         }
 
         private void RPort()
@@ -151,7 +151,7 @@ namespace Eddy
                 int length = sp.BytesToRead;
                 Byte[] data = new Byte[length];
                 sp.Read(data, 0, length);
-                
+
                 new Thread(() =>
                 {
                     ProcessPortData(data);
@@ -168,18 +168,18 @@ namespace Eddy
         {
             try
             {
-                
+
                 if (indata.Length == 1)
                 {
                     if (indata[0] == 53 || indata[0] == 54)
                     {
-                       
+
                     }
                 }
                 else if (indata[0] == 55)
                 {
                     int NoOfSamples = indata[1];
-                    int startIndex = indata[2] + (indata[3]*256) + (indata[4] * 256) + (indata[5] * 256);
+                    int startIndex = indata[2] + (indata[3] * 256) + (indata[4] * 256) + (indata[5] * 256);
                     int FN1 = indata[6];
                     int markerIndex = indata[7] + (indata[8] * 256) + (indata[9] * 256) + (indata[10] * 256);
 
@@ -187,40 +187,73 @@ namespace Eddy
 
                     if (startIndex == 1)
                     {
-                        if (DeviceCOM.graphData.AmpD1.Count > 0)
+                        myPlot4.Clear();
+                        logger4 = myPlot4.Add.DataLogger();
+                        logger4.Clear();
+                        var AMPDat = DeviceCOM.graphData.AmpD1.ToList();
+
+                        if (AMPDat.Count > 0)
                         {
-                            foreach (var item in DeviceCOM.graphData.AmpD1)
+                            for (int i = 0; i < AMPDat.Count; i++)
                             {
-                                myPlot4.Axes.SetLimits(0, DeviceCOM.graphData.AmpD1.Count, 0, 2000);
+                                var item = AMPDat[i];
                                 logger4.Add(item);
+                                var lst = DeviceCOM.graphData.D1MarkerIndexs.ToList();
+                                var obj = lst.FirstOrDefault(j => j == i);
+                                if (obj > 0)
+                                {
+                                    myPlot4.Add.Scatter(i, item);
+                                }
+                                myPlot4.Axes.SetLimits(0, DeviceCOM.graphData.AmpD1.Count, 0, 2000);
                                 WpfPlot4.Refresh();
                             }
                         }
                         DeviceCOM.graphData.AmpD1 = new List<int>();
                         DeviceCOM.graphData.AmpD2 = new List<int>();
                         DeviceCOM.graphData.AmpD3 = new List<int>();
+                        DeviceCOM.graphData.D1MarkerIndexs = new List<int>();
 
+                        myPlot1.Clear();
+                        logger1 = myPlot1.Add.DataLogger();
+                        myPlot2.Clear();
+                        logger2 = myPlot2.Add.DataLogger();
+                        myPlot3.Clear();
+                        logger3 = myPlot3.Add.DataLogger();
                         logger1.Clear();
                         logger2.Clear();
                         logger3.Clear();
                     }
-                    
+
                     // FN -- First 
                     for (int i = 0; i < NoOfSamples; i++)
                     {
-                        int amp = indata[fStartIndex] + (indata[fStartIndex+1] * 256);
+                        int amp = indata[fStartIndex] + (indata[fStartIndex + 1] * 256);
                         DeviceCOM.graphData.AmpD1.Add(amp);
                         int phase = indata[fStartIndex + 2] + (indata[fStartIndex + 3] * 256);
                         int x = indata[fStartIndex + 4] + (indata[fStartIndex + 6] * 256);
                         int y = indata[fStartIndex + 6] + (indata[fStartIndex + 7] * 256);
                         fStartIndex = fStartIndex + 8;
-                        myPlot1.Axes.SetLimits(0, 500, 0, 2000);
+
                         logger1.Add(amp);
+
+                        if (markerIndex > 0)
+                        {
+                            if (markerIndex == (startIndex + i + 1))
+                            {
+                                DeviceCOM.graphData.D1MarkerIndexs.Add(DeviceCOM.graphData.AmpD1.Count);
+                                myPlot1.Add.Scatter(DeviceCOM.graphData.AmpD1.Count, amp);
+                            }
+                        }
+
+                        myPlot1.Axes.SetLimits(0, 500, 0, 2000);
                         WpfPlot1.Refresh();
+
                     }
 
-                    int FN2 = indata[fStartIndex+1];
-                    fStartIndex = fStartIndex + 1;
+                    int FN2 = indata[fStartIndex];
+                    int markerIndex2 = indata[fStartIndex + 1] + (indata[fStartIndex + 2] * 256) + (indata[fStartIndex + 3] * 256) + (indata[fStartIndex + 4] * 256);
+
+                    fStartIndex = fStartIndex + 5;
 
                     for (int i = 0; i < NoOfSamples; i++)
                     {
@@ -231,13 +264,23 @@ namespace Eddy
                         int y = indata[fStartIndex + 6] + (indata[fStartIndex + 7] * 256);
                         fStartIndex = fStartIndex + 8;
 
-                        myPlot2.Axes.SetLimits(0, 500, 0, 2000);
                         logger2.Add(amp);
+                        if (markerIndex2 > 0)
+                        {
+                            if (markerIndex2 == (startIndex + i + 1))
+                            {
+                                myPlot2.Add.Scatter(DeviceCOM.graphData.AmpD2.Count, amp);
+                            }
+                        }
+                        myPlot2.Axes.SetLimits(0, 500, 0, 2000);
                         WpfPlot2.Refresh();
                     }
 
-                    int FN3 = indata[fStartIndex + 1];
-                    fStartIndex = fStartIndex + 1;
+                    int FN3 = indata[fStartIndex];
+                    int markerIndex3 = indata[fStartIndex + 1] + (indata[fStartIndex + 2] * 256) + (indata[fStartIndex + 3] * 256) + (indata[fStartIndex + 4] * 256);
+
+                    fStartIndex = fStartIndex + 5;
+
 
                     for (int i = 0; i < NoOfSamples; i++)
                     {
@@ -248,29 +291,18 @@ namespace Eddy
                         int y = indata[fStartIndex + 6] + (indata[fStartIndex + 7] * 256);
                         fStartIndex = fStartIndex + 8;
 
-                        myPlot3.Axes.SetLimits(0, 500, 0, 2000);
                         logger3.Add(amp);
+                        if (markerIndex3 > 0)
+                        {
+                            if (markerIndex3 == (startIndex + i + 1))
+                            {
+                                myPlot3.Add.Scatter(DeviceCOM.graphData.AmpD3.Count, amp);
+                            }
+                        }
+                        myPlot3.Axes.SetLimits(0, 500, 0, 2000);
                         WpfPlot3.Refresh();
                     }
                 }
-
-                
-                //// simulate live data streaming in
-                //for (int x = 0; x < DeviceCOM.graphData.AmpD1.Count; x++)
-                //{
-                    
-                //}
-                //WpfPlot1.Plot.AddScatterLines(xs1, xs_Values1, System.Drawing.Color.Maroon, lineWidth: 2);
-
-                //WpfPlot1.Plot.Grid(color: System.Drawing.Color.FromArgb(50, System.Drawing.Color.Green));
-                //WpfPlot1.Plot.Grid(lineStyle: LineStyle.Dot);
-
-                //if (xs1.Length > 0)
-                //{
-                //    WpfPlot1.Plot.SetAxisLimitsY(0, 4000);
-                //}
-                //WpfPlot1.Plot.XAxis.ManualTickSpacing(.5);
-
             }
             catch (Exception ex)
             {
@@ -278,7 +310,7 @@ namespace Eddy
             }
         }
     }
-    
+
 
     public class MenuItemViewModel
     {
@@ -407,14 +439,14 @@ namespace Eddy
             else if (Header == "New")
             {
                 filename = null;
-                
+
             }
             else if (Header == "Exit")
             {
                 //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
                 mainWindow.Close();
             }
-            else if(Header == "Frequency Setting")
+            else if (Header == "Frequency Setting")
             {
                 freqPop = new FrequencySetting();
                 freqPop.Closing += freqPop_Closing;
@@ -432,7 +464,7 @@ namespace Eddy
             }
             else if (Header == "Write Configuration")
             {
-                var msg= "Configuation Write successfully!!";
+                var msg = "Configuation Write successfully!!";
                 var rat = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
                 var rat1 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
                 var rat2 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));

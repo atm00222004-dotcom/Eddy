@@ -135,6 +135,7 @@ namespace Eddy
         public List<int> AmpD1= new List<int>();
         public List<int> AmpD2 = new List<int>();
         public List<int> AmpD3 = new List<int>();
+        public List<int> D1MarkerIndexs = new List<int>();
     }
 
     public class FNData
