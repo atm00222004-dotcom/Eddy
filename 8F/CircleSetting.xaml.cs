@@ -88,6 +88,7 @@ namespace _8F
                 //    btnConfigSave_Click(sender, e);
 
                 IsSaved = true;
+                ((MainWindow)this.Owner).ImplementChanges(2);
 
             }
             catch (Exception ex)
@@ -255,6 +256,13 @@ namespace _8F
             }
         }
 
-      
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (IsSaved)
+            {
+                btnConfigSave_Click(btnConfigSave, null);
+            }
+            //this.Close();
+        }
     }
 }

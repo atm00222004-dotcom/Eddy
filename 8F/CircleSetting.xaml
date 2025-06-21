@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_8F"
         mc:Ignorable="d"
-        Title="Window1" 
-        ResizeMode="NoResize" Height="450" WindowStartupLocation="CenterScreen"  Width="720"  WindowState="Normal"  WindowStyle="None"
+        Title="Circle Setting" 
+        ResizeMode="CanResize" Height="380" WindowStartupLocation="CenterScreen" Closing="Window_Closing"  Width="600"  WindowState="Normal" WindowStyle="ToolWindow"
         >
     <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
         <Grid>
@@ -65,7 +65,7 @@
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Save Config" ></Label>
             </Border>
 
-            <Label Content="" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
+            <Label Content="" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
 
         </Grid>
     </Border>

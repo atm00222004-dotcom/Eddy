@@ -257,8 +257,6 @@
                                 </TransformGroup>
                             </Ellipse.RenderTransform>
                         </Ellipse>
-                        
-
                     </Canvas>
 
                     <!--<Button Content="Setting" Name="D1" Click="D_Click"  Canvas.Left="5" Canvas.Top="225" ></Button>-->

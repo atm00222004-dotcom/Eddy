@@ -118,6 +118,7 @@ namespace _8F
                 buttonBarWidth.Width = new GridLength(.38, GridUnitType.Star);
                 LogoWidth.Width = new GridLength(1.0, GridUnitType.Star);
             }
+
             else if (ScreenId == 4)
             {
                 seqLength = BoxSize4;
