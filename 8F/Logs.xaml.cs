@@ -54,7 +54,9 @@ namespace _8F
 
                 using (var con = new NpgsqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
                 {
-                    string sql = "select coalesce(dt1.\"LogDate\",dt2.\"LogDate\" ) as  \"LogDate\", coalesce(\"PassCount\", 0) as \"PassCount\",coalesce(\"FailCount\",0) as \"FailCount\" from (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"FailCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'false' group by \"Result\", \"TimeStamp\"::date) dt1 Full join (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"PassCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'true' group by \"Result\", \"TimeStamp\"::date) dt2 on dt1.\"LogDate\" = dt2.\"LogDate\";";
+                    //string sql = "select coalesce(dt1.\"LogDate\",dt2.\"LogDate\" ) as  \"LogDate\", coalesce(\"PassCount\", 0) as \"PassCount\",coalesce(\"FailCount\",0) as \"FailCount\" from (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"FailCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'false' group by \"Result\", \"TimeStamp\"::date) dt1 Full join (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"PassCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'true' group by \"Result\", \"TimeStamp\"::date) dt2 on dt1.\"LogDate\" = dt2.\"LogDate\";";
+
+                    string sql = "SELECT \r\n\"BatchName\", Min(\"TimeStamp\") as \"StartDate\", Max(\"TimeStamp\") as \"EndDate\",\r\n(select Count(1) from  public.\"Logs\" l1 where \"BatchName\" = l.\"BatchName\" and \"Result\" = 'true' ) as \"PassCount\"\r\n,(select Count(1) from  public.\"Logs\" l1 where \"BatchName\" = l.\"BatchName\" and \"Result\" = 'false' ) as \"FailCount\"\r\n\tFROM public.\"Logs\" l\r\n\tWhere \"BatchName\" like '%" + txtBatchName.Text+ "%' AND \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' \r\n\tGroup By \"BatchName\"";
 
                     con.Open();
 
@@ -67,14 +69,17 @@ namespace _8F
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         LogData _part = new LogData();
-                        _part.LogDate = Convert.ToDateTime(dt.Rows[i]["LogDate"]).ToShortDateString();
+                        _part.BatchName = dt.Rows[i]["BatchName"].ToString();
+                        _part.LogStartDate = Convert.ToDateTime(dt.Rows[i]["StartDate"]).ToString("dd/MM/yy HH:mm:ss");
+                        _part.LogEndDate = Convert.ToDateTime(dt.Rows[i]["EndDate"]).ToString("dd/MM/yy HH:mm:ss");
+
                         _part.PassCount = Convert.ToInt32(dt.Rows[i]["PassCount"]);
                         _part.FailCount = Convert.ToInt32(dt.Rows[i]["FailCount"]);
                         _part.TotalCount = _part.PassCount + _part.FailCount;
                         listOfLog.Add(_part);
                     }
-                    
-                    grdlogs.ItemsSource = listOfLog.OrderBy(t => Convert.ToDateTime(t.LogDate)); ;
+
+                    grdlogs.ItemsSource = listOfLog; // .OrderBy(t => Convert.ToDateTime(t.LogStartDate)); ;
                 }
             }
             catch (Exception ex)
@@ -97,11 +102,11 @@ namespace _8F
 
                 if (result == true)
                 {
-                    string conecnt = "Log Date,OK Count,Not OK Count,Total Count";
+                    string conecnt = "Batch Name,Log Start Date,Log End Date,OK Count,Not OK Count,Total Count";
                     foreach (var log in listOfLog)
                     {
                         conecnt = conecnt + "\n";
-                        conecnt = conecnt + log.LogDate + "," + log.PassCount.ToString() + "," + log.FailCount.ToString() + "," + log.TotalCount.ToString();
+                        conecnt = conecnt + log.BatchName + "," + log.LogStartDate + "," + log.LogEndDate + "," + log.PassCount.ToString() + "," + log.FailCount.ToString() + "," + log.TotalCount.ToString();
                     }
                     File.WriteAllText(dlg.FileName, conecnt);
                 }

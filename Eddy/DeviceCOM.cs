@@ -19,6 +19,8 @@ using System.IO;
 using System.Diagnostics.Metrics;
 using System.Windows.Media;
 using System.Windows.Documents;
+using OpenTK.Compute.OpenCL;
+using SkiaSharp;
 
 
 
@@ -31,7 +33,9 @@ namespace Eddy
         public static string PortName;
         public static int BaudRate;
         public static Configuration Configuration;
-        public static GraphData graphData;  
+        public static GraphData graphData;
+        public static bool IsSystemBusy = false;
+        public static DateTime busyStamp = System.DateTime.Now;
         public void InitialPort()
         {
             port = new SerialPort
@@ -87,8 +91,47 @@ namespace Eddy
                 return false;
             }
         }
-            
+
+        public bool GetSystemStatus(string data)
+        {
+            try
+            {
+
+                if (!port.IsOpen)
+                {
+                    port.Open();
+                }
+                this.port.ReadExisting();
+                this.port.Write(data);
+                int toread = 1;
+                int offset = 0;
+                char[] result = new char[toread];
+                while (toread > 0)
+                {
+                    int r = this.port.Read(result, offset, toread);
+                    offset += r;
+                    toread -= r;
+                }
+
+                if (result[0] == 21)
+                {
+                    IsSystemBusy = true;
+                    busyStamp = System.DateTime.Now;
+                }
+                else if(result[0] == 22)
+                {
+                    IsSystemBusy = false;
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+               
+                return false;
+            }
+        }
     }
+
     public class Configuration
     {
         public Marker Marker { get; set; }
@@ -132,15 +175,17 @@ namespace Eddy
     }
     public class GraphData
     {
-        public List<int> AmpD1= new List<int>();
+        public List<int> AmpD1 = new List<int>();
         public List<int> AmpD2 = new List<int>();
         public List<int> AmpD3 = new List<int>();
         public List<int> D1MarkerIndexs = new List<int>();
+        public List<int> D2MarkerIndexs = new List<int>();
+        public List<int> D3MarkerIndexs = new List<int>();
     }
 
     public class FNData
     {
-        public int FN { get; set;}
+        public int FN { get; set; }
         public List<Fdata> Data { get; set; }
     }
 
@@ -152,4 +197,9 @@ namespace Eddy
         public int phase { get; set; }
     }
 
+    public class Status
+    {
+        public int FC;
+    }
 }
+

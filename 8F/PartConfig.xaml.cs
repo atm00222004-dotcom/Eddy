@@ -26,6 +26,8 @@ namespace _8F
         public PartConfig()
         {
             InitializeComponent();
+            if (DeviceCOM.part == null )
+                DeviceCOM.part = new Part();
 
             var batchTypes = new List<string>();
             batchTypes.Add("Manual");
@@ -39,6 +41,7 @@ namespace _8F
             {
                 ddlBatchType.SelectedIndex = 1;
             }
+            txtBatchName.Text = DeviceCOM.part.BatchName;
             txtPartName.Text = DeviceCOM.part.Name;
             txtGrade.Text = DeviceCOM.part.Grade;
             txtCheckedBy.Text = DeviceCOM.part.CheckedBy;
@@ -59,6 +62,7 @@ namespace _8F
                 var msg = Validaton();
                 if (msg.Count == 0)
                 {
+                    DeviceCOM.part.BatchName = txtBatchName.Text;
                     DeviceCOM.part.Name = txtPartName.Text;
                     DeviceCOM.part.Grade = txtGrade.Text;
                     DeviceCOM.part.CheckedBy = txtCheckedBy.Text;
@@ -88,6 +92,10 @@ namespace _8F
         public List<String> Validaton()
         {
             List<String> validationMsg = new List<string>();
+            if (string.IsNullOrEmpty(txtBatchName.Text))
+            {
+                validationMsg.Add("Batch Name is required.");
+            }
             if (string.IsNullOrEmpty(txtPartName.Text))
             {
                 validationMsg.Add("Part Name is required.");

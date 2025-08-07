@@ -9,8 +9,8 @@
         WindowStyle="None" WindowState="Maximized" ResizeMode="NoResize">
     <Grid Background="Black"  Margin="2">
         <Grid.RowDefinitions>
-            <RowDefinition Height=".5*"/>
-            <RowDefinition Height=".5*"/>
+            <RowDefinition Height=".4*"/>
+            <RowDefinition Height=".1*"/>
             <RowDefinition Height="8.5*"/>
             <RowDefinition Height="0*"/>
         </Grid.RowDefinitions>
@@ -58,11 +58,15 @@
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
                 <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="0" Name="WpfPlot1" />
                 <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="1" Name="WpfPlot2" />
                 <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="2" Name="WpfPlot3" />
                 <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="3" Name="WpfPlot4" />
+                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="4" Name="WpfPlot5" />
+                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="5" Name="WpfPlot6" />
             </Grid>
 
             <Grid Grid.Column="1" Grid.Row="0">

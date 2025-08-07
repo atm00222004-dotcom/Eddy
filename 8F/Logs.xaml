@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:_8F"
         mc:Ignorable="d"
         Title="Window1" 
-        ResizeMode="NoResize" Height="450" WindowStartupLocation="CenterScreen"  Width="720"  WindowState="Normal"  WindowStyle="None"
+        ResizeMode="NoResize" Height="600" WindowStartupLocation="CenterScreen"  Width="920"  WindowState="Normal"  WindowStyle="None"
         >
     <Window.Resources>
         <Style x:Key="styleCalendar" TargetType="{x:Type Calendar}">
@@ -29,11 +29,11 @@
     <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.2*"/>
+                <RowDefinition Height="0.12*"/>
                 <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.15*"/>
+                <RowDefinition Height="0.11*"/>
                 <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.2*"/>
+                <RowDefinition Height="0.12*"/>
                 <RowDefinition Height="0.9*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -54,14 +54,20 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition/>
+                    <ColumnDefinition />
+                    <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label Margin="20,0,0,0" Content="Start Date" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
-                <DatePicker CalendarStyle="{StaticResource styleCalendar}" FontSize="20" VerticalAlignment="top" x:Name="clStartDate" Grid.Row="0" Grid.Column="1" />
 
-                <Label Content="End Date" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                <DatePicker CalendarStyle="{StaticResource styleCalendar}" FontSize="20" VerticalAlignment="Top" x:Name="clToDate" Grid.Row="0" Grid.Column="3" />
+                <Label Margin="20,0,0,0" Content="Batch Name" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                <TextBox  FontSize="20" VerticalAlignment="top" x:Name="txtBatchName" Grid.Row="0" Grid.Column="1" />
+                
+                <Label Margin="20,0,0,0" Content="Start Date" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
+                <DatePicker CalendarStyle="{StaticResource styleCalendar}" FontSize="20" VerticalAlignment="top" x:Name="clStartDate" Grid.Row="0" Grid.Column="3" />
+
+                <Label Content="End Date" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="4"></Label>
+                <DatePicker CalendarStyle="{StaticResource styleCalendar}" FontSize="20" VerticalAlignment="Top" x:Name="clToDate" Grid.Row="0" Grid.Column="5" />
             </Grid>
             <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
 
@@ -88,7 +94,9 @@
             <Border Grid.Row="5" Grid.Column="0" Background="#1F1F1F" Margin="0,0,0,5" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <DataGrid SelectionMode="Single" FontSize="18" IsReadOnly="True" CanUserAddRows="False" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="2" AutoGenerateColumns="False" Name="grdlogs" VerticalAlignment="Top">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Width="100*" Header = "Log Date" Binding = "{Binding LogDate}"/>
+                        <DataGridTextColumn Width="100*" Header = "Batch Name" Binding = "{Binding BatchName}"/>
+                        <DataGridTextColumn Width="100*" Header = "Log Start Date" Binding = "{Binding LogStartDate}"/>
+                        <DataGridTextColumn Width="100*" Header = "Log End Date" Binding = "{Binding LogEndDate}"/>
                         <DataGridTextColumn Width="100*" Header = "OK Count" Binding = "{Binding PassCount}"/>
                         <DataGridTextColumn Width="100*" Header = "Not OK Count" Binding = "{Binding FailCount}"/>
                         <DataGridTextColumn Width="100*" Header = "Total Count" Binding = "{Binding TotalCount}"/>

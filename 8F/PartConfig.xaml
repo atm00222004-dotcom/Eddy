@@ -41,25 +41,29 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label Margin="20,0,0,0" Content="Part Name" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="0" Grid.Column="1" Name="txtPartName" />
 
-                <Label Content="Grade" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtGrade" />
+                <Label Margin="20,0,0,0" Content="Batch Name" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtBatchName" />
+                <ComboBox Margin="0,0,20,0" Visibility="Hidden" FontSize="16" SelectionChanged="ddlBatchType_SelectionChanged" VerticalAlignment="Top" Grid.Row="0" Grid.Column="1" Name="ddlBatchType" />
 
-                <Label Margin="20,0,0,0" Content="Company Name" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtCompanyName" />
-                <Label Content="Checked By" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtCheckedBy" />
-
-                <Label Margin="20,0,0,0" Content="Batch Type" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
-                <ComboBox Margin="0,0,20,0" FontSize="16" SelectionChanged="ddlBatchType_SelectionChanged" VerticalAlignment="Top" Grid.Row="2" Grid.Column="1" Name="ddlBatchType" />
-
-                <Label Name="lblBatchSize" Visibility="Hidden" Content="Batch Size" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
-                <TextBox Visibility="Hidden" PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtBatchSize" />
+                <Label Name="lblBatchSize" Visibility="Hidden" Content="Batch Size" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
+                <TextBox Visibility="Hidden" PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtBatchSize" />
 
                 <Label Name="lblBatchNo" Content="Batch No" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtBatchNo" />
+                
+                <Label Margin="20,0,0,0" Content="Part Name" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Name="txtPartName" />
+
+                <Label Content="Grade" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtGrade" />
+
+                <Label Margin="20,0,0,0" Content="Company Name" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtCompanyName" />
+                <Label Content="Checked By" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtCheckedBy" />
+
+                
 
             </Grid>
             <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>

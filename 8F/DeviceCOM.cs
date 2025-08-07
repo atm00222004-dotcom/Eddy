@@ -52,13 +52,13 @@ namespace _8F
         public static bool IsLogDisable = false;
         public static bool IsBalanceRequired = false;
         public static int ERRCode = 0; 
+
         DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;
 
         public void InitialPort(int communicationType, string portName, int baudRate, string ipAddress, int sport)
         {
-            DeviceCOM.part = new Part();
             CommunicationType = communicationType;
             PortName = portName;
             BaudRate = baudRate;
@@ -191,7 +191,7 @@ namespace _8F
                             cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             IsResponseRefreshRequired = true;
                             // Maintain logs ==> ChId, Overall Result, File Name, TimeStamp 
-                            if (!IsLogDisable)
+                            if (!IsLogDisable && IsLogEnable)
                             {
                                 WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now);
                             }
@@ -237,21 +237,27 @@ namespace _8F
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
                     if (ChId == 1)
                     {
-                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchNo\", \"TimeStamp\")\r\n\t" +
+                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\", \"BatchNo\" , \"TimeStamp\")\r\n\t" +
                             "VALUES (" +
                             ChId + ", '" +
                             Result + "', '" +
                             fdData + "', '" +
                             partData + "', '" +
-                            DeviceCOM.part.Name + "', " +
+                            DeviceCOM.part.Name + "', '" +
+                            DeviceCOM.part.BatchName + "', " +
                             DeviceCOM.part.BatchNo + ", '" +
-                            TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"PartName\" = '" + DeviceCOM.part.Name + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
+                            TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"BatchName\" = '" + DeviceCOM.part.BatchName + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
 
                         var cmd = new NpgsqlCommand(sql, con);
                         var count = cmd.ExecuteScalar();
 
-                        if (DeviceCOM.part.BatchType == 1 && Convert.ToInt32(count) >= DeviceCOM.part.BatchSize)
+                        if (DeviceCOM.part.BatchType == 1)
                         {
+                            if (Convert.ToInt32(count) == DeviceCOM.part.BatchSize)
+                            {
+                                // stop the logging 
+                            }
+                            
                             DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
                         }
                     }
@@ -654,11 +660,12 @@ namespace _8F
 
     public class Part
     {
+        public string BatchName = "";
         public string Name = "";
         public string Grade = "";
         public string CheckedBy = "";
         public string CompanyName = "";
-        public int BatchType= 0;
+        public int BatchType= 1;
         public int BatchSize = 5;
         public int BatchNo = 1;
     }
@@ -766,7 +773,9 @@ namespace _8F
 
 public class LogData
 {
-    public string LogDate { get; set; }
+    public string BatchName { get; set; }
+    public string LogStartDate { get; set; }
+    public string LogEndDate { get; set; }
     public int PassCount { get; set; }
     public int FailCount { get; set; }
     public int TotalCount { get; set; }

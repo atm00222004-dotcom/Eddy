@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.IO;
 using System.IO.Ports;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Channels;
 using System.Windows;
@@ -15,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using Newtonsoft.Json;
 using OpenTK.Windowing.Common.Input;
 using ScottPlot;
@@ -29,7 +32,7 @@ namespace Eddy
     public partial class MainWindow : Window
     {
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
-        SerialPort portR = new SerialPort("COM8", 128000, Parity.None, 8, StopBits.One);
+        SerialPort portR;
         ScottPlot.Plot myPlot1;
         ScottPlot.Plot myPlot2;
         ScottPlot.Plot myPlot3;
@@ -40,6 +43,14 @@ namespace Eddy
         DataLogger logger3;
         DataLogger logger4;
         public DeviceCOM deviceCOM;
+
+        DispatcherTimer dispatcherTimer;
+        TcpClient client;
+        NetworkStream stream;
+        int CommunicationType = 0;
+
+        string IpAddress;
+        int Port;
         public MainWindow()
         {
             InitializeComponent();
@@ -70,30 +81,28 @@ namespace Eddy
             this.DataContext = this;
             myPlot1 = WpfPlot1.Plot;
             myPlot1.Title("D1 Response");
-            myPlot1.Axes.SetLimits(0, 1000, 0, 2000);
-            logger1 = myPlot1.Add.DataLogger();
+            //myPlot1.Axes.SetLimits(0, 1000, 0, 2000);
+            //logger1 = myPlot1.Add.DataLogger();
             WpfPlot1.Refresh();
 
             myPlot2 = WpfPlot2.Plot;
             myPlot2.Title("D2 Response");
-            myPlot2.Axes.SetLimits(0, 1000, 0, 2000);
-            logger2 = myPlot2.Add.DataLogger();
+            //myPlot2.Axes.SetLimits(0, 1000, 0, 2000);
+            //logger2 = myPlot2.Add.DataLogger();
             WpfPlot2.Refresh();
 
             myPlot3 = WpfPlot3.Plot;
             myPlot3.Title("Absolute Response");
-            myPlot3.Axes.SetLimits(0, 1000, 0, 2000);
-            logger3 = myPlot3.Add.DataLogger();
+            //myPlot3.Axes.SetLimits(0, 1000, 0, 2000);
+            //logger3 = myPlot3.Add.DataLogger();
             WpfPlot3.Refresh();
 
-            myPlot4 = WpfPlot4.Plot;
-            myPlot4.Title("Last D1  Response");
-            myPlot4.Axes.SetLimits(0, 1000, 0, 2000);
-            logger4 = myPlot4.Add.DataLogger();
-            WpfPlot4.Refresh();
+            //myPlot4 = WpfPlot4.Plot;
+            //myPlot4.Title("Last D1  Response");
+            //myPlot4.Axes.SetLimits(0, 1000, 0, 2000);
+            //logger4 = myPlot4.Add.DataLogger();
+            //WpfPlot4.Refresh();
 
-            DeviceCOM.PortName = "COM8";
-            DeviceCOM.BaudRate = 128000;
             DeviceCOM.graphData = new GraphData();
 
             // Prepare Configurtion data
@@ -110,57 +119,61 @@ namespace Eddy
             DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 2 });
             DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 3 });
 
+            DeviceCOM.BaudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
+            DeviceCOM.PortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
+
             deviceCOM = new DeviceCOM();
             deviceCOM.InitialPort();
-            //deviceCOM.InitialPortReceiver();
 
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
 
-            RPort();
+            IpAddress = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["IP"]);
+            Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]);
 
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(5000000);
+            //dispatcherTimer.Start();
+            client = new TcpClient();
+
+            Status status = new Status() { FC = 23 };
+            var rat = deviceCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
+            // Marked Busy Flag 
         }
 
-        private void RPort()
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            portR.DataReceived += serialPort_DataReceived;
-            portR.Handshake = Handshake.None;
-
-            portR.DtrEnable = true; // Force DTR high
-            portR.RtsEnable = true; // Force RTS high
-
-            //portR.ReceivedBytesThreshold = 1; // Trigger event on any byte
-
-            try
+            
+            client.NoDelay = false;
+            if (!client.Connected)
             {
-                portR.Open();
+                client = new TcpClient();
+                IPAddress iPAddress = IPAddress.Parse(IpAddress);
+                var ipEndPoint = new IPEndPoint(iPAddress, Port);
+                client.Connect(ipEndPoint);
             }
-            catch (Exception ex)
+            if (client.Connected)
             {
-                MessageBox.Show("Error opening port: " + ex.Message);
-            }
-        }
-        private void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            try
-            {
-                //string data = portR.ReadExisting();
-                System.Threading.Thread.Sleep(50);
-                SerialPort sp = (SerialPort)sender;
-                int length = sp.BytesToRead;
-                Byte[] data = new Byte[length];
-                sp.Read(data, 0, length);
-
-                new Thread(() =>
+                stream = client.GetStream();
+                if (stream.DataAvailable)
                 {
-                    ProcessPortData(data);
-                }).Start();
+                    try
+                    {
+                        var buffer = new byte[client.Available];
+                        int received = stream.Read(buffer);
+                        var message = Encoding.UTF8.GetString(buffer, 0, received);
+                        new Thread(() =>
+                        {
+                            //ProcessPortData(buffer);
+                        }).Start();
+                    }
+                    catch (Exception ex)
+                    {
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Read error: " + ex.Message);
+                    }
+                }
             }
         }
 
@@ -168,7 +181,6 @@ namespace Eddy
         {
             try
             {
-
                 if (indata.Length == 1)
                 {
                     if (indata[0] == 53 || indata[0] == 54)
@@ -194,6 +206,7 @@ namespace Eddy
 
                         if (AMPDat.Count > 0)
                         {
+                            bool result = true;
                             for (int i = 0; i < AMPDat.Count; i++)
                             {
                                 var item = AMPDat[i];
@@ -203,15 +216,20 @@ namespace Eddy
                                 if (obj > 0)
                                 {
                                     myPlot4.Add.Scatter(i, item);
+                                    result = false;
                                 }
                                 myPlot4.Axes.SetLimits(0, DeviceCOM.graphData.AmpD1.Count, 0, 2000);
                                 WpfPlot4.Refresh();
                             }
+                            // Counter and Log Create Id, Result, Timestamp, graphData(JSON), Configuration(JSON) 
+                            // Database call 
                         }
                         DeviceCOM.graphData.AmpD1 = new List<int>();
                         DeviceCOM.graphData.AmpD2 = new List<int>();
                         DeviceCOM.graphData.AmpD3 = new List<int>();
                         DeviceCOM.graphData.D1MarkerIndexs = new List<int>();
+                        DeviceCOM.graphData.D2MarkerIndexs = new List<int>();
+                        DeviceCOM.graphData.D3MarkerIndexs = new List<int>();
 
                         myPlot1.Clear();
                         logger1 = myPlot1.Add.DataLogger();
@@ -244,10 +262,8 @@ namespace Eddy
                                 myPlot1.Add.Scatter(DeviceCOM.graphData.AmpD1.Count, amp);
                             }
                         }
-
                         myPlot1.Axes.SetLimits(0, 500, 0, 2000);
                         WpfPlot1.Refresh();
-
                     }
 
                     int FN2 = indata[fStartIndex];
@@ -269,6 +285,7 @@ namespace Eddy
                         {
                             if (markerIndex2 == (startIndex + i + 1))
                             {
+                                DeviceCOM.graphData.D2MarkerIndexs.Add(DeviceCOM.graphData.AmpD2.Count);
                                 myPlot2.Add.Scatter(DeviceCOM.graphData.AmpD2.Count, amp);
                             }
                         }
@@ -280,7 +297,6 @@ namespace Eddy
                     int markerIndex3 = indata[fStartIndex + 1] + (indata[fStartIndex + 2] * 256) + (indata[fStartIndex + 3] * 256) + (indata[fStartIndex + 4] * 256);
 
                     fStartIndex = fStartIndex + 5;
-
 
                     for (int i = 0; i < NoOfSamples; i++)
                     {
@@ -296,12 +312,38 @@ namespace Eddy
                         {
                             if (markerIndex3 == (startIndex + i + 1))
                             {
+                                DeviceCOM.graphData.D3MarkerIndexs.Add(DeviceCOM.graphData.AmpD3.Count);
                                 myPlot3.Add.Scatter(DeviceCOM.graphData.AmpD3.Count, amp);
                             }
                         }
                         myPlot3.Axes.SetLimits(0, 500, 0, 2000);
                         WpfPlot3.Refresh();
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        private void ProcessPortData(string indata)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(indata))
+                {
+                    //var res = JsonConvert.DeserializeObject<Response>(indata);
+
+                    //if (res.FC == 21)
+                    //{
+                    //    //IsSystemBusy = true;
+                    //    //busyStamp = System.DateTime.Now;
+                    //}
+                    //else if (res.FC == 22)
+                    //{
+                    //    //IsSystemBusy = false;                        
+                    //}
                 }
             }
             catch (Exception ex)
@@ -401,8 +443,6 @@ namespace Eddy
                         File.WriteAllText(filename, conecnt);
                         this.mainWindow.lblConfigFileName.Content = filename;
                     }
-
-
                 }
                 catch (Exception ex)
                 {

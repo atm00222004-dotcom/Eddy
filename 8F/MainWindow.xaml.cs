@@ -210,7 +210,7 @@ namespace _8F
                             new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                             new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
-                            new MenuItemViewModel { Header = "Data Log", mainWindow = this }
+                            //new MenuItemViewModel { Header = "Data Log", mainWindow = this }
                         } : 
                         new ObservableCollection<MenuItemViewModel>
                         {
@@ -1635,7 +1635,7 @@ namespace _8F
                 lblLog.Content = "Stop Log";
                 lblLog1.Content = "Stop Log";
                 lblLog2.Content = "Stop Log";
-                lblPartLogs.Content = DeviceCOM.part.Name + ", " + DeviceCOM.part.Grade + ", " + DeviceCOM.part.CompanyName;
+                lblPartLogs.Content = DeviceCOM.part.BatchName + " => " + DeviceCOM.part.Name;
             }
             else
             {
