@@ -24,21 +24,12 @@ namespace Eddy
     /// </summary>
     public partial class FrequencySetting : Window
     {
-        public bool IsSaved = false; 
+        public bool IsSaved = false;
         private DispatcherTimer clearLabelTimer;
         public DeviceCOM deviceCOM;
         public FrequencySetting()
         {
             InitializeComponent();
-
-            DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 1 });
-            DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 2 });
-            DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 3 });
-            DeviceCOM.Configuration.Filter = new Filter();
-            DeviceCOM.Configuration.Filter.FD = new List<FilterFD>();
-            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 1 });
-            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 2 });
-            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 3 });
 
             if (DeviceCOM.Configuration.Frequency.FD.Count > 0)
             {
@@ -46,35 +37,33 @@ namespace Eddy
                 {
                     if (item.FN == 1)
                     {
-                        chkD1.IsChecked = Convert.ToBoolean(item.E);
-                        txtPhase1.Text = item.F.ToString();
-                        txtGain1.Text = item.G.ToString(); 
+                        txtPhase1.Text = (item.F / 1000).ToString();
+                        txtGain1.Text = item.G.ToString();
                         txtUTH1.Text = item.UTH.ToString();
                         txtLTH1.Text = item.LTH.ToString();
                         txtPP1.Text = item.PP.ToString();
-                        txtPM1.Text = item.PM.ToString();
+                        txtTH1.Text = item.TH.ToString();
                     }
-                    else if (item.FN == 2)
-                    {
-                        chkD2.IsChecked = Convert.ToBoolean(item.E);
-                        txtPhase2.Text = item.F.ToString();
-                        txtGain2.Text = item.G.ToString();
-                        txtUTH2.Text = item.UTH.ToString();
-                        txtLTH2.Text = item.LTH.ToString();
-                        txtPP2.Text = item.PP.ToString();
-                        txtPM2.Text = item.PM.ToString();
-                    }
-                    else if (item.FN == 3)
-                    {
-                        chkD3.IsChecked = Convert.ToBoolean(item.E);
-                        txtPhase3.Text = item.F.ToString();
-                        txtGain3.Text = item.G.ToString();
-                        txtUTH3.Text = item.UTH.ToString();
-                        txtLTH3.Text = item.LTH.ToString();
-                        txtPP3.Text = item.PP.ToString();
-                        txtPM3.Text = item.PM.ToString();
-                    }
-
+                    //else if (item.FN == 2)
+                    //{
+                    //    chkD2.IsChecked = Convert.ToBoolean(item.E);
+                    //    txtPhase2.Text = item.F.ToString();
+                    //    txtGain2.Text = item.G.ToString();
+                    //    txtUTH2.Text = item.UTH.ToString();
+                    //    txtLTH2.Text = item.LTH.ToString();
+                    //    txtPP2.Text = item.PP.ToString();
+                    //    txtPM2.Text = item.PM.ToString();
+                    //}
+                    //else if (item.FN == 3)
+                    //{
+                    //    chkD3.IsChecked = Convert.ToBoolean(item.E);
+                    //    txtPhase3.Text = item.F.ToString();
+                    //    txtGain3.Text = item.G.ToString();
+                    //    txtUTH3.Text = item.UTH.ToString();
+                    //    txtLTH3.Text = item.LTH.ToString();
+                    //    txtPP3.Text = item.PP.ToString();
+                    //    txtPM3.Text = item.PM.ToString();
+                    //}
 
                 }
 
@@ -85,16 +74,16 @@ namespace Eddy
                         txtH1.Text = item.H.ToString();
                         txtL1.Text = item.L.ToString();
                     }
-                    else if (item.FN == 2)
-                    {
-                        txtH2.Text = item.H.ToString();
-                        txtL2.Text = item.L.ToString();
-                    }
-                    else if (item.FN == 3)
-                    {
-                        txtH3.Text = item.H.ToString();
-                        txtL3.Text = item.L.ToString();
-                    }
+                    //else if (item.FN == 2)
+                    //{
+                    //    txtH2.Text = item.H.ToString();
+                    //    txtL2.Text = item.L.ToString();
+                    //}
+                    //else if (item.FN == 3)
+                    //{
+                    //    txtH3.Text = item.H.ToString();
+                    //    txtL3.Text = item.L.ToString();
+                    //}
                 }
             }
 
@@ -109,88 +98,95 @@ namespace Eddy
         {
             try
             {
-                lblMsg.Content = "";
-                var msg = Validaton();
-
-                if (msg.Count == 0)
+                if (DeviceCOM.IsTubeSatart)
                 {
-                    //DeviceCOM.Configuration.Marker.M3 = Convert.ToInt32(txtM3.Text);
-                    if (DeviceCOM.Configuration.Frequency.FD.Count > 0)
-                    {
-                        foreach (var item in DeviceCOM.Configuration.Frequency.FD)
-                        {
-                            if (item.FN == 1)
-                            {
-                                item.E = (Convert.ToBoolean(chkD1.IsChecked) ? 1 : 0);
-                                item.F = Convert.ToInt32(txtPhase1.Text);
-                                item.G = Convert.ToInt32(txtGain1.Text);
-                                item.UTH = Convert.ToInt32(txtUTH1.Text);
-                                item.LTH = Convert.ToInt32(txtLTH1.Text);
-                                item.PP = Convert.ToInt32(txtPP1.Text);
-                                item.PM = Convert.ToInt32(txtPM1.Text);
-                            }
-                            else if (item.FN == 2)
-                            {
-                                item.E = (Convert.ToBoolean(chkD2.IsChecked) ? 1 : 0);
-                                item.F = Convert.ToInt32(txtPhase2.Text);
-                                item.G = Convert.ToInt32(txtGain2.Text);
-                                item.UTH = Convert.ToInt32(txtUTH2.Text);
-                                item.LTH = Convert.ToInt32(txtLTH2.Text);
-                                item.PP = Convert.ToInt32(txtPP2.Text);
-                                item.PM = Convert.ToInt32(txtPM2.Text);
-                            }
-                            else if (item.FN == 3)
-                            {
-                                item.E = (Convert.ToBoolean(chkD3.IsChecked) ? 1 : 0);
-                                item.F = Convert.ToInt32(txtPhase3.Text);
-                                item.G = Convert.ToInt32(txtGain3.Text);
-                                item.UTH = Convert.ToInt32(txtUTH3.Text);
-                                item.LTH = Convert.ToInt32(txtLTH3.Text);
-                                item.PP = Convert.ToInt32(txtPP3.Text);
-                                item.PM = Convert.ToInt32(txtPM3.Text);
-                            }
-                        }
-
-                        foreach (var item in DeviceCOM.Configuration.Filter.FD)
-                        {
-                            if (item.FN == 1)
-                            {
-                                item.H = Convert.ToInt32(txtH1.Text);
-                                item.L = Convert.ToInt32(txtL1.Text);
-                            }
-                            else if (item.FN == 2)
-                            {
-                                item.H = Convert.ToInt32(txtH2.Text);
-                                item.L = Convert.ToInt32(txtL2.Text);
-                            }
-                            else if (item.FN == 3)
-                            {
-                                item.H = Convert.ToInt32(txtH3.Text);
-                                item.L = Convert.ToInt32(txtL3.Text);
-                            }
-                        }
-                    }
-
-                    var rat =  deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-                    var rat1 =  deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
-                    
-                    if (rat && rat1)
-                    {
-                        lblMsg.Content = "Configuration Saved!!!";
-                    }
-                    else
-                    {
-                        lblMsg.Content = "Configuration Saved but no response from the board, please reboot it and write the configuration again!!!";
-                    }
-
-                    IsSaved = true;
+                    lblMsg.Content = "The tube is in progress, no changes are allowed!";
                 }
                 else
                 {
-                    lblMsg.Content = "Validatoin Error:-";
-                    foreach (var m in msg)
+                    lblMsg.Content = "";
+                    var msg = Validaton();
+
+                    if (msg.Count == 0)
                     {
-                        lblMsg.Content = lblMsg.Content + "\r\n" + (msg.IndexOf(m) + 1).ToString() + ". " + m;
+                        //DeviceCOM.Configuration.Marker.M3 = Convert.ToInt32(txtM3.Text);
+                        if (DeviceCOM.Configuration.Frequency.FD.Count > 0)
+                        {
+                            foreach (var item in DeviceCOM.Configuration.Frequency.FD)
+                            {
+                                if (item.FN == 1)
+                                {
+                                    item.E = 1;
+                                    item.F = Convert.ToInt32(txtPhase1.Text) * 1000;
+                                    item.G = Convert.ToInt32(txtGain1.Text);
+                                    item.UTH = Convert.ToInt32(txtUTH1.Text);
+                                    item.LTH = Convert.ToInt32(txtLTH1.Text);
+                                    item.PP = Convert.ToInt32(txtPP1.Text);
+                                    item.TH = Convert.ToInt32(txtTH1.Text);
+                                }
+                                //else if (item.FN == 2)
+                                //{
+                                //    item.E = (Convert.ToBoolean(chkD2.IsChecked) ? 1 : 0);
+                                //    item.F = Convert.ToInt32(txtPhase2.Text);
+                                //    item.G = Convert.ToInt32(txtGain2.Text);
+                                //    item.UTH = Convert.ToInt32(txtUTH2.Text);
+                                //    item.LTH = Convert.ToInt32(txtLTH2.Text);
+                                //    item.PP = Convert.ToInt32(txtPP2.Text);
+                                //    item.PM = Convert.ToInt32(txtPM2.Text);
+                                //}
+                                else if (item.FN == 3)
+                                {
+                                    item.E = 0;
+                                    item.F = Convert.ToInt32(txtPhase1.Text) * 1000;
+                                    item.G = Convert.ToInt32(txtGain1.Text);
+                                    item.UTH = Convert.ToInt32(txtUTH1.Text);
+                                    item.LTH = Convert.ToInt32(txtLTH1.Text);
+                                    item.PP = Convert.ToInt32(txtPP1.Text);
+                                    item.TH = Convert.ToInt32(txtTH1.Text);
+                                }
+                            }
+
+                            foreach (var item in DeviceCOM.Configuration.Filter.FD)
+                            {
+                                if (item.FN == 1)
+                                {
+                                    item.H = Convert.ToInt32(txtH1.Text);
+                                    item.L = Convert.ToInt32(txtL1.Text);
+                                }
+                                //else if (item.FN == 2)
+                                //{
+                                //    item.H = Convert.ToInt32(txtH2.Text);
+                                //    item.L = Convert.ToInt32(txtL2.Text);
+                                //}
+                                else if (item.FN == 3)
+                                {
+                                    item.H = Convert.ToInt32(txtH1.Text);
+                                    item.L = Convert.ToInt32(txtL1.Text);
+                                }
+                            }
+                        }
+                        var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
+                        var rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+
+                        if (rat && rat1)
+                        {
+                            lblMsg.Content = "Configuration Saved!!!";
+                        }
+                        else
+                        {
+                            lblMsg.Content = "Configuration Saved but no response from the board, please reboot it and write the configuration again!!!";
+                        }
+
+                        IsSaved = true;
+
+                    }
+                    else
+                    {
+                        lblMsg.Content = "Validatoin Error:-";
+                        foreach (var m in msg)
+                        {
+                            lblMsg.Content = lblMsg.Content + "\r\n" + (msg.IndexOf(m) + 1).ToString() + ". " + m;
+                        }
                     }
                 }
             }
@@ -217,39 +213,113 @@ namespace Eddy
         public List<String> Validaton()
         {
             List<String> validationMsg = new List<string>();
-            //if (string.IsNullOrEmpty(txtFreq.Text))
-            //{
-            //    validationMsg.Add("Frequency is required and the range is 100 to 50000.");
-            //}
-            //else
-            //{
-            //    if (Convert.ToInt32(txtFreq.Text) < 100 || Convert.ToInt32(txtFreq.Text) > 50000)
-            //    {
-            //        validationMsg.Add("Frequency is required and the range is 100 to 50000.");
-            //    }
-            //}
-            //if (string.IsNullOrEmpty(txtGain.Text))
-            //{
-            //    validationMsg.Add("Gain is required and the range is 10 to 56.");
-            //}
-            //else
-            //{
-            //    if (Convert.ToInt32(txtGain.Text) < 10 || Convert.ToInt32(txtGain.Text) > 56)
-            //    {
-            //        validationMsg.Add("Gain is required and the range is 10 to 56.");
-            //    }
-            //}
-            //if (string.IsNullOrEmpty(txtPhase.Text))
-            //{
-            //    validationMsg.Add("Phase is required and the range is 0 to 359.");
-            //}
-            //else
-            //{
-            //    if (Convert.ToInt32(txtPhase.Text) < 0 || Convert.ToInt32(txtPhase.Text) > 359)
-            //    {
-            //        validationMsg.Add("Phase is required and the range is 0 to 359.");
-            //    }
-            //}
+            if (string.IsNullOrEmpty(txtPhase1.Text))
+            {
+                validationMsg.Add("Frequeny(KHz) is required and the range is 1 to 50.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtPhase1.Text) < 1 || Convert.ToInt32(txtPhase1.Text) > 50)
+                {
+                    validationMsg.Add("Frequeny(KHz) is required and the range is 1 to 50.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(txtGain1.Text))
+            {
+                validationMsg.Add("Gain(dB) is required and the range is 1 to 60.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtGain1.Text) < 1 || Convert.ToInt32(txtGain1.Text) > 60)
+                {
+                    validationMsg.Add("Gain(dB) is required and the range is 1 to 60.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(txtPP1.Text))
+            {
+                validationMsg.Add("Phase is required and the range is 0 to 360.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtPP1.Text) < 0 || Convert.ToInt32(txtPP1.Text) > 360)
+                {
+                    validationMsg.Add("Phase is required and the range is 0 to 360.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(txtUTH1.Text))
+            {
+                validationMsg.Add("High Thresold is required and the range is 0 to 100.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtUTH1.Text) < 0 || Convert.ToInt32(txtUTH1.Text) > 100)
+                {
+                    validationMsg.Add("High Thresold is required and the range is 0 to 100.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(txtLTH1.Text))
+            {
+                validationMsg.Add("Low Thresold is required and the range is 0 to 100.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtLTH1.Text) < 0 || Convert.ToInt32(txtLTH1.Text) > 100)
+                {
+                    validationMsg.Add("Low Thresold is required and the range is 0 to 100.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(txtTH1.Text))
+            {
+                validationMsg.Add("Thresold is required and the range is 0 to 100.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtTH1.Text) < 0 || Convert.ToInt32(txtTH1.Text) > 100)
+                {
+                    validationMsg.Add("Thresold is required and the range is 0 to 100.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(txtTH1.Text))
+            {
+                validationMsg.Add("Thresold is required and the range is 0 to 100.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtTH1.Text) < 0 || Convert.ToInt32(txtTH1.Text) > 100)
+                {
+                    validationMsg.Add("Thresold is required and the range is 0 to 100.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(txtH1.Text))
+            {
+                validationMsg.Add("High Pass Filter is required and the range is 1 to 100.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtH1.Text) < 1 || Convert.ToInt32(txtH1.Text) > 100)
+                {
+                    validationMsg.Add("High Pass Filter is required and the range is 1 to 100.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(txtL1.Text))
+            {
+                validationMsg.Add("Low Pass Filter is required and the range is 1 to 100.");
+            }
+            else
+            {
+                if (Convert.ToInt32(txtL1.Text) < 1 || Convert.ToInt32(txtL1.Text) > 100)
+                {
+                    validationMsg.Add("Low Pass Filter is required and the range is 1 to 100.");
+                }
+            }
 
             return validationMsg;
         }
@@ -260,6 +330,6 @@ namespace Eddy
             e.Handled = regex.IsMatch(e.Text);
         }
 
-       
+
     }
 }

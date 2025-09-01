@@ -15,7 +15,7 @@ using System.Printing;
 using System.Windows.Threading;
 using System.Net.Sockets;
 using System.IO;
-//using Npgsql;
+using Npgsql;
 using System.Diagnostics.Metrics;
 using System.Windows.Media;
 using System.Windows.Documents;
@@ -32,10 +32,22 @@ namespace Eddy
 
         public static string PortName;
         public static int BaudRate;
+        public static int MaxValue;
+        public static int Factor;
         public static Configuration Configuration;
         public static GraphData graphData;
-        public static bool IsSystemBusy = false;
+        public static bool IsTestOn = false;
+        public static bool IsTubeSatart = false;
         public static DateTime busyStamp = System.DateTime.Now;
+        public static Part part;
+        public static bool IsLogEnable = false;
+        public static byte[] receiveBytes;
+        public static double[] dataBuffer;
+
+        public static int Ok = 0;
+        public static int NoOk = 0;
+
+
         public void InitialPort()
         {
             port = new SerialPort
@@ -115,12 +127,12 @@ namespace Eddy
 
                 if (result[0] == 21)
                 {
-                    IsSystemBusy = true;
+                    IsTestOn = true;
                     busyStamp = System.DateTime.Now;
                 }
                 else if(result[0] == 22)
                 {
-                    IsSystemBusy = false;
+                    IsTestOn = false;
                 }
                 return true;
             }
@@ -132,11 +144,23 @@ namespace Eddy
         }
     }
 
+    public class Part
+    {
+        public string Name = "";
+        public string CheckedBy = "";
+        public string CompanyName = "";
+        public int BatchSize = 5;
+        public string Placce = "";
+        public string Grade = "";
+    }
     public class Configuration
     {
         public Marker Marker { get; set; }
         public Frequency Frequency { get; set; }
         public Filter Filter { get; set; }
+
+        public int TestTime = 10;
+        public int SamplePerSecond = 3050;
     }
     public class Marker
     {
@@ -144,17 +168,18 @@ namespace Eddy
         public int M1 = 100;
         public int M2 = 200;
         public int M3 = 300;
+        public int TT = 10;
     }
     public class FD
     {
         public int FN = 0;
         public int E = 1;
-        public int F = 5000;
+        public int F = 50000;
         public int G = 30;
-        public int UTH = 100;
-        public int LTH = 100;
-        public int PP = 200;
-        public int PM = 200;
+        public int UTH = 90;
+        public int LTH = 40;
+        public int TH = 0;
+        public int PP = 100;
     }
     public class FilterFD
     {
@@ -165,7 +190,6 @@ namespace Eddy
     public class Frequency
     {
         public int FC = 51;
-        public int MS;
         public List<FD> FD;
     }
     public class Filter
@@ -175,12 +199,13 @@ namespace Eddy
     }
     public class GraphData
     {
-        public List<int> AmpD1 = new List<int>();
-        public List<int> AmpD2 = new List<int>();
-        public List<int> AmpD3 = new List<int>();
-        public List<int> D1MarkerIndexs = new List<int>();
-        public List<int> D2MarkerIndexs = new List<int>();
-        public List<int> D3MarkerIndexs = new List<int>();
+        public bool Result = true;
+        public List<Fdata> AmpD1 = new List<Fdata>();
+        //public List<Fdata> AmpD2 = new List<Fdata>();
+        //public List<Fdata> AmpD3 = new List<Fdata>();
+        //public List<int> D1MarkerIndexs = new List<int>();
+        //public List<int> D2MarkerIndexs = new List<int>();
+        //public List<int> D3MarkerIndexs = new List<int>();
     }
 
     public class FNData
@@ -192,8 +217,8 @@ namespace Eddy
     public class Fdata
     {
         public int Amp { get; set; }
-        public int x { get; set; }
-        public int y { get; set; }
+        public double x { get; set; }
+        public double y { get; set; }
         public int phase { get; set; }
     }
 

@@ -50,7 +50,9 @@
 
                 <Label Margin="20,0,0,0" Content="Marker 3" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtM3" />
-                
+
+                <Label Margin="0,0,0,0" Content="Test Time (Sec)" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtTT" />
                 
             </Grid>
             <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>

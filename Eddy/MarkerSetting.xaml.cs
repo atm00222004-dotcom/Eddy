@@ -36,6 +36,7 @@ namespace Eddy
                 txtM1.Text = DeviceCOM.Configuration.Marker.M1.ToString();
                 txtM2.Text = DeviceCOM.Configuration.Marker.M2.ToString();
                 txtM3.Text = DeviceCOM.Configuration.Marker.M3.ToString();
+                txtTT.Text = DeviceCOM.Configuration.Marker.TT.ToString();
             }
         }
 
@@ -56,6 +57,7 @@ namespace Eddy
                     DeviceCOM.Configuration.Marker.M1 = Convert.ToInt32(txtM1.Text);
                     DeviceCOM.Configuration.Marker.M2 = Convert.ToInt32(txtM2.Text);
                     DeviceCOM.Configuration.Marker.M3 = Convert.ToInt32(txtM3.Text);
+                    DeviceCOM.Configuration.Marker.TT = Convert.ToInt32(txtTT.Text);
 
                     var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
                     if (rat)

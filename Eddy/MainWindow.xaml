@@ -22,6 +22,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="7.5*"/>
                 <ColumnDefinition  Width="2.5*"/>
+                <ColumnDefinition  Width="2.5*"/>
             </Grid.ColumnDefinitions>
             <Menu Background="LightGray" VerticalAlignment="Center" Height="30" FontSize="18" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
                 <Menu.ItemContainerStyle>
@@ -35,7 +36,23 @@
                     </HierarchicalDataTemplate>
                 </Menu.ItemTemplate>
             </Menu>
-            <Label Grid.Row="0" Grid.Column="1" Name="lblConfigFileName" />
+            <Label Grid.Row="0" Visibility="Hidden" Grid.Column="1" Name="lblConfigFileName" />
+
+            <Grid Grid.Row="0" Grid.Column="1" >
+                <Grid Grid.Row="0" Grid.Column="0" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*"/>
+                        <ColumnDefinition  Width="5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" FontSize="16" Name="lblTT" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Tube Test Time(S)" ></Label>
+                    <ComboBox Grid.Row="0" Grid.Column="1" Margin="0,6,20,0" FontSize="16" VerticalAlignment="Top" Name="ddlTT" SelectionChanged="ddlTT_SelectionChanged" />
+                </Grid>
+            </Grid>
+            
+            <Border HorizontalAlignment="Right" Width="100" Name="btnTestStatus" Margin="0" Background="Gray" Grid.Column="2" Grid.Row="0"  BorderThickness="1" CornerRadius="0">
+                <Label Foreground="White" FontSize="12" Name="lblTest" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Test Off" ></Label>
+            </Border>
+
         </Grid>
 
         <Grid Background="DimGray" Grid.Row="1" Grid.Column="0">
@@ -49,24 +66,19 @@
                 <ColumnDefinition Width="7.5*"/>
                 <ColumnDefinition Width="2.5*"/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Row="0" Grid.Column="0" Margin="2">
+            <Grid Grid.Row="0" Grid.Column="0" Margin="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
+
                 </Grid.RowDefinitions>
                 <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="0" Name="WpfPlot1" />
-                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="1" Name="WpfPlot2" />
-                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="2" Name="WpfPlot3" />
-                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="3" Name="WpfPlot4" />
-                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="4" Name="WpfPlot5" />
-                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="5" Name="WpfPlot6" />
+                <!--<ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="1" Name="WpfPlot2" />
+                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="2" Name="WpfPlot3" />-->
+                <ScottPlot:WpfPlot Grid.Column="0" Margin="2" Grid.Row="1" Name="WpfPlot4" />
             </Grid>
 
             <Grid Grid.Column="1" Grid.Row="0">
@@ -74,12 +86,72 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height=".5*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height=".5*"/>
+                        <RowDefinition Height="8*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Border Cursor="Hand" Width="150" Height="56" Name="btnLog" MouseDown="btnLog_MouseDown" Margin="2" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                            <Label Foreground="White" FontSize="20" Name="lblLog" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Start Log" ></Label>
+                        </Border>
+
+                        <Border Cursor="Hand" Width="150" Height="56" Name="btnClear" MouseDown="btnClear_MouseDown" Margin="2" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                            <Label Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Clear Counter" ></Label>
+                        </Border>
+                    </Grid>
+                    <Separator VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
+
+                    <Grid Grid.Row="2" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Label Foreground="Green" FontSize="14" Grid.Column="0" FontWeight="Bold" Name="lblOk" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Ok Count-0" ></Label>
+                        <Label Foreground="Red" FontSize="14" Grid.Column="1" FontWeight="Bold" Name="lblNotOk" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Not Ok Count-0" ></Label>
+                        <Label Foreground="Orange" FontSize="14" Grid.Column="2" FontWeight="Bold" Name="lblTotal" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Total Count-0" ></Label>
+                    </Grid>
+                    <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
+                    <Grid Grid.Row="4" Grid.Column="0">
+                        <ScottPlot:WpfPlot Name="wpCounter" />
+                    </Grid>
+                </Grid>
                 <Grid Grid.Column="0" Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Border x:Name="br1" Margin="0,2,2,2" Grid.Row="0" Background="AliceBlue" Grid.Column="0" BorderThickness="2" >
-                        
+                    <Border x:Name="br1" Margin="0,30,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
+                        <Canvas  x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
+                            <Rectangle Name="br1_rec1" Width="470" Fill="White"
+    Height="470"
+    Canvas.Left="0"
+    Canvas.Top="0" />
+
+                            <Rectangle Name="br1_rec2" Width="470"
+    Height=".5"
+    Canvas.Left="0"
+           Fill="Black"
+    Canvas.Top="235" />
+
+                            <Rectangle Name="br1_rec3" Width=".5"
+    Height="470"
+    Canvas.Left="235"
+    Fill="Black"
+    Canvas.Top="0" />
+                            <Canvas  x:Name="Canvas2" HorizontalAlignment="Left" Canvas.Top="235" Canvas.Left="235" Margin="0" VerticalAlignment="Top">
+                                <!--<Ellipse Width="470" Height="470" Stroke="Green"
+         Canvas.Left="-235" Canvas.Top="-235"/>-->
+                            </Canvas>
+                        </Canvas>
                     </Border>
 
                 </Grid>
