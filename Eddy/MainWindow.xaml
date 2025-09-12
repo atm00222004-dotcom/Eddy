@@ -22,7 +22,8 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="7.5*"/>
                 <ColumnDefinition  Width="2.5*"/>
-                <ColumnDefinition  Width="2.5*"/>
+                <ColumnDefinition  Width="1*"/>
+                <ColumnDefinition  Width="1 *"/>
             </Grid.ColumnDefinitions>
             <Menu Background="LightGray" VerticalAlignment="Center" Height="30" FontSize="18" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}">
                 <Menu.ItemContainerStyle>
@@ -45,11 +46,20 @@
                         <ColumnDefinition  Width="5*"/>
                     </Grid.ColumnDefinitions>
                     <Label Grid.Row="0" Grid.Column="0" FontSize="16" Name="lblTT" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Tube Test Time(S)" ></Label>
-                    <ComboBox Grid.Row="0" Grid.Column="1" Margin="0,6,20,0" FontSize="16" VerticalAlignment="Top" Name="ddlTT" SelectionChanged="ddlTT_SelectionChanged" />
+                    <ComboBox Grid.Row="0" Grid.Column="1" Margin="0,10,20,0" FontSize="16" VerticalAlignment="Top" Name="ddlTT" SelectionChanged="ddlTT_SelectionChanged" />
                 </Grid>
             </Grid>
-            
-            <Border HorizontalAlignment="Right" Width="100" Name="btnTestStatus" Margin="0" Background="Gray" Grid.Column="2" Grid.Row="0"  BorderThickness="1" CornerRadius="0">
+
+            <Grid Grid.Row="0" Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+                <Border Cursor="Hand" Width="120" Name="btnCali" MouseDown="btnCali_MouseDown"  Background="Gray" Margin="1" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="5">
+                    <Label Foreground="White" FontSize="20" Name="lblCali" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Calibration" ></Label>
+                </Border>
+            </Grid>
+
+            <Border HorizontalAlignment="Right" Width="100" Name="btnTestStatus" Margin="0" Background="Gray" Grid.Column="3" Grid.Row="0"  BorderThickness="1" CornerRadius="0">
                 <Label Foreground="White" FontSize="12" Name="lblTest" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Test Off" ></Label>
             </Border>
 

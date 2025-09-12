@@ -43,6 +43,7 @@ namespace Eddy
         public static bool IsLogEnable = false;
         public static byte[] receiveBytes;
         public static double[] dataBuffer;
+        public static bool IsCalibarationStart = false;
 
         public static int Ok = 0;
         public static int NoOk = 0;
@@ -165,11 +166,24 @@ namespace Eddy
     public class Marker
     {
         public int FC = 50;
+
         public int M1 = 100;
         public int M2 = 200;
-        public int M3 = 300;
-        public int TT = 10;
+
+        public int SPT = 100;
+        public int SPT1 = 100;
+
+        public int SPID = 5;
+        public int SPI = 80;
+
+        public int SPID1 = 5;
+        public int SPI1 = 80;
+
+        public int FSFC = 5;
+        public int FCC = 80;
+        public int CSC = 80;
     }
+
     public class FD
     {
         public int FN = 0;

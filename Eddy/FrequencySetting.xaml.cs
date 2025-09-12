@@ -98,9 +98,9 @@ namespace Eddy
         {
             try
             {
-                if (DeviceCOM.IsTubeSatart)
+                if (DeviceCOM.IsTubeSatart || DeviceCOM.IsCalibarationStart)
                 {
-                    lblMsg.Content = "The tube is in progress, no changes are allowed!";
+                    lblMsg.Content = "The tube/calibration is in progress, no changes are allowed!";
                 }
                 else
                 {

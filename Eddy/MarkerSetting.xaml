@@ -6,16 +6,16 @@
         xmlns:local="clr-namespace:Eddy"
         mc:Ignorable="d"
         Title="Window1" 
-        ResizeMode="NoResize" Height="350" WindowStartupLocation="CenterScreen"  Width="720"  WindowState="Normal"  WindowStyle="None"
+        ResizeMode="NoResize" Height="550" WindowStartupLocation="CenterScreen"  Width="980"  WindowState="Normal"  WindowStyle="None"
         >
     <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="0.15*"/>
+                <RowDefinition Height="0.02*"/>
+                <RowDefinition Height="0.8*"/>
+                <RowDefinition Height="0.02*"/>
                 <RowDefinition Height="0.25*"/>
-                <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.6*"/>
-                <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.45*"/>
                 <RowDefinition Height="0.3*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -31,16 +31,16 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
-                    
-                    <!--<RowDefinition/>
                     <RowDefinition/>
-                    <RowDefinition/>-->
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1.5*"/>
                 </Grid.ColumnDefinitions>
                 
                 <Label Margin="20,0,0,0"  FontSize="16" FontWeight="Bold" Content="Marker 1"  Grid.Row="0" Grid.Column="0"></Label>
@@ -48,12 +48,37 @@
                 <Label Content="Marker 2" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtM2" />
 
-                <Label Margin="20,0,0,0" Content="Marker 3" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtM3" />
+                <Label Margin="20,0,0,0" Content="Start Peak Thresold" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtSPT" />
 
-                <Label Margin="0,0,0,0" Content="Test Time (Sec)" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtTT" />
+                <Label Margin="0,0,0,0" Content="Stop Peak Thresold" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtSPT1" />
+
+                <Label Margin="20,0,0,0" Content="Start Peak Ignore Default (mm)" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtSPID" />
+
+                <Label Margin="0,0,0,0" Content="Start Peak Ignore (mm)" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtSPI" />
+
+                <Label Margin="20,0,0,0" Content="Stop Peak Ignore Default (mm)" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="1" Name="txtSPID1" />
+
+                <Label Margin="0,0,0,0" Content="Stop Peak Ignore (mm)" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="3" Name="txtSPI1" />
+
+
+                <Label Margin="20,0,0,0" Content="Fist Sensor to First Coil Sensor Distance(mm)" FontSize="16" FontWeight="Bold" Grid.Row="4" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="4" Grid.Column="1" Name="txtFSFC" />
+
+                <Label Margin="0,0,0,0" Content="Fist Coil to Coil Distance(mm)" FontSize="16" FontWeight="Bold" Grid.Row="4" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="4" Grid.Column="3" Name="txtFCC" />
+
+
+                <Label Margin="20,0,0,0" Content="Coil to Second Coil Sensor Distance(mm)" FontSize="16" FontWeight="Bold" Grid.Row="5" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="5" Grid.Column="1" Name="txtCSCC" />
+
                 
+
             </Grid>
             <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
             <!--<Button FontWeight="Bold"  Margin="20,0,0,0" MaxWidth="150" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0" Content="Save Config" Name="btnConfigSave" Click="btnConfigSave_Click" ></Button>-->

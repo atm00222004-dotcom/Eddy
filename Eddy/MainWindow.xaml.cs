@@ -81,7 +81,7 @@ namespace Eddy
                 new MenuItemViewModel { Header = "Configuration",
                     MenuItems = new ObservableCollection<MenuItemViewModel>
                         {
-                            //new MenuItemViewModel { Header = "Marker Setting", mainWindow = this },
+                            new MenuItemViewModel { Header = "Marker Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Frequency Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                         }
@@ -102,7 +102,7 @@ namespace Eddy
            
             // Prepare Configurtion data
             DeviceCOM.Configuration = new Configuration() { TestTime = tt , SamplePerSecond = ss  };
-            DeviceCOM.Configuration.Marker = new Marker() { TT = tt };
+            DeviceCOM.Configuration.Marker = new Marker();
             DeviceCOM.Configuration.Frequency = new Frequency();
             DeviceCOM.Configuration.Frequency.FD = new List<FD>();
             DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 1 });
@@ -165,9 +165,11 @@ namespace Eddy
             dispatcherTimerui= new DispatcherTimer();
             dispatcherTimerui.Tick += new EventHandler(dispatcherTimerui_Tick);
             dispatcherTimerui.Interval = new TimeSpan(0, 0, 0, 0, 100);
-            dispatcherTimerui.Start();
+            //dispatcherTimerui.Start();
 
             Task.Run(() => PollLoop());
+
+            Task.Run(() => UIUpdateLoop());
 
             //Status status = new Status() { FC = 23 };
             //var rat = deviceCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
@@ -340,6 +342,15 @@ namespace Eddy
             }
         }
 
+        private void UIUpdateLoop()
+        {
+            while (true)
+            {
+                UIUpdates();
+               
+            }
+        }
+
         private bool isProcessing = false;
 
         private void TryStartProcessing()
@@ -362,152 +373,215 @@ namespace Eddy
 
         private void StopTude(bool result)
         {
-            myPlot4.Clear();
-            logger4 = myPlot4.Add.DataLogger();
-            logger4.Clear();
-
-            DeviceCOM.graphData.Result = result;
-            var Ld = DeviceCOM.graphData.AmpD1.ToList();
-
-            // Add Log
-            if (DeviceCOM.IsLogEnable)
+            try
             {
+                System.Threading.Thread.Sleep(100);
+                myPlot4.Clear();
+                logger4 = myPlot4.Add.DataLogger();
+                logger4.Clear();
 
-            }
+                DeviceCOM.graphData.Result = result;
+                var Ld = DeviceCOM.graphData.AmpD1.ToList();
 
-            //DeviceCOM.graphData.AmpD1 = new List<Fdata>();
-
-            var limits = new ScottPlot.AxisLimits(0, Ld.Count + 5, 0, DeviceCOM.Factor);
-            var rule = new ScottPlot.AxisRules.MinimumBoundary(
-                xAxis: WpfPlot4.Plot.Axes.Bottom,
-                yAxis: WpfPlot4.Plot.Axes.Left,
-                limits: limits
-            );
-
-            WpfPlot4.Plot.Axes.Rules.Clear();
-            WpfPlot4.Plot.Axes.Rules.Add(rule);
-
-            foreach (var d in Ld)
-            {
-                var AmpF = 0;
-                if (d.Amp != 0)
+                // Add Log
+                if (DeviceCOM.IsLogEnable)
                 {
-                    AmpF = (DeviceCOM.Factor * d.Amp) / DeviceCOM.MaxValue;
+
                 }
-                
 
-                var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 1);
+                //DeviceCOM.graphData.AmpD1 = new List<Fdata>();
 
-                if (thresholdLine4 != null)
+                var limits = new ScottPlot.AxisLimits(0, Ld.Count + 5, 0, DeviceCOM.Factor);
+                var rule = new ScottPlot.AxisRules.MinimumBoundary(
+                    xAxis: WpfPlot4.Plot.Axes.Bottom,
+                    yAxis: WpfPlot4.Plot.Axes.Left,
+                    limits: limits
+                );
+
+                WpfPlot4.Plot.Axes.Rules.Clear();
+                WpfPlot4.Plot.Axes.Rules.Add(rule);
+
+                foreach (var d in Ld)
                 {
-                    WpfPlot4.Plot.Remove(thresholdLine4);
-                }
-                thresholdLine4 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.LTH);
-                thresholdLine4.LineWidth = 0.5f;
-                thresholdLine4.Color = ScottPlot.Colors.Orange;
+                    var AmpF = 0;
+                    if (d.Amp != 0)
+                    {
+                        AmpF = (DeviceCOM.Factor * d.Amp) / DeviceCOM.MaxValue;
+                    }
 
-                if (thresholdLine5 != null)
-                {
-                    WpfPlot4.Plot.Remove(thresholdLine5);
-                }
-                thresholdLine5 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.UTH);
-                thresholdLine5.LineWidth = 0.5f;
-                thresholdLine5.Color = ScottPlot.Colors.Red;
 
-                if (thresholdLine6 != null)
-                {
-                    WpfPlot4.Plot.Remove(thresholdLine6);
-                }
-                thresholdLine6 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.TH);
-                thresholdLine6.LineWidth = 0.5f;
-                thresholdLine6.Color = ScottPlot.Colors.White;
+                    var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 1);
 
-                logger4.Add(AmpF);
+                    if (thresholdLine4 != null)
+                    {
+                        WpfPlot4.Plot.Remove(thresholdLine4);
+                    }
+                    thresholdLine4 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.LTH);
+                    thresholdLine4.LineWidth = 0.5f;
+                    thresholdLine4.Color = ScottPlot.Colors.Orange;
+
+                    if (thresholdLine5 != null)
+                    {
+                        WpfPlot4.Plot.Remove(thresholdLine5);
+                    }
+                    thresholdLine5 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.UTH);
+                    thresholdLine5.LineWidth = 0.5f;
+                    thresholdLine5.Color = ScottPlot.Colors.Red;
+
+                    if (thresholdLine6 != null)
+                    {
+                        WpfPlot4.Plot.Remove(thresholdLine6);
+                    }
+                    thresholdLine6 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.TH);
+                    thresholdLine6.LineWidth = 0.5f;
+                    thresholdLine6.Color = ScottPlot.Colors.White;
+
+                    logger4.Add(AmpF);
+                }
                 WpfPlot4.Refresh();
-            }            
 
-            if (result)
-            {
-                DeviceCOM.Ok = DeviceCOM.Ok + 1;
+                if (result)
+                {
+                    DeviceCOM.Ok = DeviceCOM.Ok + 1;
+                }
+                else
+                {
+                    DeviceCOM.NoOk = DeviceCOM.NoOk + 1;
+                }
+
+                wpCounter.Plot.Clear();
+
+                List<PieSlice> pieSlices = new List<PieSlice>();
+
+                PieSlice pieSliceG = new PieSlice(DeviceCOM.Ok, ScottPlot.Colors.Green, "Ok");
+                pieSlices.Add(pieSliceG);
+
+                PieSlice pieSliceN = new PieSlice(DeviceCOM.NoOk, ScottPlot.Colors.Red, "Not Ok");
+                pieSlices.Add(pieSliceN);
+
+                var pie = wpCounter.Plot.Add.Pie(pieSlices);
+
+                wpCounter.Plot.Axes.Bottom.IsVisible = false;
+                wpCounter.Plot.Axes.Left.IsVisible = false;
+
+                //wpCounter.Plot.Title("Counter Distribution");
+                wpCounter.Refresh();
+
+               
+                if (DeviceCOM.IsTubeSatart)
+                {
+                    btnTestStatus.Background = new SolidColorBrush(Colors.Orange);
+                }
+                else 
+                {
+                    btnTestStatus.Background = new SolidColorBrush(Colors.Gray);
+                }
+
+                if (DeviceCOM.IsCalibarationStart )
+                {
+                    btnCali.Background = new SolidColorBrush(Colors.Orange);
+                }
+                else 
+                {
+                    btnCali.Background = new SolidColorBrush(Colors.Gray);
+                }
+
+                lblOk.Content = "Ok Count-" + DeviceCOM.Ok.ToString();
+                lblNotOk.Content = "Not Ok Count-" + DeviceCOM.NoOk.ToString();
+                lblTotal.Content = "Total Count-" + (DeviceCOM.Ok + DeviceCOM.NoOk).ToString();
+
             }
-            else
+            catch (Exception e)
             {
-                DeviceCOM.NoOk = DeviceCOM.NoOk + 1;
+
             }
-
-            wpCounter.Plot.Clear();
-
-            List<PieSlice> pieSlices = new List<PieSlice>();
-
-            PieSlice pieSliceG = new PieSlice(DeviceCOM.Ok, ScottPlot.Colors.Green, "Ok");
-            pieSlices.Add(pieSliceG);
-
-            PieSlice pieSliceN = new PieSlice(DeviceCOM.NoOk, ScottPlot.Colors.Red, "Not Ok");
-            pieSlices.Add(pieSliceN);
-
-            var pie = wpCounter.Plot.Add.Pie(pieSlices);
-
-            wpCounter.Plot.Axes.Bottom.IsVisible = false;
-            wpCounter.Plot.Axes.Left.IsVisible = false;
-
-            //wpCounter.Plot.Title("Counter Distribution");
-            wpCounter.Refresh();
         }
 
         private void UIUpdates()
         {
-            Canvas2.Children.Clear();
-
-            if (DeviceCOM.Configuration != null)
+            try
             {
-                var d1= DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 1);
+                var data = DeviceCOM.graphData.AmpD1.ToList();
 
-                var elW = (470 * d1.LTH) / DeviceCOM.Factor;
-                Ellipse el1 = new Ellipse();
-                el1.Height = elW;
-                el1.Width = elW;
-                //el1.Fill = new SolidColorBrush(Colors.Blue);
-                el1.Stroke = new SolidColorBrush(Colors.Orange);
-                el1.StrokeThickness = 1; // You can adjust this as needed
-                Canvas.SetLeft(el1, (-1 * (elW/2)));
-                Canvas.SetTop(el1, (-1 * (elW / 2)));
+                if (data.Count > 0)
+                {
+                    Canvas2.Children.Clear();
 
-                Canvas2.Children.Add(el1);
+                    if (DeviceCOM.Configuration != null)
+                    {
+                        var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 1);
 
-                var elW1 = (470 * d1.UTH) / DeviceCOM.Factor;
-                Ellipse el2 = new Ellipse();
-                el2.Height = elW1;
-                el2.Width = elW1;
-                el2.Stroke = new SolidColorBrush(Colors.Red);
-                el2.StrokeThickness = 1; // You can adjust this as needed
-                //el2.Fill = new SolidColorBrush(Colors.Blue);
-                Canvas.SetLeft(el2, -1 * (elW1 / 2));
-                Canvas.SetTop(el2, - 1 * (elW1 / 2));
+                        var elW = (470 * d1.LTH) / DeviceCOM.Factor;
+                        Ellipse el1 = new Ellipse();
+                        el1.Height = elW;
+                        el1.Width = elW;
+                        //el1.Fill = new SolidColorBrush(Colors.Blue);
+                        el1.Stroke = new SolidColorBrush(Colors.Orange);
+                        el1.StrokeThickness = 1; // You can adjust this as needed
+                        Canvas.SetLeft(el1, (-1 * (elW / 2)));
+                        Canvas.SetTop(el1, (-1 * (elW / 2)));
 
-                Canvas2.Children.Add(el2);
+                        Canvas2.Children.Add(el1);
+
+                        var elW1 = (470 * d1.UTH) / DeviceCOM.Factor;
+                        Ellipse el2 = new Ellipse();
+                        el2.Height = elW1;
+                        el2.Width = elW1;
+                        el2.Stroke = new SolidColorBrush(Colors.Red);
+                        el2.StrokeThickness = 1; // You can adjust this as needed
+                                                 //el2.Fill = new SolidColorBrush(Colors.Blue);
+                        Canvas.SetLeft(el2, -1 * (elW1 / 2));
+                        Canvas.SetTop(el2, -1 * (elW1 / 2));
+
+                        Canvas2.Children.Add(el2);
+
+                    }
+
+                    var dotsVisual = CreateDotsVisual(data);
+                    var host = new VisualHost(dotsVisual);
+                    Canvas2.Children.Add(host);
+                }
+
+                if (!DeviceCOM.IsTubeSatart)
+                {
+                    DeviceCOM.graphData.AmpD1 = new List<Fdata>();
+                }
+
+                //var brush = btnTestStatus.Background as SolidColorBrush;
+                //if (DeviceCOM.IsTubeSatart && brush != null && brush.Color == Colors.Gray)
+                //{
+                //    btnTestStatus.Background = new SolidColorBrush(Colors.Orange);
+                //}
+                //else if (!DeviceCOM.IsTubeSatart && brush != null && brush.Color == Colors.Orange)
+                //{
+                //    btnTestStatus.Background = new SolidColorBrush(Colors.Gray);
+                //}
+
+                //var brush1 = btnCali.Background as SolidColorBrush;
+                //if (DeviceCOM.IsCalibarationStart && brush1 != null && brush1.Color == Colors.Gray)
+                //{
+                //    btnCali.Background = new SolidColorBrush(Colors.Orange);
+                //}
+                //else if (!DeviceCOM.IsCalibarationStart && brush1 != null && brush1.Color == Colors.Orange)
+                //{
+                //    btnCali.Background = new SolidColorBrush(Colors.Gray);
+                //}
+
+                //var tContent = "Total Count-" + (DeviceCOM.Ok + DeviceCOM.NoOk).ToString();
+                //if (tContent != lblTotal.Content.ToString())
+                //{
+                //    lblOk.Content = "Ok Count-" + DeviceCOM.Ok.ToString();
+                //    lblNotOk.Content = "Not Ok Count-" + DeviceCOM.NoOk.ToString();
+                //    lblTotal.Content = "Total Count-" + (DeviceCOM.Ok + DeviceCOM.NoOk).ToString();
+                //}
+            }
+            catch (Exception e)
+            {
 
             }
-            if (DeviceCOM.IsTubeSatart)
-            {                
-                btnTestStatus.Background = new SolidColorBrush(Colors.Orange);
-            }
-            else 
-            {               
-                btnTestStatus.Background = new SolidColorBrush(Colors.Gray);
-            }
-
-            var data = DeviceCOM.graphData.AmpD1.ToList();
-
-            var dotsVisual = CreateDotsVisual(data);
-            var host = new VisualHost(dotsVisual);
-            Canvas2.Children.Add(host);
-
-            lblOk.Content = "Ok Count-" + DeviceCOM.Ok.ToString();
-            lblNotOk.Content = "Not Ok Count-" + DeviceCOM.NoOk.ToString();
-            lblTotal.Content = "Total Count-" + (DeviceCOM.Ok + DeviceCOM.NoOk).ToString();
-
             //InitialGraphSetting();
         }
+
 
         private DrawingVisual CreateDotsVisual(IEnumerable<Fdata> data)
         {
@@ -551,11 +625,23 @@ namespace Eddy
                 //{
                 if (indata[0] == 52 || indata[0] == 53 || indata[0] == 54 || indata[0] == 56)
                 {
+                    // 5 ==> Start Test // 56 Stop Test  ==> Busy/Fee
+                    if (indata[0] == 57)
+                    {
+                        if (indata[1] == 1)
+                        {
+                            DeviceCOM.IsCalibarationStart = true;
+                        }
+                        else if (indata[1] == 2)
+                        {
+                            DeviceCOM.IsCalibarationStart = true;
+                        }
+                    }
 
                     // 53 ==> Start Test // 56 Stop Test  ==> Busy/Fee
                     if (indata[0] == 53)
                     {                        
-                        D1Seeting();
+                        //D1Seeting();
                         DeviceCOM.IsTestOn = true;
                     }
                     else if (indata[0] == 56)
@@ -572,6 +658,7 @@ namespace Eddy
                         if (indata[0] == 54)
                         {
                             DeviceCOM.IsTubeSatart = true;
+                            DeviceCOM.graphData.AmpD1 = new List<Fdata>();
                             D1Seeting();
                         }
 
@@ -588,91 +675,102 @@ namespace Eddy
                 {                                        
                     int NoOfSamples = (indata[2] * 256) + indata[1];
                     int startIndex = indata[3];
-                    if (startIndex == 1)
+                    int errCode = indata[6];
+                    if (errCode == 0)
                     {
-                        DeviceCOM.IsTestOn = true;
-                        DeviceCOM.graphData.AmpD1 = new List<Fdata>();
-                    }
-                    // C1 AMP Data
-                    int Ch1NoIndex = 7;
-                    int FN1 = indata[Ch1NoIndex];
-                    int C1length = indata[8] + (indata[9] * 256);
-
-                    int fStartIndex1 = 10;
-                    int fEndIndex1 = fStartIndex1 + C1length - 1;
-
-                    var C1ArrayCompress = new byte[C1length];
-
-                    for (int i = 0; i < C1length; i++)
-                    {
-                        C1ArrayCompress[i] = indata[fStartIndex1 + i];
-                    }
-                    
-                    // C1 Phase data  
-                    int C2length = indata[fEndIndex1+1] + (indata[fEndIndex1+2] * 256);
-                    int fStartIndex2 = fEndIndex1 + 3;
-                    int fEndIndex2 = fStartIndex2 + C2length - 1;
-
-                    var C2ArrayCompress = new byte[C2length];
-
-                    for (int i = 0; i < C2length; i++)
-                    {
-                        C2ArrayCompress[i] = indata[fStartIndex2 + i];
-                    }
-
-                    for (int i = 0; i < C1ArrayCompress.Length; i = i + 2)
-                    {
-                        Int32 amp = C1ArrayCompress[i] + (C1ArrayCompress[i + 1] << 8);
-                        Int32 phase = C2ArrayCompress[i] + (C2ArrayCompress[i + 1] << 8);
-
-                        double phaseRadians = phase * Math.PI / 180.0;
-
-                        // Calculate Cartesian coordinates
-                        double x = (amp * Math.Cos(phaseRadians)) ;
-                        double y = amp * Math.Sin(phaseRadians);
-
-                        if (startIndex == 2)
+                        if (startIndex == 1)
                         {
-                            DeviceCOM.IsTestOn = true;
-                            DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, phase = phase, x = x, y = y });
+                            DeviceCOM.IsTubeSatart = true;
+                            DeviceCOM.graphData.AmpD1 = new List<Fdata>();
                         }
-                       
-                        var AmpF = 0;
-                        if (amp != 0)
+                        // C1 AMP Data
+                        int Ch1NoIndex = 7;
+                        int FN1 = indata[Ch1NoIndex];
+                        int C1length = indata[8] + (indata[9] * 256);
+
+                        int fStartIndex1 = 10;
+                        int fEndIndex1 = fStartIndex1 + C1length - 1;
+
+                        var C1ArrayCompress = new byte[C1length];
+
+                        for (int i = 0; i < C1length; i++)
                         {
-                            AmpF = (DeviceCOM.Factor * amp) / DeviceCOM.MaxValue;
+                            C1ArrayCompress[i] = indata[fStartIndex1 + i];
                         }
 
-                        logger1.Add(AmpF);
-                        
-                        WpfPlot1.Refresh();
+                        // C1 Phase data  
+                        int C2length = indata[fEndIndex1 + 1] + (indata[fEndIndex1 + 2] * 256);
+                        int fStartIndex2 = fEndIndex1 + 3;
+                        int fEndIndex2 = fStartIndex2 + C2length - 1;
+
+                        var C2ArrayCompress = new byte[C2length];
+
+                        for (int i = 0; i < C2length; i++)
+                        {
+                            C2ArrayCompress[i] = indata[fStartIndex2 + i];
+                        }
+
+                        for (int i = 0; i < C1ArrayCompress.Length; i = i + 2)
+                        {
+                            Int32 amp = C1ArrayCompress[i] + (C1ArrayCompress[i + 1] << 8);
+                            Int32 phase = C2ArrayCompress[i] + (C2ArrayCompress[i + 1] << 8);
+
+                            double phaseRadians = phase * Math.PI / 180.0;
+
+                            // Calculate Cartesian coordinates
+                            double x = (amp * Math.Cos(phaseRadians));
+                            double y = amp * Math.Sin(phaseRadians);
+
+                            if (startIndex == 2)
+                            {
+                                DeviceCOM.IsTubeSatart = true;
+                                DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, phase = phase, x = x, y = y });
+                            }
+
+                            // DeviceCOM.IsTubeSatart = true;
+                            //DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, phase = phase, x = x, y = y });
+
+                            var AmpF = 0;
+                            if (amp != 0)
+                            {
+                                AmpF = (DeviceCOM.Factor * amp) / DeviceCOM.MaxValue;
+                            }
+
+                            logger1.Add(AmpF);
+
+                            WpfPlot1.Refresh();
+                        }
+
+
+                        // C3 AMP Data
+                        //int Ch3NoIndex = fEndIndex2 + 1;
+                        //int FN3 = indata[Ch3NoIndex];
+                        //int C3length = indata[Ch3NoIndex + 1] + (indata[Ch3NoIndex + 2] * 256);
+
+                        //int fStartIndex3 = Ch3NoIndex + 3;
+                        //int fEndIndex3 = fStartIndex3 + C3length - 1;
+
+                        //var C3ArrayCompress = new byte[C3length];
+
+                        //for (int i = 0; i < C3length; i++)
+                        //{
+                        //    C3ArrayCompress[i] = indata[fStartIndex3 + i];
+                        //}
+
+                        //for (int i = 0; i < C3ArrayCompress.Length; i = i + 2)
+                        //{
+                        //    Int32 amp = C3ArrayCompress[i] + (C3ArrayCompress[i + 1] << 8);                        
+                        //}
+
+                        if (startIndex == 3)
+                        {
+                            DeviceCOM.IsTubeSatart = false;
+                            StopTude(indata[4] == 0);
+                        }
                     }
-
-
-                    // C3 AMP Data
-                    //int Ch3NoIndex = fEndIndex2 + 1;
-                    //int FN3 = indata[Ch3NoIndex];
-                    //int C3length = indata[Ch3NoIndex + 1] + (indata[Ch3NoIndex + 2] * 256);
-
-                    //int fStartIndex3 = Ch3NoIndex + 3;
-                    //int fEndIndex3 = fStartIndex3 + C3length - 1;
-
-                    //var C3ArrayCompress = new byte[C3length];
-
-                    //for (int i = 0; i < C3length; i++)
-                    //{
-                    //    C3ArrayCompress[i] = indata[fStartIndex3 + i];
-                    //}
-
-                    //for (int i = 0; i < C3ArrayCompress.Length; i = i + 2)
-                    //{
-                    //    Int32 amp = C3ArrayCompress[i] + (C3ArrayCompress[i + 1] << 8);                        
-                    //}
-
-                    if (startIndex == 3)
+                    else
                     {
-                        DeviceCOM.IsTestOn = true;
-                        StopTude(indata[4] == 0);
+                        MessageBox.Show("Something went wrong, kindly restart the full system to resolve the issue!!", "Information");
                     }
                 }
             }
@@ -801,6 +899,23 @@ namespace Eddy
 
             D1Seeting();
         }
+
+        private void btnCali_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!DeviceCOM.IsCalibarationStart)
+            {
+                if (DeviceCOM.IsTubeSatart || DeviceCOM.IsCalibarationStart)
+                {
+                    MessageBox.Show("The tube/calibration is in progress, no calibration are allowed!", "Information");
+                }
+                else
+                {
+                    Status status = new Status() { FC = 61 };
+                    deviceCOM.WriteData(JsonConvert.SerializeObject(status));
+                }
+
+            }
+        }
     }
 
     public class VisualHost : FrameworkElement
@@ -911,9 +1026,9 @@ namespace Eddy
 
         private void Execute()
         {
-            if (DeviceCOM.IsTubeSatart && (Header == "Open" || Header == "New" || Header == "Save As" || Header == "Save" || Header == "Write Configuration"))
+            if (DeviceCOM.IsTubeSatart || DeviceCOM.IsCalibarationStart && (Header == "Open" || Header == "New" || Header == "Save As" || Header == "Save" || Header == "Write Configuration" || Header == "Marker Setting"))
             {
-                MessageBox.Show("The tube is in progress, no changes are allowed!", "Information");
+                MessageBox.Show("The tube/calibration is in progress, no changes are allowed!", "Information");
             }
             else
             {

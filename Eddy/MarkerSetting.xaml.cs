@@ -35,8 +35,21 @@ namespace Eddy
             {
                 txtM1.Text = DeviceCOM.Configuration.Marker.M1.ToString();
                 txtM2.Text = DeviceCOM.Configuration.Marker.M2.ToString();
-                txtM3.Text = DeviceCOM.Configuration.Marker.M3.ToString();
-                txtTT.Text = DeviceCOM.Configuration.Marker.TT.ToString();
+
+                txtSPT.Text = DeviceCOM.Configuration.Marker.SPT.ToString();
+                txtSPT1.Text = DeviceCOM.Configuration.Marker.SPT1.ToString();
+
+                txtSPID.Text = DeviceCOM.Configuration.Marker.SPID.ToString();
+                txtSPI.Text = DeviceCOM.Configuration.Marker.SPI.ToString();
+
+                txtSPID1.Text = DeviceCOM.Configuration.Marker.SPID1.ToString();
+                txtSPI1.Text = DeviceCOM.Configuration.Marker.SPI1.ToString();
+
+                txtFSFC.Text = DeviceCOM.Configuration.Marker.FSFC.ToString();
+                txtFCC.Text = DeviceCOM.Configuration.Marker.FCC.ToString();
+
+                txtCSCC.Text = DeviceCOM.Configuration.Marker.CSC.ToString();
+
             }
         }
 
@@ -56,8 +69,21 @@ namespace Eddy
                 {
                     DeviceCOM.Configuration.Marker.M1 = Convert.ToInt32(txtM1.Text);
                     DeviceCOM.Configuration.Marker.M2 = Convert.ToInt32(txtM2.Text);
-                    DeviceCOM.Configuration.Marker.M3 = Convert.ToInt32(txtM3.Text);
-                    DeviceCOM.Configuration.Marker.TT = Convert.ToInt32(txtTT.Text);
+
+                    DeviceCOM.Configuration.Marker.SPT = Convert.ToInt32(txtSPT.Text);
+                    DeviceCOM.Configuration.Marker.SPT1 = Convert.ToInt32(txtSPT1.Text);
+
+                    DeviceCOM.Configuration.Marker.SPID = Convert.ToInt32(txtSPID.Text);
+                    DeviceCOM.Configuration.Marker.SPI = Convert.ToInt32(txtSPI.Text);
+
+                    DeviceCOM.Configuration.Marker.SPID1 = Convert.ToInt32(txtSPID1.Text);
+                    DeviceCOM.Configuration.Marker.SPI1 = Convert.ToInt32(txtSPI1.Text);
+
+                    DeviceCOM.Configuration.Marker.FSFC = Convert.ToInt32(txtFSFC.Text);
+                    DeviceCOM.Configuration.Marker.FCC = Convert.ToInt32(txtFCC.Text);
+
+                    DeviceCOM.Configuration.Marker.CSC = Convert.ToInt32(txtCSCC.Text);
+
 
                     var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
                     if (rat)
