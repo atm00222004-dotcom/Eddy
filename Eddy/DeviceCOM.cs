@@ -166,22 +166,15 @@ namespace Eddy
     public class Marker
     {
         public int FC = 50;
+        public int M1 = 600;
+        public int M2 = 1000;
+        public int FmS = 500;
+        public int RmS = 500;
+        public int P1mS = 200;
 
-        public int M1 = 100;
-        public int M2 = 200;
-
-        public int SPT = 100;
-        public int SPT1 = 100;
-
-        public int SPID = 5;
-        public int SPI = 80;
-
-        public int SPID1 = 5;
-        public int SPI1 = 80;
-
-        public int FSFC = 5;
-        public int FCC = 80;
-        public int CSC = 80;
+        public int C1C2 = 245;
+        public int C2E = 1060;
+        public int CC2 = 110;
     }
 
     public class FD
@@ -234,6 +227,7 @@ namespace Eddy
         public double x { get; set; }
         public double y { get; set; }
         public int phase { get; set; }
+        public bool IsMarked { get; set; }
     }
 
     public class Status

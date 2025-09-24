@@ -6,14 +6,14 @@
         xmlns:local="clr-namespace:Eddy"
         mc:Ignorable="d"
         Title="Window1" 
-        ResizeMode="NoResize" Height="550" WindowStartupLocation="CenterScreen"  Width="980"  WindowState="Normal"  WindowStyle="None"
+        ResizeMode="NoResize" Height="450" WindowStartupLocation="CenterScreen"  Width="980"  WindowState="Normal"  WindowStyle="None"
         >
     <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.15*"/>
                 <RowDefinition Height="0.02*"/>
-                <RowDefinition Height="0.8*"/>
+                <RowDefinition Height="0.6*"/>
                 <RowDefinition Height="0.02*"/>
                 <RowDefinition Height="0.25*"/>
                 <RowDefinition Height="0.3*"/>
@@ -33,51 +33,40 @@
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="1.5*"/>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="1.5*"/>
                 </Grid.ColumnDefinitions>
-                
-                <Label Margin="20,0,0,0"  FontSize="16" FontWeight="Bold" Content="Marker 1"  Grid.Row="0" Grid.Column="0"></Label>
+
+                <Label Margin="20,0,0,0"  FontSize="16" FontWeight="Bold" Content="Marker 1 (ms)"  Grid.Row="0" Grid.Column="0"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtM1" />
-                <Label Content="Marker 2" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
+                <Label Content="Marker 2 (ms)" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtM2" />
 
-                <Label Margin="20,0,0,0" Content="Start Peak Thresold" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtSPT" />
 
-                <Label Margin="0,0,0,0" Content="Stop Peak Thresold" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtSPT1" />
-
-                <Label Margin="20,0,0,0" Content="Start Peak Ignore Default (mm)" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtSPID" />
-
-                <Label Margin="0,0,0,0" Content="Start Peak Ignore (mm)" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtSPI" />
-
-                <Label Margin="20,0,0,0" Content="Stop Peak Ignore Default (mm)" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="1" Name="txtSPID1" />
-
-                <Label Margin="0,0,0,0" Content="Stop Peak Ignore (mm)" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="3" Name="txtSPI1" />
+                <Label Margin="20,0,0,0" Content="Front Delay (ms)" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtFMS" />
 
 
-                <Label Margin="20,0,0,0" Content="Fist Sensor to First Coil Sensor Distance(mm)" FontSize="16" FontWeight="Bold" Grid.Row="4" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="4" Grid.Column="1" Name="txtFSFC" />
-
-                <Label Margin="0,0,0,0" Content="Fist Coil to Coil Distance(mm)" FontSize="16" FontWeight="Bold" Grid.Row="4" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="4" Grid.Column="3" Name="txtFCC" />
-
-
-                <Label Margin="20,0,0,0" Content="Coil to Second Coil Sensor Distance(mm)" FontSize="16" FontWeight="Bold" Grid.Row="5" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="5" Grid.Column="1" Name="txtCSCC" />
+                <Label Margin="0,0,0,0" Content="Rear Delay (ms)" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtRMS" />
 
                 
+                <Label Margin="20,0,0,0" Content="Paint Spray Time (ms)" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtPMS" />
+
+                <Label Margin="0,0,0,0" Content="C1 to C2 Sensor Distance (mm)" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtC1C2" />
+
+                <Label Margin="20,0,0,0" Content="C2 to Exit Sensor Distance (mm)" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="1" Name="txtC2E" />
+
+                <Label Margin="0,0,0,0" Content="C Coil to C2 Sensor Distance (mm)" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="3" Name="txtCC2" />
+
 
             </Grid>
             <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
