@@ -178,7 +178,7 @@ namespace Eddy
                         }
 
                         IsSaved = true;
-
+                        System.IO.File.WriteAllText("Config.txt", JsonConvert.SerializeObject(DeviceCOM.Configuration));
                     }
                     else
                     {

@@ -137,7 +137,7 @@ namespace Eddy
             statuses.Add(14);
             statuses.Add(15);
             ddlTT.ItemsSource = statuses;
-            ddlTT.SelectedIndex = tt - 1;
+            
 
             InitialGraphSetting();
             logger1 = myPlot1.Add.DataStreamer((tt * ss));
@@ -149,7 +149,17 @@ namespace Eddy
             deviceCOM = new DeviceCOM();
             deviceCOM.InitialPort();
 
-            deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+            if (System.IO.File.Exists("Config.txt"))
+            {
+                DeviceCOM.Configuration = JsonConvert.DeserializeObject<Configuration>(System.IO.File.ReadAllText("Config.txt"));
+                ddlTT.SelectedIndex = DeviceCOM.Configuration.TestTime - 1;
+            }
+            else
+            {
+                ddlTT.SelectedIndex = tt - 1;
+            }
+
+                deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
 
@@ -954,6 +964,8 @@ namespace Eddy
             DeviceCOM.Configuration.TestTime = Convert.ToInt32(text);
 
             D1Seeting();
+
+            System.IO.File.WriteAllText("Config.txt", JsonConvert.SerializeObject(DeviceCOM.Configuration));
         }
 
         private void btnCali_MouseDown(object sender, MouseButtonEventArgs e)
