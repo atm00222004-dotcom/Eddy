@@ -163,6 +163,15 @@ namespace Eddy
         public int TestTime = 10;
         public int SamplePerSecond = 3050;
     }
+
+    public class ConfigurationToWrite
+    {
+        public int FC = 57;
+        //public Marker Marker { get; set; }
+        public Frequency Frequency { get; set; }
+        public Filter Filter { get; set; }
+
+    }
     public class Marker
     {
         public int FC = 50;

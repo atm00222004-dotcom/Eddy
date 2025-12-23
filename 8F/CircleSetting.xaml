@@ -6,11 +6,12 @@
         xmlns:local="clr-namespace:_8F"
         mc:Ignorable="d"
         Title="Circle Setting" 
-        ResizeMode="CanResize" Height="380" WindowStartupLocation="CenterScreen" Closing="Window_Closing"  Width="600"  WindowState="Normal" WindowStyle="ToolWindow"
+        ResizeMode="CanResize" Height="450" WindowStartupLocation="CenterScreen" Closing="Window_Closing"  Width="600"  WindowState="Normal" WindowStyle="ToolWindow"
         >
     <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="0.45*"/>
                 <RowDefinition Height="0.45*"/>
                 <RowDefinition Height="0.04*"/>
                 <RowDefinition Height="2*"/>
@@ -21,17 +22,18 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Label Margin="0,10,0,0" Content="System Configuration" VerticalAlignment="Top" FontSize="22" FontWeight="Bold" Name="lblHeader" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0"></Label>
+            <ComboBox Margin="20,10,20,0" FontSize="22" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" SelectionChanged="ddlFrChennel_SelectionChanged"  Name="ddlFrChennel" />
+            <Label Margin="0,10,0,0"  Content="System Configuration" VerticalAlignment="Top" FontSize="22" FontWeight="Bold" Name="lblHeader" HorizontalAlignment="Center" Grid.Row="1" Grid.Column="0"></Label>
             <!--<Image Name="btnClose" Margin="0,15,25,0" VerticalAlignment="Top" Width="30" MouseUp="Button_Click" HorizontalAlignment="Right" Source="/Images/Group 48.png" />-->
-            <Border Width="80" Name="btnNew" Margin="25,15,0,0" MouseDown="btnNew_MouseDown"  Background="#305371" HorizontalAlignment="Left" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Width="80" Name="btnNew" Margin="25,15,0,0" MouseDown="btnNew_MouseDown" Grid.Row="1" Grid.Column="0"  Background="#305371" HorizontalAlignment="Left" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Add New" ></Label>
             </Border>
-            
-            <Border Width="80" Name="btnClose" Margin="0,15,25,0" MouseDown="Button_Click" Background="#305371" HorizontalAlignment="Right" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+
+            <Border Width="80" Name="btnClose" Margin="0,15,25,0" MouseDown="Button_Click" Grid.Row="1" Grid.Column="0" Background="#305371" HorizontalAlignment="Right" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Close" ></Label>
             </Border>
-            <Separator VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
-            <Grid  Grid.Row="2" Grid.Column="0">
+            <Separator VerticalAlignment="Top" Grid.Row="2" Grid.Column="0"/>
+            <Grid  Grid.Row="3" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
@@ -58,14 +60,14 @@
                     </DataGrid>
                 </Border>
             </Grid>
-            <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
+            <Separator VerticalAlignment="Top" Grid.Row="4" Grid.Column="0"/>
             <!--<Button FontWeight="Bold"  Margin="20,0,0,0" MaxWidth="150" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0" Content="Save Config" Name="btnConfigSave" Click="btnConfigSave_Click" ></Button>-->
 
-            <Border Width="250" Name="btnConfigSave" MouseDown="btnConfigSave_Click" Margin="1" Background="#305371" Grid.Column="0" Grid.Row="4" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+            <Border Width="250" Name="btnConfigSave" MouseDown="btnConfigSave_Click" Margin="1" Background="#305371" Grid.Column="0" Grid.Row="5" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Save Config" ></Label>
             </Border>
 
-            <Label Content="" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
+            <Label Content="" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="6" Grid.Column="0"></Label>
 
         </Grid>
     </Border>

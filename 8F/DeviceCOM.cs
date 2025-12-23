@@ -51,11 +51,15 @@ namespace _8F
         public static List<Counter> counter;
         public static bool IsLogDisable = false;
         public static bool IsBalanceRequired = false;
-        public static int ERRCode = 0; 
-
+        public static bool IsBinRequired = false;
+        public static int ERRCode = 0;
+        public static string Code;
         DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;
+        public static bool PortAck = false ;
+        public static string PortData = "";
+        private ManualResetEvent _ackEvent = new ManualResetEvent(false);
 
         public void InitialPort(int communicationType, string portName, int baudRate, string ipAddress, int sport)
         {
@@ -76,8 +80,12 @@ namespace _8F
                     PortName = portName,
                     StopBits = StopBits.One,
                     ReadTimeout = 500,
-                    WriteTimeout = 2000
+                    WriteTimeout = 2000,
+                    DtrEnable = true,
+                    RtsEnable = true,
                 };
+                port.ReceivedBytesThreshold = 1;
+                port.DataReceived += serialPort_DataReceived;
             }
             else if (CommunicationType == 1)
             {
@@ -151,10 +159,19 @@ namespace _8F
                 System.Threading.Thread.Sleep(50);
                 SerialPort sp = (SerialPort)sender;
                 string indata = sp.ReadExisting();
-                new Thread(() =>
+                if (PortAck)
+                {                    
+                    PortData = indata;
+                    PortAck = false;
+                    _ackEvent.Set();  // signal that data is received
+                }
+                else
                 {
-                    ProcessPortData(indata);
-                }).Start();
+                    new Thread(() =>
+                    {
+                        ProcessPortData(indata);
+                    }).Start();
+                }
 
             }
             catch (Exception ex)
@@ -185,15 +202,18 @@ namespace _8F
                                 cnt.ResultOkCount = cnt.ResultOkCount + 1;
                             }
                             else
-                            {
+                            {  
                                 cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
                             }
                             cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             IsResponseRefreshRequired = true;
-                            // Maintain logs ==> ChId, Overall Result, File Name, TimeStamp 
+
                             if (!IsLogDisable && IsLogEnable)
                             {
-                                WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now);
+                                Task.Run(() =>
+                                {
+                                    WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now);                                    
+                                });
                             }
                             DeviceCOM.IsLogDisable = false;
 
@@ -218,6 +238,10 @@ namespace _8F
                         }
                     }
                 }
+                else
+                {
+
+                }
             }
             catch (Exception ex)
             {
@@ -234,17 +258,19 @@ namespace _8F
                     string sql = string.Empty;
                     con.Open();
                     var fdData = JsonConvert.SerializeObject(DeviceCOM.channelDatas.FirstOrDefault(r => r.Id == ChId).graphDatas);
+
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
                     if (ChId == 1)
-                    {
-                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\", \"BatchNo\" , \"TimeStamp\")\r\n\t" +
+                    {                        
+                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\",\"SrNo\", \"BatchNo\" , \"TimeStamp\")\r\n\t" +
                             "VALUES (" +
                             ChId + ", '" +
                             Result + "', '" +
                             fdData + "', '" +
                             partData + "', '" +
-                            DeviceCOM.part.Name + "', '" +
-                            DeviceCOM.part.BatchName + "', " +
+                            DeviceCOM.part.Name  +  "', '" +
+                            DeviceCOM.part.BatchName + "', '"+
+                            Code + "', " +
                             DeviceCOM.part.BatchNo + ", '" +
                             TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"BatchName\" = '" + DeviceCOM.part.BatchName + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
 
@@ -260,6 +286,8 @@ namespace _8F
                             
                             DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
                         }
+
+                        Code = string.Empty;
                     }
                     else
                     {
@@ -269,6 +297,25 @@ namespace _8F
                             var cmd = new NpgsqlCommand(sql, con);
                             var count = cmd.ExecuteScalar();
                         }
+
+                        //if (ChId == 2)
+                        //{
+                        //    sql = "update public.\"Logs\"  set \"Ch2Result\" = '"+ Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
+                        //    var cmd = new NpgsqlCommand(sql, con);
+                        //    var count = cmd.ExecuteScalar();
+                        //}
+                        //else if (ChId == 3)
+                        //{
+                        //    sql = "update public.\"Logs\"  set \"Ch3Result\" = '" + Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
+                        //    var cmd = new NpgsqlCommand(sql, con);
+                        //    var count = cmd.ExecuteScalar();
+                        //}
+                        //else if (ChId == 4)
+                        //{
+                        //    sql = "update public.\"Logs\"  set \"Ch4Result\" = '" + Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
+                        //    var cmd = new NpgsqlCommand(sql, con);
+                        //    var count = cmd.ExecuteScalar();
+                        //}
                     }
                 }
             }
@@ -278,46 +325,77 @@ namespace _8F
             }
         }
 
-        public bool WriteData(string data)
+       
+        public bool WriteData(string data, bool isFrombak = false)
         {
             try
             {
                 IsBalanceRequired = false;
                 if (CommunicationType == 0)
                 {
-                    if (port.IsOpen)
+                    if (isFrombak)
                     {
-                        port.Close();
+                        if (port.IsOpen)
+                        {
+                            port.Close();
+                        }
                     }
-
-                    InitialPort(CommunicationType, PortName, BaudRate, IpAddress, SPort);
 
                     if (!port.IsOpen)
                     {
                         port.Open();
+                        if (isFrombak)
+                        {
+                            port.DtrEnable = true;
+                            port.RtsEnable = true;
+                            // Optional: short delay to let device recognize the signals
+                            Thread.Sleep(10);
+                        }
                     }
-                    this.port.ReadExisting();
+
+                    //this.port.ReadExisting();
+                    PortAck = true;
+                    PortData = "";                    
                     this.port.Write(data);
-                    int toread = 1;
-                    int offset = 0;
-                    char[] result = new char[toread];
-                    while (toread > 0)
-                    {
-                        int r = this.port.Read(result, offset, toread);
-                        offset += r;
-                        toread -= r;
-                    }
-                    if (port.IsOpen)
-                    {
-                        port.Close();
-                    }
 
-                    port.DataReceived += serialPort_DataReceived;
-                    if (!port.IsOpen)
+                    if (isFrombak)
                     {
-                        port.Open();
+                        bool received = _ackEvent.WaitOne(1000);
+
+                        if (!received)
+                        {
+                            this.port.Write(data);
+                        }
+
+                        received = _ackEvent.WaitOne(1000);
+
+                        if (!received)
+                        {
+                            this.port.Write(data);
+                        }
+
+                        if (!received)
+                        {
+                            return false;
+                        }
                     }
-                    if (result[0] == '0' || result[0] == '2' || result[0] == '3')
+                    else
+                    {
+                        System.DateTime dateTime = DateTime.Now;
+                        while (PortAck)
+                        {
+
+                            if ((DateTime.Now - dateTime).TotalMilliseconds > 500)
+                            {
+                                PortAck = false;
+                            }
+                        }
+                    }
+                    
+                    byte[] result = new byte[1];
+                    result[0] = Convert.ToByte(PortData[0]);
+
+                    if (result[0] == '0' || result[0] == '2' || result[0] == '3' || result[0] == '4')
                     {
                         if (result[0] == '2')
                         {
@@ -327,6 +405,10 @@ namespace _8F
                         else if (result[0] == '3')
                         {
                             IsBalanceRequired = true;
+                        }
+                        else if (result[0] == '4')
+                        {
+                            IsBinRequired = true;
                         }
                         return true;
                     }
@@ -373,7 +455,7 @@ namespace _8F
                 }
                 return false;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 if (CommunicationType == 1)
                 {
@@ -395,33 +477,35 @@ namespace _8F
                         port.Close();
                     }
 
-                    InitialPort(CommunicationType, PortName, BaudRate, IpAddress, SPort);
+                    //if (port.IsOpen)
+                    //{
+                    //    port.Close();
+                    //}
+
+                    //InitialPort(CommunicationType, PortName, BaudRate, IpAddress, SPort);
 
                     if (!port.IsOpen)
                     {
                         port.Open();
                     }
-                    this.port.ReadExisting();
+                    //this.port.ReadExisting();
+                    PortAck = true;
+                    PortData = "";
+                    System.DateTime dateTime = DateTime.Now;
                     this.port.Write(data);
-                    int toread = 1;
-                    int offset = 0;
-                    char[] result = new char[toread];
-                    while (toread > 0)
+
+                    while (PortAck)
                     {
-                        int r = this.port.Read(result, offset, toread);
-                        offset += r;
-                        toread -= r;
-                    }
-                    if (port.IsOpen)
-                    {
-                        port.Close();
+
+                        if ((DateTime.Now - dateTime).TotalMilliseconds > 200)
+                        {
+                            PortAck = false;
+                        }
                     }
 
-                    port.DataReceived += serialPort_DataReceived;
-                    if (!port.IsOpen)
-                    {
-                        port.Open();
-                    }
+                    byte[] result = new byte[1];
+                    result[0] = Convert.ToByte(PortData[0]);
+
                     if (result[0] == 21)
                     {
                         DeviceCOM.IsSystemBusy = true;
@@ -768,16 +852,80 @@ namespace _8F
         }
 
     }
+
+    public class LogData
+    {
+        public string BatchName { get; set; }
+        public string LogStartDate { get; set; }
+        public string LogEndDate { get; set; }
+        public int PassCount { get; set; }
+        public int FailCount { get; set; }
+        public int TotalCount { get; set; }
+
+    }
+
+    public class LogData1
+    {
+        public string BatchName { get; set; }
+        public string PartName { get; set; }
+        public string SrNo { get; set; }
+        public string TimeStamp { get; set; }
+        public string ResultStatus { get; set; }
+        public string Ch1Result { get; set; }
+        public string Ch2Result { get; set; }
+        public string Ch3Result { get; set; }
+        public string Ch4Result { get; set; }
+
+    }
+
+    public class SerialPortManager
+    {
+        private SerialPort _serialPort;
+
+        public SerialPortManager(string portName, int baudRate)
+        {
+            _serialPort = new SerialPort(portName, baudRate);
+            _serialPort.DataBits = 8;
+            _serialPort.Parity = Parity.None;
+            _serialPort.StopBits = StopBits.One;
+            _serialPort.Handshake = Handshake.None;
+
+            // Subscribe to the DataReceived event
+            _serialPort.DataReceived += OnDataReceived;
+        }
+
+        public void Open()
+        {
+            if (!_serialPort.IsOpen)
+            {
+                _serialPort.Open();
+                Console.WriteLine($"Serial port {_serialPort.PortName} opened at {_serialPort.BaudRate} baud.");
+            }
+        }
+
+        public void Close()
+        {
+            if (_serialPort.IsOpen)
+            {
+                _serialPort.Close();
+                Console.WriteLine("Serial port closed.");
+            }
+        }
+
+        private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            try
+            {
+                // Read all available data
+                string data = _serialPort.ReadExisting();
+                Console.WriteLine("Received: " + data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error reading data: " + ex.Message);
+            }
+        }
+    }
 }
 
 
-public class LogData
-{
-    public string BatchName { get; set; }
-    public string LogStartDate { get; set; }
-    public string LogEndDate { get; set; }
-    public int PassCount { get; set; }
-    public int FailCount { get; set; }
-    public int TotalCount { get; set; }
-
-}

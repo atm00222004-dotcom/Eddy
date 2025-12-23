@@ -53,13 +53,14 @@ namespace Eddy
         //DataLogger logger3;
         DataLogger logger4;
         public DeviceCOM deviceCOM;
-        UdpReceiver receiver;
+       
 
         DispatcherTimer dispatcherTimer;
         DispatcherTimer dispatcherTimerui;
         int CommunicationType = 0;
         public PartConfig partConfig { get; set; }
 
+        UdpReceiver receiver;
         string IpAddress;
         int Port;
         public MainWindow()
@@ -159,9 +160,14 @@ namespace Eddy
                 ddlTT.SelectedIndex = tt - 1;
             }
 
-                deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+            deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+
+            //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
+            //configurationWrite.Frequency = DeviceCOM.Configuration.Frequency;
+            //configurationWrite.Filter = DeviceCOM.Configuration.Filter;
+            //deviceCOM.WriteData(JsonConvert.SerializeObject(configurationWrite));
 
             IpAddress = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["IP"]);
             Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]);
@@ -1224,6 +1230,11 @@ namespace Eddy
 
                     var rat1 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
                     var rat2 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+
+                    //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
+                    //configurationWrite.Frequency = DeviceCOM.Configuration.Frequency;
+                    //configurationWrite.Filter = DeviceCOM.Configuration.Filter;
+                    //var rat = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(configurationWrite));
 
                     if (!rat1 || !rat2)
                     {

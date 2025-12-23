@@ -168,6 +168,11 @@ namespace Eddy
                         var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
                         var rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
 
+                        //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
+                        //configurationWrite.Frequency = DeviceCOM.Configuration.Frequency;
+                        //configurationWrite.Filter = DeviceCOM.Configuration.Filter;
+                        //var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(configurationWrite));
+
                         if (rat && rat1)
                         {
                             lblMsg.Content = "Configuration Saved!!!";

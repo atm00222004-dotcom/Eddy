@@ -70,8 +70,11 @@ namespace _8F
                     {
                         LogData _part = new LogData();
                         _part.BatchName = dt.Rows[i]["BatchName"].ToString();
-                        _part.LogStartDate = Convert.ToDateTime(dt.Rows[i]["StartDate"]).ToString("dd/MM/yy HH:mm:ss");
-                        _part.LogEndDate = Convert.ToDateTime(dt.Rows[i]["EndDate"]).ToString("dd/MM/yy HH:mm:ss");
+                        DateTimeOffset dto = DateTimeOffset.Parse(dt.Rows[i]["StartDate"].ToString());
+                        _part.LogStartDate = dto.ToString("dd/MM/yy HH:mm:ss");
+
+                        DateTimeOffset dto1 = DateTimeOffset.Parse(dt.Rows[i]["EndDate"].ToString());
+                        _part.LogEndDate = dto1.ToString("dd/MM/yy HH:mm:ss");
 
                         _part.PassCount = Convert.ToInt32(dt.Rows[i]["PassCount"]);
                         _part.FailCount = Convert.ToInt32(dt.Rows[i]["FailCount"]);

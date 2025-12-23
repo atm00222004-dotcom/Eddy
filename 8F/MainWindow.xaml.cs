@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.IO.Ports;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Reflection.PortableExecutable;
 using System.Text;
@@ -48,7 +49,7 @@ namespace _8F
         int BoxSize4 = 0;
         int seqLength = 0;
         int CommunicationType = 0;
-        int FrequencyNo = 8; 
+        int FrequencyNo = 8;
         public string WebPage;
 
         int modeApp = 0;
@@ -57,9 +58,14 @@ namespace _8F
         public SolidColorBrush disableColor = new SolidColorBrush(Colors.DarkGray);
         public SolidColorBrush enableColor = new SolidColorBrush(Colors.White);
         bool IsSerialmatch = true;
+        private SerialPort _serialPort;
+
+        DateTime CodeReadTime = DateTime.Now;
+        int CodeReadGapInMS = 100;
+
         public MainWindow()
         {
-            
+
             InitializeComponent();
             if (imgLogo.Visibility == Visibility.Visible)
             {
@@ -74,9 +80,10 @@ namespace _8F
             BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize2"]);
             BoxSize3 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize3"]);
             BoxSize4 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize4"]);
-            FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrequencyNo"]);            
+            FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrequencyNo"]);
             var LogEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["LogEnable"]);
             modeApp = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["AppMode"]);
+            CodeReadGapInMS = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CodeReadGapInMS"]);
             if (modeApp == 1)
             {
                 mode = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Mode"]);
@@ -97,16 +104,16 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.7, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(0.0, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(.38, GridUnitType.Star);
-                LogoWidth.Width = new GridLength(1.0, GridUnitType.Star);
+                LogoWidth.Width = new GridLength(0.1, GridUnitType.Star);
             }
-            else if(ScreenId == 2)
+            else if (ScreenId == 2)
             {
                 seqLength = BoxSize2;
                 menuHeight.Height = new GridLength(0.8, GridUnitType.Star);
                 chennelHeight.Height = new GridLength(0.6, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
-                LogoWidth.Width = new GridLength(1.3, GridUnitType.Star);
+                LogoWidth.Width = new GridLength(0.1, GridUnitType.Star);
 
             }
             else if (ScreenId == 3)
@@ -116,7 +123,7 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.7, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(0.0, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(.38, GridUnitType.Star);
-                LogoWidth.Width = new GridLength(1.0, GridUnitType.Star);
+                LogoWidth.Width = new GridLength(0.1, GridUnitType.Star);
             }
 
             else if (ScreenId == 4)
@@ -126,10 +133,10 @@ namespace _8F
                 chennelHeight.Height = new GridLength(0.6, GridUnitType.Star);
                 buttonBarHeight.Height = new GridLength(2, GridUnitType.Star);
                 buttonBarWidth.Width = new GridLength(0.0, GridUnitType.Star);
-                LogoWidth.Width = new GridLength(1.7, GridUnitType.Star);              
-               
+                LogoWidth.Width = new GridLength(0.1, GridUnitType.Star);
+
                 SetFrequencey();
-            } 
+            }
 
             portCOM = new DeviceCOM();
 
@@ -139,7 +146,7 @@ namespace _8F
             DeviceCOM.DefaultWidth_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width_O"]);
             DeviceCOM.DefaultHeight_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height_O"]);
             DeviceCOM.DefaultAngel_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Angel_O"]);
-            
+
             if (modeApp == 1)
             {
                 el11.Visibility = Visibility.Visible;
@@ -211,7 +218,7 @@ namespace _8F
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                             new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
                             //new MenuItemViewModel { Header = "Data Log", mainWindow = this }
-                        } : 
+                        } :
                         new ObservableCollection<MenuItemViewModel>
                         {
                             new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
@@ -220,15 +227,44 @@ namespace _8F
                             new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this }
                         }
                 },
-                new MenuItemViewModel { Header = "View Log" },
+                new MenuItemViewModel { Header = "View Log",
+                        MenuItems = new ObservableCollection<MenuItemViewModel>
+                        {
+                            new MenuItemViewModel { Header = "Batch Wise Log", mainWindow =this },
+                            new MenuItemViewModel { Header = "Serial Number Log" ,mainWindow =this },
+                        }
+                },
             };
             DataContext = this;
 
             InitialGraphData(true);
 
+            var CodePortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["CodePortName"]);
+            _serialPort = new SerialPort(CodePortName, 115200);
+            _serialPort.DataBits = 8;
+            _serialPort.Parity = Parity.Even;
+            _serialPort.StopBits = StopBits.One;
+            _serialPort.Handshake = Handshake.None;
+            // Subscribe to the DataReceived event
+            _serialPort.DataReceived += OnDataReceived;
+
+            try
+            {
+                if (!_serialPort.IsOpen)
+                {
+                    _serialPort.Open();
+                    //Console.WriteLine($"Serial port {_serialPort.PortName} opened at {_serialPort.BaudRate} baud.");
+                }
+            }
+            catch
+            {
+
+            }
+
+
             dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(10000000);
+            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(100);
             dispatcherTimer.Start();
 
             Status status = new Status() { FC = 23 };
@@ -240,9 +276,115 @@ namespace _8F
             }
             else
             {
-               var ratval = ImplementChanges(0);
+                var ratval = ImplementChanges(0);
+            }
+
+
+
+        }
+
+        private void Client_DataReceived(object sender, string data)
+        {
+            ProcessCode(data);
+        }
+
+        private void Client_Disconnected(object sender, EventArgs e)
+        {
+
+        }
+
+        private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            System.Threading.Thread.Sleep(10);
+            string data = _serialPort.ReadExisting();
+            ProcessCode(data);
+        }
+
+        private void ProcessCode(string data)
+        {
+            try
+            {
+                if ((DateTime.Now - CodeReadTime).TotalMilliseconds > CodeReadGapInMS)
+                {
+                    // Read all available data                    
+                    Dispatcher.Invoke(() =>
+                    {
+                        lblCode.Content = data;
+                    });
+                    if (data != null && !data.ToLower().Contains("error"))
+                    {
+                        CodeReadTime = DateTime.Now;
+                        if (DeviceCOM.IsSystemBusy)
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                lblCode.Content = "System is busy so you can not perform this command, please wait...";
+                            });
+                        }
+                        else
+                        {
+
+                            if (DeviceCOM.IsBalanceRequired)
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    lblCode.Content = "Unable to test because of balance command is required!";
+                                });
+                            }
+                            else
+                            {
+                                if (DeviceCOM.IsLogEnable)
+                                {
+                                    DeviceCOM.IsLogDisable = false;
+                                    DeviceCOM.Code = data;
+                                    BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
+                                    var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest), false);
+
+                                    if (!rat)
+                                    {
+                                        Dispatcher.Invoke(() =>
+                                        {
+                                            lblCode.Content = "Unable to start test due to the error in the communication!";
+                                        });
+                                    }
+                                    else
+                                    {
+                                        if (DeviceCOM.IsBalanceRequired)
+                                        {
+                                            Dispatcher.Invoke(() =>
+                                            {
+                                                lblCode.Content = "Unable to start test because of balance command is required!";
+                                            });
+                                            DeviceCOM.IsBalanceRequired = false;
+                                        }
+                                        if (DeviceCOM.IsBinRequired)
+                                        {
+                                            Dispatcher.Invoke(() =>
+                                            {
+                                                lblCode.Content = "Please put the previous component to NG bin before starting the test!";
+                                            });
+                                            DeviceCOM.IsBinRequired = false;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        lblCode.Content = "Please start log before scan the QR code!";
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine("Error reading data: " + ex.Message);
             }
         }
+
         void SetFrequencey()
         {
 
@@ -319,7 +461,7 @@ namespace _8F
             var serial = portCOM.GetSeialNumber();
             string sNumber = System.Configuration.ConfigurationSettings.AppSettings["SerialNumber"]; ;
 
-            sNumber = Reverse(serial.S1 + sNumber + serial.S2); 
+            sNumber = Reverse(serial.S1 + sNumber + serial.S2);
 
             if (sNumber == serial.S)
             {
@@ -334,12 +476,12 @@ namespace _8F
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            if (!IsSerialmatch)
-            {
-                CheckSerailNumber();
-            }
+            //if (!IsSerialmatch)
+            //{
+            //    CheckSerailNumber();
+            //}
 
-            if(DeviceCOM.IsSystemBusy)
+            if (DeviceCOM.IsSystemBusy)
             {
                 brStatus.Background = new SolidColorBrush(Colors.Red);
                 if (mode == 0)
@@ -347,12 +489,13 @@ namespace _8F
                     if (DeviceCOM.busyStamp.AddSeconds(30) < System.DateTime.Now)
                     {
                         DeviceCOM.IsSystemBusy = false;
+                        lblCode.Content = "";
                     }
                 }
             }
             else
             {
-                brStatus.Background = new SolidColorBrush(Colors.Green); 
+                brStatus.Background = new SolidColorBrush(Colors.Green);
             }
 
             if (DeviceCOM.IsResponseRefreshRequired)
@@ -361,7 +504,7 @@ namespace _8F
 
                 var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
 
-                var cnt =  DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
+                var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
 
                 lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
                 lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
@@ -376,6 +519,8 @@ namespace _8F
                 lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
                 DeviceCOM.IsResponseRefreshRequired = false;
+
+                lblCode.Content = "";
             }
 
             if (DeviceCOM.IsResponseClearRequired)
@@ -415,22 +560,36 @@ namespace _8F
 
                 DeviceCOM.IsResponseRefreshRequired = true;
                 DeviceCOM.IsResponseClearRequired = false;
+
             }
 
-            if (DeviceCOM.ERRCode== 16)
+            if (DeviceCOM.ERRCode == 16)
             {
                 DeviceCOM.ERRCode = 0;
                 MessageBox.Show("Balance Operation failed, please reboot the board.", "Error Information");
             }
-            else if(DeviceCOM.ERRCode == 17)
+            else if (DeviceCOM.ERRCode == 17)
             {
                 DeviceCOM.ERRCode = 0;
                 MessageBox.Show("Test failed, please reconfigure and rebalance the board.", "Error Information");
             }
 
+            try
+            {
+                if (!_serialPort.IsOpen)
+                {
+                    _serialPort.Open();
+                    //Console.WriteLine($"Serial port {_serialPort.PortName} opened at {_serialPort.BaudRate} baud.");
+                }
+            }
+            catch
+            {
+
+            }
+
         }
 
-        public void InitialGraphData(bool IsPayLaod )
+        public void InitialGraphData(bool IsPayLaod)
         {
             if (IsPayLaod)
             {
@@ -440,10 +599,10 @@ namespace _8F
                 br1_rec1.Width = seqLength;
                 Canvas.SetLeft(br1_can1, seqLength);
                 br1_rec2.Width = seqLength;
-                Canvas.SetTop(br1_rec2, seqLength/2);
+                Canvas.SetTop(br1_rec2, seqLength / 2);
                 br1_rec3.Height = seqLength;
                 Canvas.SetLeft(br1_rec3, seqLength / 2);
-                Canvas.SetLeft(rResult1, seqLength -25);
+                Canvas.SetLeft(rResult1, seqLength - 25);
                 Canvas.SetTop(rResult1, seqLength - 25);
                 Canvas.SetLeft(cnBr1, seqLength / 2);
                 Canvas.SetTop(cnBr1, seqLength / 2);
@@ -801,9 +960,9 @@ namespace _8F
         public bool ImplementChanges(int ChangeType)
         {
             var rat = false;
-            if (ChangeType== 0 )
+            if (ChangeType == 0)
             {
-                FrequencyCount frequencyCount = new FrequencyCount() { FC=1, C = FrequencyNo, NC = chNo };
+                FrequencyCount frequencyCount = new FrequencyCount() { FC = 1, C = FrequencyNo, NC = chNo };
                 portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
 
                 Mode _mode = new Mode() { FC = 2, M = mode };
@@ -836,7 +995,7 @@ namespace _8F
                             // Gdata.isEnable enable/disable the frequency graph 
 
                             if (graphData.Id == 1)
-                            { 
+                            {
                                 if (graphData.isEnable)
                                 {
                                     lblFreq1.Text = graphData.Name + "-" + graphData.freq + "Hz";
@@ -1009,7 +1168,7 @@ namespace _8F
 
                     if (ChangeType == 0)
                     {
-                        var rat1= portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        var rat1 = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
                         System.Threading.Thread.Sleep(500);
                         var rat2 = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
 
@@ -1018,7 +1177,7 @@ namespace _8F
                 }
             }
 
-            return rat; 
+            return rat;
         }
 
         public void AddEllipses(Canvas cnBr1, GraphData graphData)
@@ -1026,12 +1185,12 @@ namespace _8F
             // cnBr1
 
             //cnBr1.Children.Clear();
-            
-            for (var i = 1; i< cnBr1.Children.Count; )
+
+            for (var i = 1; i < cnBr1.Children.Count;)
             {
                 cnBr1.Children.RemoveAt(1);
             }
-            
+
 
             if (modeApp == 1)
             {
@@ -1072,12 +1231,12 @@ namespace _8F
                 cnBr1.Children.Add(el1_1);
             }
 
-            
+
 
             foreach (var item in graphData.ellipses)
             {
                 var index = graphData.ellipses.IndexOf(item);
-                Ellipse el1 = new Ellipse();
+                Ellipse el1 = new Ellipse() { Fill = Brushes.Transparent };
                 el1.Height = item.height / factor;
                 el1.Width = item.width / factor;
                 el1.HorizontalAlignment = HorizontalAlignment.Center;
@@ -1100,13 +1259,77 @@ namespace _8F
                 transformGroup.Children.Add(rtAngel1);
                 transformGroup.Children.Add(tt1);
 
+                if (graphData.ellipses.Count == 1)
+                {
+                    el1.MouseLeftButtonDown += Ellipse_MouseLeftButtonDown;
+                    el1.MouseLeftButtonUp += Ellipse_MouseLeftButtonUp;
+                    el1.MouseMove += Ellipse_MouseMove;
+                    el1.DataContext = graphData.Id;
+                }
+
                 el1.RenderTransform = transformGroup;
                 cnBr1.Children.Add(el1);
             }
-            
+
         }
 
+        private bool isDragging = false;
+        private Point mouseStart;
+        private TranslateTransform? dragTransform = null;
+
+
+       
+        private void Ellipse_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var ellipse = sender as Ellipse;
+            if (ellipse == null) return;
+
+            isDragging = true;
+            mouseStart = e.GetPosition(cnBr1);
+            ellipse.CaptureMouse();
+
+            // find the TranslateTransform inside RenderTransform
+            TransformGroup tg = ellipse.RenderTransform as TransformGroup;
+            dragTransform = tg.Children.OfType<TranslateTransform>().FirstOrDefault();
+
+
+        }
+
+        private void Ellipse_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            isDragging = false;
+            (sender as UIElement)?.ReleaseMouseCapture();
+            dragTransform = null;
+
+
+        }
         
+
+        private void Ellipse_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!isDragging || dragTransform == null)
+                return;
+
+            Point currentPos = e.GetPosition(cnBr1);
+
+            double dx = currentPos.X - mouseStart.X;
+            double dy = currentPos.Y - mouseStart.Y;
+
+            dragTransform.X += dx;
+            dragTransform.Y += dy;
+
+            mouseStart = currentPos;
+
+            int FreqId = Convert.ToInt32(((Ellipse)sender).DataContext);
+
+            DeviceCOM.channelDatas[chNo - 1].graphDatas[FreqId - 1].ellipses[0].ex = (dragTransform.X * factor) + DeviceCOM.channelDatas[0].graphDatas[0].width / 2;
+
+            DeviceCOM.channelDatas[chNo - 1].graphDatas[FreqId - 1].ellipses[0].ey = (-1) * ((dragTransform.Y * factor) + DeviceCOM.channelDatas[0].graphDatas[0].height / 2);
+
+
+        }
+
+
         private void D_Click(object sender, RoutedEventArgs e)
         {
             ellipsesPop = new CircleSetting(((Border)sender).Name);
@@ -1126,7 +1349,7 @@ namespace _8F
 
         public void SelectCh1()
         {
-            
+
 
             var currentChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
             if (currentChannel?.Id != 1)
@@ -1140,7 +1363,7 @@ namespace _8F
                 btnCh4.Background = new SolidColorBrush(Colors.DarkGray);
 
                 btnCh1.Background = new SolidColorBrush(Colors.Green);
-                
+
             }
         }
 
@@ -1171,28 +1394,30 @@ namespace _8F
             }
             else
             {
-                if (DeviceCOM.IsLogEnable)
+                //if (DeviceCOM.IsLogEnable)
+                //{
+                //    MessageBox.Show("While logging you can not perform this command, please stop the log.", "Command Conflict");
+                //}
+                //else
+                //{
+                var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll") || (((Border)sender).Name == "btnBalance2All");
+                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
+                BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
+                var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                if (rat)
                 {
-                    MessageBox.Show("While logging you can not perform this command, please stop the log.", "Command Conflict");
+                    DeviceCOM.IsBalanceAll = IsBalaneAll;
+                    DeviceCOM.IsBalanceBusyEnable = true;
                 }
                 else
                 {
-                    var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll" ) || (((Border)sender).Name == "btnBalance2All");
-                    var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
-                    int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
-                    BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
-                    var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
-                    if (rat)
-                    {
-                        DeviceCOM.IsBalanceAll = IsBalaneAll;
-                        DeviceCOM.IsBalanceBusyEnable = true;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
-                    }
+                    MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
                 }
+                //}
             }
+
+            lblCode.Content = "";
 
         }
 
@@ -1222,18 +1447,27 @@ namespace _8F
                         MessageBox.Show("Unable to test because of balance command is required!", "Error Information");
                         DeviceCOM.IsBalanceRequired = false;
                     }
-                    else
+                    if (DeviceCOM.IsBinRequired)
+                    {
+                        MessageBox.Show("Please put the previous component to NG bin before starting the test!", "Error Information");
+                        DeviceCOM.IsBinRequired = false;
+                    }
+
+                    if (!DeviceCOM.IsBalanceRequired && !DeviceCOM.IsBinRequired)
                     {
                         DeviceCOM.IsLogDisable = true;
                     }
                 }
             }
+
+            lblCode.Content = "";
         }
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             var IsClearAll = (((Border)sender).Name == "btnClear1All") || (((Border)sender).Name == "btnClearAll") || (((Border)sender).Name == "btnClear2All");
             ClearGraphDataWithoutBalance(IsClearAll);
+            lblCode.Content = "";
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -1383,7 +1617,7 @@ namespace _8F
                     el1.Width = 4;
                     var left = fd.X / factor;
                     var top = (fd.Y * -1) / factor;
-                    if (left > (seqLength /2))
+                    if (left > (seqLength / 2))
                     {
                         left = (seqLength / 2);
                     }
@@ -1392,23 +1626,23 @@ namespace _8F
                         top = (seqLength / 2);
                     }
 
-                    if (left < ((seqLength / 2)* -1))
+                    if (left < ((seqLength / 2) * -1))
                     {
                         left = ((seqLength / 2) * -1);
                     }
                     if (top < ((seqLength / 2) * -1))
                     {
                         top = ((seqLength / 2) * -1);
-                    } 
-                    Canvas.SetLeft(el1, left-2);
-                    Canvas.SetTop(el1, top-2);
+                    }
+                    Canvas.SetLeft(el1, left - 2);
+                    Canvas.SetTop(el1, top - 2);
                     //r1.Stroke = new SolidColorBrush(Colors.Black);
-                    if (selectedChannelData.IndexOf(item) == selectedChannelData.Count-1)
+                    if (selectedChannelData.IndexOf(item) == selectedChannelData.Count - 1)
                     {
                         if (item.IsBalacenced)
                         {
                             el1.Fill = new SolidColorBrush(Colors.Brown);
-                        } 
+                        }
                         else
                         {
                             el1.Fill = new SolidColorBrush(Colors.Blue);
@@ -1431,7 +1665,7 @@ namespace _8F
                             el1.Fill = new SolidColorBrush(Colors.Brown);
                         }
                         else
-                        { 
+                        {
                             if (fd.R == 1)
                             {
                                 el1.Fill = new SolidColorBrush(Colors.Green);
@@ -1447,7 +1681,7 @@ namespace _8F
                     if (fd.FN == 1)
                     {
                         cn1.Children.Add(el1);
-                        
+
                         if (!item.IsBalacenced)
                         {
                             lblGraphXY1.Text = fd.X.ToString() + "," + fd.Y.ToString();
@@ -1464,7 +1698,7 @@ namespace _8F
                     else if (fd.FN == 2)
                     {
                         cn2.Children.Add(el1);
-                        
+
                         if (!item.IsBalacenced)
                         {
                             lblGraphXY2.Text = fd.X.ToString() + "," + fd.Y.ToString();
@@ -1481,7 +1715,7 @@ namespace _8F
                     else if (fd.FN == 3)
                     {
                         cn3.Children.Add(el1);
-                        
+
                         if (!item.IsBalacenced)
                         {
                             lblGraphXY3.Text = fd.X.ToString() + "," + fd.Y.ToString();
@@ -1498,7 +1732,7 @@ namespace _8F
                     else if (fd.FN == 4)
                     {
                         cn4.Children.Add(el1);
-                        
+
                         if (!item.IsBalacenced)
                         {
                             lblGraphXY4.Text = fd.X.ToString() + "," + fd.Y.ToString();
@@ -1515,7 +1749,7 @@ namespace _8F
                     else if (fd.FN == 5)
                     {
                         cn5.Children.Add(el1);
-                        
+
                         if (!item.IsBalacenced)
                         {
                             lblGraphXY5.Text = fd.X.ToString() + "," + fd.Y.ToString();
@@ -1532,7 +1766,7 @@ namespace _8F
                     else if (fd.FN == 6)
                     {
                         cn6.Children.Add(el1);
-                        
+
                         if (!item.IsBalacenced)
                         {
                             lblGraphXY6.Text = fd.X.ToString() + "," + fd.Y.ToString();
@@ -1549,7 +1783,7 @@ namespace _8F
                     else if (fd.FN == 7)
                     {
                         cn7.Children.Add(el1);
-                        
+
                         if (!item.IsBalacenced)
                         {
                             lblGraphXY7.Text = fd.X.ToString() + "," + fd.Y.ToString();
@@ -1566,7 +1800,7 @@ namespace _8F
                     else if (fd.FN == 8)
                     {
                         cn8.Children.Add(el1);
-                        
+
                         if (!item.IsBalacenced)
                         {
                             lblGraphXY8.Text = fd.X.ToString() + "," + fd.Y.ToString();
@@ -1593,7 +1827,7 @@ namespace _8F
             cnt.ResultCount = 0;
             cnt.ResultOkCount = 0;
             cnt.ResultOkNotCount = 0;
-            
+
             lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
             lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
             lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
@@ -1606,10 +1840,12 @@ namespace _8F
             lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
             lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
+            lblCode.Content = "";
         }
 
         private void btnLog_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            lblCode.Content = "";
             if (DeviceCOM.IsLogEnable)
             {
                 DeviceCOM.IsLogEnable = false;
@@ -1626,6 +1862,8 @@ namespace _8F
                 partConfig.ShowDialog();
 
             }
+
+
         }
 
         private void partConfig_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -1648,7 +1886,163 @@ namespace _8F
             Status status = new Status() { FC = 18 };
             var rat = portCOM.WriteData(JsonConvert.SerializeObject(status));
         }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.B || e.Key == Key.Space || e.Key == Key.R)
+            {
+                if (e.Key == Key.B)
+                {
+                    if (DeviceCOM.IsSystemBusy)
+                    {
+                        MessageBox.Show("System is busy so you can not perform this command, please wait...", "System Information");
+                    }
+                    else
+                    {
+                        BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
+                        var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                        if (rat)
+                        {
+                            DeviceCOM.IsBalanceAll = true;
+                            DeviceCOM.IsBalanceBusyEnable = true;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
+                        }
+                    }
+
+                    lblCode.Content = "";
+                }
+                else if (e.Key == Key.R)
+                {
+                    var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                    var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
+
+                    cnt.ResultCount = 0;
+                    cnt.ResultOkCount = 0;
+                    cnt.ResultOkNotCount = 0;
+
+                    lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                    lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+
+                    lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                    lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+
+                    lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                    lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+
+                    lblCode.Content = "";
+                }
+                else if (e.Key == Key.Space)
+                {
+                    if (DeviceCOM.IsSystemBusy)
+                    {
+                        MessageBox.Show("System is busy so you can not perform this command, please wait...", "System Information");
+
+                    }
+                    else
+                    {
+
+                        BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
+                        var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                        if (!rat)
+                        {
+                            MessageBox.Show("Unable to start test due to the error in the communication!", "Error Information");
+                        }
+                        else
+                        {
+                            if (DeviceCOM.IsBalanceRequired)
+                            {
+                                MessageBox.Show("Unable to test because of balance command is required!", "Error Information");
+                                DeviceCOM.IsBalanceRequired = false;
+                            }
+                            if (DeviceCOM.IsBinRequired)
+                            {
+                                MessageBox.Show("Please put the previous component to NG bin before starting the test!", "Error Information");
+                                DeviceCOM.IsBinRequired = false;
+                            }
+
+                            if (!DeviceCOM.IsBalanceRequired && !DeviceCOM.IsBinRequired)
+                            {
+                                DeviceCOM.IsLogDisable = true;
+                            }
+                        }
+                    }
+
+                    lblCode.Content = "";
+                }
+            }
+        }
     }
+
+    public class BarcodeScanner
+    {
+        private readonly StringBuilder _buffer = new();
+        private readonly DispatcherTimer _timer;
+
+        // Event raised when a full barcode is detected
+        public event EventHandler<string>? BarcodeScanned;
+
+        public BarcodeScanner()
+        {
+            // Timer resets when no keys come in for a short time (end of scan)
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _timer.Tick += (s, e) =>
+            {
+                if (_buffer.Length > 0)
+                {
+                    string code = _buffer.ToString();
+                    _buffer.Clear();
+                    BarcodeScanned?.Invoke(this, code);
+                }
+                _timer.Stop();
+            };
+        }
+
+        public void HandleKey(KeyEventArgs e)
+        {
+            // Convert key input into character
+            char c = GetCharFromKey(e.Key);
+            if (c == '\0')
+                return;
+
+            if (e.Key == Key.Enter)
+            {
+                string code = _buffer.ToString();
+                _buffer.Clear();
+                _timer.Stop();
+                BarcodeScanned?.Invoke(this, code);
+            }
+            else
+            {
+                _buffer.Append(c);
+                _timer.Stop();
+                _timer.Start();
+            }
+        }
+
+        private static char GetCharFromKey(Key key)
+        {
+            // Simple conversion for A-Z, 0-9 and common symbols
+            if (key >= Key.A && key <= Key.Z)
+                return (char)('A' + (key - Key.A));
+            if (key >= Key.D0 && key <= Key.D9)
+                return (char)('0' + (key - Key.D0));
+            if (key == Key.OemMinus)
+                return '-';
+            if (key == Key.Space)
+                return ' ';
+            if (key == Key.Enter)
+                return '\r';
+
+            return '\0';
+        }
+    }
+
 
     public class MenuItemViewModel
     {
@@ -1716,7 +2110,7 @@ namespace _8F
                             {
                                 msg = "No response from the system, please reboot the board";
                             }
-                            
+
                             MessageBox.Show(msg, "Information");
                         }
                         catch (Exception ex)
@@ -1754,7 +2148,7 @@ namespace _8F
                         MessageBox.Show(msg, "Information");
 
                     }
-                    else if ( Header == "Data Log")
+                    else if (Header == "Data Log")
                     {
                         //mainWindow.report = new Report();
                         //mainWindow.report.ShowDialog();
@@ -1870,7 +2264,7 @@ namespace _8F
                                     var msg = "No response from the system, please reboot the board";
                                     MessageBox.Show(msg, "Information");
                                 }
-                                
+
                                 //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                 this.mainWindow.lblConfigFileName.Content = filename;
                             }
@@ -1907,9 +2301,14 @@ namespace _8F
                         //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
                         mainWindow.Close();
                     }
-                    else if (Header == "View Log")
+                    else if (Header == "Batch Wise Log")
                     {
                         Logs logs = new Logs();
+                        logs.ShowDialog();
+                    }
+                    else if (Header == "Serial Number Log")
+                    {
+                        LogAll logs = new LogAll();
                         logs.ShowDialog();
                     }
                 }
@@ -1959,5 +2358,61 @@ namespace _8F
         }
     }
 
+    public class TcpClientWithEvents
+    {
+        private readonly TcpClient _client = new TcpClient();
+        private NetworkStream _stream;
+        private CancellationTokenSource _cts;
+
+        public event EventHandler<string>? DataReceived;
+        public event EventHandler? Disconnected;
+
+        public async Task ConnectAsync(string host, int port)
+        {
+            await _client.ConnectAsync(host, port);
+            _stream = _client.GetStream();
+            _cts = new CancellationTokenSource();
+            _ = Task.Run(() => ReceiveLoopAsync(_cts.Token));
+        }
+
+        private async Task ReceiveLoopAsync(CancellationToken token)
+        {
+            byte[] buffer = new byte[1024];
+
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length, token);
+                    if (bytesRead == 0)
+                    {
+                        Disconnected?.Invoke(this, EventArgs.Empty);
+                        break;
+                    }
+
+                    string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    DataReceived?.Invoke(this, message);
+                }
+            }
+            catch
+            {
+                Disconnected?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public async Task SendAsync(string message)
+        {
+            if (_stream == null) return;
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            await _stream.WriteAsync(data, 0, data.Length);
+        }
+
+        public void Disconnect()
+        {
+            _cts?.Cancel();
+            _stream?.Close();
+            _client?.Close();
+        }
+    }
 }
 

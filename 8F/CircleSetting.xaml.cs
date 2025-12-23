@@ -31,9 +31,12 @@ namespace _8F
         public CircleSetting(string selectChannel)
         {
             InitializeComponent();
+            ddlFrChennel.ItemsSource = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.Select(x => x.Name).ToList();
+            ddlFrChennel.SelectedItem = selectChannel;
+        }
 
-            //ddlFrChennel.ItemsSource = DeviceCOM.channelDatas.FirstOrDefaultselectChannel(c=> c.IsSeleted == true).graphDatas.Select(x=> x.Name).ToList();
-            //ddlFrChennel.SelectedIndex = 0;
+        private void ChangeFreq (string selectChannel)
+        {
             lblHeader.Content = "System Configuration (" + selectChannel + ")";
             _selectChannel = selectChannel;
             var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == selectChannel);
@@ -58,13 +61,6 @@ namespace _8F
                 gdFreq.ItemsSource = null;
                 gdFreq.ItemsSource = ellipses;
 
-
-                //ddlFrChennel.SelectedItem = selectChannel;
-                //txtHeight.Text = Gdata.height.ToString();
-                //txtWidth.Text = Gdata.width.ToString();
-                //txtX_Shift.Text = Gdata.ex.ToString();
-                //txtY_Shift.Text = Gdata.ey.ToString();
-                //txtAngel.Text = Gdata.angel.ToString();
             }
         }
 
@@ -263,6 +259,12 @@ namespace _8F
                 btnConfigSave_Click(btnConfigSave, null);
             }
             //this.Close();
+        }
+
+        private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var text = e.AddedItems[0].ToString();
+            ChangeFreq(text);
         }
     }
 }
