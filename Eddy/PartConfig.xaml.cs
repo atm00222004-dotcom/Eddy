@@ -15,7 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace _8F
+namespace Eddy
 {
     /// <summary>
     /// Interaction logic for Window1.xaml
@@ -29,25 +29,13 @@ namespace _8F
             if (DeviceCOM.part == null )
                 DeviceCOM.part = new Part();
 
-            var batchTypes = new List<string>();
-            batchTypes.Add("Manual");
-            batchTypes.Add("Auto");
-            ddlBatchType.ItemsSource = batchTypes;
-            if (DeviceCOM.part.BatchType == 0)
-            {
-                ddlBatchType.SelectedIndex = 0;
-            }
-            else
-            {
-                ddlBatchType.SelectedIndex = 1;
-            }
-            txtBatchName.Text = DeviceCOM.part.BatchName;
-            txtPartName.Text = DeviceCOM.part.Name;
-            txtGrade.Text = DeviceCOM.part.Grade;
+            
+            txtBatchName.Text = DeviceCOM.part.Name;
+            txtPlace.Text = DeviceCOM.part.Placce;
             txtCheckedBy.Text = DeviceCOM.part.CheckedBy;
             txtCompanyName.Text = DeviceCOM.part.CompanyName;
             txtBatchSize.Text = DeviceCOM.part.BatchSize.ToString();
-            txtBatchNo.Text = DeviceCOM.part.BatchNo.ToString();
+            txtGrade.Text = DeviceCOM.part.Grade;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -62,14 +50,12 @@ namespace _8F
                 var msg = Validaton();
                 if (msg.Count == 0)
                 {
-                    DeviceCOM.part.BatchName = txtBatchName.Text;
-                    DeviceCOM.part.Name = txtPartName.Text;
+                    DeviceCOM.part.Name = txtBatchName.Text;
+                    DeviceCOM.part.Placce = txtPlace.Text;
                     DeviceCOM.part.Grade = txtGrade.Text;
                     DeviceCOM.part.CheckedBy = txtCheckedBy.Text;
                     DeviceCOM.part.CompanyName = txtCompanyName.Text;
-                    DeviceCOM.part.BatchType = ddlBatchType.SelectedIndex;
                     DeviceCOM.part.BatchSize= string.IsNullOrEmpty(txtBatchSize.Text) ? 0 : Convert.ToInt16(txtBatchSize.Text);
-                    DeviceCOM.part.BatchNo = string.IsNullOrEmpty(txtBatchNo.Text) ? 0 :  Convert.ToInt16(txtBatchNo.Text);
                     DeviceCOM.IsLogEnable = true;
                     IsSaved = true;
                     lblMsg.Content = "Log has been started!!!";
@@ -96,9 +82,9 @@ namespace _8F
             {
                 validationMsg.Add("Batch Name is required.");
             }
-            if (string.IsNullOrEmpty(txtPartName.Text))
+            if (string.IsNullOrEmpty(txtPlace.Text))
             {
-                validationMsg.Add("Part Name is required.");
+                validationMsg.Add("Place Name is required.");
             }
             
             if (string.IsNullOrEmpty(txtGrade.Text))
@@ -117,35 +103,18 @@ namespace _8F
                 validationMsg.Add("Checked By is required.");
             }
 
-            if (DeviceCOM.part.BatchType == 0)
+            if (string.IsNullOrEmpty(txtBatchSize.Text))
             {
-                if (string.IsNullOrEmpty(txtBatchNo.Text))
-                {
-                    validationMsg.Add("Batch No is required and sould be greater than 0");
-                }
-                else
-                {
-                    if (Convert.ToInt16(txtBatchNo.Text) <= 0)
-                    {
-                        validationMsg.Add("Batch No is required and sould be greater than 0");
-                    }
-                }
+                validationMsg.Add("Batch Size is required and sould be greater than 0");
             }
             else
             {
-                if (string.IsNullOrEmpty(txtBatchSize.Text))
+                if (Convert.ToInt16(txtBatchSize.Text) <= 0)
                 {
                     validationMsg.Add("Batch Size is required and sould be greater than 0");
                 }
-                else
-                {
-                    if (Convert.ToInt16(txtBatchSize.Text) <= 0)
-                    {
-                        validationMsg.Add("Batch Size is required and sould be greater than 0");
-                    }
-                }
             }
-            
+
 
             return validationMsg;
         }
@@ -164,24 +133,6 @@ namespace _8F
             e.Handled = regex.IsMatch(e.Text);
         }
 
-        private void ddlBatchType_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var text = e.AddedItems[0].ToString();
-            if (text == "Manual")
-            {
-                lblBatchSize.Visibility = Visibility.Hidden;
-                txtBatchSize.Visibility = Visibility.Hidden;
-                lblBatchNo.Visibility = Visibility.Visible;
-                txtBatchNo.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                lblBatchSize.Visibility = Visibility.Hidden;
-                txtBatchSize.Visibility = Visibility.Hidden;
-                lblBatchNo.Visibility = Visibility.Hidden;
-                txtBatchNo.Visibility = Visibility.Hidden;
-                txtBatchNo.Text = "1";
-            }
-        }
+       
     }
 }

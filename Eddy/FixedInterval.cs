@@ -1,0 +1,6 @@
+﻿using ScottPlot;
+
+namespace Eddy
+{
+    
+}
