@@ -211,6 +211,10 @@ namespace Eddy
 
             wpCounter.Plot.Title("Counter Distribution");
             wpCounter.Refresh();
+
+            //Get counter file and Reset wpCounter
+
+
         }
 
         HorizontalLine thresholdLine4;
@@ -498,6 +502,8 @@ namespace Eddy
                 {
                     DeviceCOM.NoOk = DeviceCOM.NoOk + 1;
                 }
+
+                // Write counter file
 
                 wpCounter.Plot.Clear();
 
@@ -931,6 +937,8 @@ namespace Eddy
             wpCounter.Plot.Clear();
 
             wpCounter.Refresh();
+
+            // Delete counter file 
 
         }
 

@@ -133,7 +133,7 @@ namespace _8F
 
                     Gdata.ellipses.Add(el);
 
-                    Elliplse elliplse = new Elliplse() { FN = Gdata.Id, EId = el.Id, a = el.height, b = el.width, t = el.angel, x = el.ex, y = el.ey };
+                    Elliplse elliplse = new Elliplse() { FN = Gdata.Id, EId = el.Id, a = el.height, b = el.width, t = el.angel, x = (int)Math.Round(el.ex, MidpointRounding.AwayFromZero), y = (int)Math.Round(el.ey, MidpointRounding.AwayFromZero) };
                     frequ.ED.Add(elliplse);
                 }
             }

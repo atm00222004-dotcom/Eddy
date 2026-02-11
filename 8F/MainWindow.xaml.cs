@@ -73,6 +73,15 @@ namespace _8F
                 imgLogo.Source = new BitmapImage(new Uri(LogoPath));
             }
 
+            //List<string> lines = new List<string>
+            //{
+            //    "Application Started at " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss")
+            //};
+            //string FilePath = System.Configuration.ConfigurationSettings.AppSettings["CSVPath"].ToString() +  "asd.csv";
+
+            //File.AppendAllLines(FilePath, lines);
+            //var FileName = System.DateTime.Now.ToString();
+
             WebPage = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["WebPage"]);
 
             ScreenId = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["ScreenId"]);
@@ -295,7 +304,7 @@ namespace _8F
 
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            System.Threading.Thread.Sleep(10);
+            System.Threading.Thread.Sleep(20);
             string data = _serialPort.ReadExisting();
             ProcessCode(data);
         }
@@ -972,7 +981,7 @@ namespace _8F
                     _mode.OE = new OuterElliplse { a = el11.Height, b = el11.Width, t = rtAngel11.Angle };
                 }
 
-                portCOM.WriteData(JsonConvert.SerializeObject(mode));
+                portCOM.WriteData(JsonConvert.SerializeObject(_mode));
             }
 
             foreach (var ch in DeviceCOM.channelDatas)
@@ -1157,7 +1166,7 @@ namespace _8F
                             Frequ frequ = new Frequ() { FN = graphData.Id, ED = new List<Elliplse>() };
                             foreach (var el in graphData.ellipses)
                             {
-                                Elliplse elliplse = new Elliplse() { FN = graphData.Id, EId = el.Id, a = el.height, b = el.width, t = el.angel, x = el.ex, y = el.ey };
+                                Elliplse elliplse = new Elliplse() { FN = graphData.Id, EId = el.Id, a = el.height, b = el.width, t = el.angel, x = (int)Math.Round(el.ex, MidpointRounding.AwayFromZero), y = (int)Math.Round(el.ey, MidpointRounding.AwayFromZero) };
                                 frequ.ED.Add(elliplse);
                             }
                             frequencyWrite.FD.Add(frequency);

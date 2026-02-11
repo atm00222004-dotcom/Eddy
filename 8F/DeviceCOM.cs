@@ -1,23 +1,23 @@
 ﻿using Newtonsoft.Json;
+using Npgsql;
+using System;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Net.WebSockets;
+using System.Printing;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-using System;
 using System.Threading.Tasks;
-using System.Net.WebSockets;
-using System.Net;
-using System.Printing;
-using System.Windows.Threading;
-using System.Net.Sockets;
-using System.IO;
-using Npgsql;
-using System.Diagnostics.Metrics;
 using System.Windows.Media;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 
@@ -196,6 +196,7 @@ namespace _8F
                         if (ChannelNo >= res?.CN)
                         {
                             responses.Add(res);
+
                             var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
                             if (res.OR == 1)
                             {
@@ -208,13 +209,22 @@ namespace _8F
                             cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             IsResponseRefreshRequired = true;
 
+                            if (!string.IsNullOrEmpty(Code))
+                            {
+                                Task.Run(() =>
+                                {
+                                    WriteLogCSV(Convert.ToBoolean(res.OR), DateTime.Now, res);
+                                });
+                            }
+
                             if (!IsLogDisable && IsLogEnable)
                             {
                                 Task.Run(() =>
                                 {
-                                    WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now);                                    
+                                    WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now, res);                                    
                                 });
                             }
+
                             DeviceCOM.IsLogDisable = false;
 
                         }
@@ -249,7 +259,7 @@ namespace _8F
             }
         }
 
-        public void WriteLog(int ChId, bool Result, DateTime TimeStamp)
+        public void WriteLog(int ChId, bool Result, DateTime TimeStamp, Response res)
         {
             try
             {
@@ -261,15 +271,15 @@ namespace _8F
 
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
                     if (ChId == 1)
-                    {                        
+                    {
                         sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\",\"SrNo\", \"BatchNo\" , \"TimeStamp\")\r\n\t" +
                             "VALUES (" +
                             ChId + ", '" +
                             Result + "', '" +
                             fdData + "', '" +
                             partData + "', '" +
-                            DeviceCOM.part.Name  +  "', '" +
-                            DeviceCOM.part.BatchName + "', '"+
+                            DeviceCOM.part.Name + "', '" +
+                            DeviceCOM.part.BatchName + "', '" +
                             Code + "', " +
                             DeviceCOM.part.BatchNo + ", '" +
                             TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"BatchName\" = '" + DeviceCOM.part.BatchName + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
@@ -283,11 +293,9 @@ namespace _8F
                             {
                                 // stop the logging 
                             }
-                            
+
                             DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
                         }
-
-                        Code = string.Empty;
                     }
                     else
                     {
@@ -323,9 +331,56 @@ namespace _8F
             {
 
             }
+
+            //Code = string.Empty;
         }
 
-       
+        private static void WriteLogCSV(bool Result, DateTime TimeStamp, Response res)
+        {
+            try
+            {
+                // Write to CSV File
+                var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.Id == res.CN);
+                if (ch != null)
+                {
+                    List<string> lines = new List<string>();
+                    var FileName = "EddyLog_" + System.DateTime.Now.ToShortDateString();
+                    string FilePath = System.Configuration.ConfigurationSettings.AppSettings["CSVPath"].ToString() + FileName + ".csv";
+                    if (!File.Exists(FilePath))
+                    {
+                        string line = "TimeStamp,Code,Operator Name,Result";
+                        foreach (var fd in ch.graphDatas)
+                        {
+                            line = line + ",Frequency Result_" + fd.Id.ToString() + ",Frequency_" + fd.Id.ToString();
+                        }
+                        lines.Add(line);
+                    }
+
+                    string data = System.DateTime.Now.ToString() + ","+ Code.Replace("\n", "").Replace("\r","") + "," + DeviceCOM.part.CheckedBy + "," + (Result == true ? "Ok" : "No Ok");
+
+                    foreach (var fd in res.FD)
+                    {
+                        var Gdata = ch.graphDatas.FirstOrDefault(d => d.Id == fd.FN);
+                        if (Gdata != null)
+                        {
+                            data = data + "," + (fd.R == 1 ? "Ok" : "No Ok") + "," + Gdata.freq.ToString();
+                        }
+                    }
+
+                    lines.Add(data);
+
+                    if (lines.Count > 0)
+                    {
+                        File.AppendAllLines(FilePath, lines);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
         public bool WriteData(string data, bool isFrombak = false)
         {
             try
@@ -709,8 +764,8 @@ namespace _8F
         public double a;
         public double b;
         public double t;
-        public double x;
-        public double y;
+        public int x;
+        public int y;
     }
     public class FrequencyCount
     {
