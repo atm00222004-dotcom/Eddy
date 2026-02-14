@@ -1,0 +1,83 @@
+﻿<Window x:Class="_8F.Freq"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_8F"
+        mc:Ignorable="d"
+        Title="Window1" 
+        ResizeMode="NoResize" Height="450" WindowStartupLocation="CenterScreen"  Width="720"  WindowState="Normal"  WindowStyle="None"
+        >
+    <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.15*"/>
+                <RowDefinition Height="0.04*"/>
+                <RowDefinition Height="0.6*"/>
+                <RowDefinition Height="0.04*"/>
+                <RowDefinition Height="0.25*"/>
+                <RowDefinition Height="0.3*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Margin="0,10,0,0" Content="System Configuration" VerticalAlignment="Top" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0"></Label>
+            <!--<Image Name="btnClose" Margin="0,15,25,0" VerticalAlignment="Top" Width="30" MouseUp="Button_Click" HorizontalAlignment="Right" Source="/Images/Group 48.png" />-->
+            <Border Width="80" Name="btnClose" Margin="0,15,25,0" MouseDown="Button_Click" Background="#305371" HorizontalAlignment="Right" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Close" ></Label>
+            </Border>
+            <Separator VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
+            <Grid Margin="20,30,30,20" Grid.Row="2" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <!--<RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>-->
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Visibility="Hidden" Margin="20,0,0,0" Content="Freq Channel" FontSize="16" FontWeight="Bold" Grid.Row="10" Grid.Column="0"></Label>
+                <ComboBox Visibility="Hidden"  Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="10" Grid.Column="1" SelectionChanged="ddlFrChennel_SelectionChanged" Name="ddlFrChennel" />
+
+                <Label Margin="20,0,0,0" Content="Solenoid (ms)" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtSOL" />
+                
+                <Label Content="Frequency" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtFreq" />
+                <Label Margin="20,0,0,0"  FontSize="16" FontWeight="Bold" Content="Gain"  Grid.Row="1" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtGain" />
+                <Label Content="Phase" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtPhase" />
+
+                <Label Margin="20,0,0,0" Content="Status" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
+                <ComboBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="2" Grid.Column="1" Name="ddlStatus" />
+                <!--
+                <Label Content="Width" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtWidth" />
+                <Label Margin="20,0,0,0" Content="X_Shift" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="0"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="1" Name="txtX_Shift" />
+                <Label Content="Y_Shift" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="2"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="3" Grid.Column="3" Name="txtY_Shift" />
+
+                <Label Margin="20,0,0,0" Content="Angel" FontSize="16" FontWeight="Bold" Grid.Row="4" Grid.Column="0"></Label>
+                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="4" Grid.Column="1" Name="txtAngel" />-->
+                
+            </Grid>
+            <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
+            <!--<Button FontWeight="Bold"  Margin="20,0,0,0" MaxWidth="150" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0" Content="Save Config" Name="btnConfigSave" Click="btnConfigSave_Click" ></Button>-->
+
+            <Border Width="250" Name="btnConfigSave" MouseDown="btnConfigSave_Click" Margin="18" Background="#305371" Grid.Column="0" Grid.Row="4" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Save Config" ></Label>
+            </Border>
+
+            <Label Content="" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
+
+        </Grid>
+    </Border>
+</Window>
