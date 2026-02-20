@@ -683,8 +683,8 @@ namespace _8F
         public int Id = 0;
         public string Name = "D";
         public int sol = 400;
-        public int freq = 400;
-        public int gain = 10;
+        public int freq = 2000;
+        public int gain = 35;
         public int phase = 0;
         public bool isEnable = true;
         public double height = DeviceCOM.DefaultHeight;
