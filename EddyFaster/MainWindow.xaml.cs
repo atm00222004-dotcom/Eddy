@@ -31,7 +31,7 @@ namespace _8F
         double factor = 20;
 
         
-        int seqLength = 670;
+        int seqLength = 720;
         int CommunicationType = 0;
         int FrequencyNo = 1;
 
@@ -142,7 +142,7 @@ namespace _8F
             
             dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(100);
+            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(50);
             dispatcherTimer.Start();
 
             Status status = new Status() { FC = 23 };
@@ -202,26 +202,57 @@ namespace _8F
                 isProcessing = false;
             });
         }
+        short lastX = 0;
+        short lastY = 0;
+
         private void ProcessPortData(byte[] indata)
         {
             try
             {
+                if (indata == null || indata.Length < 3)
+                    return;
+
                 List<Cordinate> cordinates = new List<Cordinate>();
-                var NoOfSample = indata[1];
-                var startByte = 2;
-                for (var i = 0; i < NoOfSample; i++)
+
+                // Sample count (little-endian)
+                int noOfSample = BitConverter.ToUInt16(indata, 1);
+
+                int offset = 3;
+
+                for (int i = 0; i < noOfSample; i++)
                 {
-                    var _startByte = startByte + (i*4);
-                    //int x = ( indata[startByte + 1] << 8) | indata[startByte];
-                    //int y = (indata[startByte + 3] << 8) | indata[startByte + 2];
-                    short x = (short)((indata[startByte + 1] << 8) | indata[startByte]);
-                    short y = (short)((indata[startByte + 3] << 8) | indata[startByte + 2]);
-                    cordinates.Add(new Cordinate() { X = x, Y = y });
+                    // Validate packet length
+                    if (offset + 4 > indata.Length)
+                        break;
+
+                    short x = BitConverter.ToInt16(indata, offset);
+                    short y = BitConverter.ToInt16(indata, offset + 2);
+
+                    offset += 4;
+
+                    // Add only if value changed
+                    if (lastX != x || lastY != y)
+                    {
+                        lastX = x;
+                        lastY = y;
+
+                        cordinates.Add(new Cordinate()
+                        {
+                            X = x,
+                            Y = y
+                        });
+                    }
                 }
 
-                DeviceCOM.cordinateQueue.Add(new CordinateQueue() { cordinates = cordinates });
+                // Do not add empty batches
+                if (cordinates.Count == 0)
+                    return;
 
-                // Keep only last 10
+                DeviceCOM.cordinateQueue.Add(
+                    new CordinateQueue() { cordinates = cordinates }
+                );
+
+                // Keep only last 10 batches
                 if (DeviceCOM.cordinateQueue.Count > 10)
                 {
                     DeviceCOM.cordinateQueue.RemoveRange(
@@ -234,10 +265,10 @@ namespace _8F
             }
             catch (Exception ex)
             {
-
+                // Optional: log error
+                // Logger.Log(ex);
             }
         }
-
 
         public string Reverse(string Input)
         {
@@ -558,13 +589,13 @@ namespace _8F
 
                                     br1_rec1.Fill = enableColor;
                                     D1.IsEnabled = true;
-                                    br1.IsEnabled = true;
+                                   // br1.IsEnabled = true;
                                 }
                                 else
                                 {
                                     br1_rec1.Fill = disableColor;
                                     D1.IsEnabled = false;
-                                    br1.IsEnabled = false;
+                                    //br1.IsEnabled = false;
                                 }
                                 frequencyWrite.S = graphData.sol;
                             }                           
@@ -949,8 +980,8 @@ namespace _8F
                     Ellipse el1 = new Ellipse();
                     el1.Height = 4;
                     el1.Width = 4;
-                    var left = fd.X / (factor*2);
-                    var top = (fd.Y * -1) / (factor * 2);
+                    var left = fd.X / (factor);
+                    var top = (fd.Y * -1) / (factor);
                     if (left > (seqLength / 2))
                     {
                         left = (seqLength / 2);
@@ -1040,8 +1071,8 @@ namespace _8F
                     Ellipse el1 = new Ellipse();
                     el1.Height = 4;
                     el1.Width = 4;
-                    var left = (item.X / factor*2);
-                    var top = (item.Y * -1) / (factor * 2);
+                    var left = (item.X / factor);
+                    var top = (item.Y * -1) / (factor);
                     if (left > (seqLength / 2))
                     {
                         left = (seqLength / 2);

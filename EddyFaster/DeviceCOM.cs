@@ -214,13 +214,13 @@ namespace _8F
                             cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             IsResponseRefreshRequired = true;
 
-                            if (!string.IsNullOrEmpty(Code))
-                            {
-                                Task.Run(() =>
-                                {
-                                    WriteLogCSV(Convert.ToBoolean(res.OR), DateTime.Now, res);
-                                });
-                            }
+                            //if (!string.IsNullOrEmpty(Code))
+                            //{
+                            //    Task.Run(() =>
+                            //    {
+                            //        WriteLogCSV(Convert.ToBoolean(res.OR), DateTime.Now, res);
+                            //    });
+                            //}
 
                             if (!IsLogDisable && IsLogEnable)
                             {
