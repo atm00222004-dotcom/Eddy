@@ -165,6 +165,19 @@ namespace _8F
 
 
             Task.Run(() => PollLoop());
+
+            var IsManualTest = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsManualTest"]);
+            if (IsManualTest)
+            {
+                btnTest2.Visibility = Visibility.Visible;
+                btnStop.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                btnTest2.Visibility = Visibility.Hidden;
+                btnStop.Visibility = Visibility.Hidden;
+            }
+
         }
         private void PollLoop()
         {
