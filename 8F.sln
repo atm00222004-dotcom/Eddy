@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "8F", "8F\8F.csproj", "{3EB7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eddy", "Eddy\Eddy.csproj", "{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EddyFaster", "EddyFaster\EddyFaster.csproj", "{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPPortDataTesting", "IPPortDataTesting\IPPortDataTesting.csproj", "{B7159FF8-7F40-4921-9815-ACA6B2AA9C66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7159FF8-7F40-4921-9815-ACA6B2AA9C66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7159FF8-7F40-4921-9815-ACA6B2AA9C66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7159FF8-7F40-4921-9815-ACA6B2AA9C66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7159FF8-7F40-4921-9815-ACA6B2AA9C66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
