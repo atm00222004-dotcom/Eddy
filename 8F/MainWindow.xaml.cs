@@ -83,7 +83,7 @@ namespace _8F
             //var FileName = System.DateTime.Now.ToString();
 
             WebPage = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["WebPage"]);
-
+            DeviceCOM.IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
             ScreenId = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["ScreenId"]);
             BoxSize1 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize1"]);
             BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize2"]);
@@ -277,7 +277,22 @@ namespace _8F
             dispatcherTimer.Start();
 
             Status status = new Status() { FC = 23 };
-            var rat = portCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
+
+            bool rat = false;
+            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+            if (IsJSON)
+            {
+                rat = portCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
+            }
+            else
+            {
+                byte[] data = new byte[5];
+                data[0] = Convert.ToByte(2);
+                data[1] = Convert.ToByte(23);
+                data[2] = Convert.ToByte(0);
+
+                rat = portCOM.WriteDataInBytes(data);
+            }
 
             if (DeviceCOM.IsSystemBusy || !rat)
             {
@@ -347,7 +362,24 @@ namespace _8F
                                     DeviceCOM.IsLogDisable = false;
                                     DeviceCOM.Code = data;
                                     BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
-                                    var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest), false);
+
+                                    bool rat = false;
+                                    var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+
+                                    if (IsJSON)
+                                    {
+                                        rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                                    }
+                                    else
+                                    {
+                                        byte[] data1 = new byte[6];
+                                        data1[0] = Convert.ToByte(2);
+                                        data1[1] = Convert.ToByte(17);
+                                        data1[2] = Convert.ToByte(1);
+                                        data1[3] = Convert.ToByte(0);
+
+                                        rat = portCOM.WriteDataInBytes(data1);
+                                    }
 
                                     if (!rat)
                                     {
@@ -972,16 +1004,34 @@ namespace _8F
             if (ChangeType == 0)
             {
                 FrequencyCount frequencyCount = new FrequencyCount() { FC = 1, C = FrequencyNo, NC = chNo };
-                portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
+                Mode _mode = new Mode() { FC = 2, M = 0 };
 
-                Mode _mode = new Mode() { FC = 2, M = mode };
-
-                if (_mode.M == 1)
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                if (IsJSON)
                 {
-                    _mode.OE = new OuterElliplse { a = el11.Height, b = el11.Width, t = rtAngel11.Angle };
+                    portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
+                    portCOM.WriteData(JsonConvert.SerializeObject(_mode));
+                }
+                else
+                {
+                    byte[] data = new byte[7];
+                    data[0] = Convert.ToByte(2);
+                    data[1] = Convert.ToByte(1);
+                    data[2] = Convert.ToByte(2);
+                    data[3] = Convert.ToByte(chNo);
+                    data[4] = Convert.ToByte(FrequencyNo);
+
+                    portCOM.WriteDataInBytes(data);
+
+                    byte[] data1 = new byte[6];
+                    data1[0] = Convert.ToByte(2);
+                    data1[1] = Convert.ToByte(2);
+                    data1[2] = Convert.ToByte(1);
+                    data1[3] = Convert.ToByte(0);
+
+                    portCOM.WriteDataInBytes(data1);
                 }
 
-                portCOM.WriteData(JsonConvert.SerializeObject(_mode));
             }
 
             foreach (var ch in DeviceCOM.channelDatas)
@@ -992,6 +1042,7 @@ namespace _8F
                     frequencyWrite.FC = 4;
                     frequencyWrite.CN = ch.Id;
                     frequencyWrite.FD = new List<Frequency>();
+
                     ElliplseWrite ellipseWrite = new ElliplseWrite();
                     ellipseWrite.FC = 5;
                     ellipseWrite.CN = ch.Id;
@@ -1177,9 +1228,83 @@ namespace _8F
 
                     if (ChangeType == 0)
                     {
-                        var rat1 = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
-                        System.Threading.Thread.Sleep(500);
-                        var rat2 = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+
+                        bool rat1 = false;
+                        bool rat2 = false;
+
+                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                        if (IsJSON)
+                        {
+                            rat1 = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                            System.Threading.Thread.Sleep(500);
+                            rat2 = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+                        }
+                        else
+                        {
+                            int length = (frequencyWrite.FD.Count * 10) + 6;
+                            byte[] data = new byte[length];
+                            data[0] = Convert.ToByte(2);
+                            data[1] = Convert.ToByte(4);
+                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10)+1);
+                            data[3] = Convert.ToByte(ch.Id);
+                            int startB = 4;
+                            foreach (var kvp in frequencyWrite.FD)
+                            {
+                                data[startB] =Convert.ToByte(kvp.FN);
+
+                                data[startB + 1] = (byte)(kvp.F & 0xFF);         // Lowest byte
+                                data[startB + 2] = (byte)((kvp.F >> 8) & 0xFF);  // Byte 2
+                                data[startB + 3] = (byte)((kvp.F >> 16) & 0xFF); // Byte 3
+                                data[startB + 4] = (byte)((kvp.F >> 24) & 0xFF); // Highest byte
+
+                                data[startB + 5] = (byte)(kvp.G & 0xFF);         // Lowest byte
+                                data[startB + 6] = (byte)((kvp.G >> 8) & 0xFF);  // Byte 2
+
+                                data[startB + 7] = (byte)(kvp.P & 0xFF);         // Lowest byte
+                                data[startB + 8] = (byte)((kvp.P >> 8) & 0xFF);  // Byte 2
+
+                                data[startB + 9] = (byte)(kvp.E);
+
+                                startB = startB + 10;
+                            }
+
+                            rat1 = portCOM.WriteDataInBytes(data);
+                            System.Threading.Thread.Sleep(500);
+
+
+                            int length1 = (ellipseWrite.FD.Count * 11) + 6;
+                            byte[] data1 = new byte[length1];
+                            data1[0] = Convert.ToByte(2);
+                            data1[1] = Convert.ToByte(5);
+                            data1[2] = Convert.ToByte((ellipseWrite.FD.Count * 11) + 1);
+                            data1[3] = Convert.ToByte(ch.Id);
+                            int start1B = 4;
+
+                            foreach (var kvp in ellipseWrite.FD)
+                            {
+                                data1[start1B] = Convert.ToByte(kvp.FN);
+
+                                data1[start1B + 1] = (byte)(Convert.ToInt16(kvp.ED[0].a) & 0xFF);         // Lowest byte
+                                data1[start1B + 2] = (byte)((Convert.ToInt16(kvp.ED[0].a) >> 8) & 0xFF);  // Byte 2
+
+                                data1[start1B + 3] = (byte)(Convert.ToInt16(kvp.ED[0].b) & 0xFF);         // Lowest byte
+                                data1[start1B + 4] = (byte)((Convert.ToInt16(kvp.ED[0].b) >> 8) & 0xFF);  // Byte 2
+
+
+                                data1[start1B + 5] = (byte)(Convert.ToInt16(kvp.ED[0].t) & 0xFF);         // Lowest byte
+                                data1[start1B + 6] = (byte)((Convert.ToInt16(kvp.ED[0].t) >> 8) & 0xFF);  // Byte 2
+
+                                data1[start1B + 7] = (byte)(Convert.ToInt16(kvp.ED[0].x) & 0xFF);         // Lowest byte
+                                data1[start1B + 8] = (byte)((Convert.ToInt16(kvp.ED[0].x) >> 8) & 0xFF);  // Byte 2
+
+                                data1[start1B + 9] = (byte)(Convert.ToInt16(kvp.ED[0].y) & 0xFF);         // Lowest byte
+                                data1[start1B + 10] = (byte)((Convert.ToInt16(kvp.ED[0].y) >> 8) & 0xFF);  // Byte 2
+
+                                start1B = start1B + 11;
+                            }
+
+                            rat2 = portCOM.WriteDataInBytes(data1);
+                        }
 
                         rat = rat1 && rat2;
                     }
@@ -1413,7 +1538,24 @@ namespace _8F
                 var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
                 int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
                 BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
-                var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+
+                bool rat = false;
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                if (IsJSON)
+                {
+                    rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                }
+                else
+                {
+                    byte[] data = new byte[6];
+                    data[0] = Convert.ToByte(2);
+                    data[1] = Convert.ToByte(16);
+                    data[2] = Convert.ToByte(1);
+                    data[3] = Convert.ToByte(ChId);
+
+                    rat = portCOM.WriteDataInBytes(data);
+                }
+
                 if (rat)
                 {
                     DeviceCOM.IsBalanceAll = IsBalaneAll;
@@ -1444,7 +1586,25 @@ namespace _8F
                 int ChId = IsTestAll ? 0 : Convert.ToInt32(SChId);
 
                 BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = ChId };
-                var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+
+                bool rat = false;
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+
+                if (IsJSON)
+                {
+                    rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                }
+                else
+                {
+                    byte[] data = new byte[6];
+                    data[0] = Convert.ToByte(2);
+                    data[1] = Convert.ToByte(17);
+                    data[2] = Convert.ToByte(1);
+                    data[3] = Convert.ToByte(ChId);
+
+                    rat = portCOM.WriteDataInBytes(data);
+                }
+
                 if (!rat)
                 {
                     MessageBox.Show("Unable to start test due to the error in the communication!", "Error Information");
@@ -1484,7 +1644,23 @@ namespace _8F
             if (CommunicationType == 0)
             {
                 Status exitData = new Status() { FC = 24 };
-                var rat = portCOM.WriteData(JsonConvert.SerializeObject(exitData));
+
+                bool rat = false;
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+
+                if (IsJSON)
+                {
+                    rat = portCOM.WriteData(JsonConvert.SerializeObject(exitData));
+                }
+                else
+                {
+                    byte[] data = new byte[5];
+                    data[0] = Convert.ToByte(2);
+                    data[1] = Convert.ToByte(24);
+                    data[2] = Convert.ToByte(0);                   
+
+                    rat = portCOM.WriteDataInBytes(data);
+                }
 
                 if (portCOM.port.IsOpen)
                     portCOM.port.Close();
@@ -1893,7 +2069,25 @@ namespace _8F
         private void btnStop_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Status status = new Status() { FC = 18 };
-            var rat = portCOM.WriteData(JsonConvert.SerializeObject(status));
+
+            bool rat = false;
+            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+
+            if (IsJSON)
+            {
+                rat = portCOM.WriteData(JsonConvert.SerializeObject(status));
+            }
+            else
+            {
+                byte[] data = new byte[6];
+                data[0] = Convert.ToByte(2);
+                data[1] = Convert.ToByte(18);
+                data[2] = Convert.ToByte(1);
+                data[3] = Convert.ToByte(chNo);
+                rat = portCOM.WriteDataInBytes(data);
+            }
+
+
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -1909,7 +2103,25 @@ namespace _8F
                     else
                     {
                         BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
-                        var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+
+                        bool rat = false;
+                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                        if (IsJSON)
+                        {
+                            rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                        }
+                        else
+                        {
+                            byte[] data = new byte[6];
+                            data[0] = Convert.ToByte(2);
+                            data[1] = Convert.ToByte(16);
+                            data[2] = Convert.ToByte(1);
+                            data[3] = Convert.ToByte(0);
+
+                            rat = portCOM.WriteDataInBytes(data);
+                        }
+
+
                         if (rat)
                         {
                             DeviceCOM.IsBalanceAll = true;
@@ -1957,7 +2169,26 @@ namespace _8F
                     {
 
                         BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
-                        var rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+
+                        bool rat = false;
+                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+
+                        if (IsJSON)
+                        {
+                            rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                        }
+                        else
+                        {
+                            byte[] data = new byte[6];
+                            data[0] = Convert.ToByte(2);
+                            data[1] = Convert.ToByte(17);
+                            data[2] = Convert.ToByte(1);
+                            data[3] = Convert.ToByte(0);
+
+                            rat = portCOM.WriteDataInBytes(data);
+                        }
+
+
                         if (!rat)
                         {
                             MessageBox.Show("Unable to start test due to the error in the communication!", "Error Information");
