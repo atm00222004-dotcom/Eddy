@@ -291,7 +291,7 @@ namespace _8F
                 data[1] = Convert.ToByte(23);
                 data[2] = Convert.ToByte(0);
 
-                rat = portCOM.WriteDataInBytes(data);
+                rat = portCOM.GetSystemStatusInBytes(data);
             }
 
             if (DeviceCOM.IsSystemBusy || !rat)

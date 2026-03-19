@@ -101,7 +101,44 @@ namespace _8F
 
                         Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase, E = Gdata.isEnable ? 1 : 0 };
                         frequencyWrite.FD.Add(frequency);
-                        var rat =portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+
+                        var rat = false;
+                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                        if (IsJSON)
+                        {
+                            rat = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        }
+                        else
+                        {
+                            int length = (frequencyWrite.FD.Count * 10) + 6;
+                            byte[] data = new byte[length];
+                            data[0] = Convert.ToByte(2);
+                            data[1] = Convert.ToByte(4);
+                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
+                            data[3] = Convert.ToByte(ch.Id);
+                            int startB = 4;
+                            foreach (var kvp in frequencyWrite.FD)
+                            {
+                                data[startB] = Convert.ToByte(kvp.FN);
+
+                                data[startB + 1] = (byte)(kvp.F & 0xFF);         // Lowest byte
+                                data[startB + 2] = (byte)((kvp.F >> 8) & 0xFF);  // Byte 2
+                                data[startB + 3] = (byte)((kvp.F >> 16) & 0xFF); // Byte 3
+                                data[startB + 4] = (byte)((kvp.F >> 24) & 0xFF); // Highest byte
+
+                                data[startB + 5] = (byte)(kvp.G & 0xFF);         // Lowest byte
+                                data[startB + 6] = (byte)((kvp.G >> 8) & 0xFF);  // Byte 2
+
+                                data[startB + 7] = (byte)(kvp.P & 0xFF);         // Lowest byte
+                                data[startB + 8] = (byte)((kvp.P >> 8) & 0xFF);  // Byte 2
+
+                                data[startB + 9] = (byte)(kvp.E);
+
+                                startB = startB + 10;
+                            }
+
+                            rat = portCOM.WriteDataInBytes(data);
+                        }
 
                         if (rat)
                         {

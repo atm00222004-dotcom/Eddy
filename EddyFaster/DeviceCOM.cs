@@ -55,6 +55,7 @@ namespace _8F
         public static bool IsBinRequired = false;
         public static int ERRCode = 0;
         public static string Code;
+        public static bool IsJSON = false;
 
         public static byte[] receiveBytes;
 
@@ -174,10 +175,117 @@ namespace _8F
                 {
                     new Thread(() =>
                     {
-                        ProcessPortData(indata);
+                        if (IsJSON)
+                        {
+                            ProcessPortData(indata);
+                        }
+                        else
+                        {
+                            var data = indata.ToArray().Select(s => Convert.ToInt16(s)).ToArray();
+                            ProcessPortDataBytpe(data);
+                        }
                     }).Start();
                 }
 
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        private void ProcessPortDataBytpe(short[] indata)
+        {
+            try
+            {
+                if (indata.Length > 1)
+                {
+
+
+                    if (indata[1] == 19)
+                    {
+                        IsResponseClearRequired = true;
+                    }
+                    else if (indata[1] == 20)
+                    {
+                        //var res = JsonConvert.DeserializeObject<Response>(indata);
+                        Response res = new Response();
+                        res.CN = indata[3];
+                        res.OR = indata[4];
+                        res.FC = 20;
+                        int length = indata[2] / 6;
+                        res.FD = new List<FreqResult>();
+                        for (int i = 0; i < length; i++)
+                        {
+                            FreqResult fd = new FreqResult();
+                            fd.FN = indata[5 + (i * 6)];
+                            fd.R = indata[6 + (i * 6)];
+                            fd.X = (short)(indata[7 + (i * 6)] | (indata[8 + (i * 6)] << 8));
+                            fd.Y = (short)(indata[9 + (i * 6)] | (indata[10 + (i * 6)] << 8));
+                            res.FD.Add(fd);
+                        }
+
+                        if (ChannelNo >= res?.CN)
+                        {
+                            responses.Add(res);
+
+                            var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
+                            if (res.OR == 1)
+                            {
+                                cnt.ResultOkCount = cnt.ResultOkCount + 1;
+                            }
+                            else
+                            {
+                                cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
+                            }
+                            cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
+                            IsResponseRefreshRequired = true;
+
+                            //if (!string.IsNullOrEmpty(Code))
+                            //{
+                            //    Task.Run(() =>
+                            //    {
+                            //        WriteLogCSV(Convert.ToBoolean(res.OR), DateTime.Now, res);
+                            //    });
+                            //}
+
+                            if (!IsLogDisable && IsLogEnable)
+                            {
+                                Task.Run(() =>
+                                {
+                                    WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now, res);
+                                });
+                            }
+
+                            DeviceCOM.IsLogDisable = false;
+
+                        }
+                    }
+                    else if (indata[1] == 21)
+                    {
+                        IsSystemBusy = true;
+                        busyStamp = System.DateTime.Now;
+                    }
+                    else if (indata[1] == 22)
+                    {
+                        IsSystemBusy = false;
+                        if (indata[3] == 0)
+                        {
+                            if (IsBalanceBusyEnable)
+                            {
+                                IsResponseClearRequired = true;
+                                IsBalanceBusyEnable = false;
+                            }
+                        }
+                        else
+                        {
+                            ERRCode = indata[4];
+                        }
+                    }
+                }
+                else
+                {
+
+                }
             }
             catch (Exception ex)
             {
@@ -662,7 +770,212 @@ namespace _8F
 
             return getSerialNumber;
         }
-            
+
+        public bool WriteDataInBytes(byte[] data, bool isFrombak = false)
+        {
+
+            try
+            {
+                IsBalanceRequired = false;
+                if (CommunicationType == 0)
+                {
+                    if (isFrombak)
+                    {
+                        if (port.IsOpen)
+                        {
+                            port.Close();
+                        }
+                    }
+
+                    if (!port.IsOpen)
+                    {
+                        port.Open();
+                        if (isFrombak)
+                        {
+                            port.DtrEnable = true;
+                            port.RtsEnable = true;
+                            // Optional: short delay to let device recognize the signals
+                            Thread.Sleep(10);
+                        }
+                    }
+
+                    //this.port.ReadExisting();
+                    PortAck = true;
+                    PortData = "";
+
+                    ushort crc = ComputeCRC(data, 2);
+
+                    byte crcLow = (byte)(crc & 0xFF);
+                    byte crcHigh = (byte)(crc >> 8);
+
+                    data[data.Length - 2] = crcLow;
+                    data[data.Length - 1] = crcHigh;
+
+                    this.port.Write(data, 0, data.Length);
+
+                    if (isFrombak)
+                    {
+                        bool received = _ackEvent.WaitOne(1000);
+
+                        if (!received)
+                        {
+                            this.port.Write(data, 0, data.Length);
+                        }
+
+                        received = _ackEvent.WaitOne(1000);
+
+                        if (!received)
+                        {
+                            this.port.Write(data, 0, data.Length);
+                        }
+
+                        if (!received)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        System.DateTime dateTime = DateTime.Now;
+                        while (PortAck)
+                        {
+
+                            if ((DateTime.Now - dateTime).TotalMilliseconds > 500)
+                            {
+                                PortAck = false;
+                            }
+                        }
+                    }
+
+                    byte[] result = new byte[1];
+                    result[0] = Convert.ToByte(PortData[0]);
+
+                    if (result[0] == '0' || result[0] == '2' || result[0] == '3' || result[0] == '4')
+                    {
+                        if (result[0] == '2')
+                        {
+                            DeviceCOM.IsSystemBusy = true;
+                            busyStamp = System.DateTime.Now;
+                        }
+                        else if (result[0] == '3')
+                        {
+                            IsBalanceRequired = true;
+                        }
+                        else if (result[0] == '4')
+                        {
+                            IsBinRequired = true;
+                        }
+                        return true;
+                    }
+
+                    return false;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                if (CommunicationType == 1)
+                {
+                    dispatcherTimer.Start();
+                }
+
+                return false;
+            }
+        }
+        public bool GetSystemStatusInBytes(byte[] data)
+        {
+            try
+            {
+                if (CommunicationType == 0)
+                {
+                    if (port.IsOpen)
+                    {
+                        port.Close();
+                    }
+
+                    //if (port.IsOpen)
+                    //{
+                    //    port.Close();
+                    //}
+
+                    //InitialPort(CommunicationType, PortName, BaudRate, IpAddress, SPort);
+
+                    if (!port.IsOpen)
+                    {
+                        port.Open();
+                    }
+                    //this.port.ReadExisting();
+                    PortAck = true;
+                    PortData = "";
+                    System.DateTime dateTime = DateTime.Now;
+
+                    ushort crc = ComputeCRC(data, 2);
+
+                    byte crcLow = (byte)(crc & 0xFF);
+                    byte crcHigh = (byte)(crc >> 8);
+
+                    data[data.Length - 2] = crcLow;
+                    data[data.Length - 1] = crcHigh;
+
+                    this.port.Write(data, 0, data.Length);
+
+                    while (PortAck)
+                    {
+
+                        if ((DateTime.Now - dateTime).TotalMilliseconds > 200)
+                        {
+                            PortAck = false;
+                        }
+                    }
+
+                    byte[] result = new byte[1];
+                    result[0] = Convert.ToByte(PortData[1]);
+
+                    if (result[0] == 21)
+                    {
+                        DeviceCOM.IsSystemBusy = true;
+                        busyStamp = System.DateTime.Now;
+                    }
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                if (CommunicationType == 1)
+                {
+                    dispatcherTimer.Start();
+                }
+
+                return false;
+            }
+        }
+        public static ushort ComputeCRC(byte[] data, int length)
+        {
+            ushort crc = 0xFFFF;
+
+            for (int pos = 0; pos < length; pos++)
+            {
+                crc ^= data[pos];
+
+                for (int i = 0; i < 8; i++)
+                {
+                    if ((crc & 0x0001) != 0)
+                    {
+                        crc >>= 1;
+                        crc ^= 0xA001;
+                    }
+                    else
+                    {
+                        crc >>= 1;
+                    }
+                }
+            }
+
+            return crc;
+        }
+
+
+
     }
     public class ChannelData
     {

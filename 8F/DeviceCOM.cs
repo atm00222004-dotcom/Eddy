@@ -218,8 +218,8 @@ namespace _8F
                             FreqResult fd = new FreqResult();
                             fd.FN = indata[5 + (i * 6)];
                             fd.R = indata[6 + (i * 6)];
-                            fd.X = indata[7 + (i * 6)] | (indata[8 + (i * 6)] << 8);
-                            fd.Y = indata[9 + (i * 6)] | (indata[10 + (i * 6)] << 8);
+                            fd.X = (short)(indata[7 + (i * 6)] | (indata[8 + (i * 6)] << 8));
+                            fd.Y = (short)(indata[9 + (i * 6)] | (indata[10 + (i * 6)] << 8));
                             res.FD.Add(fd);
                         }
 

@@ -153,9 +153,72 @@ namespace _8F
             {
                 _mode.OE = new OuterElliplse { a = Gdata.height_O, b = Gdata.width_O, t = Gdata.angel_O };
             }
-            portCOM.WriteData(JsonConvert.SerializeObject(_mode));
 
-            var rat = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+
+            var rat = false;
+
+            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+            if (IsJSON)
+            {
+
+                portCOM.WriteData(JsonConvert.SerializeObject(_mode));
+                rat = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+            }
+            else
+            {
+
+                byte[] data2 = new byte[12];
+                data2[0] = Convert.ToByte(2);
+                data2[1] = Convert.ToByte(2);
+                data2[2] = Convert.ToByte(7);
+                data2[3] = Convert.ToByte(1);
+
+                data2[4] = (byte)(Convert.ToInt16(_mode.OE.a) & 0xFF);        // Low byte
+                data2[5] = (byte)((Convert.ToInt16(_mode.OE.a) >> 8) & 0xFF); // High byte
+
+                data2[6] = (byte)(Convert.ToInt16(_mode.OE.b) & 0xFF);
+                data2[7] = (byte)((Convert.ToInt16(_mode.OE.b) >> 8) & 0xFF);
+
+                data2[8] = (byte)(Convert.ToInt16(_mode.OE.t) & 0xFF);
+                data2[9] = (byte)((Convert.ToInt16(_mode.OE.t) >> 8) & 0xFF);
+
+                portCOM.WriteDataInBytes(data2);
+
+                int length1 = (ellipseWrite.FD.Count * 11) + 6;
+                byte[] data1 = new byte[length1];
+                data1[0] = Convert.ToByte(2);
+                data1[1] = Convert.ToByte(5);
+                data1[2] = Convert.ToByte((ellipseWrite.FD.Count * 11) + 1);
+                data1[3] = Convert.ToByte(ch.Id);
+                int start1B = 4;
+
+                foreach (var kvp in ellipseWrite.FD)
+                {
+                    data1[start1B] = Convert.ToByte(kvp.FN);
+
+                    data1[start1B + 1] = (byte)(Convert.ToInt16(kvp.ED[0].a) & 0xFF);         // Lowest byte
+                    data1[start1B + 2] = (byte)((Convert.ToInt16(kvp.ED[0].a) >> 8) & 0xFF);  // Byte 2
+
+                    data1[start1B + 3] = (byte)(Convert.ToInt16(kvp.ED[0].b) & 0xFF);         // Lowest byte
+                    data1[start1B + 4] = (byte)((Convert.ToInt16(kvp.ED[0].b) >> 8) & 0xFF);  // Byte 2
+
+
+                    data1[start1B + 5] = (byte)(Convert.ToInt16(kvp.ED[0].t) & 0xFF);         // Lowest byte
+                    data1[start1B + 6] = (byte)((Convert.ToInt16(kvp.ED[0].t) >> 8) & 0xFF);  // Byte 2
+
+                    data1[start1B + 7] = (byte)(Convert.ToInt16(kvp.ED[0].x) & 0xFF);         // Lowest byte
+                    data1[start1B + 8] = (byte)((Convert.ToInt16(kvp.ED[0].x) >> 8) & 0xFF);  // Byte 2
+
+                    data1[start1B + 9] = (byte)(Convert.ToInt16(kvp.ED[0].y) & 0xFF);         // Lowest byte
+                    data1[start1B + 10] = (byte)((Convert.ToInt16(kvp.ED[0].y) >> 8) & 0xFF);  // Byte 2
+
+                    start1B = start1B + 11;
+                }
+
+                rat = portCOM.WriteDataInBytes(data1);
+            }
+
+
             if (rat)
             {
                 lblMsg.Content = "Configuration Saved!!!";
