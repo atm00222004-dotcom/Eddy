@@ -67,6 +67,8 @@ namespace _8F
         {
 
             InitializeComponent();
+
+            //DeviceCOM.Test();
             if (imgLogo.Visibility == Visibility.Visible)
             {
                 string LogoPath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogoPath"]);

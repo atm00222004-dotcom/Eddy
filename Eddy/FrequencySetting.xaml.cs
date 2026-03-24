@@ -43,6 +43,12 @@ namespace Eddy
                         txtLTH1.Text = item.LTH.ToString();
                         txtPP1.Text = item.PP.ToString();
                         txtTH1.Text = item.TH.ToString();
+
+                        txtPostAMPX.Text = item.X.ToString();
+                        txtPostAMPY.Text = item.Y.ToString();
+
+                        txtH1.Text = item.H.ToString();
+                        txtL1.Text = item.L.ToString();
                     }
                     //else if (item.FN == 2)
                     //{
@@ -67,23 +73,28 @@ namespace Eddy
 
                 }
 
-                foreach (var item in DeviceCOM.Configuration.Filter.FD)
+                var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+
+                if (!IsEddyAdvance)
                 {
-                    if (item.FN == 1)
+                    foreach (var item in DeviceCOM.Configuration.Filter.FD)
                     {
-                        txtH1.Text = item.H.ToString();
-                        txtL1.Text = item.L.ToString();
+                        if (item.FN == 1)
+                        {
+                            txtH1.Text = item.H.ToString();
+                            txtL1.Text = item.L.ToString();
+                        }
+                        //else if (item.FN == 2)
+                        //{
+                        //    txtH2.Text = item.H.ToString();
+                        //    txtL2.Text = item.L.ToString();
+                        //}
+                        //else if (item.FN == 3)
+                        //{
+                        //    txtH3.Text = item.H.ToString();
+                        //    txtL3.Text = item.L.ToString();
+                        //}
                     }
-                    //else if (item.FN == 2)
-                    //{
-                    //    txtH2.Text = item.H.ToString();
-                    //    txtL2.Text = item.L.ToString();
-                    //}
-                    //else if (item.FN == 3)
-                    //{
-                    //    txtH3.Text = item.H.ToString();
-                    //    txtL3.Text = item.L.ToString();
-                    //}
                 }
             }
 
@@ -123,6 +134,12 @@ namespace Eddy
                                     item.LTH = Convert.ToInt32(txtLTH1.Text);
                                     item.PP = Convert.ToInt32(txtPP1.Text);
                                     item.TH = Convert.ToInt32(txtTH1.Text);
+                                    item.X = Convert.ToInt32(txtPostAMPX.Text);
+                                    item.X = Convert.ToInt32(txtPostAMPY.Text);
+
+                                    item.H = Convert.ToInt32(txtH1.Text);
+                                    item.L = Convert.ToInt32(txtL1.Text);
+
                                 }
                                 //else if (item.FN == 2)
                                 //{
@@ -143,6 +160,12 @@ namespace Eddy
                                     item.LTH = Convert.ToInt32(txtLTH1.Text);
                                     item.PP = Convert.ToInt32(txtPP1.Text);
                                     item.TH = Convert.ToInt32(txtTH1.Text);
+                                    item.X = Convert.ToInt32(txtPostAMPX.Text);
+                                    item.X = Convert.ToInt32(txtPostAMPY.Text);
+
+                                    item.H = Convert.ToInt32(txtH1.Text);
+                                    item.L = Convert.ToInt32(txtL1.Text);
+
                                 }
                             }
 
@@ -166,12 +189,18 @@ namespace Eddy
                             }
                         }
                         var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-                        var rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+                        var rat1 = false;
+                        var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+                        
+                        if (!IsEddyAdvance)
+                        {
+                            rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+                        }
+                        else
+                        {
+                            rat1 = true;
+                        }
 
-                        //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
-                        //configurationWrite.Frequency = DeviceCOM.Configuration.Frequency;
-                        //configurationWrite.Filter = DeviceCOM.Configuration.Filter;
-                        //var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(configurationWrite));
 
                         if (rat && rat1)
                         {

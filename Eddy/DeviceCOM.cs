@@ -196,6 +196,10 @@ namespace Eddy
         public int LTH = 40;
         public int TH = 0;
         public int PP = 100;
+        public int X = 10;
+        public int Y = 10;
+        public int H = 10;
+        public int L = 100;
     }
     public class FilterFD
     {

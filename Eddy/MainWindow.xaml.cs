@@ -1,4 +1,14 @@
-﻿using System;
+﻿using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OpenTK.Compute.OpenCL;
+using OpenTK.Windowing.Common.Input;
+using ScottPlot;
+using ScottPlot.Colormaps;
+using ScottPlot.Interactivity;
+using ScottPlot.Plottables;
+using ScottPlot.TickGenerators;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -22,14 +32,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
-using Newtonsoft.Json;
-using OpenTK.Compute.OpenCL;
-using OpenTK.Windowing.Common.Input;
-using ScottPlot;
-using ScottPlot.Colormaps;
-using ScottPlot.Plottables;
-using ScottPlot.TickGenerators;
 using static SkiaSharp.HarfBuzz.SKShaper;
 using Colors = System.Windows.Media.Colors;
 using Ellipse = System.Windows.Shapes.Ellipse;
@@ -161,8 +163,14 @@ namespace Eddy
             }
 
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+            
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-            deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+
+            var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+            if (!IsEddyAdvance)
+            {
+                deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+            }
 
             //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
             //configurationWrite.Frequency = DeviceCOM.Configuration.Frequency;

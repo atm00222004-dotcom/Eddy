@@ -164,15 +164,31 @@ namespace _8F
             {
                 System.Threading.Thread.Sleep(50);
                 SerialPort sp = (SerialPort)sender;
-                string indata = sp.ReadExisting();
+                short[] data;
+                string indata = string.Empty;
+
                 if (PortAck)
-                {                    
+                {
+                    indata = sp.ReadExisting();
                     PortData = indata;
                     PortAck = false;
                     _ackEvent.Set();  // signal that data is received
                 }
                 else
                 {
+                    if (IsJSON)
+                    {
+                        indata = sp.ReadExisting();
+                        data = new short[indata.Length];
+                    }
+                    else
+                    {
+                        byte[] buffer = new byte[sp.BytesToRead];
+                        sp.Read(buffer, 0, buffer.Length);
+
+                        data = buffer.Select(b => (short)b).ToArray();
+                    }
+
                     new Thread(() =>
                     {
                         if (IsJSON)
@@ -181,7 +197,6 @@ namespace _8F
                         }
                         else
                         {
-                            var data = indata.ToArray().Select(s => Convert.ToInt16(s)).ToArray();
                             ProcessPortDataBytpe(data);
                         }
                     }).Start();
@@ -219,8 +234,16 @@ namespace _8F
                             FreqResult fd = new FreqResult();
                             fd.FN = indata[5 + (i * 6)];
                             fd.R = indata[6 + (i * 6)];
-                            fd.X = (short)(indata[7 + (i * 6)] | (indata[8 + (i * 6)] << 8));
-                            fd.Y = (short)(indata[9 + (i * 6)] | (indata[10 + (i * 6)] << 8));
+
+                            int offset = 7 + (i * 6);
+                            short x = (short)(indata[offset] | (indata[offset + 1] << 8));
+                            short y = (short)(indata[offset + 2] | (indata[offset + 3] << 8));
+                            fd.X = x;
+                            fd.Y = y;
+
+
+                            //fd.X = (short)(indata[7 + (i * 6)] | (indata[8 + (i * 6)] << 8));
+                            //fd.Y = (short)(indata[9 + (i * 6)] | (indata[10 + (i * 6)] << 8));
                             res.FD.Add(fd);
                         }
 
