@@ -24,7 +24,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="350"/>
-                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
 
             <!-- Menu -->
@@ -52,6 +52,7 @@
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">
                 <Label Name="lblConfigFileName" Foreground="Black" FontSize="12" FontWeight="Bold" Margin="5,0"/>
+                <!--<Label Name="lblState" Content="Test Off" FontSize="12" FontWeight="Bold" Margin="5,0"/>-->
                 <Border Name="brStatus" Width="30" Height="20" Background="#305371" Margin="5"/>
             </StackPanel>
         </Grid>

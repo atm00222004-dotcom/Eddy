@@ -48,6 +48,7 @@ namespace _8F
         UdpReceiver receiver;
         string IpAddress;
         int Port;
+        int FrameReten = 10;
         public MainWindow()
         {
 
@@ -82,6 +83,8 @@ namespace _8F
             {
                 el11.Visibility = Visibility.Hidden;
             }
+
+            FrameReten = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrameReten"]);
 
             int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
@@ -253,7 +256,7 @@ namespace _8F
                     if (offset + 4 > indata.Length)
                         break;
 
-                    short x = BitConverter.ToInt16(indata, offset);
+                    short x  = BitConverter.ToInt16(indata, offset);
                     short y = BitConverter.ToInt16(indata, offset + 2);
 
                     offset += 4;
@@ -281,11 +284,11 @@ namespace _8F
                 );
 
                 // Keep only last 10 batches
-                if (DeviceCOM.cordinateQueue.Count > 10)
+                if (DeviceCOM.cordinateQueue.Count > FrameReten)
                 {
                     DeviceCOM.cordinateQueue.RemoveRange(
                         0,
-                        DeviceCOM.cordinateQueue.Count - 10
+                        DeviceCOM.cordinateQueue.Count - FrameReten
                     );
                 }
 
@@ -1072,6 +1075,8 @@ namespace _8F
                     {
                         DeviceCOM.IsLogDisable = true;
                     }
+
+
                 }
             }
 
