@@ -1,6 +1,7 @@
 ﻿using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Npgsql;
 using OpenTK.Compute.OpenCL;
 using OpenTK.Windowing.Common.Input;
 using ScottPlot;
@@ -110,17 +111,18 @@ namespace Eddy
             DeviceCOM.Configuration.Frequency.FD = new List<FD>();
             DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 1 });
             //DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 2 });
-            DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 3, E = 0 });
+            //DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 2, E = 0 });
             DeviceCOM.Configuration.Filter = new Filter();
             DeviceCOM.Configuration.Filter.FD = new List<FilterFD>();
             DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 1 });
-            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 2 });
+            //DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 2 });
 
             DeviceCOM.BaudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             DeviceCOM.PortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
 
             DeviceCOM.MaxValue = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["MaxValue"]);
             DeviceCOM.Factor = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
+            DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["DBConnection"]);
 
             List<int> statuses = new List<int>();
             statuses.Add(1);
@@ -422,7 +424,46 @@ namespace Eddy
                 // Add Log
                 if (DeviceCOM.IsLogEnable)
                 {
+                    // DeviceCOM.Configuration
+                    //DeviceCOM.part
+                    //DeviceCOM.graphData
+                    /// result 
+                    //DeviceCOM.part.Name
+                    try
+                    {
+                        
 
+                        using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
+                        {
+                            con.Open();
+
+                            // SAME serialization you used in PDF
+                            string partJson = JsonConvert.SerializeObject(DeviceCOM.part);
+                            string configJson = JsonConvert.SerializeObject(DeviceCOM.Configuration);
+                            string graphJson = JsonConvert.SerializeObject(DeviceCOM.graphData);
+
+                            string sql = @"
+                                    INSERT INTO ""Logs"" 
+                                    (""TimeStamp"", ""PartJson"", ""ConfigurationJson"", ""GraphDataJson"", ""BatchName"")
+                                    VALUES 
+                                    (@time, @part, @config, @graph, @batch)";
+
+                            using (var cmd = new NpgsqlCommand(sql, con))
+                            {
+                                cmd.Parameters.AddWithValue("@time", DateTime.Now);
+                                cmd.Parameters.AddWithValue("@part", NpgsqlTypes.NpgsqlDbType.Jsonb, partJson);
+                                cmd.Parameters.AddWithValue("@config", NpgsqlTypes.NpgsqlDbType.Jsonb, configJson);
+                                cmd.Parameters.AddWithValue("@graph", NpgsqlTypes.NpgsqlDbType.Jsonb, graphJson);
+                                cmd.Parameters.AddWithValue("@batch", DeviceCOM.part.Name ?? "");
+
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                    }
                 }
 
                 var limits = new ScottPlot.AxisLimits(0, Ld.Count + 5, 0, DeviceCOM.Factor);
