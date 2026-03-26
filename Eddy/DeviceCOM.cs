@@ -168,8 +168,8 @@ namespace Eddy
     {
         public int FC = 57;
         //public Marker Marker { get; set; }
-        public Frequency Frequency { get; set; }
-        public Filter Filter { get; set; }
+        public List<FD> Frequency { get; set; }
+        public List<FilterFD> Filter { get; set; }
 
     }
     public class Marker
@@ -190,22 +190,20 @@ namespace Eddy
     {
         public int FN = 0;
         public int E = 1;
-        public int F = 50000;
+        public int F = 10000;
         public int G = 30;
         public int UTH = 90;
         public int LTH = 40;
         public int TH = 0;
         public int PP = 100;
-        public int X = 10;
-        public int Y = 10;
-        public int H = 10;
-        public int L = 100;
     }
     public class FilterFD
     {
         public int FN = 0;
         public int H = 10;
         public int L = 100;
+        public int X = 10;
+        public int Y = 10;
     }
     public class Frequency
     {

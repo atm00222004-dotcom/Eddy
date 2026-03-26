@@ -114,8 +114,7 @@ namespace Eddy
             DeviceCOM.Configuration.Filter = new Filter();
             DeviceCOM.Configuration.Filter.FD = new List<FilterFD>();
             DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 1 });
-            //DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 2 });
-            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 3 });
+            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 2 });
 
             DeviceCOM.BaudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             DeviceCOM.PortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
@@ -163,14 +162,21 @@ namespace Eddy
             }
 
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
-            
-            deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-
             var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
-            if (!IsEddyAdvance)
+            if (IsEddyAdvance)
             {
+                ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
+                configurationToWrite.Frequency = DeviceCOM.Configuration.Frequency.FD;
+                configurationToWrite.Filter = DeviceCOM.Configuration.Filter.FD;
+                deviceCOM.WriteData(JsonConvert.SerializeObject(configurationToWrite));
+            }
+            else
+            {
+
+                deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
                 deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
             }
+           
 
             //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
             //configurationWrite.Frequency = DeviceCOM.Configuration.Frequency;
@@ -591,11 +597,13 @@ namespace Eddy
 
                 if (DeviceCOM.IsTubeSatart)
                 {
-                    btnTestStatus.Background = new SolidColorBrush(Colors.Orange);
+                    btnTestStatus.Background = new SolidColorBrush(Colors.Green);
+                    lblTest.Content = "Test On";
                 }
                 else
                 {
                     btnTestStatus.Background = new SolidColorBrush(Colors.Gray);
+                    lblTest.Content = "Test Off";
                 }
 
 

@@ -60,7 +60,7 @@
             </Grid>
 
             <Border HorizontalAlignment="Right" Width="100" Name="btnTestStatus" Margin="0" Background="Gray" Grid.Column="3" Grid.Row="0"  BorderThickness="1" CornerRadius="0">
-                <Label Foreground="White" FontSize="12" Name="lblTest" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Tube Status" ></Label>
+                <Label Foreground="White" FontSize="12" Name="lblTest" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Test Off" ></Label>
             </Border>
 
         </Grid>
@@ -139,7 +139,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Border x:Name="br1" Margin="0,30,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
+                    <Border x:Name="br1" Visibility="Hidden" Margin="0,30,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
                         <Canvas  x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                             <Rectangle Name="br1_rec1" Width="470" Fill="White"
     Height="470"

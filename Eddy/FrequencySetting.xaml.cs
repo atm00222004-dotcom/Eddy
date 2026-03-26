@@ -43,12 +43,6 @@ namespace Eddy
                         txtLTH1.Text = item.LTH.ToString();
                         txtPP1.Text = item.PP.ToString();
                         txtTH1.Text = item.TH.ToString();
-
-                        txtPostAMPX.Text = item.X.ToString();
-                        txtPostAMPY.Text = item.Y.ToString();
-
-                        txtH1.Text = item.H.ToString();
-                        txtL1.Text = item.L.ToString();
                     }
                     //else if (item.FN == 2)
                     //{
@@ -73,29 +67,28 @@ namespace Eddy
 
                 }
 
-                var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
 
-                if (!IsEddyAdvance)
+                foreach (var item in DeviceCOM.Configuration.Filter.FD)
                 {
-                    foreach (var item in DeviceCOM.Configuration.Filter.FD)
+                    if (item.FN == 1)
                     {
-                        if (item.FN == 1)
-                        {
-                            txtH1.Text = item.H.ToString();
-                            txtL1.Text = item.L.ToString();
-                        }
-                        //else if (item.FN == 2)
-                        //{
-                        //    txtH2.Text = item.H.ToString();
-                        //    txtL2.Text = item.L.ToString();
-                        //}
-                        //else if (item.FN == 3)
-                        //{
-                        //    txtH3.Text = item.H.ToString();
-                        //    txtL3.Text = item.L.ToString();
-                        //}
+                        txtH1.Text = item.H.ToString();
+                        txtL1.Text = item.L.ToString();
+                        txtPostAMPX.Text = item.X.ToString();
+                        txtPostAMPY.Text = item.Y.ToString();
                     }
+                    //else if (item.FN == 2)
+                    //{
+                    //    txtH2.Text = item.H.ToString();
+                    //    txtL2.Text = item.L.ToString();
+                    //}
+                    //else if (item.FN == 3)
+                    //{
+                    //    txtH3.Text = item.H.ToString();
+                    //    txtL3.Text = item.L.ToString();
+                    //}
                 }
+
             }
 
         }
@@ -134,11 +127,7 @@ namespace Eddy
                                     item.LTH = Convert.ToInt32(txtLTH1.Text);
                                     item.PP = Convert.ToInt32(txtPP1.Text);
                                     item.TH = Convert.ToInt32(txtTH1.Text);
-                                    item.X = Convert.ToInt32(txtPostAMPX.Text);
-                                    item.X = Convert.ToInt32(txtPostAMPY.Text);
 
-                                    item.H = Convert.ToInt32(txtH1.Text);
-                                    item.L = Convert.ToInt32(txtL1.Text);
 
                                 }
                                 //else if (item.FN == 2)
@@ -160,11 +149,6 @@ namespace Eddy
                                     item.LTH = Convert.ToInt32(txtLTH1.Text);
                                     item.PP = Convert.ToInt32(txtPP1.Text);
                                     item.TH = Convert.ToInt32(txtTH1.Text);
-                                    item.X = Convert.ToInt32(txtPostAMPX.Text);
-                                    item.X = Convert.ToInt32(txtPostAMPY.Text);
-
-                                    item.H = Convert.ToInt32(txtH1.Text);
-                                    item.L = Convert.ToInt32(txtL1.Text);
 
                                 }
                             }
@@ -185,20 +169,30 @@ namespace Eddy
                                 {
                                     item.H = Convert.ToInt32(txtH1.Text);
                                     item.L = Convert.ToInt32(txtL1.Text);
+
+                                    item.X = Convert.ToInt32(txtPostAMPX.Text);
+                                    item.X = Convert.ToInt32(txtPostAMPY.Text);
                                 }
                             }
                         }
-                        var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
+
                         var rat1 = false;
                         var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
-                        
-                        if (!IsEddyAdvance)
+                        var rat = false;
+
+                        if (IsEddyAdvance)
                         {
-                            rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+                            rat1 = true;
+                            ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
+                            configurationToWrite.Frequency = DeviceCOM.Configuration.Frequency.FD;
+                            configurationToWrite.Filter = DeviceCOM.Configuration.Filter.FD;
+                            var data = JsonConvert.SerializeObject(configurationToWrite); 
+                            rat = deviceCOM.WriteData(data);
                         }
                         else
                         {
-                            rat1 = true;
+                            rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
+                            rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
                         }
 
 

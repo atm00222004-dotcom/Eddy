@@ -49,7 +49,7 @@
                 </Grid.ColumnDefinitions>
                 
 
-                <Label Content="Frequeny(KHz)" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                <Label Content="Frequency(KHz)" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtPhase1" />
 
                 <Label Content="Pre Gain(dB)" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
@@ -64,7 +64,7 @@
                 <Label Content="Low Threshold" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="1" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="3" Name="txtLTH1" />
 
-                <Label Content="Threshold" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="4"></Label>
+                <Label Content="Third Threshold" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="4"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="1" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="5" Name="txtTH1" />
 
 
