@@ -90,7 +90,12 @@ namespace Eddy
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                         }
                 },
-                new MenuItemViewModel { Header = "View Log" },
+                new MenuItemViewModel { Header = "View Log",
+                    MenuItems = new ObservableCollection<MenuItemViewModel>
+                    {
+                        new MenuItemViewModel { Header = "Batch Wise Log", mainWindow =this }
+                    }
+                },
             };
             //DeviceCOM.dataBuffer = new double[8000];
             this.DataContext = this;
@@ -431,22 +436,19 @@ namespace Eddy
                     //DeviceCOM.part.Name
                     try
                     {
-                        
-
                         using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
                         {
                             con.Open();
 
-                            // SAME serialization you used in PDF
                             string partJson = JsonConvert.SerializeObject(DeviceCOM.part);
                             string configJson = JsonConvert.SerializeObject(DeviceCOM.Configuration);
                             string graphJson = JsonConvert.SerializeObject(DeviceCOM.graphData);
 
                             string sql = @"
-                                    INSERT INTO ""Logs"" 
-                                    (""TimeStamp"", ""PartJson"", ""ConfigurationJson"", ""GraphDataJson"", ""BatchName"")
-                                    VALUES 
-                                    (@time, @part, @config, @graph, @batch)";
+                                INSERT INTO ""Logs"" 
+                                (""TimeStamp"", ""PartJson"", ""ConfigurationJson"", ""GraphDataJson"", ""BatchName"", ""Result"")
+                                VALUES 
+                                (@time, @part, @config, @graph, @batch, @result)";
 
                             using (var cmd = new NpgsqlCommand(sql, con))
                             {
@@ -455,6 +457,7 @@ namespace Eddy
                                 cmd.Parameters.AddWithValue("@config", NpgsqlTypes.NpgsqlDbType.Jsonb, configJson);
                                 cmd.Parameters.AddWithValue("@graph", NpgsqlTypes.NpgsqlDbType.Jsonb, graphJson);
                                 cmd.Parameters.AddWithValue("@batch", DeviceCOM.part.Name ?? "");
+                                cmd.Parameters.AddWithValue("@result", NpgsqlTypes.NpgsqlDbType.Boolean, result); 
 
                                 cmd.ExecuteNonQuery();
                             }
@@ -462,7 +465,7 @@ namespace Eddy
                     }
                     catch (Exception ex)
                     {
-                        
+                        MessageBox.Show("Something went wrong. Please try again");
                     }
                 }
 
@@ -1307,6 +1310,11 @@ namespace Eddy
                     }
 
                     MessageBox.Show(msg, "Information");
+                }
+                else if (Header == "Batch Wise Log")
+                {
+                    Logs logs = new Logs();
+                    logs.ShowDialog();
                 }
             }
         }

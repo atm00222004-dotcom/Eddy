@@ -31,6 +31,7 @@ namespace Eddy
         public SerialPort port;
 
         public static string PortName;
+        public static string DBConnection;
         public static int BaudRate;
         public static int MaxValue;
         public static int Factor;
@@ -244,6 +245,16 @@ namespace Eddy
     public class Status
     {
         public int FC;
+    }
+    public class LogData
+    {
+        public string BatchName { get; set; }
+        public string LogStartDate { get; set; }
+        public string LogEndDate { get; set; }
+        public int PassCount { get; set; }
+        public int FailCount { get; set; }
+        public int TotalCount { get; set; }
+
     }
 }
 
