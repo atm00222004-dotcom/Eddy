@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Magkraft.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Magkraft.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql" Version="9.0.3" />
     <PackageReference Include="ScottPlot.WPF" Version="5.0.55" />

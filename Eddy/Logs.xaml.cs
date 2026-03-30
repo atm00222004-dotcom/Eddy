@@ -193,7 +193,7 @@ namespace Eddy
         {
             try
             {
-                var batchDetails = new Dictionary<string, List<(DateTime TimeStamp, string PartJson, string ConfigurationJson, bool Result)>>();
+                var batchDetails = new Dictionary<string, List<(DateTime TimeStamp, string PartJson, string ConfigurationJson, string GraphDataJson, bool Result)>>();
 
                 foreach (var log in listOfLog)
                     batchDetails[log.BatchName] = GetBatchDetails(log.BatchName);
@@ -207,14 +207,32 @@ namespace Eddy
                         page.Margin(20);
                         page.Size(PageSizes.A4);
 
-                        // Header
                         page.Header().ShowOnce().BorderBottom(2).BorderColor("#0D3B6E").PaddingBottom(8).Row(r =>
                         {
-                            r.RelativeItem().AlignLeft().Text("PRODUCTION REPORT")
-                                .FontSize(18).Bold().FontColor("#0D3B6E");
-                            r.ConstantItem(160).AlignRight().AlignBottom()
+                            r.RelativeItem().Row(left =>
+                            {
+                                var imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Magkraft.jpg");
+                                var imageBytes = File.ReadAllBytes(imagePath);
+
+                                left.AutoItem()
+                                    .Height(25)                      // Slightly taller for better visibility
+                                    .Width(25)                       // Keep square for your logo
+                                    .AlignMiddle()                   // Vertically center
+                                    .Image(imageBytes, ImageScaling.FitHeight); // Maintain aspect ratio
+
+                                left.ConstantItem(12);              // Space between logo and text
+
+                                left.AutoItem().AlignMiddle()
+                                    .Text("TUBE EDDY REPORT")
+                                    .FontSize(18)
+                                    .Bold()
+                                    .FontColor("#0D3B6E");
+                            });
+
+                            r.ConstantItem(180).AlignRight().AlignBottom()
                                 .Text($"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}")
-                                .FontSize(8).FontColor("#888888");
+                                .FontSize(8)
+                                .FontColor("#888888");
                         });
 
                         page.Content().PaddingTop(10).Column(col =>
@@ -295,6 +313,7 @@ namespace Eddy
                                                 recordIndex++;
                                                 var part = JsonConvert.DeserializeObject<Part>(item.PartJson);
                                                 var config = JsonConvert.DeserializeObject<Configuration>(item.ConfigurationJson);
+                                                var graph = !string.IsNullOrEmpty(item.GraphDataJson)? JsonConvert.DeserializeObject<GraphData>(item.GraphDataJson): null;
                                                 bool passed = item.Result;
 
                                                 string rowBg = (recordIndex % 2 == 0) ? "#FAFAFA" : "#FFFFFF";
@@ -344,19 +363,23 @@ namespace Eddy
 
                                                                     record.Item().PaddingTop(5).Text("FREQUENCY & FILTER")
                                                                         .FontSize(6.5f).Bold().FontColor("#888888");
-
-                                                                    // frequency data row
+                   
                                                                     record.Item().PaddingTop(2).Row(r =>
                                                                     {
                                                                         r.RelativeItem().Element(c => LV(c, "Frequency(KHz)", (f.F / 1000).ToString()));
                                                                         r.RelativeItem().Element(c => LV(c, "Pre Gain(dB)", f.G.ToString()));
                                                                         r.RelativeItem().Element(c => LV(c, "Phase", f.PP.ToString()));
-                                                                        r.RelativeItem().Element(c => LV(c, "High Thershold", f.UTH.ToString()));
-                                                                        r.RelativeItem().Element(c => LV(c, "Low Thershold", f.LTH.ToString()));
-                                                                        r.RelativeItem().Element(c => LV(c, "Third Thershold", f.TH.ToString()));
+                                                                        r.RelativeItem().Element(c => LV(c, "High Threshold", f.UTH.ToString()));
+                                                                    });
+
+                                                                    record.Item().PaddingTop(1).Row(r =>
+                                                                    {
+                                                                        r.RelativeItem().Element(c => LV(c, "Low Threshold", f.LTH.ToString()));
+                                                                        r.RelativeItem().Element(c => LV(c, "Third Threshold", f.TH.ToString()));
                                                                         r.RelativeItem().Element(c => LV(c, "High Pass Filter", filterRow?.H.ToString() ?? "-"));
                                                                         r.RelativeItem().Element(c => LV(c, "Low Pass Filter", filterRow?.L.ToString() ?? "-"));
                                                                     });
+
                                                                 }
                                                                 catch
                                                                 {
@@ -389,6 +412,34 @@ namespace Eddy
                                                                 r.RelativeItem().Element(c => LV(c, "C Coil to C2 Distance(mm)", m.CC2.ToString()));
                                                             });
                                                         }
+
+                                                        //Amp Details
+                                                        if (!passed && graph?.AmpD1 != null && config?.Frequency?.FD != null)
+                                                        {
+                                                            foreach (var freq in config.Frequency.FD)
+                                                            {
+                                                                int UTH = freq.UTH;
+                                                                int LTH = freq.LTH;
+
+                                                                var invalidAmps = graph.AmpD1
+                                                                    .Where(a => a.Amp < LTH || a.Amp > UTH)
+                                                                    .Select(a => a.Amp)
+                                                                    .ToList();
+
+                                                                if (invalidAmps.Any())
+                                                                {
+                                                                    record.Item().PaddingTop(5).Text("AMP (Out of Threshold)")
+                                                                        .FontSize(6.5f).Bold().FontColor("#C62828");
+
+                                                                    record.Item().PaddingTop(2).Text(string.Join(", ", invalidAmps))
+                                                                        .FontSize(7)
+                                                                        .FontColor("#111111");
+
+                                                                    break; 
+                                                                }
+                                                            }
+                                                        }
+
                                                     });
                                             }
                                             catch
@@ -425,51 +476,48 @@ namespace Eddy
             }
         }
 
-        public List<(DateTime TimeStamp, string PartJson, string ConfigurationJson, bool Result)> GetBatchDetails(string BatchName)
+        public List<(DateTime TimeStamp, string PartJson, string ConfigurationJson, string GraphDataJson, bool Result)> GetBatchDetails(string batchName)
         {
+            var list = new List<(DateTime, string, string, string, bool)>();
+
             try
             {
-                var list = new List<(DateTime, string, string, bool)>();
-
                 using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
                 {
                     con.Open();
 
-                    string sql = @"
-                        SELECT ""TimeStamp"", ""PartJson"", ""ConfigurationJson"", ""Result""
-                        FROM ""Logs""
-                        WHERE 
-                            ""BatchName"" = @batch
-                            AND ""TimeStamp"" >= @StartDate
-                            AND ""TimeStamp"" < @EndDate
-                        ORDER BY ""TimeStamp"";
-                    ";
+                    string query = @"
+                SELECT ""TimeStamp"", ""PartJson"", ""ConfigurationJson"", ""GraphDataJson"", ""Result""
+                FROM ""Logs""
+                WHERE ""BatchName"" = @BatchName
+                ORDER BY ""TimeStamp"" DESC";
 
-                    var cmd = new NpgsqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("@batch", BatchName);
-                    cmd.Parameters.AddWithValue("@StartDate", clStartDate.SelectedDate.Value);
-                    cmd.Parameters.AddWithValue("@EndDate", clToDate.SelectedDate.Value.AddDays(1));
-
-                    var reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
+                    using (var cmd = new NpgsqlCommand(query, con))
                     {
-                        list.Add((
-                            reader.GetFieldValue<DateTime>(reader.GetOrdinal("TimeStamp")).ToLocalTime(),
-                            reader["PartJson"].ToString(),
-                            reader["ConfigurationJson"].ToString(),
-                            reader.GetBoolean(reader.GetOrdinal("Result")) 
-                        ));
+                        cmd.Parameters.AddWithValue("@BatchName", batchName);
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                list.Add((
+                                    reader.GetFieldValue<DateTime>(reader.GetOrdinal("TimeStamp")).ToLocalTime(),
+                                    reader["PartJson"]?.ToString(),
+                                    reader["ConfigurationJson"]?.ToString(),
+                                    reader["GraphDataJson"]?.ToString(),
+                                    reader.GetBoolean(reader.GetOrdinal("Result"))
+                                ));
+                            }
+                        }
                     }
                 }
-
-                return list;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Something went wrong. Please try again.");
-                return new List<(DateTime, string, string, bool)>();
+                MessageBox.Show("DB Error: " + ex.Message);
             }
+
+            return list;
         }
     }
 }
