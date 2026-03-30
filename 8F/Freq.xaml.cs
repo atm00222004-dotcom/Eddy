@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Shell;
 using System.Windows.Threading;
 
 namespace _8F
@@ -26,32 +27,28 @@ namespace _8F
         public bool IsSaved = false; 
         public DeviceCOM portCOM;
         private DispatcherTimer clearLabelTimer;
+        private List<GraphData> tempList;
         public Freq()
         {
             InitializeComponent();
 
 
 
-            ddlFrChennel.ItemsSource = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.Select(x=> x.Name).ToList();
-            List<String> statuses = new List<string>();
-            statuses.Add("True");
-            statuses.Add("False");
-            ddlStatus.ItemsSource = statuses;
-            ddlFrChennel.SelectedIndex = 0;
-            var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == "D1");
-            if (Gdata != null)
+            var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
+            if (selectedChannel != null && selectedChannel.graphDatas != null)
             {
-                txtFreq.Text = Gdata.freq.ToString();
-                txtGain.Text = Gdata.gain.ToString();
-                txtPhase.Text = Gdata.phase.ToString();
-                if (Gdata.isEnable)
+                tempList = selectedChannel.graphDatas
+                .Select(x => new GraphData
                 {
-                    ddlStatus.SelectedIndex = 0;
-                }
-                else
-                {
-                    ddlStatus.SelectedIndex = 1;
-                }
+                    Id = x.Id,
+                    Name = x.Name,
+                    freq = x.freq,
+                    gain = x.gain,
+                    phase = x.phase,
+                    isEnable = x.isEnable
+                }).ToList();
+
+                gdFreq.ItemsSource = tempList;
             }
         }
 
@@ -65,88 +62,105 @@ namespace _8F
             try
             {
                 lblMsg.Content = "";
-                var msg = Validaton();
 
-                if (msg.Count == 0 && DeviceCOM.IsSystemBusy)
+                var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+
+                // commit latest edits
+                gdFreq.CommitEdit(DataGridEditingUnit.Cell, true);
+                gdFreq.CommitEdit(DataGridEditingUnit.Row, true);
+
+                var list = tempList;
+
+                var msg = Validaton(list);
+
+                if (DeviceCOM.IsSystemBusy)
                 {
                     msg.Add("System is busy so you can not perform this command, please wait...");
+                    return;
                 }
 
                 if (msg.Count == 0)
                 {
-                    var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
-                    var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == ddlFrChennel.Text);
-                    if (Gdata != null)
+                    FrequencyWrite frequencyWrite = new FrequencyWrite();
+                    frequencyWrite.FC = 4;
+                    frequencyWrite.CN = ch.Id;
+                    frequencyWrite.FD = new List<Frequency>();
+
+                    foreach (var Gdata in list)
                     {
-                        Gdata.freq = Convert.ToInt32(txtFreq.Text);
-                        Gdata.gain = Convert.ToInt32(txtGain.Text);
-                        Gdata.phase = Convert.ToInt32(txtPhase.Text);
-                        
-                        if (ddlStatus.SelectedIndex == 0)
+                        Frequency frequency = new Frequency()
                         {
-                            Gdata.isEnable = true; 
-                        }
-                        else
-                        {
-                            Gdata.isEnable = false;
-                        }
+                            FN = Gdata.Id,
+                            F = Gdata.freq,
+                            G = Gdata.gain,
+                            P = Gdata.phase,
+                            E = Gdata.isEnable ? 1 : 0
+                        };
 
-                        FrequencyWrite frequencyWrite = new FrequencyWrite();
-                        frequencyWrite.FC = 4;
-                        frequencyWrite.CN = ch.Id;
-                        frequencyWrite.FD = new List<Frequency>();
-
-                        Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase, E = Gdata.isEnable ? 1 : 0 };
                         frequencyWrite.FD.Add(frequency);
+                    }
 
-                        var rat = false;
+                    var rat = false;
 
-                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
-                        if (IsJSON)
+                    var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                    if (IsJSON)
+                    {
+                        rat = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                    }
+                    else
+                    {
+                        int length = (frequencyWrite.FD.Count * 10) + 6;
+                        byte[] data = new byte[length];
+                        data[0] = Convert.ToByte(2);
+                        data[1] = Convert.ToByte(4);
+                        data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
+                        data[3] = Convert.ToByte(ch.Id);
+                        int startB = 4;
+                        foreach (var kvp in frequencyWrite.FD)
                         {
-                            rat = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));                           
-                        }
-                        else
-                        {
-                            int length = (frequencyWrite.FD.Count * 10) + 6;
-                            byte[] data = new byte[length];
-                            data[0] = Convert.ToByte(2);
-                            data[1] = Convert.ToByte(4);
-                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
-                            data[3] = Convert.ToByte(ch.Id);
-                            int startB = 4;
-                            foreach (var kvp in frequencyWrite.FD)
-                            {
-                                data[startB] = Convert.ToByte(kvp.FN);
+                            data[startB] = Convert.ToByte(kvp.FN);
 
-                                data[startB + 1] = (byte)(kvp.F & 0xFF);         // Lowest byte
-                                data[startB + 2] = (byte)((kvp.F >> 8) & 0xFF);  // Byte 2
-                                data[startB + 3] = (byte)((kvp.F >> 16) & 0xFF); // Byte 3
-                                data[startB + 4] = (byte)((kvp.F >> 24) & 0xFF); // Highest byte
+                            data[startB + 1] = (byte)(kvp.F & 0xFF);         // Lowest byte
+                            data[startB + 2] = (byte)((kvp.F >> 8) & 0xFF);  // Byte 2
+                            data[startB + 3] = (byte)((kvp.F >> 16) & 0xFF); // Byte 3
+                            data[startB + 4] = (byte)((kvp.F >> 24) & 0xFF); // Highest byte
 
-                                data[startB + 5] = (byte)(kvp.G & 0xFF);         // Lowest byte
-                                data[startB + 6] = (byte)((kvp.G >> 8) & 0xFF);  // Byte 2
+                            data[startB + 5] = (byte)(kvp.G & 0xFF);         // Lowest byte
+                            data[startB + 6] = (byte)((kvp.G >> 8) & 0xFF);  // Byte 2
 
-                                data[startB + 7] = (byte)(kvp.P & 0xFF);         // Lowest byte
-                                data[startB + 8] = (byte)((kvp.P >> 8) & 0xFF);  // Byte 2
+                            data[startB + 7] = (byte)(kvp.P & 0xFF);         // Lowest byte
+                            data[startB + 8] = (byte)((kvp.P >> 8) & 0xFF);  // Byte 2
 
-                                data[startB + 9] = (byte)(kvp.E);
+                            data[startB + 9] = (byte)(kvp.E);
 
-                                startB = startB + 10;
-                            }
-
-                            rat = portCOM.WriteDataInBytes(data);                            
+                            startB = startB + 10;
                         }
 
-                        if (rat)
+                        rat = portCOM.WriteDataInBytes(data);
+                    }
+
+                    // Copy temp data → original data
+                    foreach (var original in ch.graphDatas)
+                    {
+                        var updated = tempList.FirstOrDefault(x => x.Id == original.Id);
+                        if (updated != null)
                         {
-                            lblMsg.Content = "Configuration Saved!!!";
-                        }
-                        else
-                        {
-                            lblMsg.Content = "Configuration Saved but no response from the board, please reboot it and write the configuration again!!!";
+                            original.freq = updated.freq;
+                            original.gain = updated.gain;
+                            original.phase = updated.phase;
+                            original.isEnable = updated.isEnable;
                         }
                     }
+
+                    if (rat)
+                    {
+                        lblMsg.Content = "Configuration Saved!!!";
+                    }
+                    else
+                    {
+                        lblMsg.Content = "Configuration Saved but no response from the board, please reboot it and write the configuration again!!!";
+                    }
+
                     IsSaved = true;
                 }
                 else
@@ -154,9 +168,8 @@ namespace _8F
                     lblMsg.Content = "Validatoin Error:-";
                     foreach (var m in msg)
                     {
-                        lblMsg.Content = lblMsg.Content + "\r\n" + (msg.IndexOf(m) + 1).ToString() + ". " + m ;
+                        lblMsg.Content = lblMsg.Content + "\r\n" + (msg.IndexOf(m) + 1).ToString() + ". " + m;
                     }
-                    //lblMsg.Content = "Error while saving the Configuration!!!";
                 }
             }
             catch (Exception ex)
@@ -179,75 +192,25 @@ namespace _8F
             clearLabelTimer.Stop(); // Stop the timer after clearing
         }
 
-        public List<String> Validaton()
+        public List<string> Validaton(List<GraphData> list)
         {
-            List<String> validationMsg = new List<string>();
-            if (string.IsNullOrEmpty(txtFreq.Text))
+            List<string> validationMsg = new List<string>();
+
+            foreach (var item in list)
             {
-                validationMsg.Add("Frequency is required and the range is 100 to 50000.");
-            }
-            else
-            {
-                if (Convert.ToInt32(txtFreq.Text) < 100 || Convert.ToInt32(txtFreq.Text) > 50000)
-                {
-                    validationMsg.Add("Frequency is required and the range is 100 to 50000.");
-                }
-            }
-            if (string.IsNullOrEmpty(txtGain.Text))
-            {
-                validationMsg.Add("Gain is required and the range is 10 to 56.");
-            }
-            else
-            {
-                if (Convert.ToInt32(txtGain.Text) < 10 || Convert.ToInt32(txtGain.Text) > 56)
-                {
-                    validationMsg.Add("Gain is required and the range is 10 to 56.");
-                }
-            }
-            if (string.IsNullOrEmpty(txtPhase.Text))
-            {
-                validationMsg.Add("Phase is required and the range is 0 to 359.");
-            }
-            else
-            {
-                if (Convert.ToInt32(txtPhase.Text) < 0 || Convert.ToInt32(txtPhase.Text) > 359)
-                {
-                    validationMsg.Add("Phase is required and the range is 0 to 359.");
-                }
+                if (item.freq < 100 || item.freq > 50000)
+                    validationMsg.Add($"{item.Name}: Frequency must be 100–50000");
+
+                if (item.gain < 10 || item.gain > 56)
+                    validationMsg.Add($"{item.Name}: Gain must be 10–56");
+
+                if (item.phase < 0 || item.phase > 359)
+                    validationMsg.Add($"{item.Name}: Phase must be 0–359");
+
             }
 
             return validationMsg;
         }
-
-        private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            lblMsg.Content = string.Empty;
-            var text = e.AddedItems[0].ToString();
-            var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == text);
-            if (Gdata != null)
-            {
-                txtFreq.Text = Gdata.freq.ToString();
-                txtGain.Text = Gdata.gain.ToString();
-                txtPhase.Text = Gdata.phase.ToString();
-
-                if (Gdata.isEnable)
-                {
-                    ddlStatus.SelectedIndex = 0;
-                }
-                else
-                {
-                    ddlStatus.SelectedIndex = 1;
-                }
-            }
-
-        }
-
-        private void PreviewTextInput_NumericOnly(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex("[^0-9]+");
-            e.Handled = regex.IsMatch(e.Text);
-        }
-
        
     }
 }

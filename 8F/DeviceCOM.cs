@@ -1034,12 +1034,18 @@ namespace _8F
     }
     public class GraphData
     {
-        public int Id = 0;
-        public string Name = "D";
-        public int freq = 400;
-        public int gain = 10;
-        public int phase = 0;
-        public bool isEnable = true;
+        //public int Id = 0;
+        //public string Name = "D";
+        //public int freq = 400;
+        //public int gain = 10;
+        //public int phase = 0;
+        //public bool isEnable = true;
+        public int Id { get; set; } = 0;
+        public string Name { get; set; } = "D";
+        public int freq { get; set; } = 400;
+        public int gain { get; set; } = 10;
+        public int phase { get; set; } = 0;
+        public bool isEnable { get; set; } = true;
         public double height = DeviceCOM.DefaultHeight;
         public double width = DeviceCOM.DefaultWidth;
         public double ex = 30;
@@ -1072,6 +1078,7 @@ namespace _8F
         public double ey { get; set; }
         public double angel { get; set; }
         public string ColorName { get; set; }
+        public string ChannelName { get; set; }
     }
     
     public class Response

@@ -26,42 +26,45 @@ namespace _8F
         public bool IsSaved = false;
         public DeviceCOM portCOM;
         string _selectChannel;
-        public ObservableCollection<EllipsDTO> ellipses;
+        public ObservableCollection<EllipsDTO> ellipses { get; set; } = new();
         private DispatcherTimer clearLabelTimer;
         public CircleSetting(string selectChannel)
         {
             InitializeComponent();
-            ddlFrChennel.ItemsSource = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.Select(x => x.Name).ToList();
-            ddlFrChennel.SelectedItem = selectChannel;
+            _selectChannel = selectChannel;
+            LoadAllChannelsEllipses();
         }
 
-        private void ChangeFreq (string selectChannel)
+        private void LoadAllChannelsEllipses()
         {
-            lblHeader.Content = "System Configuration (" + selectChannel + ")";
-            _selectChannel = selectChannel;
-            var Gdata = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true).graphDatas.FirstOrDefault(d => d.Name == selectChannel);
-            if (Gdata != null)
+            ellipses.Clear();
+
+            var selectedDevice = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
+            if (selectedDevice == null) return;
+
+            int colorIndex = 0;
+
+            foreach (var channel in selectedDevice.graphDatas
+                .Where(g => g.isEnable))
             {
-                //Gdata.ellipses
-                ellipses = new ObservableCollection<EllipsDTO>();
-
-                Gdata.ellipses.ForEach(ell =>
+                foreach (var ell in channel.ellipses)
                 {
-                    var index = Gdata.ellipses.IndexOf(ell);
-                    EllipsDTO ellips = new EllipsDTO();
-                    ellips.Id = ell.Id;
-                    ellips.height = ell.height;
-                    ellips.width = ell.width;
-                    ellips.ex = ell.ex;
-                    ellips.ey = ell.ey;
-                    ellips.angel = ell.angel;
-                    ellips.ColorName = MyColor.GetColorName(index).ToString();
-                    ellipses.Add(ellips);
-                });
-                gdFreq.ItemsSource = null;
-                gdFreq.ItemsSource = ellipses;
-
+                    var dto = new EllipsDTO
+                    {
+                        Id = ell.Id,
+                        ChannelName = channel.Name,
+                        height = ell.height,
+                        width = ell.width,
+                        ex = ell.ex,
+                        ey = ell.ey,
+                        angel = ell.angel,
+                        ColorName = MyColor.GetColorName(colorIndex++).ToString()
+                    };
+                    ellipses.Add(dto);
+                }
             }
+
+            gdFreq.ItemsSource = ellipses;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -118,27 +121,52 @@ namespace _8F
             frequ.FN = Gdata.Id;
             frequ.ED = new List<Elliplse>();
 
-            if (Gdata != null)
+            if (ch == null) return;
+
+            ellipseWrite.FD.Clear();
+
+            foreach (var graph in ch.graphDatas)
             {
-                Gdata.ellipses.Clear();
-                foreach (var item in ellipses)
+                graph.ellipses.Clear();
+
+                var freq = new Frequ();
+                freq.FN = graph.Id;
+                freq.ED = new List<Elliplse>();
+
+                var channelEllipses = ellipses
+                    .Where(e => e.ChannelName == graph.Name)
+                    .ToList();
+
+                int id = 1;
+
+                foreach (var item in channelEllipses)
                 {
-                    Ellips el = new Ellips();
-                    el.Id = Gdata.ellipses.Count + 1;
-                    el.height = item.height;
-                    el.width = item.width;
-                    el.ex = item.ex;
-                    el.ey = item.ey;
-                    el.angel = item.angel;
+                    Ellips el = new Ellips
+                    {
+                        Id = id++,
+                        height = item.height,
+                        width = item.width,
+                        ex = item.ex,
+                        ey = item.ey,
+                        angel = item.angel
+                    };
 
-                    Gdata.ellipses.Add(el);
+                    graph.ellipses.Add(el);
 
-                    Elliplse elliplse = new Elliplse() { FN = Gdata.Id, EId = el.Id, a = el.height, b = el.width, t = el.angel, x = (int)Math.Round(el.ex, MidpointRounding.AwayFromZero), y = (int)Math.Round(el.ey, MidpointRounding.AwayFromZero) };
-                    frequ.ED.Add(elliplse);
+                    freq.ED.Add(new Elliplse()
+                    {
+                        FN = graph.Id,
+                        EId = el.Id,
+                        a = el.height,
+                        b = el.width,
+                        t = el.angel,
+                        x = (int)Math.Round(el.ex, MidpointRounding.AwayFromZero),
+                        y = (int)Math.Round(el.ey, MidpointRounding.AwayFromZero)
+                    });
                 }
-            }
 
-            ellipseWrite.FD.Add(frequ);
+                ellipseWrite.FD.Add(freq);
+            }
 
             var rat = false;
 
@@ -309,7 +337,7 @@ namespace _8F
         private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var text = e.AddedItems[0].ToString();
-            ChangeFreq(text);
+            //ChangeFreq(text);
         }
     }
 }
