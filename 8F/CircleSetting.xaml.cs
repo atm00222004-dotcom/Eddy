@@ -80,7 +80,9 @@ namespace _8F
         {
             try
             {
-                gdFreq.CommitEdit();
+                //gdFreq.CommitEdit();
+                gdFreq.CommitEdit(DataGridEditingUnit.Cell, true);
+                gdFreq.CommitEdit(DataGridEditingUnit.Row, true);
                 //CollectionViewSource.GetDefaultView(gdFreq.ItemsSource)?.Refresh();
                 SaveData();
                 //if (!IsSaved)
