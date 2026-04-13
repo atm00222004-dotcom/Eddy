@@ -414,7 +414,7 @@ namespace Eddy
                                                         }
 
                                                         //Amp Details
-                                                        if (!passed && graph?.AmpD1 != null && config?.Frequency?.FD != null)
+                                                        if ( 1== 0 && !passed && graph?.AmpD1 != null && config?.Frequency?.FD != null)
                                                         {
                                                             foreach (var freq in config.Frequency.FD)
                                                             {
