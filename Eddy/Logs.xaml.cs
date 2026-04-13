@@ -490,7 +490,7 @@ namespace Eddy
                 SELECT ""TimeStamp"", ""PartJson"", ""ConfigurationJson"", ""GraphDataJson"", ""Result""
                 FROM ""Logs""
                 WHERE ""BatchName"" = @BatchName
-                ORDER BY ""TimeStamp"" DESC";
+                ORDER BY ""TimeStamp"" ASC";
 
                     using (var cmd = new NpgsqlCommand(query, con))
                     {
