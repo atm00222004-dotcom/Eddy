@@ -126,9 +126,9 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Label Foreground="Green" FontSize="14" Grid.Column="0" FontWeight="Bold" Name="lblOk" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Ok Count-0" ></Label>
+                        <!--<Label Foreground="Green" FontSize="14" Grid.Column="0" FontWeight="Bold" Name="lblOk" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Ok Count-0" ></Label>
                         <Label Foreground="Red" FontSize="14" Grid.Column="1" FontWeight="Bold" Name="lblNotOk" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Not Ok Count-0" ></Label>
-                        <Label Foreground="Orange" FontSize="14" Grid.Column="2" FontWeight="Bold" Name="lblTotal" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Total Count-0" ></Label>
+                        <Label Foreground="Orange" FontSize="14" Grid.Column="2" FontWeight="Bold" Name="lblTotal" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Total Count-0" > </Label>-->
                     </Grid>
                     <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
                     <Grid Grid.Row="4" Grid.Column="0">
@@ -136,9 +136,25 @@
                     </Grid>
                 </Grid>
                 <Grid Grid.Column="0" Grid.Row="1">
+
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="1" Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Label Foreground="Green" FontSize="28" Grid.Column="0" Grid.Row="0" FontWeight="Bold" Name="lblOk" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Ok Count-0" ></Label>
+                        <Label Foreground="Red" FontSize="28" Grid.Column="0" Grid.Row="1" FontWeight="Bold" Name="lblNotOk" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Not Ok Count-0" ></Label>
+                        <Label Foreground="Orange" FontSize="28" Grid.Column="0" Grid.Row="2" FontWeight="Bold" Name="lblTotal" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Total Count-0" >
+                        </Label>
+                    </Grid>
+
                     <Border x:Name="br1" Visibility="Hidden" Margin="0,30,2,2" Grid.Row="0" Grid.Column="0" BorderThickness="2" >
                         <Canvas  x:Name="Canvas1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top">
                             <Rectangle Name="br1_rec1" Width="470" Fill="White"

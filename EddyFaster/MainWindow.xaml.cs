@@ -29,8 +29,8 @@ namespace _8F
         DispatcherTimer dispatcherTimer;
         public int chNo = 1;
         double factor = 20;
+        public string filename { get; set; }
 
-        
         int seqLength = 720;
         int CommunicationType = 0;
         int FrequencyNo = 1;
@@ -352,6 +352,8 @@ namespace _8F
             //{
             //    CheckSerailNumber();
             //}
+
+            cn2.Children.Clear();
 
             if (DeviceCOM.IsSystemBusy)
             {
@@ -1144,6 +1146,7 @@ namespace _8F
                 DeviceCOM.responses = new List<Response>();
             }
             cn1.Children.Clear();
+            cn2.Children.Clear();
             rResult1.Fill = new SolidColorBrush(Colors.White);
         }
         public void ClearGraphDataByChId(int chId)
@@ -1283,10 +1286,9 @@ namespace _8F
                     Canvas.SetLeft(el1, left - 2);
                     Canvas.SetTop(el1, top - 2);
                     el1.Fill = new SolidColorBrush(Colors.Orange);
-                    cn1.Children.Add(el1);
+                    cn2.Children.Add(el1);
                 }
             }
-            
 
         }
 
@@ -1711,7 +1713,7 @@ namespace _8F
                     {
                         try
                         {
-                            if (String.IsNullOrEmpty(filename))
+                            if (String.IsNullOrEmpty(this.mainWindow.filename))
                             {
                                 Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
                                 dlg.FileName = "Document"; // Default file name
@@ -1725,19 +1727,19 @@ namespace _8F
                                 if (result == true)
                                 {
                                     // Save document
-                                    filename = dlg.FileName;
+                                    this.mainWindow.filename = dlg.FileName;
 
                                     string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                                     File.WriteAllText(filename, conecnt);                                    
                                     //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
-                                    this.mainWindow.lblConfigFileName.Content = filename;
+                                    this.mainWindow.lblConfigFileName.Content = this.mainWindow.filename;
                                 }
 
                             }
                             else
                             {
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                File.WriteAllText(filename, conecnt);
+                                File.WriteAllText(this.mainWindow.filename, conecnt);
                                 //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                 //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                             }
@@ -1765,13 +1767,13 @@ namespace _8F
                             if (result == true)
                             {
                                 // Save document
-                                filename = dlg.FileName;
+                                this.mainWindow.filename = dlg.FileName;
 
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                File.WriteAllText(filename, conecnt);
+                                File.WriteAllText(this.mainWindow.filename, conecnt);
                                 //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                 //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
-                                this.mainWindow.lblConfigFileName.Content = filename;
+                                this.mainWindow.lblConfigFileName.Content = this.mainWindow.filename;
                             }
 
 
@@ -1799,7 +1801,7 @@ namespace _8F
                                 string data = File.ReadAllText(dialog.FileName);
                                 DeviceCOM.channelDatas = JsonConvert.DeserializeObject<List<ChannelData>>(data);
                                 // Open document
-                                filename = dialog.FileName;
+                                this.mainWindow.filename = dialog.FileName;
                                 mainWindow.SelectCh1();
                                 mainWindow.ClearGraphData();
 
@@ -1811,7 +1813,7 @@ namespace _8F
                                 }
 
                                 //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                                this.mainWindow.lblConfigFileName.Content = filename;
+                                this.mainWindow.lblConfigFileName.Content = this.mainWindow.filename;
                             }
 
 
@@ -1823,7 +1825,7 @@ namespace _8F
                     }
                     else if (Header == "New")
                     {
-                        filename = null;
+                        this.mainWindow.filename = null;
                         mainWindow.InitialGraphData(false);
                         mainWindow.ClearGraphData();
                         var rat = mainWindow.ImplementChanges(0);

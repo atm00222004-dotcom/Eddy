@@ -206,6 +206,14 @@ namespace Eddy
         public int X = 10;
         public int Y = 10;
     }
+
+    public class FilterFD1
+    {
+        public int FN = 0;
+        public int H = 10;
+        public int L = 100;
+    }
+
     public class Frequency
     {
         public int FC = 51;
@@ -215,6 +223,12 @@ namespace Eddy
     {
         public int FC = 52;
         public List<FilterFD> FD;
+    }
+
+    public class Filter1
+    {
+        public int FC = 52;
+        public List<FilterFD1> FD;
     }
     public class GraphData
     {

@@ -27,9 +27,19 @@ namespace Eddy
         public bool IsSaved = false;
         private DispatcherTimer clearLabelTimer;
         public DeviceCOM deviceCOM;
+        bool IsEddyAdvance = false; 
         public FrequencySetting()
         {
             InitializeComponent();
+            IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+
+            if (IsEddyAdvance)
+            {
+                lblX.Visibility = Visibility.Visible;
+                lblY.Visibility = Visibility.Visible;
+                txtPostAMPX.Visibility = Visibility.Visible;
+                txtPostAMPY.Visibility = Visibility.Visible;
+            }
 
             if (DeviceCOM.Configuration.Frequency.FD.Count > 0)
             {
@@ -90,6 +100,7 @@ namespace Eddy
                 }
 
             }
+
 
         }
 
@@ -159,6 +170,8 @@ namespace Eddy
                                 {
                                     item.H = Convert.ToInt32(txtH1.Text);
                                     item.L = Convert.ToInt32(txtL1.Text);
+                                    item.X = Convert.ToInt32(txtPostAMPX.Text);
+                                    item.Y = Convert.ToInt32(txtPostAMPY.Text);
                                 }
                                 //else if (item.FN == 2)
                                 //{
@@ -171,13 +184,13 @@ namespace Eddy
                                     item.L = Convert.ToInt32(txtL1.Text);
 
                                     item.X = Convert.ToInt32(txtPostAMPX.Text);
-                                    item.X = Convert.ToInt32(txtPostAMPY.Text);
+                                    item.Y = Convert.ToInt32(txtPostAMPY.Text);
                                 }
                             }
                         }
 
                         var rat1 = false;
-                        var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+                       
                         var rat = false;
 
                         if (IsEddyAdvance)
@@ -191,8 +204,17 @@ namespace Eddy
                         }
                         else
                         {
+
                             rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-                            rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+                            Filter1 filter1 = new Filter1();
+                            filter1.FD = new List<FilterFD1>();
+
+                            foreach (var item in DeviceCOM.Configuration.Filter.FD)
+                            {
+                                filter1.FD.Add(new FilterFD1 { FN = item.FN, H = item.H, L = item.L });
+                            }
+
+                            rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(filter1));
                         }
 
 

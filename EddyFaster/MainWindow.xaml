@@ -92,6 +92,7 @@
 
                         <Canvas Name="cnBr1" Canvas.Left="180" Canvas.Top="180">
                             <Canvas Name="cn1"/>
+                            <Canvas Name="cn2"/>
                             <Ellipse x:Name="el11"
                                  Width="650"
                                  Height="650"

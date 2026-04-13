@@ -74,11 +74,11 @@
                 <Label Content="Low Pass Filter" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="2" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="3" Name="txtL1" />
 
-                <Label Content="Post AMP X(dB)" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="4"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="2" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="5" Name="txtPostAMPX" />
-                
-                <Label Content="Post AMP Y(dB)" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="3" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="1" Name="txtPostAMPY" />
+                <Label Name="lblX" Visibility="Hidden" Content="Post AMP X(dB)" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="4"></Label>
+                <TextBox Visibility="Hidden" PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="2" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="5" Name="txtPostAMPX" />
+
+                <Label Visibility="Hidden" Name="lblY" Content="Post AMP Y(dB)" FontSize="16" FontWeight="Bold" Grid.Row="3" Grid.Column="0"></Label>
+                <TextBox Visibility="Hidden" PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="3" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="1" Name="txtPostAMPY" />
 
 
 

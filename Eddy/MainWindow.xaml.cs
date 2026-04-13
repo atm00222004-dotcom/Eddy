@@ -56,7 +56,7 @@ namespace Eddy
         //DataLogger logger3;
         DataLogger logger4;
         public DeviceCOM deviceCOM;
-       
+        public string filename { get; set; }
 
         DispatcherTimer dispatcherTimer;
         DispatcherTimer dispatcherTimerui;
@@ -69,6 +69,9 @@ namespace Eddy
         public MainWindow()
         {
             InitializeComponent();
+
+            DeviceCOM.Ok = 100;
+            DeviceCOM.NoOk = 200;
 
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
@@ -743,7 +746,8 @@ namespace Eddy
                     else if (indata[0] == 56)
                     {
                         DeviceCOM.IsTestOn = false;
-                        DeviceCOM.graphData.AmpD1 = new List<Fdata>();
+                        DeviceCOM.IsTubeSatart = false;
+                        DeviceCOM.graphData.AmpD1 = new List<Fdata>();                        
                     }
 
                     //if (indata[0] == 52 || indata[0] == 54)
@@ -919,7 +923,7 @@ namespace Eddy
         }
         HorizontalLine thresholdLine1;
         HorizontalLine thresholdLine2;
-        HorizontalLine thresholdLine3;
+        HorizontalLine thresholdLine3;        
         public void D1Seeting()
         {
             //WpfPlot1.Plot.Clear();
@@ -1174,7 +1178,7 @@ namespace Eddy
                 {
                     try
                     {
-                        if (String.IsNullOrEmpty(filename))
+                        if (String.IsNullOrEmpty(mainWindow.filename))
                         {
                             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
                             dlg.FileName = "Document"; // Default file name
@@ -1188,19 +1192,19 @@ namespace Eddy
                             if (result == true)
                             {
                                 // Save document
-                                filename = dlg.FileName;
+                                mainWindow.filename = dlg.FileName;
 
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.Configuration);
                                 File.WriteAllText(filename, conecnt);
                                 //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
-                                this.mainWindow.lblConfigFileName.Content = filename;
+                                this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                             }
 
                         }
                         else
                         {
                             string conecnt = JsonConvert.SerializeObject(DeviceCOM.Configuration);
-                            File.WriteAllText(filename, conecnt);
+                            File.WriteAllText(mainWindow.filename, conecnt);
                         }
 
                     }
@@ -1226,11 +1230,11 @@ namespace Eddy
                         if (result == true)
                         {
                             // Save document
-                            filename = dlg.FileName;
+                            mainWindow.filename = dlg.FileName;
 
                             string conecnt = JsonConvert.SerializeObject(DeviceCOM.Configuration);
                             File.WriteAllText(filename, conecnt);
-                            this.mainWindow.lblConfigFileName.Content = filename;
+                            this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                         }
                     }
                     catch (Exception ex)
@@ -1257,8 +1261,8 @@ namespace Eddy
                             string data = File.ReadAllText(dialog.FileName);
                             DeviceCOM.Configuration = JsonConvert.DeserializeObject<Configuration>(data);
                             // Open document
-                            filename = dialog.FileName;
-                            this.mainWindow.lblConfigFileName.Content = filename;
+                            mainWindow.filename = dialog.FileName;
+                            this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                         }
                     }
                     catch (Exception ex)
@@ -1268,7 +1272,7 @@ namespace Eddy
                 }
                 else if (Header == "New")
                 {
-                    filename = null;
+                    mainWindow.filename = null;
 
                 }
                 else if (Header == "Exit")
@@ -1294,10 +1298,33 @@ namespace Eddy
                 }
                 else if (Header == "Write Configuration")
                 {
+                    bool rat1;
+                    bool rat2; 
                     var msg = "Configuation Write successfully!!";
+                    var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+                    if (IsEddyAdvance)
+                    {
+                        rat1 = true;
+                        ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
+                        configurationToWrite.Frequency = DeviceCOM.Configuration.Frequency.FD;
+                        configurationToWrite.Filter = DeviceCOM.Configuration.Filter.FD;
+                        var data = JsonConvert.SerializeObject(configurationToWrite);
+                        rat2 = mainWindow.deviceCOM.WriteData(data);
+                    }
+                    else
+                    {
 
-                    var rat1 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-                    var rat2 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+                        rat1 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
+                        Filter1 filter1 = new Filter1();
+                        filter1.FD = new List<FilterFD1>();
+
+                        foreach (var item in DeviceCOM.Configuration.Filter.FD)
+                        {
+                            filter1.FD.Add(new FilterFD1 { FN = item.FN, H = item.H, L = item.L });
+                        }
+
+                        rat2 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(filter1));
+                    }
 
                     //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
                     //configurationWrite.Frequency = DeviceCOM.Configuration.Frequency;
