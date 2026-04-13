@@ -70,8 +70,8 @@ namespace Eddy
         {
             InitializeComponent();
 
-            DeviceCOM.Ok = 100;
-            DeviceCOM.NoOk = 200;
+            //DeviceCOM.Ok = 100;
+            //DeviceCOM.NoOk = 200;
 
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {

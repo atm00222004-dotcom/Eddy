@@ -632,6 +632,7 @@ namespace _8F
 
         }
 
+        public string filename { get; set; }
         public void InitialGraphData(bool IsPayLaod)
         {
             if (IsPayLaod)
@@ -2406,7 +2407,7 @@ namespace _8F
                     {
                         try
                         {
-                            if (String.IsNullOrEmpty(filename))
+                            if (String.IsNullOrEmpty(mainWindow.filename))
                             {
                                 Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
                                 dlg.FileName = "Document"; // Default file name
@@ -2420,21 +2421,21 @@ namespace _8F
                                 if (result == true)
                                 {
                                     // Save document
-                                    filename = dlg.FileName;
+                                    mainWindow.filename = dlg.FileName;
 
                                     string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                    File.WriteAllText(filename, conecnt);
+                                    File.WriteAllText(mainWindow.filename, conecnt);
                                     this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                     this.mainWindow.btnLog1.Visibility = Visibility.Visible;
                                     //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
-                                    this.mainWindow.lblConfigFileName.Content = filename;
+                                    this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                                 }
 
                             }
                             else
                             {
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                File.WriteAllText(filename, conecnt);
+                                File.WriteAllText(mainWindow.filename, conecnt);
                                 //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                 //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                             }
@@ -2462,13 +2463,13 @@ namespace _8F
                             if (result == true)
                             {
                                 // Save document
-                                filename = dlg.FileName;
+                                mainWindow.filename = dlg.FileName;
 
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                File.WriteAllText(filename, conecnt);
+                                File.WriteAllText(mainWindow.filename, conecnt);
                                 //this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                 //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
-                                this.mainWindow.lblConfigFileName.Content = filename;
+                                this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                             }
 
 
@@ -2496,7 +2497,7 @@ namespace _8F
                                 string data = File.ReadAllText(dialog.FileName);
                                 DeviceCOM.channelDatas = JsonConvert.DeserializeObject<List<ChannelData>>(data);
                                 // Open document
-                                filename = dialog.FileName;
+                                mainWindow.filename = dialog.FileName;
                                 mainWindow.SelectCh1();
                                 mainWindow.ClearGraphData();
 
@@ -2508,7 +2509,7 @@ namespace _8F
                                 }
 
                                 //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                                this.mainWindow.lblConfigFileName.Content = filename;
+                                this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                             }
 
 
@@ -2520,7 +2521,7 @@ namespace _8F
                     }
                     else if (Header == "New")
                     {
-                        filename = null;
+                        mainWindow.filename = null;
                         mainWindow.InitialGraphData(false);
                         mainWindow.ClearGraphData();
                         var rat = mainWindow.ImplementChanges(0);

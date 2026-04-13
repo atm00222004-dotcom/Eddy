@@ -198,10 +198,10 @@ namespace _8F
 
             foreach (var item in list)
             {
-                if (item.freq < 100 || item.freq > 50000)
-                    validationMsg.Add($"{item.Name}: Frequency must be 100–50000");
+                if (item.freq < 10 || item.freq > 50000)
+                    validationMsg.Add($"{item.Name}: Frequency must be 10–50000");
 
-                if (item.gain < 10 || item.gain > 56)
+                if (item.gain < 1 || item.gain > 56)
                     validationMsg.Add($"{item.Name}: Gain must be 10–56");
 
                 if (item.phase < 0 || item.phase > 359)
