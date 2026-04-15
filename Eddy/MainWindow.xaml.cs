@@ -182,9 +182,18 @@ namespace Eddy
             }
             else
             {
-
                 deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-                deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Filter));
+                Filter1 filter1 = new Filter1();
+                filter1.FD = new List<FilterFD1>();
+
+                foreach (var item in DeviceCOM.Configuration.Filter.FD)
+                {
+                    filter1.FD.Add(new FilterFD1 { FN = item.FN, H = item.H, L = item.L });
+                }
+
+                deviceCOM.WriteData(JsonConvert.SerializeObject(filter1));
+
+                
             }
            
 

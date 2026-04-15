@@ -353,7 +353,7 @@ namespace _8F
             //    CheckSerailNumber();
             //}
 
-            cn2.Children.Clear();
+            //cn2.Children.Clear();
 
             if (DeviceCOM.IsSystemBusy)
             {
