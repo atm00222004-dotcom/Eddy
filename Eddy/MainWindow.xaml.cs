@@ -12,6 +12,7 @@ using ScottPlot.TickGenerators;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.IO;
@@ -215,7 +216,7 @@ namespace Eddy
 
             dispatcherTimerui = new DispatcherTimer();
             dispatcherTimerui.Tick += new EventHandler(dispatcherTimerui_Tick);
-            dispatcherTimerui.Interval = new TimeSpan(0, 0, 0, 0, 100);
+            dispatcherTimerui.Interval = new TimeSpan(0, 0, 0, 0, 10);
             dispatcherTimerui.Start();
 
             Task.Run(() => PollLoop());
@@ -430,14 +431,14 @@ namespace Eddy
         {
             try
             {
-                System.Threading.Thread.Sleep(200);
+                System.Threading.Thread.Sleep(10);
                 myPlot4.Clear();
                 logger4 = myPlot4.Add.DataLogger();
                 logger4.Clear();
 
                 DeviceCOM.graphData.Result = result;
                 var Ld = DeviceCOM.graphData.AmpD1.ToList();
-
+                string ImageName = Guid.NewGuid().ToString() + ".jpeg";
                 // Add Log
                 if (DeviceCOM.IsLogEnable)
                 {
@@ -451,6 +452,7 @@ namespace Eddy
                         using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
                         {
                             con.Open();
+                            DeviceCOM.part.ImagePath = ImageName;
 
                             string partJson = JsonConvert.SerializeObject(DeviceCOM.part);
                             string configJson = JsonConvert.SerializeObject(DeviceCOM.Configuration);
@@ -593,13 +595,31 @@ namespace Eddy
                 //wpCounter.Plot.Title("Counter Distribution");
                 wpCounter.Refresh();
 
-
-
                 //lblOk.Content = "Ok Count-" + DeviceCOM.Ok.ToString();
                 //lblNotOk.Content = "Not Ok Count-" + DeviceCOM.NoOk.ToString();
                 //lblTotal.Content = "Total Count-" + (DeviceCOM.Ok + DeviceCOM.NoOk).ToString();
 
                 DeviceCOM.graphData.AmpD1 = new List<Fdata>();
+
+                string imagePath = ConfigurationManager.AppSettings["ImagePath"];
+
+                if (DeviceCOM.IsLogEnable && !string.IsNullOrWhiteSpace(imagePath))
+                {
+                    try
+                    {
+                        string fullPath = System.IO.Path.Combine(imagePath, ImageName);
+
+                        // Ensure directory exists
+                        Directory.CreateDirectory(imagePath);
+
+                        WpfPlot4.Plot.SaveJpeg(fullPath, 600, 400);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log properly instead of silent failure
+                        // Example: Logger.LogError(ex);
+                    }
+                }
 
             }
             catch (Exception e)
@@ -883,7 +903,7 @@ namespace Eddy
                             var AmpF = 0;
                             if (amp != 0)
                             {
-                                AmpF = (DeviceCOM.Factor * amp) / DeviceCOM.MaxValue;
+                                AmpF = ((DeviceCOM.Factor * amp) / DeviceCOM.MaxValue);
                             }
 
                             logger1.Add(AmpF);
@@ -1204,7 +1224,7 @@ namespace Eddy
                                 mainWindow.filename = dlg.FileName;
 
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.Configuration);
-                                File.WriteAllText(filename, conecnt);
+                                File.WriteAllText(mainWindow.filename, conecnt);
                                 //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                                 this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                             }
@@ -1242,7 +1262,7 @@ namespace Eddy
                             mainWindow.filename = dlg.FileName;
 
                             string conecnt = JsonConvert.SerializeObject(DeviceCOM.Configuration);
-                            File.WriteAllText(filename, conecnt);
+                            File.WriteAllText(mainWindow.filename, conecnt);
                             this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                         }
                     }

@@ -265,13 +265,13 @@ namespace Eddy
             List<String> validationMsg = new List<string>();
             if (string.IsNullOrEmpty(txtPhase1.Text))
             {
-                validationMsg.Add("Frequeny(KHz) is required and the range is 1 to 50.");
+                validationMsg.Add("Frequeny(KHz) is required and the range is 1 to 100.");
             }
             else
             {
-                if (Convert.ToInt32(txtPhase1.Text) < 1 || Convert.ToInt32(txtPhase1.Text) > 50)
+                if (Convert.ToInt32(txtPhase1.Text) < 1 || Convert.ToInt32(txtPhase1.Text) > 100)
                 {
-                    validationMsg.Add("Frequeny(KHz) is required and the range is 1 to 50.");
+                    validationMsg.Add("Frequeny(KHz) is required and the range is 1 to 100.");
                 }
             }
 
@@ -361,13 +361,13 @@ namespace Eddy
 
             if (string.IsNullOrEmpty(txtL1.Text))
             {
-                validationMsg.Add("Low Pass Filter is required and the range is 1 to 100.");
+                validationMsg.Add("Low Pass Filter is required and the range is 1 to 1000.");
             }
             else
             {
-                if (Convert.ToInt32(txtL1.Text) < 1 || Convert.ToInt32(txtL1.Text) > 100)
+                if (Convert.ToInt32(txtL1.Text) < 1 || Convert.ToInt32(txtL1.Text) > 1000)
                 {
-                    validationMsg.Add("Low Pass Filter is required and the range is 1 to 100.");
+                    validationMsg.Add("Low Pass Filter is required and the range is 1 to 1000.");
                 }
             }
 

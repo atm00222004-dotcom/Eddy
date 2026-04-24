@@ -154,6 +154,7 @@ namespace Eddy
         public int BatchSize = 5;
         public string Placce = "";
         public string Grade = "";
+        public string ImagePath = "";
     }
     public class Configuration
     {

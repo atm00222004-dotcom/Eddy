@@ -1730,7 +1730,7 @@ namespace _8F
                                     this.mainWindow.filename = dlg.FileName;
 
                                     string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                    File.WriteAllText(filename, conecnt);                                    
+                                    File.WriteAllText(mainWindow.filename, conecnt);                                    
                                     //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                                     this.mainWindow.lblConfigFileName.Content = this.mainWindow.filename;
                                 }
