@@ -310,7 +310,144 @@ namespace Eddy
 
                                         foreach (var item in details)
                                         {
-                                            `
+                                            try
+                                            {
+                                                recordIndex++;
+                                                //var part = JsonConvert.DeserializeObject<Part>(item.PartJson);
+                                                var config = JsonConvert.DeserializeObject<Configuration>(item.ConfigurationJson);
+                                               // var graph = !string.IsNullOrEmpty(item.GraphDataJson)? JsonConvert.DeserializeObject<GraphData>(item.GraphDataJson): null;
+                                                bool passed = item.Result;
+
+                                                string rowBg = (recordIndex % 2 == 0) ? "#FAFAFA" : "#FFFFFF";
+
+                                                batch.Item()
+                                                    .BorderTop(1).BorderColor("#E8E8E8")
+                                                    .Background(rowBg)
+                                                    .Padding(7).PaddingLeft(12).PaddingRight(12)
+                                                    .Column(record =>
+                                                    {
+                                                        // Record header
+                                                        record.Item().Row(r =>
+                                                        {
+                                                            r.RelativeItem().Text($"#{recordIndex}  {item.TimeStamp:dd/MM/yyyy HH:mm:ss}")
+                                                                .FontSize(9).Bold().FontColor("#333333");
+
+                                                            r.ConstantItem(50).AlignRight()
+                                                                .Background(passed ? "#E8F5E9" : "#FFEBEE")
+                                                                .Padding(2)
+                                                                .Text(passed ? "PASS" : "FAIL")
+                                                                .FontSize(8).Bold()
+                                                                .FontColor(passed ? "#2E7D32" : "#C62828");
+                                                        });
+
+                                                        void LV(IContainer c, string label, string value)
+                                                        {
+                                                            c.Text(t =>
+                                                            {
+                                                                t.Span($"{label}: ").FontSize(7).FontColor("#888888");
+                                                                t.Span(value).FontSize(7).Bold().FontColor("#111111");
+                                                            });
+                                                        }
+
+                                                        // ── FREQUENCY & FILTER 
+                                                        if (config?.Frequency?.FD != null && config?.Filter?.FD != null)
+                                                        {
+                                                            var uniqueFD = config.Frequency.FD
+                                                                .GroupBy(f => new { f.F, f.G, f.UTH, f.LTH, f.TH, f.PP })
+                                                                .Select(g => g.First())
+                                                                .ToList();
+
+                                                            foreach (var f in uniqueFD)
+                                                            {
+                                                                try
+                                                                {
+                                                                    var filterRow = config.Filter.FD.FirstOrDefault(fd => fd.FN == f.FN);
+
+                                                                    record.Item().PaddingTop(5).Text("FREQUENCY & FILTER")
+                                                                        .FontSize(6.5f).Bold().FontColor("#888888");
+                   
+                                                                    record.Item().PaddingTop(2).Row(r =>
+                                                                    {
+                                                                        r.RelativeItem().Element(c => LV(c, "Frequency(KHz)", (f.F / 1000).ToString()));
+                                                                        r.RelativeItem().Element(c => LV(c, "Pre Gain(dB)", f.G.ToString()));
+                                                                        r.RelativeItem().Element(c => LV(c, "Phase", f.PP.ToString()));
+                                                                        r.RelativeItem().Element(c => LV(c, "High Threshold", f.UTH.ToString()));
+                                                                    });
+
+                                                                    record.Item().PaddingTop(1).Row(r =>
+                                                                    {
+                                                                        r.RelativeItem().Element(c => LV(c, "Low Threshold", f.LTH.ToString()));
+                                                                        r.RelativeItem().Element(c => LV(c, "Third Threshold", f.TH.ToString()));
+                                                                        r.RelativeItem().Element(c => LV(c, "High Pass Filter", filterRow?.H.ToString() ?? "-"));
+                                                                        r.RelativeItem().Element(c => LV(c, "Low Pass Filter", filterRow?.L.ToString() ?? "-"));
+                                                                    });
+
+                                                                }
+                                                                catch
+                                                                {
+                                                                    MessageBox.Show("Something went wrong. Please try again.");
+                                                                }
+                                                            }
+                                                        }
+
+                                                        // MARKER 
+                                                        if (config?.Marker != null)
+                                                        {
+                                                            var m = config.Marker;
+
+                                                            record.Item().PaddingTop(5).Text("MARKER")
+                                                                .FontSize(6.5f).Bold().FontColor("#888888");
+
+                                                            record.Item().PaddingTop(2).Row(r =>
+                                                            {
+                                                                r.RelativeItem().Element(c => LV(c, "Marker1(ms)", m.M1.ToString()));
+                                                                r.RelativeItem().Element(c => LV(c, "Marker2(ms)", m.M2.ToString()));
+                                                                r.RelativeItem().Element(c => LV(c, "Front Delay(ms)", m.FmS.ToString()));
+                                                                r.RelativeItem().Element(c => LV(c, "Rear Delay(ms)", m.RmS.ToString()));
+                                                            });
+
+                                                            record.Item().PaddingTop(1).Row(r =>
+                                                            {
+                                                                r.RelativeItem().Element(c => LV(c, "Paint Spray Time(ms)", m.P1mS.ToString()));
+                                                                r.RelativeItem().Element(c => LV(c, "C1 to C2 Sensor Distance(mm)", m.C1C2.ToString()));
+                                                                r.RelativeItem().Element(c => LV(c, "C2 to Exit Sensor Distance(mm)", m.C2E.ToString()));
+                                                                r.RelativeItem().Element(c => LV(c, "C Coil to C2 Distance(mm)", m.CC2.ToString()));
+                                                            });
+                                                        }
+
+                                                        //Amp Details
+                                                        //if ( 1== 0 && !passed && graph?.AmpD1 != null && config?.Frequency?.FD != null)
+                                                        //{
+                                                        //    foreach (var freq in config.Frequency.FD)
+                                                        //    {
+                                                        //        int UTH = freq.UTH;
+                                                        //        int LTH = freq.LTH;
+
+                                                        //        var invalidAmps = graph.AmpD1
+                                                        //            .Where(a => a.Amp < LTH || a.Amp > UTH)
+                                                        //            .Select(a => a.Amp)
+                                                        //            .ToList();
+
+                                                        //        if (invalidAmps.Any())
+                                                        //        {
+                                                        //            record.Item().PaddingTop(5).Text("AMP (Out of Threshold)")
+                                                        //                .FontSize(6.5f).Bold().FontColor("#C62828");
+
+                                                        //            record.Item().PaddingTop(2).Text(string.Join(", ", invalidAmps))
+                                                        //                .FontSize(7)
+                                                        //                .FontColor("#111111");
+
+                                                        //            break; 
+                                                        //        }
+                                                        //    }
+                                                        //}
+
+                                                    });
+                                            }
+                                            catch
+                                            {
+                                                MessageBox.Show("Something went wrong. Please try again.");
+                                            }
                                         }
                                     });
                                 }
