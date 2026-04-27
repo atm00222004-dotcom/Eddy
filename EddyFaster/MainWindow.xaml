@@ -82,7 +82,11 @@
                         <TextBlock Name="lblFreq1" Background="LightBlue" FontWeight="Bold" FontSize="14"/>
 
                         <Canvas Name="br1_can1" Canvas.Left="360">
-                            <TextBlock Name="lblGraphXY1" Background="LightBlue" FontWeight="Bold" FontSize="14"/>
+                            <TextBlock Name="lblGraphXY1"              
+               Background="LightBlue"
+               FontWeight="Bold"
+               FontSize="14"
+               Canvas.Right="0"/>
                         </Canvas>
 
                         <Rectangle Name="br1_rec2" Width="360" Height="0.5" Canvas.Top="180" Fill="Black"/>

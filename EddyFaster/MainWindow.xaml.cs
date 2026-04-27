@@ -27,6 +27,7 @@ namespace _8F
         public DeviceCOM portCOM;
         public Report report;
         DispatcherTimer dispatcherTimer;
+        DispatcherTimer dispatcherTimerClear;
         public int chNo = 1;
         double factor = 20;
         public string filename { get; set; }
@@ -91,6 +92,7 @@ namespace _8F
 
             string IpAddress = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["IP"]);
             int Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]);
+            int FrameRetenTimeInMS = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrameRetenTimeInMS"]);
 
             DeviceCOM.ConnectionString = System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"];
 
@@ -147,6 +149,11 @@ namespace _8F
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = TimeSpan.FromMilliseconds(10);
             dispatcherTimer.Start();
+
+            dispatcherTimerClear = new DispatcherTimer();
+            dispatcherTimerClear.Tick += new EventHandler(dispatcherTimerClear_Tick);
+            dispatcherTimerClear.Interval = TimeSpan.FromMilliseconds(FrameRetenTimeInMS);
+            dispatcherTimerClear.Start();
 
             Status status = new Status() { FC = 23 };
             bool rat = false;
@@ -346,6 +353,15 @@ namespace _8F
             }
         }
 
+        private void dispatcherTimerClear_Tick(object sender, EventArgs e)
+        {
+            //if (!IsSerialmatch)
+            //{
+            //    CheckSerailNumber();
+            //}
+
+            cn2.Children.Clear();
+        }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             //if (!IsSerialmatch)
@@ -353,7 +369,7 @@ namespace _8F
             //    CheckSerailNumber();
             //}
 
-            //cn2.Children.Clear();
+            cn2.Children.Clear();
 
             if (DeviceCOM.IsSystemBusy)
             {
@@ -781,9 +797,9 @@ namespace _8F
 
             //cnBr1.Children.Clear();
 
-            for (var i = 1; i < cnBr1.Children.Count;)
+            for (var i = 2; i < cnBr1.Children.Count;)
             {
-                cnBr1.Children.RemoveAt(1);
+                cnBr1.Children.RemoveAt(2);
             }
 
 
@@ -1262,6 +1278,7 @@ namespace _8F
                 foreach (var item in q.cordinates)
                 {
                     Ellipse el1 = new Ellipse();
+                    //el1.Name = "el1_" + q.cordinates.IndexOf(item).ToString();
                     el1.Height = 4;
                     el1.Width = 4;
                     var left = (item.X / factor);
@@ -1286,7 +1303,7 @@ namespace _8F
                     Canvas.SetLeft(el1, left - 2);
                     Canvas.SetTop(el1, top - 2);
                     el1.Fill = new SolidColorBrush(Colors.Orange);
-                    cn1.Children.Add(el1);
+                    cn2.Children.Add(el1);
                 }
             }
 
