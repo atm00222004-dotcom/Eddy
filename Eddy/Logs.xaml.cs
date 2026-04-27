@@ -198,7 +198,7 @@ namespace Eddy
                 // DB Call to get all the records and filter them locally to avoid multiple DB calls while generating PDF. This will improve the performance significantly when there are multiple batches and each batch has multiple records.7
                 var data = GetBatchDetails();
                 foreach (var log in listOfLog)
-                    batchDetails[log.BatchName] = data.Where(d => d.BatchName == log.BatchName).ToList();
+                    batchDetails[log.BatchName] = data.Where(d => d.BatchName == log.BatchName).OrderBy(d=> d.TimeStamp).ToList();
 
                 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -494,8 +494,7 @@ namespace Eddy
                 WHERE  ""BatchName"" ILIKE '%' || @BatchName || '%'
                             AND ""TimeStamp"" >= @StartDate
                             AND ""TimeStamp"" < @EndDate
-                        GROUP BY ""BatchName""
-                        ORDER BY ""StartDate""
+                        ORDER BY ""BatchName""                        
                 ";
 
                     using (var cmd = new NpgsqlCommand(query, con))

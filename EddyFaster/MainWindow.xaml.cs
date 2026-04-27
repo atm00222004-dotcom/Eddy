@@ -1286,7 +1286,7 @@ namespace _8F
                     Canvas.SetLeft(el1, left - 2);
                     Canvas.SetTop(el1, top - 2);
                     el1.Fill = new SolidColorBrush(Colors.Orange);
-                    cn2.Children.Add(el1);
+                    cn1.Children.Add(el1);
                 }
             }
 
