@@ -55,8 +55,8 @@
                 <Label Content="Phase" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtPhase" />
 
-                <Label Margin="20,0,0,0" Content="Status" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
-                <ComboBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="2" Grid.Column="1" Name="ddlStatus" />
+                <Label Visibility="Hidden" Margin="20,0,0,0" Content="Status" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
+                <ComboBox Visibility="Hidden" Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="2" Grid.Column="1" Name="ddlStatus" />
                 <!--
                 <Label Content="Width" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="2"></Label>
                 <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="3" Name="txtWidth" />
