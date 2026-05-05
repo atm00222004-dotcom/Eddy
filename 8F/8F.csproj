@@ -16,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="PartConfigReNew.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Report.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -25,6 +28,12 @@
     <Compile Update="CircleSetting.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="PartTypeData.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

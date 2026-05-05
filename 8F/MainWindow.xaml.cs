@@ -36,6 +36,7 @@ namespace _8F
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
         public CircleSetting ellipsesPop { get; set; }
         public PartConfig partConfig { get; set; }
+        public PartConfigReNew partConfigReNew { get; set; }
         public DeviceCOM portCOM;
         public Report report;
         DispatcherTimer dispatcherTimer;
@@ -2044,10 +2045,21 @@ namespace _8F
             }
             else
             {
-                partConfig = new PartConfig();
-                partConfig.Closing += partConfig_Closing;
-                partConfig.Owner = this;
-                partConfig.ShowDialog();
+                var IsReNewConfig = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsReNewConfig"]);
+                if (IsReNewConfig)
+                {
+                    partConfigReNew = new PartConfigReNew();
+                    partConfigReNew.Closing += partConfig_Closing;
+                    partConfigReNew.Owner = this;
+                    partConfigReNew.ShowDialog();
+                }
+                else
+                {
+                    partConfig = new PartConfig();
+                    partConfig.Closing += partConfig_Closing;
+                    partConfig.Owner = this;
+                    partConfig.ShowDialog();
+                }
 
             }
 

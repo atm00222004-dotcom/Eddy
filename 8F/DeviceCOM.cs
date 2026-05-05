@@ -1025,6 +1025,12 @@ namespace _8F
         public List<GraphData> graphDatas;
     }
 
+    public class PartTypeData
+    {
+        public string Name { get; set; }
+        public List<string> Values { get; set; }
+    }
+
     public class Counter
     {
         public int Id = 0;
