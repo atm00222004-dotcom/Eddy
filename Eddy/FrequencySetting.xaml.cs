@@ -349,13 +349,13 @@ namespace Eddy
 
             if (string.IsNullOrEmpty(txtH1.Text))
             {
-                validationMsg.Add("High Pass Filter is required and the range is 1 to 100.");
+                validationMsg.Add("High Pass Filter is required and the range is 1 to 1000.");
             }
             else
             {
-                if (Convert.ToInt32(txtH1.Text) < 1 || Convert.ToInt32(txtH1.Text) > 100)
+                if (Convert.ToInt32(txtH1.Text) < 1 || Convert.ToInt32(txtH1.Text) > 1000)
                 {
-                    validationMsg.Add("High Pass Filter is required and the range is 1 to 100.");
+                    validationMsg.Add("High Pass Filter is required and the range is 1 to 1000.");
                 }
             }
 
