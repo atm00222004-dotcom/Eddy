@@ -87,6 +87,9 @@ namespace Eddy
                         txtPostAMPX.Text = item.X.ToString();
                         txtPostAMPY.Text = item.Y.ToString();
                     }
+
+                    chkSaveGraph.IsChecked = DeviceCOM.Configuration.SaveGraphImage;
+
                     //else if (item.FN == 2)
                     //{
                     //    txtH2.Text = item.H.ToString();
@@ -189,6 +192,8 @@ namespace Eddy
                             }
                         }
 
+                        DeviceCOM.Configuration.SaveGraphImage = chkSaveGraph.IsChecked == true;
+
                         var rat1 = false;
                        
                         var rat = false;
@@ -199,6 +204,7 @@ namespace Eddy
                             ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
                             configurationToWrite.Frequency = DeviceCOM.Configuration.Frequency.FD;
                             configurationToWrite.Filter = DeviceCOM.Configuration.Filter.FD;
+                            configurationToWrite.SaveGraphImage = chkSaveGraph.IsChecked == true; 
                             var data = JsonConvert.SerializeObject(configurationToWrite); 
                             rat = deviceCOM.WriteData(data);
                         }

@@ -164,6 +164,8 @@ namespace Eddy
 
         public int TestTime = 10;
         public int SamplePerSecond = 3050;
+        public bool SaveGraphImage { get; set; }
+
     }
 
     public class ConfigurationToWrite
@@ -172,6 +174,7 @@ namespace Eddy
         //public Marker Marker { get; set; }
         public List<FD> Frequency { get; set; }
         public List<FilterFD> Filter { get; set; }
+        public bool SaveGraphImage { get; set; }
 
     }
     public class Marker

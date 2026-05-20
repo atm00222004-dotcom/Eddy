@@ -82,11 +82,11 @@
                 </Border>
 
                 <Border Width="250" Name="btnDownload" Margin="1" MouseDown="btnDownload_MouseDown" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Download" ></Label>
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Download Batch" ></Label>
                 </Border>
 
                 <Border Width="250" Name="btnDownloadPdf" Margin="1" MouseDown="btnDownloadPdf_MouseDown" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Download PDF" />
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Download Details" />
                 </Border>
 
             </Grid>
@@ -100,6 +100,16 @@
                         <DataGridTextColumn Width="100*" Header = "OK Count" Binding = "{Binding PassCount}"/>
                         <DataGridTextColumn Width="100*" Header = "Not OK Count" Binding = "{Binding FailCount}"/>
                         <DataGridTextColumn Width="100*" Header = "Total Count" Binding = "{Binding TotalCount}"/>
+                        <DataGridTemplateColumn Header="Download">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="PDF"
+                            Tag="{Binding}"
+                            Click="DownloadPdf_Click"
+                            Padding="5"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>

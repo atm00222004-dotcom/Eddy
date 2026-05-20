@@ -189,11 +189,14 @@ namespace Eddy
                 MessageBox.Show("Unable to generate report.");
             }
         }
+
         public void GeneratePdf(string filePath)
         {
             try
             {
-                var batchDetails = new Dictionary<string, List<(DateTime TimeStamp,  string ConfigurationJson, bool Result, string BatchName)>>();
+                //var batchDetails = new Dictionary<string, List<(DateTime TimeStamp,  string ConfigurationJson, bool Result, string BatchName)>>();
+
+                var batchDetails = new Dictionary<string, List<(DateTime TimeStamp,string ConfigurationJson,string GraphDataJson,bool Result,string BatchName)>>();
 
                 // DB Call to get all the records and filter them locally to avoid multiple DB calls while generating PDF. This will improve the performance significantly when there are multiple batches and each batch has multiple records.7
                 var data = GetBatchDetails();
@@ -315,7 +318,7 @@ namespace Eddy
                                                 recordIndex++;
                                                 //var part = JsonConvert.DeserializeObject<Part>(item.PartJson);
                                                 var config = JsonConvert.DeserializeObject<Configuration>(item.ConfigurationJson);
-                                               // var graph = !string.IsNullOrEmpty(item.GraphDataJson)? JsonConvert.DeserializeObject<GraphData>(item.GraphDataJson): null;
+                                                var graph = !string.IsNullOrEmpty(item.GraphDataJson)? JsonConvert.DeserializeObject<GraphData>(item.GraphDataJson): null;
                                                 bool passed = item.Result;
 
                                                 string rowBg = (recordIndex % 2 == 0) ? "#FAFAFA" : "#FFFFFF";
@@ -416,6 +419,35 @@ namespace Eddy
                                                         }
 
                                                         //Amp Details
+                                                        if (!passed && graph?.AmpD1 != null && config?.Frequency?.FD != null)
+                                                        {
+                                                            foreach (var freq in config.Frequency.FD)
+                                                            {
+                                                                int UTH = freq.UTH;
+                                                                int LTH = freq.LTH;
+
+                                                                var invalidAmps = graph.AmpD1
+                                                                    .Where(a => a.Amp < LTH || a.Amp > UTH)
+                                                                    .Select(a => a.Amp)
+                                                                    .ToList();
+
+                                                                if (invalidAmps.Any())
+                                                                {
+                                                                    var maxAmp = invalidAmps.Max();
+
+                                                                    record.Item().PaddingTop(5).Text("AMP (Out of Threshold)")
+                                                                        .FontSize(6.5f).Bold().FontColor("#C62828");
+
+                                                                    record.Item().PaddingTop(2).Text($"Max AMP: {maxAmp}")
+                                                                        .FontSize(7)
+                                                                        .FontColor("#111111");
+
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+
+                                                        //Amp Details
                                                         //if ( 1== 0 && !passed && graph?.AmpD1 != null && config?.Frequency?.FD != null)
                                                         //{
                                                         //    foreach (var freq in config.Frequency.FD)
@@ -478,9 +510,64 @@ namespace Eddy
             }
         }
 
-        public List<(DateTime TimeStamp,  string ConfigurationJson, bool Result, string BatchName)> GetBatchDetails()
+        private void DownloadPdf_Click(object sender, RoutedEventArgs e)
         {
-            var list = new List<(DateTime, string, bool, string)>();
+            try
+            {
+                var button = sender as Button;
+                var selectedLog = button.Tag as LogData;
+
+                if (selectedLog == null)
+                    return;
+
+                GenerateSingleBatchPdf(selectedLog);
+            }
+            catch
+            {
+                MessageBox.Show("Error generating PDF");
+            }
+        }
+
+        private void GenerateSingleBatchPdf(LogData selectedLog)
+        {
+            try
+            {
+                if (selectedLog == null)
+                {
+                    MessageBox.Show("Invalid batch");
+                    return;
+                }
+
+                // Backup original list
+                var originalList = listOfLog;
+
+                // ✅ Replace with ONLY selected batch
+                listOfLog = new List<LogData> { selectedLog };
+
+                // File dialog
+                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                dlg.FileName = $"{selectedLog.BatchName}_Report";
+                dlg.DefaultExt = ".pdf";
+                dlg.Filter = "PDF Files (.pdf)|*.pdf";
+
+                if (dlg.ShowDialog() == true)
+                {
+                    // ✅ Reuse SAME method
+                    GeneratePdf(dlg.FileName);
+                }
+
+                // Restore original list
+                listOfLog = originalList;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Something went wrong. Please try again.");
+            }
+        }
+
+        public List<(DateTime TimeStamp,string ConfigurationJson,string GraphDataJson,bool Result,string BatchName)> GetBatchDetails()
+        {
+            var list = new List<(DateTime,string,string,bool,string)>();
 
             try
             {
@@ -489,13 +576,18 @@ namespace Eddy
                     con.Open();
 
                     string query = @"
-                SELECT ""TimeStamp"", ""ConfigurationJson"", ""Result"", ""BatchName""
-                FROM ""Logs""
-                WHERE  ""BatchName"" ILIKE '%' || @BatchName || '%'
-                            AND ""TimeStamp"" >= @StartDate
-                            AND ""TimeStamp"" < @EndDate
-                        ORDER BY ""BatchName""                        
-                ";
+            SELECT 
+                ""TimeStamp"",
+                ""ConfigurationJson"",
+                ""GraphDataJson"",
+                ""Result"",
+                ""BatchName""
+            FROM ""Logs""
+            WHERE ""BatchName"" ILIKE '%' || @BatchName || '%'
+                AND ""TimeStamp"" >= @StartDate
+                AND ""TimeStamp"" < @EndDate
+            ORDER BY ""BatchName""
+            ";
 
                     using (var cmd = new NpgsqlCommand(query, con))
                     {
@@ -508,10 +600,16 @@ namespace Eddy
                             while (reader.Read())
                             {
                                 list.Add((
-                                    reader.GetFieldValue<DateTime>(reader.GetOrdinal("TimeStamp")).ToLocalTime(),
-                                    //reader["PartJson"]?.ToString(),
-                                    reader["ConfigurationJson"]?.ToString(),                                    
-                                    reader.GetBoolean(reader.GetOrdinal("Result")),
+                                    reader.GetFieldValue<DateTime>(
+                                        reader.GetOrdinal("TimeStamp")).ToLocalTime(),
+
+                                    reader["ConfigurationJson"]?.ToString(),
+
+                                    reader["GraphDataJson"]?.ToString(),
+
+                                    reader.GetBoolean(
+                                        reader.GetOrdinal("Result")),
+
                                     reader["BatchName"]?.ToString()
                                 ));
                             }
@@ -521,10 +619,59 @@ namespace Eddy
             }
             catch (Exception ex)
             {
-                MessageBox.Show("DB Error: " + ex.Message);
+                MessageBox.Show("Something went wrong. Please try again.");
             }
 
             return list;
         }
+
+        //public List<(DateTime TimeStamp,  string ConfigurationJson, bool Result, string BatchName)> GetBatchDetails()
+        //{
+        //    var list = new List<(DateTime, string, bool, string)>();
+
+        //    try
+        //    {
+        //        using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
+        //        {
+        //            con.Open();
+
+        //            string query = @"
+        //        SELECT ""TimeStamp"", ""ConfigurationJson"", ""Result"", ""BatchName""
+        //        FROM ""Logs""
+        //        WHERE  ""BatchName"" ILIKE '%' || @BatchName || '%'
+        //                    AND ""TimeStamp"" >= @StartDate
+        //                    AND ""TimeStamp"" < @EndDate
+        //                ORDER BY ""BatchName""                        
+        //        ";
+
+        //            using (var cmd = new NpgsqlCommand(query, con))
+        //            {
+        //                cmd.Parameters.AddWithValue("@BatchName", txtBatchName.Text ?? "");
+        //                cmd.Parameters.AddWithValue("@StartDate", clStartDate.SelectedDate.Value);
+        //                cmd.Parameters.AddWithValue("@EndDate", clToDate.SelectedDate.Value.AddDays(1));
+
+        //                using (var reader = cmd.ExecuteReader())
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        list.Add((
+        //                            reader.GetFieldValue<DateTime>(reader.GetOrdinal("TimeStamp")).ToLocalTime(),
+        //                            //reader["PartJson"]?.ToString(),
+        //                            reader["ConfigurationJson"]?.ToString(),                                    
+        //                            reader.GetBoolean(reader.GetOrdinal("Result")),
+        //                            reader["BatchName"]?.ToString()
+        //                        ));
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("DB Error: " + ex.Message);
+        //    }
+
+        //    return list;
+        //}
     }
 }
