@@ -4,7 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS public."Logs"
 (
-    "Id" integer NOT NULL DEFAULT nextval('"logs_Id_seq"'::regclass),
+    "Id" serial,
     "TimeStamp" timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "ConfigurationJson" jsonb,
     "GraphDataJson" jsonb,

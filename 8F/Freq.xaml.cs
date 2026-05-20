@@ -195,11 +195,11 @@ namespace _8F
         public List<string> Validaton(List<GraphData> list)
         {
             List<string> validationMsg = new List<string>();
-
+            var MinFreq = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["MinFreq"]);
             foreach (var item in list)
             {
-                if (item.freq < 10 || item.freq > 50000)
-                    validationMsg.Add($"{item.Name}: Frequency must be 10–50000");
+                if (item.freq < MinFreq || item.freq > 50000)
+                    validationMsg.Add($"{item.Name}: Frequency must be "+ MinFreq.ToString() + "–50000");
 
                 if (item.gain < 1 || item.gain > 56)
                     validationMsg.Add($"{item.Name}: Gain must be 10–56");
