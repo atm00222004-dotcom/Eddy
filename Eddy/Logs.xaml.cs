@@ -842,9 +842,11 @@ namespace Eddy
                                                             });
                                                         }
 
-                                                        //Amp Details
+                                                        // Amp Details (with percentage)
                                                         if (!passed && graph?.AmpD1 != null && config?.Frequency?.FD != null)
                                                         {
+                                                            const double totalValue = 32768;
+
                                                             foreach (var freq in config.Frequency.FD)
                                                             {
                                                                 int UTH = freq.UTH;
@@ -859,12 +861,19 @@ namespace Eddy
                                                                 {
                                                                     var maxAmp = invalidAmps.Max();
 
-                                                                    record.Item().PaddingTop(5).Text("AMP (Out of Threshold)")
-                                                                        .FontSize(6.5f).Bold().FontColor("#C62828");
+                                                                    // percentage calculation
+                                                                    double percent = (maxAmp * 100.0) / totalValue;
 
-                                                                    record.Item().PaddingTop(2).Text($"Max AMP: {maxAmp}")
-                                                                        .FontSize(7)
-                                                                        .FontColor("#111111");
+                                                                    record.Item().PaddingTop(5).Text("AMP (Out of Threshold)")
+                                                                        .FontSize(6.5f)
+                                                                        .Bold()
+                                                                        .FontColor("#C62828");
+
+                                                                    record.Item().PaddingTop(2).Text(
+                                                                        $"{percent:F2}%"
+                                                                    )
+                                                                    .FontSize(7)
+                                                                    .FontColor("#111111");
 
                                                                     break;
                                                                 }
