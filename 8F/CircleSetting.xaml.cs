@@ -44,8 +44,7 @@ namespace _8F
 
             int colorIndex = 0;
 
-            foreach (var channel in selectedDevice.graphDatas
-                .Where(g => g.isEnable))
+            foreach (var channel in selectedDevice.graphDatas)
             {
                 foreach (var ell in channel.ellipses)
                 {
@@ -94,7 +93,7 @@ namespace _8F
             }
             catch (Exception ex)
             {
-                lblMsg.Content = "Error while saving the Configuration!!!";
+                lblMsg.Content = "Error while saving the Configuration!!! \n Message:- " + ex.Message.ToString();
             }
 
             clearLabelTimer = new DispatcherTimer();

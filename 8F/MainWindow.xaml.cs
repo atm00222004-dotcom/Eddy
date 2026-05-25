@@ -1460,9 +1460,9 @@ namespace _8F
 
             int FreqId = Convert.ToInt32(((Ellipse)sender).DataContext);
 
-            DeviceCOM.channelDatas[chNo - 1].graphDatas[FreqId - 1].ellipses[0].ex = (dragTransform.X * factor) + DeviceCOM.channelDatas[0].graphDatas[0].width / 2;
+            DeviceCOM.channelDatas[chNo - 1].graphDatas[FreqId - 1].ellipses[0].ex = (dragTransform.X * factor) + DeviceCOM.channelDatas[chNo - 1].graphDatas[FreqId - 1].ellipses[0].width / 2;
 
-            DeviceCOM.channelDatas[chNo - 1].graphDatas[FreqId - 1].ellipses[0].ey = (-1) * ((dragTransform.Y * factor) + DeviceCOM.channelDatas[0].graphDatas[0].height / 2);
+            DeviceCOM.channelDatas[chNo - 1].graphDatas[FreqId - 1].ellipses[0].ey = (-1) * ((dragTransform.Y * factor) + DeviceCOM.channelDatas[chNo - 1].graphDatas[FreqId - 1].ellipses[0].height / 2);
 
 
         }
