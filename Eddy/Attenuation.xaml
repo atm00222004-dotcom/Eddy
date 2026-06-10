@@ -1,0 +1,66 @@
+﻿<Window x:Class="Eddy.Attenuation"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Eddy"
+        mc:Ignorable="d"
+        Title="Window1" 
+        ResizeMode="NoResize" Height="350" WindowStartupLocation="CenterScreen"  Width="450"  WindowState="Normal"  WindowStyle="None"
+        >
+    <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.05*"/>
+                <RowDefinition Height="0.011*"/>
+                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="0.011*"/>
+                <RowDefinition Height="0.09*"/>
+                <RowDefinition Height="0.07*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Margin="0,10,0,0" Content="Attenuation Setting" VerticalAlignment="Top" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0"></Label>
+            <!--<Image Name="btnClose" Margin="0,15,25,0" VerticalAlignment="Top" Width="30" MouseUp="Button_Click" HorizontalAlignment="Right" Source="/Images/Group 48.png" />-->
+            <Border Width="80" Name="btnClose" Margin="0,15,25,0" MouseDown="Button_Click" Background="#305371" HorizontalAlignment="Right" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Close" ></Label>
+            </Border>
+            <Separator VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
+            <Grid Margin="20,30,30,20" Grid.Row="2" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+
+                <Label Content="Attenuation" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                <ComboBox Margin="0,0,20,0"
+          FontSize="16"
+          VerticalAlignment="Top"
+          Grid.Row="0"
+          Grid.Column="1"
+          Name="drpAttenuation">
+                    <ComboBoxItem Content="0" />
+                    <ComboBoxItem Content="1" />
+                    <ComboBoxItem Content="2" />
+                    <ComboBoxItem Content="3" />
+                    <ComboBoxItem Content="4" />
+                    <ComboBoxItem Content="5" />
+                </ComboBox>
+            </Grid>
+            <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
+            <!--<Button FontWeight="Bold"  Margin="20,0,0,0" MaxWidth="150" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0" Content="Save Config" Name="btnConfigSave" Click="btnConfigSave_Click" ></Button>-->
+
+            <Border Width="250" Name="btnConfigSave" MouseDown="btnConfigSave_Click" Margin="18" Background="#305371" Grid.Column="0" Grid.Row="4" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Save Config" ></Label>
+            </Border>
+
+            <Label Content="" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
+
+        </Grid>
+    </Border>
+</Window>

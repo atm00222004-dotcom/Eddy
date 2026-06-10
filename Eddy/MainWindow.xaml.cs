@@ -73,6 +73,7 @@ namespace Eddy
 
             //DeviceCOM.Ok = 100;
             //DeviceCOM.NoOk = 200;
+            DeviceCOM.IsAttRequired = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsAttRequired"]);
 
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
@@ -87,12 +88,20 @@ namespace Eddy
                         }
                 },
                 new MenuItemViewModel { Header = "Configuration",
-                    MenuItems = new ObservableCollection<MenuItemViewModel>
+                    MenuItems = 
+                    (DeviceCOM.IsAttRequired==true ?new ObservableCollection<MenuItemViewModel>
                         {
                             new MenuItemViewModel { Header = "Marker Setting", mainWindow = this },
                             new MenuItemViewModel { Header = "Frequency Setting", mainWindow = this },
+                            new MenuItemViewModel { Header = "Attenuation", mainWindow = this },
                             new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
-                        }
+                        } : new ObservableCollection<MenuItemViewModel>
+                        {
+                            new MenuItemViewModel { Header = "Marker Setting", mainWindow = this },
+                            new MenuItemViewModel { Header = "Frequency Setting", mainWindow = this },                            
+                            new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
+                        })
+                    
                 },
                 new MenuItemViewModel { Header = "View Log",
                     MenuItems = new ObservableCollection<MenuItemViewModel>
@@ -1184,6 +1193,7 @@ namespace Eddy
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
 
         public FrequencySetting freqPop { get; set; }
+        public Attenuation attenuationPop { get; set; }
         public MarkerSetting markerPop { get; set; }
 
 
@@ -1325,6 +1335,14 @@ namespace Eddy
                     markerPop.Owner = mainWindow;
                     markerPop.ShowDialog();
                 }
+                else if (Header == "Attenuation")
+                {
+                    attenuationPop = new Attenuation();
+                    //attenuationPop.Closing += freqPop_Closing;
+                    attenuationPop.deviceCOM = mainWindow.deviceCOM;
+                    attenuationPop.Owner = mainWindow;
+                    attenuationPop.ShowDialog();
+                }
                 else if (Header == "Write Configuration")
                 {
                     bool rat1;
@@ -1382,6 +1400,14 @@ namespace Eddy
                 this.mainWindow.InitialGraphSetting();
                 this.mainWindow.D1Seeting();
             }
+        }
+        private void attenProp_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //if (attenuationPop.IsSaved)
+            //{
+            //    this.mainWindow.InitialGraphSetting();
+            //    this.mainWindow.D1Seeting();
+            //}
         }
         private void markerPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
