@@ -1171,14 +1171,66 @@ namespace _8F
 
     public class Part
     {
-        public string BatchName = "";
         public string Name = "";
         public string Grade = "";
-        public string CheckedBy = "";
         public string CompanyName = "";
         public int BatchType= 1;
         public int BatchSize = 5;
         public int BatchNo = 1;
+
+        //Common Properties for both new and old PartConfiguration
+        public string CheckedBy = "";
+        public string BatchName = "";
+
+        //Properties for new PartConfiguration
+        public string ProductionOrder = "";
+        public string MachineNumber = "";
+        public string PartNumber = "";
+        public string PartFamily = "";
+    }
+
+    public class Operator
+    {
+        public int Id { get; set; }
+        public string OperatorName { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class PartMaster
+    {
+        public int Id { get; set; }
+        public int PartFamilyId { get; set; }
+        public string PartNumber { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class PartFamily
+    {
+        public int Id { get; set; }
+        public string FamilyName { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class BatchDetail
+    {
+        public DateTime TimeStamp { get; set; }
+        public string BatchName { get; set; }
+        public bool Result { get; set; }
+        public string FDData { get; set; }
+        public string PartData { get; set; }
+    }
+    public class PartConfiguration
+    {
+        public string BatchName { get; set; }
+        public string Name { get; set; }
+        public string Grade { get; set; }
+        public string CheckedBy { get; set; }
+        public string CompanyName { get; set; }
+
+        public string ProductionOrder { get; set; }
+        public string MachineNumber { get; set; }
+        public string PartNumber { get; set; }
+        public string PartFamily { get; set; }
     }
 
     public class SetSerialNumber

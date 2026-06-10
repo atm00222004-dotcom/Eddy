@@ -1,69 +1,215 @@
 ﻿<Window x:Class="_8F.PartConfigReNew"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:_8F"
-        mc:Ignorable="d"
-        Title="Window1" 
-        ResizeMode="NoResize" Height="450" WindowStartupLocation="CenterScreen"  Width="720"  WindowState="Normal"  WindowStyle="None"
-        >
-    <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
+        Title="Part Configuration"
+        Height="500"
+        Width="900"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None">
+
+    <Border Margin="3"
+            Background="#DBDBDB"
+            BorderBrush="#DBDBDB"
+            BorderThickness="1"
+            CornerRadius="20">
+
         <Grid>
+
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.2*"/>
-                <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.4*"/>
-                <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.25*"/>
-                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="230"/>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Label Margin="0,10,0,0" Content="Part Configuration" VerticalAlignment="Top" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0"></Label>
-            <!--<Image Name="btnClose" Margin="0,15,25,0" VerticalAlignment="Top" Width="30" MouseUp="Button_Click" HorizontalAlignment="Right" Source="/Images/Group 48.png" />-->
-            <Border Width="80" Name="btnClose" Margin="0,15,25,0" MouseDown="Button_Click" Background="#305371" HorizontalAlignment="Right" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                <Label Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Close" ></Label>
+
+            <!-- Header -->
+
+            <Label Content="Part Configuration"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+
+            <!-- Close Button -->
+
+            <Border Name="btnClose"
+                    Width="90"
+                    Height="38"
+                    Margin="0,15,25,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Background="#305371"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    MouseDown="Button_Click">
+
+                <Label Content="Close"
+                       Foreground="White"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
             </Border>
-            <Separator VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
-            <Grid Margin="20,30,30,20" Grid.Row="2" Grid.Column="0">
+
+            <Separator Grid.Row="1"/>
+
+            <!-- Form Area -->
+
+            <Grid Grid.Row="2"
+                  Margin="25,20,25,10">
+
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <!--<RowDefinition/>-->
-                    <!--<RowDefinition/>
-                    <RowDefinition/>-->
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
                 </Grid.RowDefinitions>
+
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="240"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Margin="20,0,0,0" Content="Part Type" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
-                <ComboBox SelectionChanged="ddlPartType_SelectionChanged" Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="0" Grid.Column="1" Name="ddlPartType" />
+                <!-- Row 1 -->
 
-                <Label Margin="0,0,0,0" Content="Part" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                <ComboBox Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="0" Grid.Column="3" Name="ddlPart" />
+                <Label Grid.Row="0"
+                       Grid.Column="0"
+                       Content="Production Order"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="15,0,10,0"/>
 
-                <Label Margin="20,0,0,0" Content="Company Name" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtCompanyName" />
-                <Label Content="Checked By" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtCheckedBy" />
+                <TextBox Name="txtProductionOrder"
+                         Grid.Row="0"
+                         Grid.Column="1"
+                         Height="35"
+                         FontSize="16"
+                         VerticalAlignment="Center"
+                         Margin="0,0,20,0"/>
 
-                
+                <Label Grid.Row="0"
+                       Grid.Column="2"
+                       Content="Shift"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="15,0,10,0"/>
 
+                <ComboBox Name="ddlShift"
+                          Grid.Row="0"
+                          Grid.Column="3"
+                          Height="35"
+                          FontSize="16"
+                          VerticalAlignment="Center"/>
+
+                <!-- Row 2 -->
+
+                <Label Grid.Row="1"
+                       Grid.Column="0"
+                       Content="Operator Name"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="15,0,10,0"/>
+
+                <ComboBox Name="ddlOperator"
+                      Grid.Row="1"
+                      Grid.Column="1"
+                      Height="35"
+                      FontSize="16"
+                      VerticalAlignment="Center"
+                      Margin="0,0,20,0"/>
+
+                <Label Grid.Row="1"
+                       Grid.Column="2"
+                       Content="Machine Number"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="15,0,10,0"/>
+
+                <TextBox Name="txtMachineNumber"
+                         Grid.Row="1"
+                         Grid.Column="3"
+                         Height="35"
+                         FontSize="16"
+                         VerticalAlignment="Center"/>
+
+                <!-- Row 3 -->
+
+                <Label Grid.Row="2"
+                       Grid.Column="0"
+                       Content="Part Family"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="15,0,10,0"/>
+
+                <ComboBox Name="ddlPartFamily"
+                          Grid.Row="2"
+                          Grid.Column="1"
+                          Height="35"
+                          FontSize="16"
+                          VerticalAlignment="Center"
+                          Margin="0,0,20,0"
+                          SelectionChanged="ddlPartFamily_SelectionChanged"/>
+
+                <Label Grid.Row="2"
+                       Grid.Column="2"
+                       Content="Part Number"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="15,0,10,0"/>
+
+                <ComboBox Name="ddlPartNumber"
+                          Grid.Row="2"
+                          Grid.Column="3"
+                          Height="35"
+                          FontSize="16"
+                          VerticalAlignment="Center"/>
             </Grid>
-            <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
 
-            <Border Width="250" Name="btnConfigSave" MouseDown="btnConfigSave_Click" Margin="1" Background="#305371" Grid.Column="0" Grid.Row="4" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Start Log" ></Label>
+            <Separator Grid.Row="3"/>
+
+            <!-- Start Log Button -->
+
+            <Border Grid.Row="4"
+                    Name="btnConfigSave"
+                    Width="250"
+                    Height="50"
+                    Background="#305371"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    MouseDown="btnConfigSave_Click">
+
+                <Label Content="Start Log"
+                       Foreground="White"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
             </Border>
 
-            <Label Content="" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top" Name="lblMsg" Grid.Row="5" Grid.Column="0"></Label>
+            <!-- Message -->
+
+            <Label Name="lblMsg"
+                   Grid.Row="5"
+                   FontSize="14"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top"
+                   Margin="0,10,0,0"/>
 
         </Grid>
+
     </Border>
 </Window>

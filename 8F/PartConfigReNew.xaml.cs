@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -24,32 +25,23 @@ namespace _8F
     public partial class PartConfigReNew : Window
     {
         public bool IsSaved = false;
-        List<PartTypeData> parts;
+        List<Operator> operators;
+        List<PartFamily> partFamilies;
+        List<PartMaster> parts;
+
         public PartConfigReNew()
         {
             InitializeComponent();
-            if (DeviceCOM.part == null )
+
+            if (DeviceCOM.part == null)
+            {
                 DeviceCOM.part = new Part();
-
-            if(File.Exists("PartTypeData.json"))
-            {
-                string json = File.ReadAllText("PartTypeData.json");
-
-                parts = JsonConvert.DeserializeObject<List<PartTypeData>>(json);
             }
-            else
-            {
-                parts = new List<PartTypeData>();
-            }
+            LoadOperators();
+            LoadPartFamilies();
+            LoadParts();
 
-            ddlPartType.ItemsSource = parts;
-            ddlPartType.DisplayMemberPath = "Name";
-            ddlPartType.SelectedValuePath = "Name";
-
-            ddlPartType.Text = DeviceCOM.part.BatchName;
-            ddlPart.Text = DeviceCOM.part.Name;           
-            txtCheckedBy.Text = DeviceCOM.part.CheckedBy;
-            txtCompanyName.Text = DeviceCOM.part.CompanyName;           
+            BindUI();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -61,14 +53,26 @@ namespace _8F
         {
             try
             {
+                if (DeviceCOM.part == null)
+                {
+                    DeviceCOM.part = new Part();
+                }
+
                 var msg = Validaton();
                 if (msg.Count == 0)
                 {
-                    DeviceCOM.part.BatchName = ddlPartType.Text;
-                    DeviceCOM.part.Name = ddlPart.Text;                   
-                    DeviceCOM.part.CheckedBy = txtCheckedBy.Text;
-                    DeviceCOM.part.CompanyName = txtCompanyName.Text;                
-                    
+                    DeviceCOM.part.ProductionOrder = txtProductionOrder.Text;
+                    DeviceCOM.part.MachineNumber = txtMachineNumber.Text;
+                    DeviceCOM.part.PartFamily = ddlPartFamily.Text;
+                    DeviceCOM.part.PartNumber = ddlPartNumber.Text;
+
+
+                    //Common fields
+                    DeviceCOM.part.BatchName = ddlShift.Text;     
+                    DeviceCOM.part.Name = ddlPartNumber.Text;
+                    DeviceCOM.part.CheckedBy = ddlOperator.Text;
+
+
                     DeviceCOM.IsLogEnable = true;
                     IsSaved = true;
                     lblMsg.Content = "Log has been started!!!";
@@ -88,32 +92,43 @@ namespace _8F
             }
         }
 
-        public List<String> Validaton()
+        public List<string> Validaton()
         {
-            List<String> validationMsg = new List<string>();
-            if (string.IsNullOrEmpty(ddlPartType.Text))
-            {
-                validationMsg.Add("Part type is required.");
-            }
-            if (string.IsNullOrEmpty(ddlPart.Text))
-            {
-                validationMsg.Add("Part is required.");
-            }
-            
+            List<string> validationMsg = new List<string>();
 
-            if (string.IsNullOrEmpty(txtCompanyName.Text))
+            if (string.IsNullOrEmpty(txtProductionOrder.Text))
             {
-                validationMsg.Add("Company Name is required.");
+                validationMsg.Add("Production Order is required.");
             }
 
-            if (string.IsNullOrEmpty(txtCheckedBy.Text))
+            if (string.IsNullOrEmpty(ddlShift.Text))
             {
-                validationMsg.Add("Checked By is required.");
+                validationMsg.Add("Shift is required.");
+            }
+
+            if (string.IsNullOrEmpty(ddlOperator.Text))
+            {
+                validationMsg.Add("Operator Name is required.");
+            }
+
+            if (string.IsNullOrEmpty(txtMachineNumber.Text))
+            {
+                validationMsg.Add("Machine Number is required.");
+            }
+
+            if (string.IsNullOrEmpty(ddlPartFamily.Text))
+            {
+                validationMsg.Add("Part Family is required.");
+            }
+
+            if (string.IsNullOrEmpty(ddlPartNumber.Text))
+            {
+                validationMsg.Add("Part Number is required.");
             }
 
             return validationMsg;
         }
-       
+
         private void PreviewTextInput_NumericOnly(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
@@ -126,10 +141,125 @@ namespace _8F
             e.Handled = regex.IsMatch(e.Text);
         }
 
-        private void ddlPartType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ddlPartFamily_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var text = (PartTypeData)e.AddedItems[0];
-            ddlPart.ItemsSource = text.Values;
+            if (ddlPartFamily.SelectedItem == null)
+                return;
+
+            string selectedFamily = ddlPartFamily.SelectedItem.ToString();
+
+            int familyId = partFamilies
+                .First(x => x.FamilyName == selectedFamily)
+                .Id;
+
+            ddlPartNumber.ItemsSource = parts
+                .Where(x => x.PartFamilyId == familyId)
+                .Select(x => x.PartNumber)
+                .ToList();
+        }
+
+        private void BindUI()
+        {
+            ddlPartFamily.ItemsSource = partFamilies
+                .Select(x => x.FamilyName)
+                .ToList();
+
+            ddlShift.ItemsSource = new List<string> { "I", "II", "III" };
+
+            ddlOperator.ItemsSource = operators.Select(x => x.OperatorName).ToList();
+
+            txtProductionOrder.Text = DeviceCOM.part?.ProductionOrder;
+            txtMachineNumber.Text = DeviceCOM.part?.MachineNumber;
+
+            ddlShift.Text = DeviceCOM.part?.BatchName;
+            ddlPartFamily.Text = DeviceCOM.part?.PartFamily;
+            ddlPartNumber.Text = DeviceCOM.part?.PartNumber;
+        }
+
+        private void LoadOperators()
+        {
+            operators = new List<Operator>();
+
+            using (var con = new NpgsqlConnection(
+                System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+            {
+                con.Open();
+
+                string query = "SELECT \"OperatorName\" FROM \"Operators\" WHERE \"IsActive\" = true";
+
+                using (var cmd = new NpgsqlCommand(query, con))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        operators.Add(new Operator
+                        {
+                            OperatorName = reader.GetString(0)
+                        });
+                    }
+                }
+            }
+        }
+
+        private void LoadParts()
+        {
+            parts = new List<PartMaster>();
+
+            using (var con = new NpgsqlConnection(
+                System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+            {
+                con.Open();
+
+                string query =
+                    "SELECT \"Id\", \"PartFamilyId\", \"PartNumber\" " +
+                    "FROM \"Parts\" " +
+                    "WHERE \"IsActive\" = true";
+
+                using (var cmd = new NpgsqlCommand(query, con))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        parts.Add(new PartMaster
+                        {
+                            Id = reader.GetInt32(0),
+                            PartFamilyId = reader.GetInt32(1),
+                            PartNumber = reader.GetString(2),
+                            IsActive = true
+                        });
+                    }
+                }
+            }
+        }
+
+        private void LoadPartFamilies()
+        {
+            partFamilies = new List<PartFamily>();
+
+            using (var con = new NpgsqlConnection(
+                System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+            {
+                con.Open();
+
+                string query =
+                    "SELECT \"Id\", \"FamilyName\" " +
+                    "FROM \"PartFamilies\" " +
+                    "WHERE \"IsActive\" = true";
+
+                using (var cmd = new NpgsqlCommand(query, con))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        partFamilies.Add(new PartFamily
+                        {
+                            Id = reader.GetInt32(0),
+                            FamilyName = reader.GetString(1),
+                            IsActive = true
+                        });
+                    }
+                }
+            }
         }
     }
 }

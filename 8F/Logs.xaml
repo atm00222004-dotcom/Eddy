@@ -59,8 +59,13 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-
-                <Label Margin="20,0,0,0" Content="Batch Name" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                
+                <Label x:Name="lblBatchName"
+                   Margin="20,0,0,0"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Grid.Row="0"
+                   Grid.Column="0"></Label>
                 <TextBox  FontSize="20" VerticalAlignment="top" x:Name="txtBatchName" Grid.Row="0" Grid.Column="1" />
                 
                 <Label Margin="20,0,0,0" Content="Start Date" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
@@ -78,6 +83,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition/>
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
                 <Border Width="250" Name="btnSearch" MouseDown="btnSearch_MouseDown"  Margin="1" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
@@ -86,6 +92,10 @@
 
                 <Border Width="250" Name="btnDownload" Margin="1" MouseDown="btnDownload_MouseDown" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                     <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Download" ></Label>
+                </Border>
+
+                <Border Width="250" Name="btnDownloadPdf" Margin="1" MouseDown="btnDownloadPdf_MouseDown" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Download Details" ></Label>
                 </Border>
 
             </Grid>
@@ -100,6 +110,13 @@
                         <DataGridTextColumn Width="100*" Header = "OK Count" Binding = "{Binding PassCount}"/>
                         <DataGridTextColumn Width="100*" Header = "Not OK Count" Binding = "{Binding FailCount}"/>
                         <DataGridTextColumn Width="100*" Header = "Total Count" Binding = "{Binding TotalCount}"/>
+                        <DataGridTemplateColumn Header="Download">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="PDF" Tag="{Binding}" Padding="5" Click="btnRowDownload_Click"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
