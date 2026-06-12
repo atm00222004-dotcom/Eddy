@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
@@ -63,6 +64,7 @@ namespace _8F
 
         DateTime CodeReadTime = DateTime.Now;
         int CodeReadGapInMS = 100;
+        bool isRenewConfig = Convert.ToBoolean(ConfigurationSettings.AppSettings["isrenewconfig"]);
 
         public MainWindow()
         {
@@ -223,21 +225,24 @@ namespace _8F
                         }
                 },
                 new MenuItemViewModel { Header = "Configuration",
-                    MenuItems = LogEnabled ? new ObservableCollection<MenuItemViewModel>
-                        {
-                            new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
-                            new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
-                            new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
-                            new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
-                            //new MenuItemViewModel { Header = "Data Log", mainWindow = this }
-                        } :
-                        new ObservableCollection<MenuItemViewModel>
-                        {
-                            new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
-                            new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
-                            new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
-                            new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this }
-                        }
+                    MenuItems = LogEnabled ? new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel>
+                    {
+                        new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
+                        new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
+                        isRenewConfig ? new MenuItemViewModel { Header = "Operator Master", mainWindow = this } : null,
+                        isRenewConfig ? new MenuItemViewModel { Header = "Part Master", mainWindow = this } : null,
+                        new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
+                        new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
+                        //new MenuItemViewModel { Header = "Data Log", mainWindow = this }
+                    }.Where(x => x != null)
+                    ):
+                    new ObservableCollection<MenuItemViewModel>
+                    {
+                        new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
+                        new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
+                        new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
+                        new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this }
+                    }
                 },
                 new MenuItemViewModel { Header = "View Log",
                         MenuItems = new ObservableCollection<MenuItemViewModel>
@@ -1249,12 +1254,12 @@ namespace _8F
                             byte[] data = new byte[length];
                             data[0] = Convert.ToByte(2);
                             data[1] = Convert.ToByte(4);
-                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10)+1);
+                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
                             data[3] = Convert.ToByte(ch.Id);
                             int startB = 4;
                             foreach (var kvp in frequencyWrite.FD)
                             {
-                                data[startB] =Convert.ToByte(kvp.FN);
+                                data[startB] = Convert.ToByte(kvp.FN);
 
                                 data[startB + 1] = (byte)(kvp.F & 0xFF);         // Lowest byte
                                 data[startB + 2] = (byte)((kvp.F >> 8) & 0xFF);  // Byte 2
@@ -1416,7 +1421,7 @@ namespace _8F
         private TranslateTransform? dragTransform = null;
 
 
-       
+
         private void Ellipse_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var ellipse = sender as Ellipse;
@@ -1441,7 +1446,7 @@ namespace _8F
 
 
         }
-        
+
 
         private void Ellipse_MouseMove(object sender, MouseEventArgs e)
         {
@@ -1661,7 +1666,7 @@ namespace _8F
                     byte[] data = new byte[5];
                     data[0] = Convert.ToByte(2);
                     data[1] = Convert.ToByte(24);
-                    data[2] = Convert.ToByte(0);                   
+                    data[2] = Convert.ToByte(0);
 
                     rat = portCOM.WriteDataInBytes(data);
                 }
@@ -2354,6 +2359,16 @@ namespace _8F
                         ellipsesPop.portCOM = mainWindow.portCOM;
                         ellipsesPop.Owner = mainWindow;
                         ellipsesPop.ShowDialog();
+                    }
+                    else if (Header == "Part Master")
+                    {
+                        PartFamilyMaster partMaster = new PartFamilyMaster();
+                        partMaster.ShowDialog();
+                    }
+                    else if (Header == "Operator Master")
+                    {
+                        OperatorMaster operatorMaster = new OperatorMaster();
+                        operatorMaster.ShowDialog();
                     }
                     else if (Header == "Write Configuration")
                     {
