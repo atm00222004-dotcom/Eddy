@@ -36,9 +36,10 @@ namespace Eddy
         public static int MaxValue;
         public static int Factor;
         public static Configuration Configuration;
+        public static bool IsTubeSatart = false;
         public static GraphData graphData;
         public static bool IsTestOn = false;
-        public static bool IsTubeSatart = false;
+        public static bool IsAttRequired = false;
         public static DateTime busyStamp = System.DateTime.Now;
         public static Part part;
         public static bool IsLogEnable = false;
@@ -201,6 +202,7 @@ namespace Eddy
         public int LTH = 40;
         public int TH = 0;
         public int PP = 100;
+        public int AT = -1;
     }
     public class FilterFD
     {
