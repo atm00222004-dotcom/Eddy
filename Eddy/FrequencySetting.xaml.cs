@@ -31,7 +31,17 @@ namespace Eddy
         public FrequencySetting()
         {
             InitializeComponent();
-            IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+
+            if (DeviceCOM.IsAttRequired)
+            {
+                txtGain1.PreviewTextInput += PreviewTextInput_DecimalOnly;
+            }else
+            {
+                txtGain1.PreviewTextInput += PreviewTextInput_NumericOnly;
+            }
+
+
+                IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
 
             if (IsEddyAdvance)
             {
@@ -48,7 +58,7 @@ namespace Eddy
                     if (item.FN == 1)
                     {
                         txtPhase1.Text = (item.F / 1000).ToString();
-                        txtGain1.Text = item.G.ToString();
+                        txtGain1.Text = DeviceCOM.IsAttRequired ?item.G.ToString() :Convert.ToInt32(item.G).ToString();
                         txtUTH1.Text = item.UTH.ToString();
                         txtLTH1.Text = item.LTH.ToString();
                         txtPP1.Text = item.PP.ToString();
@@ -88,7 +98,7 @@ namespace Eddy
                         txtPostAMPY.Text = item.Y.ToString();
                     }
 
-                    chkSaveGraph.IsChecked = DeviceCOM.Configuration.SaveGraphImage;
+                    
 
                     //else if (item.FN == 2)
                     //{
@@ -136,13 +146,21 @@ namespace Eddy
                                 {
                                     item.E = 1;
                                     item.F = Convert.ToInt32(txtPhase1.Text) * 1000;
-                                    item.G = Convert.ToInt32(txtGain1.Text);
+                                    item.G = Convert.ToDecimal(txtGain1.Text);
                                     item.UTH = Convert.ToInt32(txtUTH1.Text);
                                     item.LTH = Convert.ToInt32(txtLTH1.Text);
                                     item.PP = Convert.ToInt32(txtPP1.Text);
                                     item.TH = Convert.ToInt32(txtTH1.Text);
 
-
+                                    if (DeviceCOM.IsAttRequired)
+                                    {
+                                        if (item.AT == -1)
+                                            item.AT = 0;
+                                    }
+                                    else
+                                    {
+                                        item.AT = -1;
+                                    }
                                 }
                                 //else if (item.FN == 2)
                                 //{
@@ -158,11 +176,21 @@ namespace Eddy
                                 {
                                     item.E = 0;
                                     item.F = Convert.ToInt32(txtPhase1.Text) * 1000;
-                                    item.G = Convert.ToInt32(txtGain1.Text);
+                                    item.G = Convert.ToDecimal(txtGain1.Text);
                                     item.UTH = Convert.ToInt32(txtUTH1.Text);
                                     item.LTH = Convert.ToInt32(txtLTH1.Text);
                                     item.PP = Convert.ToInt32(txtPP1.Text);
                                     item.TH = Convert.ToInt32(txtTH1.Text);
+
+                                    if (DeviceCOM.IsAttRequired)
+                                    {
+                                        if (item.AT == -1)
+                                            item.AT = 0;
+                                    }
+                                    else
+                                    {
+                                        item.AT = -1;
+                                    }
 
                                 }
                             }
@@ -192,7 +220,7 @@ namespace Eddy
                             }
                         }
 
-                        DeviceCOM.Configuration.SaveGraphImage = chkSaveGraph.IsChecked == true;
+                        //DeviceCOM.Configuration.SaveGraphImage = chkSaveGraph.IsChecked == true;
 
                         var rat1 = false;
                        
@@ -202,9 +230,9 @@ namespace Eddy
                         {
                             rat1 = true;
                             ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
-                            configurationToWrite.Frequency = DeviceCOM.Configuration.Frequency.FD;
-                            configurationToWrite.Filter = DeviceCOM.Configuration.Filter.FD;
-                            configurationToWrite.SaveGraphImage = chkSaveGraph.IsChecked == true; 
+                            configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
+                            configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
+                            //configurationToWrite.SaveGraphImage = chkSaveGraph.IsChecked == true; 
                             var data = JsonConvert.SerializeObject(configurationToWrite); 
                             rat = deviceCOM.WriteData(data);
                         }
@@ -287,7 +315,7 @@ namespace Eddy
             }
             else
             {
-                if (Convert.ToInt32(txtGain1.Text) < 1 || Convert.ToInt32(txtGain1.Text) > 60)
+                if (Convert.ToDecimal(txtGain1.Text) < 1 || Convert.ToDecimal(txtGain1.Text) > 60)
                 {
                     validationMsg.Add("Gain(dB) is required and the range is 1 to 60.");
                 }
@@ -386,6 +414,22 @@ namespace Eddy
             e.Handled = regex.IsMatch(e.Text);
         }
 
+        private void PreviewTextInput_DecimalOnly(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            string newText = textBox.Text.Insert(textBox.CaretIndex, e.Text);
+
+            // Allows:
+            // 123
+            // 123.4
+            // 0.5
+            // Disallows:
+            // 123.45
+            // 123..
+            // abc
+            e.Handled = !Regex.IsMatch(newText, @"^\d+(\.\d{0,1})?$");
+        }
 
     }
 }

@@ -165,7 +165,7 @@ namespace Eddy
 
         public int TestTime = 10;
         public int SamplePerSecond = 3050;
-        public bool SaveGraphImage { get; set; }
+        //public bool SaveGraphImage { get; set; }
 
     }
 
@@ -173,10 +173,8 @@ namespace Eddy
     {
         public int FC = 57;
         //public Marker Marker { get; set; }
-        public List<FD> Frequency { get; set; }
-        public List<FilterFD> Filter { get; set; }
-        public bool SaveGraphImage { get; set; }
-
+        public List<FD> FQ { get; set; }
+        public List<FilterFD> FT { get; set; }        
     }
     public class Marker
     {
@@ -197,7 +195,7 @@ namespace Eddy
         public int FN = 0;
         public int E = 1;
         public int F = 10000;
-        public int G = 30;
+        public decimal G = 30;
         public int UTH = 90;
         public int LTH = 40;
         public int TH = 0;

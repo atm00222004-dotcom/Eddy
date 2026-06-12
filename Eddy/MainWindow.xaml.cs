@@ -186,8 +186,8 @@ namespace Eddy
             if (IsEddyAdvance)
             {
                 ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
-                configurationToWrite.Frequency = DeviceCOM.Configuration.Frequency.FD;
-                configurationToWrite.Filter = DeviceCOM.Configuration.Filter.FD;
+                configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
+                configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
                 deviceCOM.WriteData(JsonConvert.SerializeObject(configurationToWrite));
             }
             else
@@ -1353,8 +1353,8 @@ namespace Eddy
                     {
                         rat1 = true;
                         ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
-                        configurationToWrite.Frequency = DeviceCOM.Configuration.Frequency.FD;
-                        configurationToWrite.Filter = DeviceCOM.Configuration.Filter.FD;
+                        configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
+                        configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
                         var data = JsonConvert.SerializeObject(configurationToWrite);
                         rat2 = mainWindow.deviceCOM.WriteData(data);
                     }
