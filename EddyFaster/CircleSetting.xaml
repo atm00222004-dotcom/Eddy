@@ -12,11 +12,11 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="0*"/>
-                <RowDefinition Height="0.45*"/>
+                <RowDefinition Height="0.25*"/>
                 <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="0.04*"/>
-                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height=".7*"/>
+                <RowDefinition Height="0.01*"/>
+                <RowDefinition Height="0.25*"/>
                 <RowDefinition Height="0.3*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -35,8 +35,8 @@
             <Separator VerticalAlignment="Top" Grid.Row="2" Grid.Column="0"/>
             <Grid  Grid.Row="3" Grid.Column="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="0.75*"/>
+                    <RowDefinition Height="0.75*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -63,8 +63,9 @@
                 <Grid  Grid.Row="3" Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1.5*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="1.5*"/>
+                        <!--<RowDefinition Height="1*"/>-->
+                        <!--<RowDefinition Height="3*" />-->
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -73,14 +74,17 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
-                    <Label Margin="20,0,0,0" Content="Outer Width" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
-                    <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtWidth" />
+                    <Label Margin="20,0,0,0" Content="Outer diameter" FontSize="14" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                    <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="14"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtWidth" />
 
-                    <Label Content="Outer Height" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                    <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtHeight" />
+                    <Label Visibility="Hidden" Content="Outer Height" FontSize="14" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
+                    <TextBox Visibility="Hidden" PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="14"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtHeight" />
 
-                    <Label Margin="20,0,0,0" Content="Outer Angle" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
-                    <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="2" Grid.Column="1" Name="txtAngel" />
+                    <Label Margin="20,0,0,0" Content="Solenoid (ms)" FontSize="14" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
+                    <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="14"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtAngel" />
+                    
+                    <Label Margin="20,0,0,0" Content="NG Solenoid (ms)" FontSize="14" FontWeight="Bold" Grid.Row="1" Grid.Column="0"></Label>
+                    <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="14"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtNGSolenoid" />
 
                 </Grid>
             </Grid>

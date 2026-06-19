@@ -1035,6 +1035,7 @@ namespace _8F
         public double ex_O = 0;
         public double ey_O = 0;
         public double angel_O = DeviceCOM.DefaultAngel_O;
+        public double NG = DeviceCOM.DefaultAngel_O;
     }
     public class Ellips
     {
@@ -1139,6 +1140,8 @@ namespace _8F
         public double a;
         public double b;
         public double t;
+        public double s;
+        public double ns;
     }
 
     public class Status

@@ -286,8 +286,8 @@ namespace _8F
                 if (cordinates.Count == 0)
                     return;
 
-                dispatcherTimer.Stop();
-                dispatcherTimer.Start();
+                dispatcherTimerClear.Stop();
+                dispatcherTimerClear.Start();
 
                 DeviceCOM.cordinateQueue.Add(
                     new CordinateQueue() { cordinates = cordinates }

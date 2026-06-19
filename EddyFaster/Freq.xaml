@@ -42,18 +42,21 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
+
+                <Label Content="Phase"  Margin="20,0,0,0" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtPhase" />
+                
                 <Label Visibility="Hidden" Margin="20,0,0,0" Content="Freq Channel" FontSize="16" FontWeight="Bold" Grid.Row="10" Grid.Column="0"></Label>
                 <ComboBox Visibility="Hidden"  Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="10" Grid.Column="1" SelectionChanged="ddlFrChennel_SelectionChanged" Name="ddlFrChennel" />
 
-                <Label Margin="20,0,0,0" Content="Solenoid (ms)" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtSOL" />
+                <Label Visibility="Hidden"  Margin="20,0,0,0" Content="Solenoid (ms)" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="0"></Label>
+                <TextBox Visibility="Hidden" PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="1" Name="txtSOL" />
                 
                 <Label Content="Frequency" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly"  Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="0" Grid.Column="3" Name="txtFreq" />
                 <Label Margin="20,0,0,0"  FontSize="16" FontWeight="Bold" Content="Gain"  Grid.Row="1" Grid.Column="0"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="1" Name="txtGain" />
-                <Label Content="Phase" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top" Grid.Row="1" Grid.Column="3" Name="txtPhase" />
+               
 
                 <Label Visibility="Hidden" Margin="20,0,0,0" Content="Status" FontSize="16" FontWeight="Bold" Grid.Row="2" Grid.Column="0"></Label>
                 <ComboBox Visibility="Hidden" Margin="0,0,20,0" FontSize="16" VerticalAlignment="Top" Grid.Row="2" Grid.Column="1" Name="ddlStatus" />

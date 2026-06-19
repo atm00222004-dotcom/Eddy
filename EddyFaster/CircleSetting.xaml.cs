@@ -64,6 +64,7 @@ namespace _8F
                 txtWidth.Text = Gdata.width_O.ToString();
                 txtHeight.Text = Gdata.height_O.ToString();
                 txtAngel.Text = Gdata.angel_O.ToString();
+                txtNGSolenoid.Text = Gdata.NG.ToString();
             }
         }
 
@@ -142,8 +143,9 @@ namespace _8F
             }
 
              Gdata.width_O =Convert.ToInt64(txtWidth.Text);
-             Gdata.height_O = Convert.ToInt64(txtHeight.Text);
-            Gdata.angel_O = Convert.ToInt64(txtAngel.Text);
+             Gdata.height_O = Convert.ToInt64(txtWidth.Text);
+             Gdata.angel_O = Convert.ToInt64(txtAngel.Text);
+            Gdata.NG = Convert.ToInt64(txtNGSolenoid.Text);
 
 
             ellipseWrite.FD.Add(frequ);
@@ -151,7 +153,7 @@ namespace _8F
             Mode _mode = new Mode() { FC = 2, M = DeviceCOM.Mode };
             if (_mode.M == 1)
             {
-                _mode.OE = new OuterElliplse { a = Gdata.height_O, b = Gdata.width_O, t = Gdata.angel_O };
+                _mode.OE = new OuterElliplse { a = Gdata.width_O, b = Gdata.width_O, t = 0, s = Gdata.angel_O, ns = Gdata.NG };
             }
 
 
@@ -167,10 +169,10 @@ namespace _8F
             else
             {
 
-                byte[] data2 = new byte[12];
+                byte[] data2 = new byte[16];
                 data2[0] = Convert.ToByte(2);
                 data2[1] = Convert.ToByte(2);
-                data2[2] = Convert.ToByte(7);
+                data2[2] = Convert.ToByte(11);
                 data2[3] = Convert.ToByte(1);
 
                 data2[4] = (byte)(Convert.ToInt16(_mode.OE.a) & 0xFF);        // Low byte
@@ -181,6 +183,13 @@ namespace _8F
 
                 data2[8] = (byte)(Convert.ToInt16(_mode.OE.t) & 0xFF);
                 data2[9] = (byte)((Convert.ToInt16(_mode.OE.t) >> 8) & 0xFF);
+
+                data2[10] = (byte)(Convert.ToInt16(_mode.OE.s) & 0xFF);
+                data2[11] = (byte)((Convert.ToInt16(_mode.OE.s) >> 8) & 0xFF);
+
+                data2[12] = (byte)(Convert.ToInt16(_mode.OE.ns) & 0xFF);
+                data2[13] = (byte)((Convert.ToInt16(_mode.OE.ns) >> 8) & 0xFF);
+
 
                 portCOM.WriteDataInBytes(data2);
 
