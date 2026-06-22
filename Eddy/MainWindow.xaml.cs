@@ -962,7 +962,7 @@ namespace Eddy
                             }
                             else
                             {
-                                resultStatus = "Invalid Result!";
+                                resultStatus = "Invalid Test!!";
                             }
                         }
                     }

@@ -296,7 +296,7 @@ namespace Eddy
 
                     if (!rat1 || !rat2)
                     {
-                        msg = "No response from the system, please reboot the board";
+                        msg = "No response from the system, please reboot the ECT Instrument";
                     }
 
                     MessageBox.Show(msg, "Information");
