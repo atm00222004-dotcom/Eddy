@@ -143,6 +143,13 @@
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
 
+                    <Grid Grid.Row="0" Grid.Column="0">
+                                   
+                        <Label Foreground="Red" FontSize="28" Grid.Column="0" Grid.Row="0" FontWeight="Bold" Name="lblResultStatus" VerticalAlignment="Center" HorizontalAlignment="Center" Content="" ></Label>
+                       
+                    </Grid>
+
+                    
                     <Grid Grid.Row="1" Grid.Column="0">
                         <Grid.RowDefinitions>
                             <RowDefinition></RowDefinition>

@@ -67,10 +67,14 @@ namespace Eddy
         UdpReceiver receiver;
         string IpAddress;
         int Port;
+        string resultStatus = String.Empty;
+
+       
+
         public MainWindow()
         {
             InitializeComponent();
-
+            //resultStatus = "Invalid Result!!";
             //DeviceCOM.Ok = 100;
             //DeviceCOM.NoOk = 200;
             DeviceCOM.IsAttRequired = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsAttRequired"]);
@@ -641,6 +645,8 @@ namespace Eddy
         {
             try
             {
+
+                lblResultStatus.Content = resultStatus;
                 Canvas2.Children.Clear();
 
 
@@ -762,10 +768,11 @@ namespace Eddy
                     // 5 ==> Start Test // 56 Stop Test  ==> Busy/Fee
                     if (indata[0] == 61)
                     {
+                        resultStatus = string.Empty;
                         if (indata[1] == 1)
                         {
                             DeviceCOM.IsCalibarationStart = true;
-                            //btnCali.Background = new SolidColorBrush(Colors.Orange);
+                            //btnCali.Background = new SolidColorBrush(Colors.Orange);                            
                         }
                         else if (indata[1] == 2)
                         {
@@ -779,12 +786,14 @@ namespace Eddy
                     {
                         //D1Seeting();
                         DeviceCOM.IsTestOn = true;
+                        resultStatus = string.Empty;
                         DeviceCOM.graphData.AmpD1 = new List<Fdata>();
                     }
                     else if (indata[0] == 56)
                     {
                         DeviceCOM.IsTestOn = false;
                         DeviceCOM.IsTubeSatart = false;
+                        resultStatus = string.Empty;
                         DeviceCOM.graphData.AmpD1 = new List<Fdata>();                        
                     }
 
@@ -824,6 +833,7 @@ namespace Eddy
                         {
                             DeviceCOM.IsTubeSatart = true;
                             //btnTestStatus.Background = new SolidColorBrush(Colors.Orange);
+                            resultStatus = string.Empty;
                             DeviceCOM.graphData.AmpD1 = new List<Fdata>();
                         }
 
@@ -945,7 +955,15 @@ namespace Eddy
                         {
                             DeviceCOM.IsTubeSatart = false;
                             //btnTestStatus.Background = new SolidColorBrush(Colors.Gray);
-                            StopTude(indata[8] == 0);
+                            if (indata[8] == 0 || indata[8] == 1)
+                            {
+                                resultStatus = string.Empty;
+                                StopTude(indata[8] == 0);
+                            }
+                            else
+                            {
+                                resultStatus = "Invalid Result!";
+                            }
                         }
                     }
                     else
