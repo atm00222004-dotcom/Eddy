@@ -359,4 +359,243 @@ namespace Eddy
             remove { }
         }
     }
+
+    public class MenuItemViewModel_APS
+    {
+        private readonly ICommand _command;
+
+        public MenuItemViewModel_APS()
+        {
+            _command = new CommandViewModel(Execute);
+        }
+        public string Header { get; set; }
+        string filename { get; set; }
+        public MainWindow_APS mainWindow { get; set; }
+        public ObservableCollection<MenuItemViewModel_APS> MenuItems { get; set; }
+        public FrequencySetting_APS freqPop { get; set; }
+        public Attenuation attenuationPop { get; set; }
+        public MarkerSetting markerPop { get; set; }
+
+
+        public ICommand Command
+        {
+            get
+            {
+                return _command;
+            }
+        }
+
+        private void Execute()
+        {
+            if (DeviceCOM.IsTubeSatart || DeviceCOM.IsCalibarationStart && (Header == "Open" || Header == "New" || Header == "Save As" || Header == "Save" || Header == "Write Configuration" || Header == "Marker Setting"))
+            {
+                MessageBox.Show("The tube/calibration is in progress, no changes are allowed!", "Information");
+            }
+            else
+            {
+                if (Header == "Save")
+                {
+                    try
+                    {
+                        if (String.IsNullOrEmpty(mainWindow.filename))
+                        {
+                            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                            dlg.FileName = "Document"; // Default file name
+                            dlg.DefaultExt = ".text"; // Default file extension
+                            dlg.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+
+                            // Show save file dialog box
+                            Nullable<bool> result = dlg.ShowDialog();
+
+                            // Process save file dialog box results
+                            if (result == true)
+                            {
+                                // Save document
+                                mainWindow.filename = dlg.FileName;
+
+                                string conecnt = JsonConvert.SerializeObject(DeviceCOM.Configuration);
+                                File.WriteAllText(mainWindow.filename, conecnt);
+                                //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+                                this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
+                            }
+
+                        }
+                        else
+                        {
+                            string conecnt = JsonConvert.SerializeObject(DeviceCOM.Configuration);
+                            File.WriteAllText(mainWindow.filename, conecnt);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error while saving the configation file!!!!", "Error Information");
+                    }
+
+                }
+                else if (Header == "Save As")
+                {
+                    try
+                    {
+                        Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                        dlg.FileName = "Document"; // Default file name
+                        dlg.DefaultExt = ".text"; // Default file extension
+                        dlg.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+
+                        // Show save file dialog box
+                        Nullable<bool> result = dlg.ShowDialog();
+
+                        // Process save file dialog box results
+                        if (result == true)
+                        {
+                            // Save document
+                            mainWindow.filename = dlg.FileName;
+
+                            string conecnt = JsonConvert.SerializeObject(DeviceCOM.Configuration);
+                            File.WriteAllText(mainWindow.filename, conecnt);
+                            this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error while saving the configuration file!!!!", "Error Information");
+                    }
+                }
+                else if (Header == "Open")
+                {
+
+                    try
+                    {
+                        var dialog = new Microsoft.Win32.OpenFileDialog();
+                        dialog.FileName = "Document"; // Default file name
+                        dialog.DefaultExt = ".txt"; // Default file extension
+                        dialog.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+
+                        // Show open file dialog box
+                        bool? result = dialog.ShowDialog();
+
+                        // Process open file dialog box results
+                        if (result == true)
+                        {
+                            string data = File.ReadAllText(dialog.FileName);
+                            DeviceCOM.Configuration = JsonConvert.DeserializeObject<Configuration>(data);
+                            // Open document
+                            mainWindow.filename = dialog.FileName;
+                            this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error while loading the configuration file!!!!", "Error Information");
+                    }
+                }
+                else if (Header == "New")
+                {
+                    mainWindow.filename = null;
+
+                }
+                else if (Header == "Exit")
+                {
+                    //this.mainWindow.btnLog.Visibility = Visibility.Hidden;
+                    mainWindow.Close();
+                }
+                else if (Header == "Frequency Setting")
+                {
+                    freqPop = new FrequencySetting_APS();
+                    freqPop.Closing += freqPop_Closing;
+                    freqPop.deviceCOM = mainWindow.deviceCOM;
+                    freqPop.Owner = mainWindow;
+                    freqPop.ShowDialog();
+                }
+                else if (Header == "Marker Setting")
+                {
+                    markerPop = new MarkerSetting();
+                    markerPop.Closing += markerPop_Closing;
+                    markerPop.deviceCOM = mainWindow.deviceCOM;
+                    markerPop.Owner = mainWindow;
+                    markerPop.ShowDialog();
+                }
+                else if (Header == "Attenuation")
+                {
+                    attenuationPop = new Attenuation();
+                    //attenuationPop.Closing += freqPop_Closing;
+                    attenuationPop.deviceCOM = mainWindow.deviceCOM;
+                    attenuationPop.Owner = mainWindow;
+                    attenuationPop.ShowDialog();
+                }
+                else if (Header == "Write Configuration")
+                {
+                    bool rat1;
+                    bool rat2;
+                    var msg = "Configuation Write successfully!!";
+                    var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+                    if (IsEddyAdvance)
+                    {
+                        rat1 = true;
+                        ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
+                        configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
+                        configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
+                        var data = JsonConvert.SerializeObject(configurationToWrite);
+                        rat2 = mainWindow.deviceCOM.WriteData(data);
+                    }
+                    else
+                    {
+
+                        rat1 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
+                        Filter1 filter1 = new Filter1();
+                        filter1.FD = new List<FilterFD1>();
+
+                        foreach (var item in DeviceCOM.Configuration.Filter.FD)
+                        {
+                            filter1.FD.Add(new FilterFD1 { FN = item.FN, H = item.H, L = item.L });
+                        }
+
+                        rat2 = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(filter1));
+                    }
+
+                    //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
+                    //configurationWrite.Frequency = DeviceCOM.Configuration.Frequency;
+                    //configurationWrite.Filter = DeviceCOM.Configuration.Filter;
+                    //var rat = mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(configurationWrite));
+
+                    if (!rat1 || !rat2)
+                    {
+                        msg = "No response from the system, please reboot the ECT Instrument";
+                    }
+
+                    MessageBox.Show(msg, "Information");
+                }
+                else if (Header == "Batch Wise Log")
+                {
+                    Logs logs = new Logs();
+                    logs.ShowDialog();
+                }
+            }
+        }
+
+        private void freqPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (freqPop.IsSaved)
+            {
+                this.mainWindow.InitialGraphSetting();
+                this.mainWindow.D1Seeting();
+            }
+        }
+        private void attenProp_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //if (attenuationPop.IsSaved)
+            //{
+            //    this.mainWindow.InitialGraphSetting();
+            //    this.mainWindow.D1Seeting();
+            //}
+        }
+        private void markerPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //if (markerPop.IsSaved)
+            //{
+            //    mainWindow.deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));   
+            //}
+        }
+
+    }
 }
