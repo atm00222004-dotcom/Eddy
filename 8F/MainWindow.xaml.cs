@@ -1539,7 +1539,7 @@ namespace _8F
             else
             {
 
-                if (DeviceCOM.IsLogEnable)
+                if (DeviceCOM.IsLogEnable || !DeviceCOM.IsLogRequiredOnBalance)
                 {
                     var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll") || (((Border)sender).Name == "btnBalance2All");
                     var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
@@ -2050,6 +2050,10 @@ namespace _8F
                 lblLog1.Content = "Start Log";
                 lblLog2.Content = "Start Log";
                 lblPartLogs.Content = "";
+                if (DeviceCOM.IsLogRequiredOnBalance)
+                {
+                    ImplementChanges(0);
+                }
             }
             else
             {
@@ -2082,10 +2086,6 @@ namespace _8F
                 lblLog1.Content = "Stop Log";
                 lblLog2.Content = "Stop Log";
                 lblPartLogs.Content = DeviceCOM.part.BatchName + " => " + DeviceCOM.part.Name;
-                if(DeviceCOM.IsLogRequiredOnBalance)
-                {
-                    ImplementChanges(0);
-                }
             }
             else
             {

@@ -174,6 +174,8 @@ namespace _8F
             ddlShift.Text = DeviceCOM.part?.BatchName;
             ddlPartFamily.Text = DeviceCOM.part?.PartFamily;
             ddlPartNumber.Text = DeviceCOM.part?.PartNumber;
+
+            ddlOperator.Text = DeviceCOM.part?.CheckedBy;
         }
 
         private void LoadOperators()
