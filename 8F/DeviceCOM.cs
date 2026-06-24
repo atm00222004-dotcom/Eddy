@@ -55,6 +55,7 @@ namespace _8F
         public static int ERRCode = 0;
         public static string Code;
         public static bool IsJSON = false;
+        public static bool IsLogRequiredOnBalance = false;
         DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;

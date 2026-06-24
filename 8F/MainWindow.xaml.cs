@@ -89,6 +89,7 @@ namespace _8F
 
             WebPage = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["WebPage"]);
             DeviceCOM.IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+            DeviceCOM.IsLogRequiredOnBalance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsLogRequiredOnBalance"]);
             ScreenId = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["ScreenId"]);
             BoxSize1 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize1"]);
             BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize2"]);
@@ -1537,44 +1538,46 @@ namespace _8F
             }
             else
             {
-                //if (DeviceCOM.IsLogEnable)
-                //{
-                //    MessageBox.Show("While logging you can not perform this command, please stop the log.", "Command Conflict");
-                //}
-                //else
-                //{
-                var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll") || (((Border)sender).Name == "btnBalance2All");
-                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
-                int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
-                BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
 
-                bool rat = false;
-                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
-                if (IsJSON)
+                if (DeviceCOM.IsLogEnable)
                 {
-                    rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                    var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll") || (((Border)sender).Name == "btnBalance2All");
+                    var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                    int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
+                    BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
+
+                    bool rat = false;
+                    var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                    if (IsJSON)
+                    {
+                        rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                    }
+                    else
+                    {
+                        byte[] data = new byte[6];
+                        data[0] = Convert.ToByte(2);
+                        data[1] = Convert.ToByte(16);
+                        data[2] = Convert.ToByte(1);
+                        data[3] = Convert.ToByte(ChId);
+
+                        rat = portCOM.WriteDataInBytes(data);
+                    }
+
+                    if (rat)
+                    {
+                        DeviceCOM.IsBalanceAll = IsBalaneAll;
+                        DeviceCOM.IsBalanceBusyEnable = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
+                    }
+                    
                 }
                 else
                 {
-                    byte[] data = new byte[6];
-                    data[0] = Convert.ToByte(2);
-                    data[1] = Convert.ToByte(16);
-                    data[2] = Convert.ToByte(1);
-                    data[3] = Convert.ToByte(ChId);
-
-                    rat = portCOM.WriteDataInBytes(data);
+                    MessageBox.Show("Please start the log before Balance!!", "Command Validation");
                 }
-
-                if (rat)
-                {
-                    DeviceCOM.IsBalanceAll = IsBalaneAll;
-                    DeviceCOM.IsBalanceBusyEnable = true;
-                }
-                else
-                {
-                    MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
-                }
-                //}
             }
 
             lblCode.Content = "";
@@ -2079,6 +2082,10 @@ namespace _8F
                 lblLog1.Content = "Stop Log";
                 lblLog2.Content = "Stop Log";
                 lblPartLogs.Content = DeviceCOM.part.BatchName + " => " + DeviceCOM.part.Name;
+                if(DeviceCOM.IsLogRequiredOnBalance)
+                {
+                    ImplementChanges(0);
+                }
             }
             else
             {
