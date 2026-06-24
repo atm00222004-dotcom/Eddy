@@ -267,7 +267,6 @@ namespace Eddy
         HorizontalLine thresholdLine4;
         HorizontalLine thresholdLine5;
         HorizontalLine thresholdLine6;
-
         public void InitialGraphSetting()
         {
             var limits = new ScottPlot.AxisLimits(0, (DeviceCOM.Configuration.TestTime * DeviceCOM.Configuration.SamplePerSecond), 0, DeviceCOM.Factor);
@@ -366,6 +365,107 @@ namespace Eddy
 
             WpfPlot4.Plot.Grid.LineWidth = 1;
             WpfPlot4.Refresh();
+
+            InitialGraphSettingAPS();
+        }
+        public void InitialGraphSettingAPS()
+        {
+            var limits = new ScottPlot.AxisLimits(0, (DeviceCOM.Configuration.TestTime * DeviceCOM.Configuration.SamplePerSecond), 0, DeviceCOM.Factor);
+            var rule = new ScottPlot.AxisRules.MinimumBoundary(
+                xAxis: WpfPlotA1.Plot.Axes.Bottom,
+                yAxis: WpfPlotA1.Plot.Axes.Left,
+                limits: limits
+            );
+
+            WpfPlotA1.Plot.Axes.Rules.Clear();
+            WpfPlotA1.Plot.Axes.Rules.Add(rule);
+
+            var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 1);
+            myPlot1 = WpfPlotA1.Plot;
+
+            myPlot1.Title("A1 Response(" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")");
+
+            //myPlot1.Grid.XAxis.IsVisible = false;
+            //myPlot1.Grid.XAxis.IsVisible = false;
+
+            myPlot1.Axes.Bottom.IsVisible = false;
+            //myPlot1.Axes.Left.IsVisible = false;
+
+            WpfPlotA1.Plot.FigureBackground.Color = ScottPlot.Colors.DarkGray;  // entire canvas background
+            WpfPlotA1.Plot.DataBackground.Color = ScottPlot.Colors.Black;
+
+            // Set grid line colors
+            WpfPlotA1.Plot.Grid.LineColor = ScottPlot.Colors.Gray;
+            //WpfPlot1.Plot.Grid.IsVisible = false;
+
+            WpfPlotA1.Plot.Axes.Bottom.TickGenerator = new NumericFixedInterval(2000000000); // 10 units
+            WpfPlotA1.Plot.Axes.Top.TickGenerator = new NumericFixedInterval(2000000000); // 10 units
+            WpfPlotA1.Plot.Axes.Left.TickGenerator = new NumericFixedInterval(20);   // 20 units
+            WpfPlotA1.Plot.Grid.LineWidth = 1;
+
+            WpfPlotA1.Refresh();
+
+
+            var limits1 = new ScottPlot.AxisLimits(0, 20, 0, DeviceCOM.Factor);
+            var rule1 = new ScottPlot.AxisRules.MinimumBoundary(
+                xAxis: WpfPlotA1Last.Plot.Axes.Bottom,
+                yAxis: WpfPlotA1Last.Plot.Axes.Left,
+                limits: limits1
+            );
+
+            WpfPlotA1Last.Plot.Axes.Rules.Clear();
+            WpfPlotA1Last.Plot.Axes.Rules.Add(rule1);
+
+            myPlot4 = WpfPlotA1Last.Plot;
+            myPlot4.Title("Last A1  Response(" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")"); ;
+
+            //myPlot4.Grid.XAxis.IsVisible = false;
+            //myPlot4.Grid.XAxis.IsVisible = false;
+
+            logger4 = myPlot4.Add.DataLogger();
+            logger4.LineColor = ScottPlot.Colors.Blue; // Change line color here
+
+
+            myPlot4.Axes.Bottom.IsVisible = false;
+            //myPlot4.Axes.Left.IsVisible = false;
+
+            WpfPlotA1Last.Plot.FigureBackground.Color = ScottPlot.Colors.DarkGray;  // entire canvas background
+            WpfPlotA1Last.Plot.DataBackground.Color = ScottPlot.Colors.Black;
+
+            // Set grid line colors
+            WpfPlotA1Last.Plot.Grid.LineColor = ScottPlot.Colors.Gray;
+
+            WpfPlotA1Last.Plot.Axes.Bottom.TickGenerator = new NumericFixedInterval(2000000000); // 10 units
+            WpfPlotA1Last.Plot.Axes.Top.TickGenerator = new NumericFixedInterval(2000000000); // 10 units
+            WpfPlotA1Last.Plot.Axes.Left.TickGenerator = new NumericFixedInterval(20);   // 20 units
+            //WpfPlot4.Plot.Axes.Bottom.
+
+            if (thresholdLine4 != null)
+            {
+                WpfPlotA1Last.Plot.Remove(thresholdLine4);
+            }
+            thresholdLine4 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.LTH);
+            thresholdLine4.LineWidth = 0.5f;
+            thresholdLine4.Color = ScottPlot.Colors.Orange;
+
+            if (thresholdLine5 != null)
+            {
+                WpfPlotA1Last.Plot.Remove(thresholdLine5);
+            }
+            thresholdLine5 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.UTH);
+            thresholdLine5.LineWidth = 0.5f;
+            thresholdLine5.Color = ScottPlot.Colors.Red;
+
+            if (thresholdLine6 != null)
+            {
+                WpfPlotA1Last.Plot.Remove(thresholdLine6);
+            }
+            thresholdLine6 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.TH);
+            thresholdLine6.LineWidth = 0.5f;
+            thresholdLine6.Color = ScottPlot.Colors.White;
+
+            WpfPlotA1Last.Plot.Grid.LineWidth = 1;
+            WpfPlotA1Last.Refresh();
         }
 
         private void dispatcherTimerui_Tick(object sender, EventArgs e)
@@ -1016,6 +1116,49 @@ namespace Eddy
                 WpfPlot1.Plot.Remove(thresholdLine3);
             }
             thresholdLine3 = WpfPlot1.Plot.Add.HorizontalLine(y: d1.TH);
+            thresholdLine3.LineWidth = 0.5f;
+            thresholdLine3.Color = ScottPlot.Colors.White;
+
+            D1SeetingAPS();
+        }
+
+
+        public void D1SeetingAPS()
+        {
+            //WpfPlot1.Plot.Clear();
+            var limits = new ScottPlot.AxisLimits(0, (DeviceCOM.Configuration.TestTime * DeviceCOM.Configuration.SamplePerSecond), 0, DeviceCOM.Factor);
+            var rule = new ScottPlot.AxisRules.MinimumBoundary(
+                xAxis: WpfPlotA1.Plot.Axes.Bottom,
+                yAxis: WpfPlotA1.Plot.Axes.Left,
+                limits: limits
+            );
+
+            WpfPlotA1.Plot.Axes.Rules.Clear();
+            WpfPlotA1.Plot.Axes.Rules.Add(rule);
+
+            var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 1);
+
+            if (thresholdLine1 != null)
+            {
+                WpfPlotA1.Plot.Remove(thresholdLine1);
+            }
+            thresholdLine1 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.LTH);
+            thresholdLine1.LineWidth = 0.5f;
+            thresholdLine1.Color = ScottPlot.Colors.Orange;
+
+            if (thresholdLine2 != null)
+            {
+                WpfPlotA1.Plot.Remove(thresholdLine2);
+            }
+            thresholdLine2 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.UTH);
+            thresholdLine2.LineWidth = 0.5f;
+            thresholdLine2.Color = ScottPlot.Colors.Red;
+
+            if (thresholdLine3 != null)
+            {
+                WpfPlotA1.Plot.Remove(thresholdLine3);
+            }
+            thresholdLine3 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.TH);
             thresholdLine3.LineWidth = 0.5f;
             thresholdLine3.Color = ScottPlot.Colors.White;
         }
