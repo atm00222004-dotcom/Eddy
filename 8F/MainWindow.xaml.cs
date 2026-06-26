@@ -616,12 +616,17 @@ namespace _8F
             if (DeviceCOM.ERRCode == 16)
             {
                 DeviceCOM.ERRCode = 0;
-                MessageBox.Show("Balance Operation failed, please reboot the board.", "Error Information");
+                MessageBox.Show("Balance Operation failed, please reboot the ECT Instrument.", "Error Information");
             }
             else if (DeviceCOM.ERRCode == 17)
             {
                 DeviceCOM.ERRCode = 0;
-                MessageBox.Show("Test failed, please reconfigure and rebalance the board.", "Error Information");
+                MessageBox.Show("Test failed, please reconfigure and rebalance the ECT Instrument.", "Error Information");
+            }
+            else if (DeviceCOM.ERRCode == 19)
+            {
+                DeviceCOM.ERRCode = 0;
+                MessageBox.Show("Test failed, please reconfigure and rebalance the ECT Instrument.", "Error Information");
             }
 
             try
@@ -1539,44 +1544,37 @@ namespace _8F
             else
             {
 
-                if (DeviceCOM.IsLogEnable || !DeviceCOM.IsLogRequiredOnBalance)
+                var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll") || (((Border)sender).Name == "btnBalance2All");
+                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
+                BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
+
+                bool rat = false;
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                if (IsJSON)
                 {
-                    var IsBalaneAll = (((Border)sender).Name == "btnBalance1All") || (((Border)sender).Name == "btnBalanceAll") || (((Border)sender).Name == "btnBalance2All");
-                    var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
-                    int ChId = IsBalaneAll ? 0 : Convert.ToInt32(SChId);
-                    BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
-
-                    bool rat = false;
-                    var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
-                    if (IsJSON)
-                    {
-                        rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
-                    }
-                    else
-                    {
-                        byte[] data = new byte[6];
-                        data[0] = Convert.ToByte(2);
-                        data[1] = Convert.ToByte(16);
-                        data[2] = Convert.ToByte(1);
-                        data[3] = Convert.ToByte(ChId);
-
-                        rat = portCOM.WriteDataInBytes(data);
-                    }
-
-                    if (rat)
-                    {
-                        DeviceCOM.IsBalanceAll = IsBalaneAll;
-                        DeviceCOM.IsBalanceBusyEnable = true;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
-                    }
-                    
+                    rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
                 }
                 else
                 {
-                    MessageBox.Show("Please start the log before Balance!!", "Command Validation");
+                    byte[] data = new byte[7];
+                    data[0] = Convert.ToByte(2);
+                    data[1] = Convert.ToByte(16);
+                    data[2] = Convert.ToByte(2);
+                    data[3] = Convert.ToByte(ChId);
+                    data[4] = DeviceCOM.IsLogRequiredOnBalance ? (DeviceCOM.IsLogEnable ? Convert.ToByte(1) : Convert.ToByte(2)) : Convert.ToByte(0);
+
+                    rat = portCOM.WriteDataInBytes(data);
+                }
+
+                if (rat)
+                {
+                    DeviceCOM.IsBalanceAll = IsBalaneAll;
+                    DeviceCOM.IsBalanceBusyEnable = true;
+                }
+                else
+                {
+                    MessageBox.Show("Unable to balance due to the error in the communication!", "Error Information");
                 }
             }
 
@@ -2052,7 +2050,26 @@ namespace _8F
                 lblPartLogs.Content = "";
                 if (DeviceCOM.IsLogRequiredOnBalance)
                 {
-                    ImplementChanges(0);
+                    if (DeviceCOM.IsSystemBusy)
+                    {
+                        MessageBox.Show("System is busy so you can not perform this command, please wait...", "System Information");
+                    }
+                    else
+                    {
+
+                        byte[] data = new byte[6];
+                        data[0] = Convert.ToByte(2);
+                        data[1] = Convert.ToByte(19);
+                        data[2] = Convert.ToByte(1);
+                        data[3] = DeviceCOM.IsLogEnable ? Convert.ToByte(1) : Convert.ToByte(2);
+
+                        var rat = portCOM.WriteDataInBytes(data);
+
+                        if (!rat)
+                        {
+                            MessageBox.Show("Log stopped but no response from the ECT Instrument, please reboot it!!!", "System Information");
+                        }
+                    }
                 }
             }
             else
@@ -2062,6 +2079,7 @@ namespace _8F
                 {
                     partConfigReNew = new PartConfigReNew();
                     partConfigReNew.Closing += partConfig_Closing;
+                    partConfigReNew.portCOM = portCOM;
                     partConfigReNew.Owner = this;
                     partConfigReNew.ShowDialog();
                 }
@@ -2385,7 +2403,7 @@ namespace _8F
                             var rat = mainWindow.ImplementChanges(0);
                             if (!rat)
                             {
-                                msg = "No response from the system, please reboot the board";
+                                msg = "No response from the system, please reboot the ECT Instrument";
                             }
 
                             MessageBox.Show(msg, "Information");
@@ -2420,7 +2438,7 @@ namespace _8F
                         var msg = "Channel-1 Configuration copied to others successfully!!";
                         if (!rat)
                         {
-                            msg = "No response from the system, please reboot the board";
+                            msg = "No response from the system, please reboot the ECT Instrument";
                         }
                         MessageBox.Show(msg, "Information");
 
@@ -2538,7 +2556,7 @@ namespace _8F
                                 var rat = mainWindow.ImplementChanges(0);
                                 if (!rat)
                                 {
-                                    var msg = "No response from the system, please reboot the board";
+                                    var msg = "No response from the system, please reboot the ECT Instrument";
                                     MessageBox.Show(msg, "Information");
                                 }
 
@@ -2561,7 +2579,7 @@ namespace _8F
                         var rat = mainWindow.ImplementChanges(0);
                         if (!rat)
                         {
-                            var msg = "No response from the system, please reboot the board";
+                            var msg = "No response from the system, please reboot the ECT Instrument";
                             MessageBox.Show(msg, "Information");
                         }
                         DeviceCOM.IsLogEnable = false;

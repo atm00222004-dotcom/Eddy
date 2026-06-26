@@ -220,7 +220,7 @@ namespace _8F
             }
             else
             {
-                lblMsg.Content = "Configuration Saved but no response from the board, please reboot it and write the configuration again!!!";
+                lblMsg.Content = "Configuration Saved but no response from the ECT Instrument, please reboot it and write the configuration again!!!";
             }
 
         }

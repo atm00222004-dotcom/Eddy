@@ -28,6 +28,7 @@ namespace _8F
         List<Operator> operators;
         List<PartFamily> partFamilies;
         List<PartMaster> parts;
+        public DeviceCOM portCOM;
 
         public PartConfigReNew()
         {
@@ -68,14 +69,46 @@ namespace _8F
 
 
                     //Common fields
-                    DeviceCOM.part.BatchName = ddlShift.Text;     
+                    DeviceCOM.part.BatchName = ddlShift.Text;
                     DeviceCOM.part.Name = ddlPartNumber.Text;
                     DeviceCOM.part.CheckedBy = ddlOperator.Text;
 
+                    if (DeviceCOM.IsLogRequiredOnBalance)
+                    {
 
-                    DeviceCOM.IsLogEnable = true;
-                    IsSaved = true;
-                    lblMsg.Content = "Log has been started!!!";
+                        if (DeviceCOM.IsSystemBusy)
+                        {
+                            msg.Add("System is busy so you can not perform this command, please wait...");
+                            return;
+                        }
+
+                        byte[] data = new byte[6];
+                        data[0] = Convert.ToByte(2);
+                        data[1] = Convert.ToByte(19);
+                        data[2] = Convert.ToByte(1);
+                        data[3] = DeviceCOM.IsLogEnable ? Convert.ToByte(2) : Convert.ToByte(1);
+
+                        var rat = portCOM.WriteDataInBytes(data);
+
+                        if (rat)
+                        {
+                            DeviceCOM.IsLogEnable = true;
+                            IsSaved = true;
+                            lblMsg.Content = "Log has been started!!!";
+                        }
+                        else
+                        {
+                            lblMsg.Content = "Unable to start log becuase no response from the ECT Instrument, please reboot it and start log again!!!";
+                        }
+                    }
+                    else
+                    {
+                        DeviceCOM.IsLogEnable = true;
+                        IsSaved = true;
+                        lblMsg.Content = "Log has been started!!!";
+                    }
+
+                   
                 }
                 else
                 {
