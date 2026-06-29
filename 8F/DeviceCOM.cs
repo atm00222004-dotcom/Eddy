@@ -1342,6 +1342,11 @@ namespace _8F
         public int FailCount { get; set; }
         public int TotalCount { get; set; }
 
+        // IsReNewConfig
+        public DateTime LogDateRaw { get; set; }
+        public string ProductionOrder { get; set; }   
+        public string Date { get; set; }
+
     }
 
     public class LogData1

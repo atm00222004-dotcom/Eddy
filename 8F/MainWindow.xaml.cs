@@ -245,11 +245,17 @@ namespace _8F
                         new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this }
                     }
                 },
-                new MenuItemViewModel { Header = "View Log",
-                        MenuItems = new ObservableCollection<MenuItemViewModel>
+                new MenuItemViewModel
+                {
+                    Header = "View Log",
+                    MenuItems = isRenewConfig? new ObservableCollection<MenuItemViewModel>
                         {
-                            new MenuItemViewModel { Header = "Batch Wise Log", mainWindow =this },
-                            new MenuItemViewModel { Header = "Serial Number Log" ,mainWindow =this },
+                            new MenuItemViewModel { Header = "Batch Wise Log", mainWindow = this }
+                        }
+                        : new ObservableCollection<MenuItemViewModel>
+                        {
+                            new MenuItemViewModel { Header = "Batch Wise Log", mainWindow = this },
+                            new MenuItemViewModel { Header = "Serial Number Log", mainWindow = this }
                         }
                 },
             };
@@ -2344,7 +2350,7 @@ namespace _8F
         public CircleSetting ellipsesPop { get; set; }
         public MainWindow mainWindow { get; set; }
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
-
+        public bool isRenewConfig = Convert.ToBoolean(ConfigurationSettings.AppSettings["isrenewconfig"]);
         public ICommand Command
         {
             get
@@ -2598,8 +2604,16 @@ namespace _8F
                     }
                     else if (Header == "Batch Wise Log")
                     {
-                        Logs logs = new Logs();
-                        logs.ShowDialog();
+                        if (isRenewConfig)
+                        {
+                            RenewBatchWiseLog renewLog = new RenewBatchWiseLog();
+                            renewLog.ShowDialog();
+                        }
+                        else
+                        {
+                            Logs logs = new Logs();
+                            logs.ShowDialog();
+                        }
                     }
                     else if (Header == "Serial Number Log")
                     {
