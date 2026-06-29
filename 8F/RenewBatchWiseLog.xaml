@@ -89,7 +89,7 @@
                 </Border>
 
                 <Border Width="250" Name="btnDownload" Margin="1" MouseDown="btnDownload_MouseDown" Background="#305371" Grid.Column="1" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
-                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Download" ></Label>
+                    <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Download Summary" ></Label>
                 </Border>
 
                 <Border Width="250" Name="btnDownloadPdf" Margin="1" MouseDown="btnDownloadPdf_MouseDown" Background="#305371" Grid.Column="2" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">

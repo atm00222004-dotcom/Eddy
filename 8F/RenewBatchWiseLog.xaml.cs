@@ -330,26 +330,12 @@ namespace _8F
                                             foreach (var group in details.GroupBy(d => BuildSettingsKey(d.FDData, d.PartData)))
                                             {
                                                 List<GraphData> fdList = new();
-
-                                                try
-                                                {
-                                                    fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData);
-                                                }
-                                                catch
-                                                {
-                                                    fdList = new();
-                                                }
+                                                try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData); }
+                                                catch { fdList = new(); }
 
                                                 PartConfiguration part = null;
-
-                                                try
-                                                {
-                                                    part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}");
-                                                }
-                                                catch
-                                                {
-                                                    part = null;
-                                                }
+                                                try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
+                                                catch { part = null; }
 
                                                 batch.Item()
                                                     .BorderTop(1).BorderColor("#E8E8E8")
@@ -441,7 +427,6 @@ namespace _8F
                                                                             r.ConstantItem(10);
                                                                             r.RelativeItem(1).Element(x => LV(x, "Part Number", part?.PartNumber));
                                                                         });
-
                                                                         c.Item().PaddingTop(2).Row(r =>
                                                                         {
                                                                             r.RelativeItem(1).Element(x => LV(x, "Part Family", part?.PartFamily));
@@ -461,7 +446,6 @@ namespace _8F
                                                                             r.ConstantItem(10);
                                                                             r.RelativeItem(1).Element(x => LV(x, "Grade", part?.Grade));
                                                                         });
-
                                                                         c.Item().PaddingTop(2).Row(r =>
                                                                         {
                                                                             r.RelativeItem(1).Element(x => LV(x, "Checked By", part?.CheckedBy));
@@ -472,29 +456,42 @@ namespace _8F
                                                                         });
                                                                     }
                                                                 });
-                                                            });
 
-                                                        int recordIndex = 0;
+                                                                // ---- RESULT RECORDS TABLE ----
+                                                                section.Item().PaddingTop(10).Text("RESULTS").FontSize(8).Bold().FontColor("#0D3B6E");
 
-                                                        foreach (var item in group)
-                                                        {
-                                                            recordIndex++;
-
-                                                            grp.Item()
-                                                                .BorderTop(1).BorderColor("#E8E8E8")
-                                                                .Background(recordIndex % 2 == 0 ? "#FAFAFA" : "#FFFFFF")
-                                                                .Padding(7)
-                                                                .Row(r =>
+                                                                section.Item().PaddingTop(5).Table(resultTable =>
                                                                 {
-                                                                    r.RelativeItem().Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}").FontSize(9).Bold().FontColor("#333333");
+                                                                    resultTable.ColumnsDefinition(cols =>
+                                                                    {
+                                                                        cols.ConstantColumn(35);   // Sr No
+                                                                        cols.RelativeColumn();     // Timestamp
+                                                                        cols.ConstantColumn(55);   // Result
+                                                                    });
 
-                                                                    r.ConstantItem(50).AlignRight()
-                                                                        .Background(item.Result ? "#E8F5E9" : "#FFEBEE")
-                                                                        .Padding(2)
-                                                                        .Text(item.Result ? "PASS" : "FAIL").FontSize(8).Bold()
-                                                                        .FontColor(item.Result ? "#2E7D32" : "#C62828");
+                                                                    resultTable.Header(h =>
+                                                                    {
+                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("Sr No").FontSize(8).Bold().FontColor(Colors.White);
+                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("Timestamp").FontSize(8).Bold().FontColor(Colors.White);
+                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("Result").FontSize(8).Bold().FontColor(Colors.White);
+                                                                    });
+
+                                                                    int recordIndex = 0;
+                                                                    foreach (var item in group)
+                                                                    {
+                                                                        recordIndex++;
+                                                                        string bg = recordIndex % 2 == 0 ? "#FAFAFA" : "#FFFFFF";
+
+                                                                        resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                            .Text(recordIndex.ToString()).FontSize(8).FontColor("#333333");
+                                                                        resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                            .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}").FontSize(8).FontColor("#333333");
+                                                                        resultTable.Cell().Background(item.Result ? "#E8F5E9" : "#FFEBEE").Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                            .Text(item.Result ? "PASS" : "FAIL").FontSize(8).Bold()
+                                                                            .FontColor(item.Result ? "#2E7D32" : "#C62828");
+                                                                    }
                                                                 });
-                                                        }
+                                                            });
                                                     });
                                             }
                                         });
@@ -675,26 +672,12 @@ namespace _8F
                                         foreach (var group in details.GroupBy(d => BuildSettingsKey(d.FDData, d.PartData)))
                                         {
                                             List<GraphData> fdList = new();
-
-                                            try
-                                            {
-                                                fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData);
-                                            }
-                                            catch
-                                            {
-                                                fdList = new();
-                                            }
+                                            try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData); }
+                                            catch { fdList = new(); }
 
                                             PartConfiguration part = null;
-
-                                            try
-                                            {
-                                                part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}");
-                                            }
-                                            catch
-                                            {
-                                                part = null;
-                                            }
+                                            try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
+                                            catch { part = null; }
 
                                             batch.Item()
                                                 .BorderTop(1).BorderColor("#E8E8E8")
@@ -786,7 +769,6 @@ namespace _8F
                                                                         r.ConstantItem(10);
                                                                         r.RelativeItem(1).Element(x => LV(x, "Part Number", part?.PartNumber));
                                                                     });
-
                                                                     c.Item().PaddingTop(2).Row(r =>
                                                                     {
                                                                         r.RelativeItem(1).Element(x => LV(x, "Part Family", part?.PartFamily));
@@ -806,7 +788,6 @@ namespace _8F
                                                                         r.ConstantItem(10);
                                                                         r.RelativeItem(1).Element(x => LV(x, "Grade", part?.Grade));
                                                                     });
-
                                                                     c.Item().PaddingTop(2).Row(r =>
                                                                     {
                                                                         r.RelativeItem(1).Element(x => LV(x, "Checked By", part?.CheckedBy));
@@ -817,29 +798,42 @@ namespace _8F
                                                                     });
                                                                 }
                                                             });
-                                                        });
 
-                                                    int recordIndex = 0;
+                                                            // ---- RESULT RECORDS TABLE ----
+                                                            section.Item().PaddingTop(10).Text("RESULTS").FontSize(8).Bold().FontColor("#0D3B6E");
 
-                                                    foreach (var item in group)
-                                                    {
-                                                        recordIndex++;
-
-                                                        grp.Item()
-                                                            .BorderTop(1).BorderColor("#E8E8E8")
-                                                            .Background(recordIndex % 2 == 0 ? "#FAFAFA" : "#FFFFFF")
-                                                            .Padding(7)
-                                                            .Row(r =>
+                                                            section.Item().PaddingTop(5).Table(resultTable =>
                                                             {
-                                                                r.RelativeItem().Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}").FontSize(9).Bold().FontColor("#333333");
+                                                                resultTable.ColumnsDefinition(cols =>
+                                                                {
+                                                                    cols.ConstantColumn(35);   // Sr No
+                                                                    cols.RelativeColumn();     // Timestamp
+                                                                    cols.ConstantColumn(55);   // Result
+                                                                });
 
-                                                                r.ConstantItem(50).AlignRight()
-                                                                    .Background(item.Result ? "#E8F5E9" : "#FFEBEE")
-                                                                    .Padding(2)
-                                                                    .Text(item.Result ? "PASS" : "FAIL").FontSize(8).Bold()
-                                                                    .FontColor(item.Result ? "#2E7D32" : "#C62828");
+                                                                resultTable.Header(h =>
+                                                                {
+                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("Sr No").FontSize(8).Bold().FontColor(Colors.White);
+                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("Timestamp").FontSize(8).Bold().FontColor(Colors.White);
+                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("Result").FontSize(8).Bold().FontColor(Colors.White);
+                                                                });
+
+                                                                int recordIndex = 0;
+                                                                foreach (var item in group)
+                                                                {
+                                                                    recordIndex++;
+                                                                    string bg = recordIndex % 2 == 0 ? "#FAFAFA" : "#FFFFFF";
+
+                                                                    resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                        .Text(recordIndex.ToString()).FontSize(8).FontColor("#333333");
+                                                                    resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                        .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}").FontSize(8).FontColor("#333333");
+                                                                    resultTable.Cell().Background(item.Result ? "#E8F5E9" : "#FFEBEE").Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                        .Text(item.Result ? "PASS" : "FAIL").FontSize(8).Bold()
+                                                                        .FontColor(item.Result ? "#2E7D32" : "#C62828");
+                                                                }
                                                             });
-                                                    }
+                                                        });
                                                 });
                                         }
                                     });
