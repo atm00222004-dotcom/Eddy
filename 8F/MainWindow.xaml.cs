@@ -2163,11 +2163,12 @@ namespace _8F
                         }
                         else
                         {
-                            byte[] data = new byte[6];
+                            byte[] data = new byte[7];
                             data[0] = Convert.ToByte(2);
                             data[1] = Convert.ToByte(16);
-                            data[2] = Convert.ToByte(1);
+                            data[2] = Convert.ToByte(2);
                             data[3] = Convert.ToByte(0);
+                            data[4] = DeviceCOM.IsLogRequiredOnBalance ? (DeviceCOM.IsLogEnable ? Convert.ToByte(1) : Convert.ToByte(2)) : Convert.ToByte(0);
 
                             rat = portCOM.WriteDataInBytes(data);
                         }

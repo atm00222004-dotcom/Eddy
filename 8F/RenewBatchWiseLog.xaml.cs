@@ -161,7 +161,7 @@ namespace _8F
 
                                     left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes, ImageScaling.FitHeight);
                                     left.ConstantItem(10);
-                                    left.AutoItem().AlignMiddle().Text("SHORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
+                                    left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
                                 });
 
                                 r.ConstantItem(180).AlignRight().AlignBottom()
@@ -288,7 +288,7 @@ namespace _8F
 
                                     left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes, ImageScaling.FitHeight);
                                     left.ConstantItem(10);
-                                    left.AutoItem().AlignMiddle().Text("SHORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
+                                    left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
                                 });
 
                                 r.ConstantItem(180).AlignRight().AlignBottom()
@@ -636,7 +636,7 @@ namespace _8F
 
                                     left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes, ImageScaling.FitHeight);
                                     left.ConstantItem(10);
-                                    left.AutoItem().AlignMiddle().Text("SHORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
+                                    left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
                                 });
 
                                 r.ConstantItem(180).AlignRight().AlignBottom()
@@ -873,19 +873,57 @@ namespace _8F
         {
             try
             {
-                var list = JsonConvert.DeserializeObject<List<GraphData>>(fdData) ?? new List<GraphData>();
                 var sb = new StringBuilder();
-                foreach (var d in list.OrderBy(x => x.Name))
+
+                // ---------- Configuration + Threshold ----------
+                var fdList = JsonConvert.DeserializeObject<List<GraphData>>(fdData) ?? new List<GraphData>();
+
+                foreach (var d in fdList.OrderBy(x => x.Name))
                 {
-                    sb.Append(d.Name).Append('|').Append(d.freq).Append('|').Append(d.gain).Append('|')
-                      .Append(d.phase).Append('|').Append(d.isEnable).Append('|').Append(d.height).Append('|')
-                      .Append(d.width).Append('|').Append(d.ex).Append('|').Append(d.ey).Append('|')
-                      .Append(d.angel).Append(';');
+                    sb.Append(d.Name).Append('|')
+                      .Append(d.freq).Append('|')
+                      .Append(d.gain).Append('|')
+                      .Append(d.phase).Append('|')
+                      .Append(d.isEnable).Append('|')
+                      .Append(Math.Round(d.height, 2)).Append('|')
+                      .Append(Math.Round(d.width, 2)).Append('|')
+                      .Append(Math.Round(d.ex, 2)).Append('|')
+                      .Append(Math.Round(d.ey, 2)).Append('|')
+                      .Append(Math.Round(d.angel, 2)).Append(';');
                 }
-                sb.Append("##PART##").Append(partData ?? "");
+
+                // ---------- Part Configuration ----------
+                var part = JsonConvert.DeserializeObject<PartConfiguration>(partData ?? "{}");
+
+                if (part != null)
+                {
+                    if (IsReNewConfig)
+                    {
+                        sb.Append("##PART##")
+                          .Append(part.ProductionOrder).Append('|')
+                          .Append(part.MachineNumber).Append('|')
+                          .Append(part.PartNumber).Append('|')
+                          .Append(part.PartFamily).Append('|')
+                          .Append(part.BatchName).Append('|')
+                          .Append(part.CheckedBy);
+                    }
+                    else
+                    {
+                        sb.Append("##PART##")
+                          .Append(part.BatchName).Append('|')
+                          .Append(part.Name).Append('|')
+                          .Append(part.Grade).Append('|')
+                          .Append(part.CheckedBy).Append('|')
+                          .Append(part.CompanyName);
+                    }
+                }
+
                 return sb.ToString();
             }
-            catch { return "INVALID_" + (fdData ?? "") + (partData ?? ""); }
+            catch
+            {
+                return Guid.NewGuid().ToString();
+            }
         }
 
         private string SafeFileName(string name)
