@@ -107,6 +107,82 @@ namespace Eddy
             }
         }
 
+        public static ushort ComputeCRC(byte[] data, int length)
+        {
+            ushort crc = 0xFFFF;
+
+            for (int pos = 0; pos < length; pos++)
+            {
+                crc ^= data[pos];
+
+                for (int i = 0; i < 8; i++)
+                {
+                    if ((crc & 0x0001) != 0)
+                    {
+                        crc >>= 1;
+                        crc ^= 0xA001;
+                    }
+                    else
+                    {
+                        crc >>= 1;
+                    }
+                }
+            }
+
+            return crc;
+        }
+        public bool WriteDataInByte(byte[] data)
+        {
+            try
+            {
+                if (!port.IsOpen)
+                {
+                    port.Open();
+                }
+
+                ushort crc = ComputeCRC(data, data.Length-2);
+
+                byte crcLow = (byte)(crc & 0xFF);
+                byte crcHigh = (byte)(crc >> 8);
+
+                data[data.Length - 2] = crcLow;
+                data[data.Length - 1] = crcHigh;
+
+                this.port.Write(data, 0, data.Length);
+
+                int toread = 1;
+                int offset = 0;
+                char[] result = new char[toread];
+                while (toread > 0)
+                {
+                    int r = this.port.Read(result, offset, toread);
+                    offset += r;
+                    toread -= r;
+                }
+
+                if (port.IsOpen)
+                {
+                    port.Close();
+                }
+
+                if (result[0] == '0')
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception e)
+            {
+                if (port.IsOpen)
+                {
+                    port.Close();
+                }
+                return false;
+            }
+        }
+
+
         public bool GetSystemStatus(string data)
         {
             try
@@ -188,6 +264,7 @@ namespace Eddy
         public int C1C2 = 245;
         public int C2E = 1060;
         public int CC2 = 110;
+        public int MABC = 600;
     }
 
     public class FD
@@ -254,6 +331,7 @@ namespace Eddy
     public class Fdata
     {
         public int Amp { get; set; }
+        public int Amp_ABS { get; set; }
         public double x { get; set; }
         public double y { get; set; }
         public int phase { get; set; }

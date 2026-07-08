@@ -1,20 +1,8 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace Eddy
@@ -75,16 +63,14 @@ namespace Eddy
                     //    txtPP2.Text = item.PP.ToString();
                     //    txtPM2.Text = item.PM.ToString();
                     //}
-                    //else if (item.FN == 3)
-                    //{
-                    //    chkD3.IsChecked = Convert.ToBoolean(item.E);
-                    //    txtPhase3.Text = item.F.ToString();
-                    //    txtGain3.Text = item.G.ToString();
-                    //    txtUTH3.Text = item.UTH.ToString();
-                    //    txtLTH3.Text = item.LTH.ToString();
-                    //    txtPP3.Text = item.PP.ToString();
-                    //    txtPM3.Text = item.PM.ToString();
-                    //}
+                    else if (item.FN == 3)
+                    {
+
+                        txtGain2.Text = DeviceCOM.IsAttRequired ? item.G.ToString() : Convert.ToInt32(item.G).ToString();
+                        txtUTH2.Text = item.UTH.ToString();
+                        txtLTH2.Text = item.LTH.ToString();
+                        txtTH2.Text = item.TH.ToString();
+                    }
 
                 }
 
@@ -106,11 +92,11 @@ namespace Eddy
                     //    txtH2.Text = item.H.ToString();
                     //    txtL2.Text = item.L.ToString();
                     //}
-                    //else if (item.FN == 3)
-                    //{
-                    //    txtH3.Text = item.H.ToString();
-                    //    txtL3.Text = item.L.ToString();
-                    //}
+                    else if (item.FN == 3)
+                    {
+                        txtH2.Text = item.H.ToString();
+                        txtL2.Text = item.L.ToString();                       
+                    }
                 }
 
             }
@@ -177,9 +163,9 @@ namespace Eddy
                                 {
                                     item.E = 0;
                                     item.F = Convert.ToInt32(txtPhase1.Text) * 1000;
-                                    item.G = Convert.ToDecimal(txtGain1.Text);
-                                    item.UTH = Convert.ToInt32(txtUTH1.Text);
-                                    item.LTH = Convert.ToInt32(txtLTH1.Text);
+                                    item.G = Convert.ToDecimal(txtGain2.Text);
+                                    item.UTH = Convert.ToInt32(txtUTH2.Text);
+                                    item.LTH = Convert.ToInt32(txtLTH2.Text);
                                     item.PP = Convert.ToInt32(txtPP1.Text);
                                     item.TH = Convert.ToInt32(txtTH1.Text);
 
@@ -212,8 +198,8 @@ namespace Eddy
                                 //}
                                 else if (item.FN == 3)
                                 {
-                                    item.H = Convert.ToInt32(txtH1.Text);
-                                    item.L = Convert.ToInt32(txtL1.Text);
+                                    item.H = Convert.ToInt32(txtH2.Text);
+                                    item.L = Convert.ToInt32(txtL2.Text);
 
                                     item.X = Convert.ToInt32(txtPostAMPX.Text);
                                     item.Y = Convert.ToInt32(txtPostAMPY.Text);
@@ -221,39 +207,72 @@ namespace Eddy
                             }
                         }
 
-                        //DeviceCOM.Configuration.SaveGraphImage = chkSaveGraph.IsChecked == true;
+                        var rat1 = true;
 
-                        var rat1 = false;
+                        byte[] data1 = new byte[50];
+                        data1[0] = Convert.ToByte(2);
+                        data1[1] = Convert.ToByte(57);
+                        data1[2] = Convert.ToByte(45);
+                        data1[3] = Convert.ToByte(1);
+                        data1[4] = Convert.ToByte(1);
+                        data1[5] = Convert.ToByte(2);
 
-                        var rat = false;
-
-                        if (IsEddyAdvance)
+                        int startBytes = 6;
+                        foreach (var fd in DeviceCOM.Configuration.Frequency.FD)
                         {
-                            rat1 = true;
-                            ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
-                            configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
-                            configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
-                            //configurationToWrite.SaveGraphImage = chkSaveGraph.IsChecked == true; 
-                            var data = JsonConvert.SerializeObject(configurationToWrite);
-                            rat = deviceCOM.WriteData(data);
+                            data1[startBytes] = Convert.ToByte(fd.FN);
+
+                            data1[startBytes + 1] = (byte)(fd.F & 0xFF);         // Lowest byte
+                            data1[startBytes + 2] = (byte)((fd.F >> 8) & 0xFF);  // Byte 2
+                            data1[startBytes + 3] = (byte)((fd.F >> 16) & 0xFF); // Byte 3
+                            data1[startBytes + 4] = (byte)((fd.F >> 24) & 0xFF); // Highest byte
+
+                            var gaint = Convert.ToInt16(fd.G * 10);
+                            data1[startBytes + 5] = (byte)(gaint & 0xFF);
+                            data1[startBytes + 6] = (byte)((gaint >> 8) & 0xFF);
+
+                            data1[startBytes + 7] = (byte)(fd.LTH & 0xFF);
+                            data1[startBytes + 8] = (byte)((fd.LTH >> 8) & 0xFF);
+
+                            data1[startBytes + 9] = (byte)(fd.UTH & 0xFF);
+                            data1[startBytes + 10] = (byte)((fd.UTH >> 8) & 0xFF);
+
+                            startBytes = startBytes + 11;
                         }
-                        else
+
+                        foreach (var fd in DeviceCOM.Configuration.Filter.FD)
                         {
+                            data1[startBytes] = Convert.ToByte(fd.FN);
 
-                            rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-                            Filter1 filter1 = new Filter1();
-                            filter1.FD = new List<FilterFD1>();
+                            ushort h = Convert.ToUInt16(fd.H);
+                            ushort l = Convert.ToUInt16(fd.L);
+                            ushort x = Convert.ToUInt16(fd.X);
+                            ushort y = Convert.ToUInt16(fd.Y);
 
-                            foreach (var item in DeviceCOM.Configuration.Filter.FD)
-                            {
-                                filter1.FD.Add(new FilterFD1 { FN = item.FN, H = item.H, L = item.L });
-                            }
+                            // H
+                            data1[startBytes + 1] = (byte)(h & 0xFF);         // Low byte
+                            data1[startBytes + 2] = (byte)((h >> 8) & 0xFF);  // High byte
 
-                            rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(filter1));
+                            // L
+                            data1[startBytes + 3] = (byte)(l & 0xFF);
+                            data1[startBytes + 4] = (byte)((l >> 8) & 0xFF);
+
+                            // X
+                            data1[startBytes + 5] = (byte)(x & 0xFF);
+                            data1[startBytes + 6] = (byte)((x >> 8) & 0xFF);
+
+                            // Y
+                            data1[startBytes + 7] = (byte)(y & 0xFF);
+                            data1[startBytes + 8] = (byte)((y >> 8) & 0xFF);
+
+                            startBytes = startBytes + 9;
                         }
 
+                        data1[startBytes] = Convert.ToByte(DeviceCOM.Configuration.Frequency.FD[0].AT);
 
-                        if (rat && rat1)
+                        rat1 = deviceCOM.WriteDataInByte(data1);
+
+                        if (rat1)
                         {
                             lblMsg.Content = "Configuration Saved!!!";
                         }

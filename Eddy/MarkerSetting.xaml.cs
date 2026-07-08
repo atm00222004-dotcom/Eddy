@@ -1,5 +1,6 @@
 ﻿
 using Newtonsoft.Json;
+using ScottPlot.Interactivity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static QuestPDF.Helpers.Colors;
 
 namespace Eddy
 {
@@ -30,6 +32,16 @@ namespace Eddy
         public MarkerSetting()
         {
             InitializeComponent();
+
+            var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isAbsolute"]);
+
+            if (!isAbsolute)
+            {
+                txtMABS.Visibility = Visibility.Hidden;
+                lblMABS.Visibility = Visibility.Hidden;
+            }
+
+
             IsSaved = false;
             if (DeviceCOM.Configuration.Marker != null)
             {
@@ -43,6 +55,8 @@ namespace Eddy
                 txtC1C2.Text = DeviceCOM.Configuration.Marker.C1C2.ToString();
                 txtC2E.Text = DeviceCOM.Configuration.Marker.C2E.ToString();
                 txtCC2.Text = DeviceCOM.Configuration.Marker.CC2.ToString();
+
+               txtMABS.Text = DeviceCOM.Configuration.Marker.MABC.ToString();
             }
         }
 
@@ -71,7 +85,54 @@ namespace Eddy
                     DeviceCOM.Configuration.Marker.C2E = Convert.ToInt32(txtC2E.Text);
                     DeviceCOM.Configuration.Marker.CC2 = Convert.ToInt32(txtCC2.Text);
 
-                    var rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+                    DeviceCOM.Configuration.Marker.MABC = Convert.ToInt32(txtMABS.Text);
+
+                    var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isAbsolute"]);
+                    var rat = false;
+                    if (isAbsolute)
+                    {
+                        int length = 16;
+                        byte[] data = new byte[23];
+                        data[0] = Convert.ToByte(2);
+                        data[1] = Convert.ToByte(50);
+                        data[2] = Convert.ToByte(18);
+
+                        data[3] = (byte)(DeviceCOM.Configuration.Marker.FmS & 0xFF);
+                        data[4] = (byte)((DeviceCOM.Configuration.Marker.FmS >> 8) & 0xFF);
+
+                        data[5] = (byte)(DeviceCOM.Configuration.Marker.RmS & 0xFF);
+                        data[6] = (byte)((DeviceCOM.Configuration.Marker.RmS >> 8) & 0xFF);
+
+                        data[7] = (byte)(DeviceCOM.Configuration.Marker.M1 & 0xFF);
+                        data[8] = (byte)((DeviceCOM.Configuration.Marker.M1 >> 8) & 0xFF);
+
+                        data[9] = (byte)(DeviceCOM.Configuration.Marker.M2 & 0xFF);
+                        data[10] = (byte)((DeviceCOM.Configuration.Marker.M2 >> 8) & 0xFF);
+
+                        data[11] = (byte)(DeviceCOM.Configuration.Marker.P1mS & 0xFF);
+                        data[12] = (byte)((DeviceCOM.Configuration.Marker.P1mS >> 8) & 0xFF);
+
+                        data[13] = (byte)(DeviceCOM.Configuration.Marker.C1C2 & 0xFF);
+                        data[14] = (byte)((DeviceCOM.Configuration.Marker.C1C2 >> 8) & 0xFF);
+
+                        data[15] = (byte)(DeviceCOM.Configuration.Marker.CC2 & 0xFF);
+                        data[16] = (byte)((DeviceCOM.Configuration.Marker.CC2 >> 8) & 0xFF);
+
+                        data[17] = (byte)(DeviceCOM.Configuration.Marker.C2E & 0xFF);
+                        data[18] = (byte)((DeviceCOM.Configuration.Marker.C2E >> 8) & 0xFF);
+
+                        data[19] = (byte)(DeviceCOM.Configuration.Marker.MABC & 0xFF);
+                        data[20] = (byte)((DeviceCOM.Configuration.Marker.MABC >> 8) & 0xFF);
+
+                        rat = deviceCOM.WriteDataInByte(data);
+                    }
+                    else
+                    {
+                        rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+                    }
+
+                        
+
                     if (rat)
                     {
                         lblMsg.Content = "Configuration Saved!!!";

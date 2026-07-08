@@ -48,12 +48,12 @@ namespace Eddy
         public ObservableCollection<MenuItemViewModel_APS> MenuItems { get; set; }
         SerialPort portR;
         ScottPlot.Plot myPlot1;
-        //ScottPlot.Plot myPlot2;
+        ScottPlot.Plot myPlot2;
         //ScottPlot.Plot myPlot3;
         ScottPlot.Plot myPlot4;
         // setup a logger that will grow as data is added
         DataStreamer logger1;
-        //DataLogger logger2;
+        DataStreamer logger2;
         //DataLogger logger3;
         DataLogger logger4;
         public DeviceCOM deviceCOM;
@@ -132,7 +132,7 @@ namespace Eddy
             DeviceCOM.Configuration.Frequency = new Frequency();
             DeviceCOM.Configuration.Frequency.FD = new List<FD>();
             DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 1 });
-            //DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 2 });
+            DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 3 });
             //DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 2, E = 0 });
             DeviceCOM.Configuration.Filter = new Filter();
             DeviceCOM.Configuration.Filter.FD = new List<FilterFD>();
@@ -172,6 +172,12 @@ namespace Eddy
             //logger1.ViewScrollRight();
             logger1.ViewScrollLeft();
 
+            logger2 = myPlot2.Add.DataStreamer((tt * ss));
+            logger2.LineColor = ScottPlot.Colors.LightBlue; // Change line color here
+
+            //logger1.ViewScrollRight();
+            logger2.ViewScrollLeft();
+
             deviceCOM = new DeviceCOM();
             deviceCOM.InitialPort();
 
@@ -186,29 +192,69 @@ namespace Eddy
             }
 
             deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
-            var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
-            if (IsEddyAdvance)
+
+            byte[] data1 = new byte[50];
+            data1[0] = Convert.ToByte(2);
+            data1[1] = Convert.ToByte(57);
+            data1[2] = Convert.ToByte(45);
+            data1[3] = Convert.ToByte(1);
+            data1[4] = Convert.ToByte(1);
+            data1[5] = Convert.ToByte(2);
+
+            int startBytes = 6;
+            foreach (var fd in DeviceCOM.Configuration.Frequency.FD)
             {
-                ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
-                configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
-                configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
-                deviceCOM.WriteData(JsonConvert.SerializeObject(configurationToWrite));
+                data1[startBytes] = Convert.ToByte(fd.FN);
+
+                data1[startBytes + 1] = (byte)(fd.F & 0xFF);         // Lowest byte
+                data1[startBytes + 2] = (byte)((fd.F >> 8) & 0xFF);  // Byte 2
+                data1[startBytes + 3] = (byte)((fd.F >> 16) & 0xFF); // Byte 3
+                data1[startBytes + 4] = (byte)((fd.F >> 24) & 0xFF); // Highest byte
+
+                var gaint = Convert.ToInt16(fd.G * 10);
+                data1[startBytes + 5] = (byte)(gaint & 0xFF);
+                data1[startBytes + 6] = (byte)((gaint >> 8) & 0xFF);
+
+                data1[startBytes + 7] = (byte)(fd.LTH & 0xFF);
+                data1[startBytes + 8] = (byte)((fd.LTH >> 8) & 0xFF);
+
+                data1[startBytes + 9] = (byte)(fd.UTH & 0xFF);
+                data1[startBytes + 10] = (byte)((fd.UTH >> 8) & 0xFF);
+
+                startBytes = startBytes + 11;
             }
-            else
+
+            foreach (var fd in DeviceCOM.Configuration.Filter.FD)
             {
-                deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
-                Filter1 filter1 = new Filter1();
-                filter1.FD = new List<FilterFD1>();
+                data1[startBytes] = Convert.ToByte(fd.FN);
 
-                foreach (var item in DeviceCOM.Configuration.Filter.FD)
-                {
-                    filter1.FD.Add(new FilterFD1 { FN = item.FN, H = item.H, L = item.L });
-                }
+                ushort h = Convert.ToUInt16(fd.H);
+                ushort l = Convert.ToUInt16(fd.L);
+                ushort x = Convert.ToUInt16(fd.X);
+                ushort y = Convert.ToUInt16(fd.Y);
 
-                deviceCOM.WriteData(JsonConvert.SerializeObject(filter1));
+                // H
+                data1[startBytes + 1] = (byte)(h & 0xFF);         // Low byte
+                data1[startBytes + 2] = (byte)((h >> 8) & 0xFF);  // High byte
 
+                // L
+                data1[startBytes + 3] = (byte)(l & 0xFF);
+                data1[startBytes + 4] = (byte)((l >> 8) & 0xFF);
 
+                // X
+                data1[startBytes + 5] = (byte)(x & 0xFF);
+                data1[startBytes + 6] = (byte)((x >> 8) & 0xFF);
+
+                // Y
+                data1[startBytes + 7] = (byte)(y & 0xFF);
+                data1[startBytes + 8] = (byte)((y >> 8) & 0xFF);
+
+                startBytes = startBytes + 9;
             }
+
+            data1[startBytes] = Convert.ToByte(DeviceCOM.Configuration.Frequency.FD[0].AT);
+
+            deviceCOM.WriteDataInByte(data1);
 
 
             //ConfigurationToWrite configurationWrite = new ConfigurationToWrite();
@@ -280,6 +326,7 @@ namespace Eddy
             WpfPlot1.Plot.Axes.Rules.Add(rule);
 
             var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 1);
+            var a1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 3);
             myPlot1 = WpfPlot1.Plot;
 
             myPlot1.Title("D1 Response(" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")");
@@ -304,7 +351,6 @@ namespace Eddy
 
             WpfPlot1.Refresh();
 
-
             var limits1 = new ScottPlot.AxisLimits(0, 20, 0, DeviceCOM.Factor);
             var rule1 = new ScottPlot.AxisRules.MinimumBoundary(
                 xAxis: WpfPlot4.Plot.Axes.Bottom,
@@ -316,7 +362,7 @@ namespace Eddy
             WpfPlot4.Plot.Axes.Rules.Add(rule1);
 
             myPlot4 = WpfPlot4.Plot;
-            myPlot4.Title("Last D1  Response(" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")"); ;
+            myPlot4.Title("Last D1 (" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ") & A1 (" + a1.G.ToString() +") Response"); 
 
             //myPlot4.Grid.XAxis.IsVisible = false;
             //myPlot4.Grid.XAxis.IsVisible = false;
@@ -380,15 +426,15 @@ namespace Eddy
             WpfPlotA1.Plot.Axes.Rules.Clear();
             WpfPlotA1.Plot.Axes.Rules.Add(rule);
 
-            var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 1);
-            myPlot1 = WpfPlotA1.Plot;
+            var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 3);
+            myPlot2 = WpfPlotA1.Plot;
 
-            myPlot1.Title("A1 Response(" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")");
+            myPlot2.Title("A1 Response(" + d1.G.ToString()+")");
 
             //myPlot1.Grid.XAxis.IsVisible = false;
             //myPlot1.Grid.XAxis.IsVisible = false;
 
-            myPlot1.Axes.Bottom.IsVisible = false;
+            myPlot2.Axes.Bottom.IsVisible = false;
             //myPlot1.Axes.Left.IsVisible = false;
 
             WpfPlotA1.Plot.FigureBackground.Color = ScottPlot.Colors.DarkGray;  // entire canvas background
@@ -405,67 +451,6 @@ namespace Eddy
 
             WpfPlotA1.Refresh();
 
-
-            var limits1 = new ScottPlot.AxisLimits(0, 20, 0, DeviceCOM.Factor);
-            var rule1 = new ScottPlot.AxisRules.MinimumBoundary(
-                xAxis: WpfPlotA1Last.Plot.Axes.Bottom,
-                yAxis: WpfPlotA1Last.Plot.Axes.Left,
-                limits: limits1
-            );
-
-            WpfPlotA1Last.Plot.Axes.Rules.Clear();
-            WpfPlotA1Last.Plot.Axes.Rules.Add(rule1);
-
-            myPlot4 = WpfPlotA1Last.Plot;
-            myPlot4.Title("Last A1  Response(" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")"); ;
-
-            //myPlot4.Grid.XAxis.IsVisible = false;
-            //myPlot4.Grid.XAxis.IsVisible = false;
-
-            logger4 = myPlot4.Add.DataLogger();
-            logger4.LineColor = ScottPlot.Colors.Blue; // Change line color here
-
-
-            myPlot4.Axes.Bottom.IsVisible = false;
-            //myPlot4.Axes.Left.IsVisible = false;
-
-            WpfPlotA1Last.Plot.FigureBackground.Color = ScottPlot.Colors.DarkGray;  // entire canvas background
-            WpfPlotA1Last.Plot.DataBackground.Color = ScottPlot.Colors.Black;
-
-            // Set grid line colors
-            WpfPlotA1Last.Plot.Grid.LineColor = ScottPlot.Colors.Gray;
-
-            WpfPlotA1Last.Plot.Axes.Bottom.TickGenerator = new NumericFixedInterval(2000000000); // 10 units
-            WpfPlotA1Last.Plot.Axes.Top.TickGenerator = new NumericFixedInterval(2000000000); // 10 units
-            WpfPlotA1Last.Plot.Axes.Left.TickGenerator = new NumericFixedInterval(20);   // 20 units
-            //WpfPlot4.Plot.Axes.Bottom.
-
-            if (thresholdLine4 != null)
-            {
-                WpfPlotA1Last.Plot.Remove(thresholdLine4);
-            }
-            thresholdLine4 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.LTH);
-            thresholdLine4.LineWidth = 0.5f;
-            thresholdLine4.Color = ScottPlot.Colors.Orange;
-
-            if (thresholdLine5 != null)
-            {
-                WpfPlotA1Last.Plot.Remove(thresholdLine5);
-            }
-            thresholdLine5 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.UTH);
-            thresholdLine5.LineWidth = 0.5f;
-            thresholdLine5.Color = ScottPlot.Colors.Red;
-
-            if (thresholdLine6 != null)
-            {
-                WpfPlotA1Last.Plot.Remove(thresholdLine6);
-            }
-            thresholdLine6 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.TH);
-            thresholdLine6.LineWidth = 0.5f;
-            thresholdLine6.Color = ScottPlot.Colors.White;
-
-            WpfPlotA1Last.Plot.Grid.LineWidth = 1;
-            WpfPlotA1Last.Refresh();
         }
 
         private void dispatcherTimerui_Tick(object sender, EventArgs e)
@@ -965,6 +950,18 @@ namespace Eddy
                             C2ArrayCompress[i] = indata[fStartIndex2 + i];
                         }
 
+                        // C1 Phase data  
+                        int C3length = indata[fEndIndex2 + 1] + (indata[fEndIndex2 + 2] * 256);
+                        int fStartIndex3 = fEndIndex2 + 3;
+                        int fEndIndex3 = fStartIndex3 + C3length - 1;
+
+                        var C3ArrayCompress = new byte[C3length];
+
+                        for (int i = 0; i < C3length; i++)
+                        {
+                            C3ArrayCompress[i] = indata[fStartIndex3 + i];
+                        }
+
                         Int32 indexTudeState = ((indata[10] + (indata[11] << 8) + (indata[12] << 16) + (indata[13] << 24)) * 2);
                         Int32 indexPrePostState = ((indata[4] + (indata[5] << 8) + (indata[6] << 16) + (indata[7] << 24)) * 2);
                         var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 1);
@@ -975,6 +972,8 @@ namespace Eddy
                             Int32 phase = C2ArrayCompress[i] + (C2ArrayCompress[i + 1] << 8);
                             int rPhase = ((phase + d1.PP) > 360 ? (phase + d1.PP) - 360 : (phase + d1.PP));
                             double phaseRadians = (rPhase) * Math.PI / 180.0;
+
+                            Int32 amp_ABS = C3ArrayCompress[i] + (C3ArrayCompress[i + 1] << 8);
 
                             // Calculate Cartesian coordinates
                             double x = (amp * Math.Cos(phaseRadians));
@@ -1003,19 +1002,19 @@ namespace Eddy
                                 {
                                     if (i >= indexPrePostState)
                                     {
-                                        DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, phase = rPhase, x = x, y = y, IsMarked = IsMark });
+                                        DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, Amp_ABS = amp_ABS, phase = rPhase, x = x, y = y, IsMarked = IsMark });
                                     }
                                 }
                                 else if (startIndex == 6)
                                 {
                                     if (i <= indexPrePostState)
                                     {
-                                        DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, phase = phase, x = x, y = y, IsMarked = IsMark });
+                                        DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, Amp_ABS = amp_ABS, phase = phase, x = x, y = y, IsMarked = IsMark });
                                     }
                                 }
                                 else if (startIndex == 2)
                                 {
-                                    DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, phase = phase, x = x, y = y, IsMarked = IsMark });
+                                    DeviceCOM.graphData.AmpD1.Add(new Fdata() { Amp = amp, Amp_ABS = amp_ABS, phase = phase, x = x, y = y, IsMarked = IsMark });
                                 }
                             }
 
@@ -1025,9 +1024,18 @@ namespace Eddy
                                 AmpF = ((DeviceCOM.Factor * amp) / DeviceCOM.MaxValue);
                             }
 
+                            var AmpF_ABS = 0;
+                            if (amp_ABS != 0)
+                            {
+                                AmpF_ABS = ((DeviceCOM.Factor * amp_ABS) / DeviceCOM.MaxValue);
+                            }
+
                             logger1.Add(AmpF);
 
+                            logger2.Add(AmpF_ABS);
+
                             WpfPlot1.Refresh();
+                            WpfPlotA1.Refresh();
                         }
 
 
@@ -1252,9 +1260,14 @@ namespace Eddy
                 MessageBox.Show("The tube/calibration is in progress, no calibration are allowed!", "Information");
             }
             else
-            {
-                Status status = new Status() { FC = 61 };
-                deviceCOM.WriteData(JsonConvert.SerializeObject(status));
+            {               
+                byte[] data = new byte[6];
+                data[0] = Convert.ToByte(2);
+                data[1] = Convert.ToByte(61);
+                data[2] = Convert.ToByte(1);
+                data[3] = Convert.ToByte(1);
+
+                deviceCOM.WriteDataInByte(data);
             }
         }
     }
