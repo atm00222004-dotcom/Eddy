@@ -137,7 +137,7 @@ namespace Eddy
             DeviceCOM.Configuration.Filter = new Filter();
             DeviceCOM.Configuration.Filter.FD = new List<FilterFD>();
             DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 1 });
-            //DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 2 });
+            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 3 });
 
             DeviceCOM.BaudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             DeviceCOM.PortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
@@ -191,9 +191,43 @@ namespace Eddy
                 ddlTT.SelectedIndex = tt - 1;
             }
 
-            deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+            //deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
 
-            byte[] data1 = new byte[50];
+            byte[] data = new byte[23];
+            data[0] = Convert.ToByte(2);
+            data[1] = Convert.ToByte(50);
+            data[2] = Convert.ToByte(18);
+
+            data[3] = (byte)(DeviceCOM.Configuration.Marker.FmS & 0xFF);
+            data[4] = (byte)((DeviceCOM.Configuration.Marker.FmS >> 8) & 0xFF);
+
+            data[5] = (byte)(DeviceCOM.Configuration.Marker.RmS & 0xFF);
+            data[6] = (byte)((DeviceCOM.Configuration.Marker.RmS >> 8) & 0xFF);
+
+            data[7] = (byte)(DeviceCOM.Configuration.Marker.M1 & 0xFF);
+            data[8] = (byte)((DeviceCOM.Configuration.Marker.M1 >> 8) & 0xFF);
+
+            data[9] = (byte)(DeviceCOM.Configuration.Marker.M2 & 0xFF);
+            data[10] = (byte)((DeviceCOM.Configuration.Marker.M2 >> 8) & 0xFF);
+
+            data[11] = (byte)(DeviceCOM.Configuration.Marker.P1mS & 0xFF);
+            data[12] = (byte)((DeviceCOM.Configuration.Marker.P1mS >> 8) & 0xFF);
+
+            data[13] = (byte)(DeviceCOM.Configuration.Marker.C1C2 & 0xFF);
+            data[14] = (byte)((DeviceCOM.Configuration.Marker.C1C2 >> 8) & 0xFF);
+
+            data[15] = (byte)(DeviceCOM.Configuration.Marker.CC2 & 0xFF);
+            data[16] = (byte)((DeviceCOM.Configuration.Marker.CC2 >> 8) & 0xFF);
+
+            data[17] = (byte)(DeviceCOM.Configuration.Marker.C2E & 0xFF);
+            data[18] = (byte)((DeviceCOM.Configuration.Marker.C2E >> 8) & 0xFF);
+
+            data[19] = (byte)(DeviceCOM.Configuration.Marker.MABC & 0xFF);
+            data[20] = (byte)((DeviceCOM.Configuration.Marker.MABC >> 8) & 0xFF);
+
+            deviceCOM.WriteDataInByte(data);
+
+            byte[] data1 = new byte[49];
             data1[0] = Convert.ToByte(2);
             data1[1] = Convert.ToByte(57);
             data1[2] = Convert.ToByte(45);
@@ -251,8 +285,8 @@ namespace Eddy
 
                 startBytes = startBytes + 9;
             }
-
-            data1[startBytes] = Convert.ToByte(DeviceCOM.Configuration.Frequency.FD[0].AT);
+            data1[startBytes] = (byte)DeviceCOM.Configuration.Frequency.FD[0].AT;
+            //data1[startBytes] = Convert.ToByte(DeviceCOM.Configuration.Frequency.FD[0].AT);
 
             deviceCOM.WriteDataInByte(data1);
 
@@ -362,7 +396,7 @@ namespace Eddy
             WpfPlot4.Plot.Axes.Rules.Add(rule1);
 
             myPlot4 = WpfPlot4.Plot;
-            myPlot4.Title("Last D1 (" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ") & A1 (" + a1.G.ToString() +") Response"); 
+            myPlot4.Title("Last D1 Response (" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")"); 
 
             //myPlot4.Grid.XAxis.IsVisible = false;
             //myPlot4.Grid.XAxis.IsVisible = false;
@@ -950,9 +984,9 @@ namespace Eddy
                             C2ArrayCompress[i] = indata[fStartIndex2 + i];
                         }
 
-                        // C1 Phase data  
-                        int C3length = indata[fEndIndex2 + 1] + (indata[fEndIndex2 + 2] * 256);
-                        int fStartIndex3 = fEndIndex2 + 3;
+                        // A1 Phase data  
+                        int C3length = indata[fEndIndex2 + 2] + (indata[fEndIndex2 + 3] * 256);
+                        int fStartIndex3 = fEndIndex2 + 4;
                         int fEndIndex3 = fStartIndex3 + C3length - 1;
 
                         var C3ArrayCompress = new byte[C3length];
@@ -1063,7 +1097,7 @@ namespace Eddy
                         {
                             DeviceCOM.IsTubeSatart = false;
                             //btnTestStatus.Background = new SolidColorBrush(Colors.Gray);
-                            if (indata[8] == 0 || indata[8] == 1)
+                            if (indata[8] == 0 || indata[8] == 1 || indata[8] == 2)
                             {
                                 resultStatus = string.Empty;
                                 StopTude(indata[8] == 0);

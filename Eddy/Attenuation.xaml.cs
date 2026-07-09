@@ -96,7 +96,7 @@ namespace Eddy
 
                         var rat1 = true;
 
-                        byte[] data1 = new byte[50];
+                        byte[] data1 = new byte[49];
                         data1[0] = Convert.ToByte(2);
                         data1[1] = Convert.ToByte(57);
                         data1[2] = Convert.ToByte(45);
@@ -155,7 +155,7 @@ namespace Eddy
                             startBytes = startBytes + 9;
                         }
 
-                        data1[startBytes] = Convert.ToByte(DeviceCOM.Configuration.Frequency.FD[0].AT);
+                        data1[startBytes] = (byte)DeviceCOM.Configuration.Frequency.FD[0].AT;
 
                         rat1 = deviceCOM.WriteDataInByte(data1);
 

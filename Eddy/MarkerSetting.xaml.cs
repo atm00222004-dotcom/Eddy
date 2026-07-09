@@ -91,7 +91,6 @@ namespace Eddy
                     var rat = false;
                     if (isAbsolute)
                     {
-                        int length = 16;
                         byte[] data = new byte[23];
                         data[0] = Convert.ToByte(2);
                         data[1] = Convert.ToByte(50);

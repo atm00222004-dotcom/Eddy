@@ -132,12 +132,12 @@ namespace Eddy
             DeviceCOM.Configuration.Frequency = new Frequency();
             DeviceCOM.Configuration.Frequency.FD = new List<FD>();
             DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 1 });
-            //DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 2 });
+            DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 3 });
             //DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 2, E = 0 });
             DeviceCOM.Configuration.Filter = new Filter();
             DeviceCOM.Configuration.Filter.FD = new List<FilterFD>();
             DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 1 });
-            //DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 2 });
+            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 3 });
 
             DeviceCOM.BaudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             DeviceCOM.PortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
