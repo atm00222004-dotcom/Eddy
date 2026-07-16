@@ -1083,6 +1083,8 @@ namespace _8F
     public class CordinateQueue
     {
         public List<Cordinate> cordinates { get; set; }
+        public bool IsRelevant { get; set; }
+        public int Action { get; set; }
     }
 
     public class FrequencyWrite

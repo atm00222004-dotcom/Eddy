@@ -51,11 +51,13 @@ namespace Eddy
         ScottPlot.Plot myPlot2;
         //ScottPlot.Plot myPlot3;
         ScottPlot.Plot myPlot4;
+        ScottPlot.Plot myPlotA1Last;
         // setup a logger that will grow as data is added
         DataStreamer logger1;
         DataStreamer logger2;
         //DataLogger logger3;
         DataLogger logger4;
+        DataLogger loggerA1Last;
         public DeviceCOM deviceCOM;
         public string filename { get; set; }
 
@@ -347,6 +349,10 @@ namespace Eddy
         HorizontalLine thresholdLine4;
         HorizontalLine thresholdLine5;
         HorizontalLine thresholdLine6;
+
+        HorizontalLine thresholdLine7;
+        HorizontalLine thresholdLine8;
+        HorizontalLine thresholdLine9;
         public void InitialGraphSetting()
         {
             var limits = new ScottPlot.AxisLimits(0, (DeviceCOM.Configuration.TestTime * DeviceCOM.Configuration.SamplePerSecond), 0, DeviceCOM.Factor);
@@ -396,7 +402,7 @@ namespace Eddy
             WpfPlot4.Plot.Axes.Rules.Add(rule1);
 
             myPlot4 = WpfPlot4.Plot;
-            myPlot4.Title("Last D1 Response (" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")"); 
+            myPlot4.Title("Last D1 Response (" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")");
 
             //myPlot4.Grid.XAxis.IsVisible = false;
             //myPlot4.Grid.XAxis.IsVisible = false;
@@ -463,7 +469,7 @@ namespace Eddy
             var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(f => f.FN == 3);
             myPlot2 = WpfPlotA1.Plot;
 
-            myPlot2.Title("A1 Response(" + d1.G.ToString()+")");
+            myPlot2.Title("A1 Response(" + d1.G.ToString() + ")");
 
             //myPlot1.Grid.XAxis.IsVisible = false;
             //myPlot1.Grid.XAxis.IsVisible = false;
@@ -484,6 +490,68 @@ namespace Eddy
             WpfPlotA1.Plot.Grid.LineWidth = 1;
 
             WpfPlotA1.Refresh();
+
+
+            var limits1 = new ScottPlot.AxisLimits(0, 20, 0, DeviceCOM.Factor);
+            var rule1 = new ScottPlot.AxisRules.MinimumBoundary(
+                xAxis: WpfPlotA1Last.Plot.Axes.Bottom,
+                yAxis: WpfPlotA1Last.Plot.Axes.Left,
+                limits: limits1
+            );
+
+            WpfPlotA1Last.Plot.Axes.Rules.Clear();
+            WpfPlotA1Last.Plot.Axes.Rules.Add(rule1);
+
+            myPlotA1Last = WpfPlotA1Last.Plot;
+            myPlotA1Last.Title("Last A1 Response (" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")");
+
+            //myPlot4.Grid.XAxis.IsVisible = false;
+            //myPlot4.Grid.XAxis.IsVisible = false;
+
+            loggerA1Last = myPlotA1Last.Add.DataLogger();
+            loggerA1Last.LineColor = ScottPlot.Colors.Blue; // Change line color here
+
+
+            myPlotA1Last.Axes.Bottom.IsVisible = false;
+            //myPlot4.Axes.Left.IsVisible = false;
+
+            WpfPlotA1Last.Plot.FigureBackground.Color = ScottPlot.Colors.DarkGray;  // entire canvas background
+            WpfPlotA1Last.Plot.DataBackground.Color = ScottPlot.Colors.Black;
+
+            // Set grid line colors
+            WpfPlotA1Last.Plot.Grid.LineColor = ScottPlot.Colors.Gray;
+
+            WpfPlotA1Last.Plot.Axes.Bottom.TickGenerator = new NumericFixedInterval(2000000000); // 10 units
+            WpfPlotA1Last.Plot.Axes.Top.TickGenerator = new NumericFixedInterval(2000000000); // 10 units
+            WpfPlotA1Last.Plot.Axes.Left.TickGenerator = new NumericFixedInterval(20);   // 20 units
+            //WpfPlotA1Last.Plot.Axes.Bottom.
+
+            if (thresholdLine7 != null)
+            {
+                WpfPlotA1Last.Plot.Remove(thresholdLine7);
+            }
+            thresholdLine7 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.LTH);
+            thresholdLine7.LineWidth = 0.5f;
+            thresholdLine7.Color = ScottPlot.Colors.Orange;
+
+            if (thresholdLine8 != null)
+            {
+                WpfPlotA1Last.Plot.Remove(thresholdLine8);
+            }
+            thresholdLine8 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.UTH);
+            thresholdLine8.LineWidth = 0.5f;
+            thresholdLine8.Color = ScottPlot.Colors.Red;
+
+            if (thresholdLine9 != null)
+            {
+                WpfPlotA1Last.Plot.Remove(thresholdLine9);
+            }
+            thresholdLine9 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.TH);
+            thresholdLine9.LineWidth = 0.5f;
+            thresholdLine9.Color = ScottPlot.Colors.White;
+
+            WpfPlotA1Last.Plot.Grid.LineWidth = 1;
+            WpfPlotA1Last.Refresh();
 
         }
 
@@ -568,6 +636,10 @@ namespace Eddy
                 logger4 = myPlot4.Add.DataLogger();
                 logger4.Clear();
 
+                myPlotA1Last.Clear();
+                loggerA1Last = myPlotA1Last.Add.DataLogger();
+                loggerA1Last.Clear();
+
                 DeviceCOM.graphData.Result = result;
                 var Ld = DeviceCOM.graphData.AmpD1.ToList();
                 string ImageName = Guid.NewGuid().ToString() + ".jpeg";
@@ -615,88 +687,9 @@ namespace Eddy
                     }
                 }
 
-                var limits = new ScottPlot.AxisLimits(0, Ld.Count + 5, 0, DeviceCOM.Factor);
-                var rule = new ScottPlot.AxisRules.MinimumBoundary(
-                    xAxis: WpfPlot4.Plot.Axes.Bottom,
-                    yAxis: WpfPlot4.Plot.Axes.Left,
-                    limits: limits
-                );
+                LastGraph(Ld);
 
-                WpfPlot4.Plot.Axes.Rules.Clear();
-                WpfPlot4.Plot.Axes.Rules.Add(rule);
-
-                var t = Ld.Count - 1;
-                for (var i = 0; i <= t; i++)
-                {
-                    var d = Ld[i];
-                    //}
-                    //foreach (var d in Ld)
-                    //{
-                    var AmpF = 0;
-                    if (d.Amp != 0)
-                    {
-                        AmpF = (DeviceCOM.Factor * d.Amp) / DeviceCOM.MaxValue;
-                    }
-
-
-                    var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 1);
-
-                    if (thresholdLine4 != null)
-                    {
-                        WpfPlot4.Plot.Remove(thresholdLine4);
-                    }
-                    thresholdLine4 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.LTH);
-                    thresholdLine4.LineWidth = 0.5f;
-                    thresholdLine4.Color = ScottPlot.Colors.Orange;
-
-                    if (thresholdLine5 != null)
-                    {
-                        WpfPlot4.Plot.Remove(thresholdLine5);
-                    }
-                    thresholdLine5 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.UTH);
-                    thresholdLine5.LineWidth = 0.5f;
-                    thresholdLine5.Color = ScottPlot.Colors.Red;
-
-                    if (thresholdLine6 != null)
-                    {
-                        WpfPlot4.Plot.Remove(thresholdLine6);
-                    }
-                    thresholdLine6 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.TH);
-                    thresholdLine6.LineWidth = 0.5f;
-                    thresholdLine6.Color = ScottPlot.Colors.White;
-
-                    logger4.Add(AmpF);
-
-                    //if (d.IsMarked)
-                    //{
-                    //    int index = Ld.IndexOf(d);
-                    //    var thresholdLine10 = WpfPlot4.Plot.Add.VerticalLine(x: index);
-                    //    thresholdLine10.LineWidth = 1.5f;
-                    //    thresholdLine10.Color = ScottPlot.Colors.Red;
-                    //}
-                }
-
-
-                var d2 = Ld.FirstOrDefault(d => d.IsMarked);
-                if (d2 != null)
-                {
-                    int index = Ld.IndexOf(d2);
-
-                    var thresholdLine10 = WpfPlot4.Plot.Add.VerticalLine(x: index);
-                    thresholdLine10.LineWidth = 1.5f;
-                    thresholdLine10.Color = ScottPlot.Colors.Red;
-                }
-
-                var d3 = Ld.LastOrDefault(d => d.IsMarked);
-                if (d3 != null)
-                {
-                    int index = Ld.IndexOf(d3);
-                    var thresholdLine10 = WpfPlot4.Plot.Add.VerticalLine(x: index);
-                    thresholdLine10.LineWidth = 1.5f;
-                    thresholdLine10.Color = ScottPlot.Colors.Red;
-                }
-
-                WpfPlot4.Refresh();
+                //LastGraphA1(Ld);
 
                 if (result)
                 {
@@ -758,6 +751,229 @@ namespace Eddy
             {
 
             }
+        }
+
+        private void LastGraph(List<Fdata> Ld)
+        {
+            var limits = new ScottPlot.AxisLimits(0, Ld.Count + 5, 0, DeviceCOM.Factor);
+            var rule = new ScottPlot.AxisRules.MinimumBoundary(
+                xAxis: WpfPlot4.Plot.Axes.Bottom,
+                yAxis: WpfPlot4.Plot.Axes.Left,
+                limits: limits
+            );
+
+            WpfPlot4.Plot.Axes.Rules.Clear();
+            WpfPlot4.Plot.Axes.Rules.Add(rule);
+
+            var limits1 = new ScottPlot.AxisLimits(0, Ld.Count + 5, 0, DeviceCOM.Factor);
+            var rule1 = new ScottPlot.AxisRules.MinimumBoundary(
+                xAxis: WpfPlotA1Last.Plot.Axes.Bottom,
+                yAxis: WpfPlotA1Last.Plot.Axes.Left,
+                limits: limits1
+            );
+
+            WpfPlotA1Last.Plot.Axes.Rules.Clear();
+            WpfPlotA1Last.Plot.Axes.Rules.Add(rule1);
+
+            var t = Ld.Count - 1;
+            for (var i = 0; i <= t; i++)
+            {
+                var d = Ld[i];
+
+                var AmpF = 0;
+                if (d.Amp != 0)
+                {
+                    AmpF = (DeviceCOM.Factor * d.Amp) / DeviceCOM.MaxValue;
+                }
+
+
+                var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 1);
+
+                if (thresholdLine4 != null)
+                {
+                    WpfPlot4.Plot.Remove(thresholdLine4);
+                }
+                thresholdLine4 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.LTH);
+                thresholdLine4.LineWidth = 0.5f;
+                thresholdLine4.Color = ScottPlot.Colors.Orange;
+
+                if (thresholdLine5 != null)
+                {
+                    WpfPlot4.Plot.Remove(thresholdLine5);
+                }
+                thresholdLine5 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.UTH);
+                thresholdLine5.LineWidth = 0.5f;
+                thresholdLine5.Color = ScottPlot.Colors.Red;
+
+                if (thresholdLine6 != null)
+                {
+                    WpfPlot4.Plot.Remove(thresholdLine6);
+                }
+                thresholdLine6 = WpfPlot4.Plot.Add.HorizontalLine(y: d1.TH);
+                thresholdLine6.LineWidth = 0.5f;
+                thresholdLine6.Color = ScottPlot.Colors.White;
+
+                logger4.Add(AmpF);
+
+
+                var AmpFA1 = 0;
+                if (d.Amp_ABS != 0)
+                {
+                    AmpFA1 = (DeviceCOM.Factor * d.Amp_ABS) / DeviceCOM.MaxValue;
+                }
+
+
+                var d5 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 3);
+
+                if (thresholdLine7 != null)
+                {
+                    WpfPlotA1Last.Plot.Remove(thresholdLine7);
+                }
+                thresholdLine7 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d5.LTH);
+                thresholdLine7.LineWidth = 0.5f;
+                thresholdLine7.Color = ScottPlot.Colors.Orange;
+
+                if (thresholdLine8 != null)
+                {
+                    WpfPlotA1Last.Plot.Remove(thresholdLine8);
+                }
+                thresholdLine8 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d5.UTH);
+                thresholdLine8.LineWidth = 0.5f;
+                thresholdLine8.Color = ScottPlot.Colors.Red;
+
+                if (thresholdLine9 != null)
+                {
+                    WpfPlotA1Last.Plot.Remove(thresholdLine9);
+                }
+                thresholdLine9 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d5.TH);
+                thresholdLine9.LineWidth = 0.5f;
+                thresholdLine9.Color = ScottPlot.Colors.White;
+
+                loggerA1Last.Add(AmpFA1);
+            }
+
+
+            var d2 = Ld.FirstOrDefault(d => d.IsMarked);
+            if (d2 != null)
+            {
+                int index = Ld.IndexOf(d2);
+
+                var thresholdLine10 = WpfPlot4.Plot.Add.VerticalLine(x: index);
+                thresholdLine10.LineWidth = 1.5f;
+                thresholdLine10.Color = ScottPlot.Colors.Red;
+            }
+
+            var d3 = Ld.LastOrDefault(d => d.IsMarked);
+            if (d3 != null)
+            {
+                int index = Ld.IndexOf(d3);
+                var thresholdLine10 = WpfPlot4.Plot.Add.VerticalLine(x: index);
+                thresholdLine10.LineWidth = 1.5f;
+                thresholdLine10.Color = ScottPlot.Colors.Red;
+            }
+
+
+
+            if (d2 != null)
+            {
+                int index = Ld.IndexOf(d2);
+
+                var thresholdLine10 = WpfPlotA1Last.Plot.Add.VerticalLine(x: index);
+                thresholdLine10.LineWidth = 1.5f;
+                thresholdLine10.Color = ScottPlot.Colors.Red;
+            }
+
+            if (d3 != null)
+            {
+                int index = Ld.IndexOf(d3);
+                var thresholdLine10 = WpfPlotA1Last.Plot.Add.VerticalLine(x: index);
+                thresholdLine10.LineWidth = 1.5f;
+                thresholdLine10.Color = ScottPlot.Colors.Red;
+            }
+
+
+            WpfPlot4.Refresh();
+            WpfPlotA1Last.Refresh();
+
+
+        }
+
+        private void LastGraphA1(List<Fdata> Ld)
+        {
+            var limits = new ScottPlot.AxisLimits(0, Ld.Count + 5, 0, DeviceCOM.Factor);
+            var rule = new ScottPlot.AxisRules.MinimumBoundary(
+                xAxis: WpfPlotA1Last.Plot.Axes.Bottom,
+                yAxis: WpfPlotA1Last.Plot.Axes.Left,
+                limits: limits
+            );
+
+            WpfPlotA1Last.Plot.Axes.Rules.Clear();
+            WpfPlotA1Last.Plot.Axes.Rules.Add(rule);
+
+            var t = Ld.Count - 1;
+            for (var i = 0; i <= t; i++)
+            {
+                var d = Ld[i];
+                //}
+                //foreach (var d in Ld)
+                //{
+                var AmpF = 0;
+                if (d.Amp != 0)
+                {
+                    AmpF = (DeviceCOM.Factor * d.Amp_ABS) / DeviceCOM.MaxValue;
+                }
+
+
+                var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 3);
+
+                if (thresholdLine7 != null)
+                {
+                    WpfPlotA1Last.Plot.Remove(thresholdLine7);
+                }
+                thresholdLine7 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.LTH);
+                thresholdLine7.LineWidth = 0.5f;
+                thresholdLine7.Color = ScottPlot.Colors.Orange;
+
+                if (thresholdLine8 != null)
+                {
+                    WpfPlotA1Last.Plot.Remove(thresholdLine8);
+                }
+                thresholdLine8 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.UTH);
+                thresholdLine8.LineWidth = 0.5f;
+                thresholdLine8.Color = ScottPlot.Colors.Red;
+
+                if (thresholdLine9 != null)
+                {
+                    WpfPlotA1Last.Plot.Remove(thresholdLine9);
+                }
+                thresholdLine9 = WpfPlotA1Last.Plot.Add.HorizontalLine(y: d1.TH);
+                thresholdLine9.LineWidth = 0.5f;
+                thresholdLine9.Color = ScottPlot.Colors.White;
+
+                loggerA1Last.Add(AmpF);
+            }
+
+
+            var d2 = Ld.FirstOrDefault(d => d.IsMarked);
+            if (d2 != null)
+            {
+                int index = Ld.IndexOf(d2);
+
+                var thresholdLine10 = WpfPlotA1Last.Plot.Add.VerticalLine(x: index);
+                thresholdLine10.LineWidth = 1.5f;
+                thresholdLine10.Color = ScottPlot.Colors.Red;
+            }
+
+            var d3 = Ld.LastOrDefault(d => d.IsMarked);
+            if (d3 != null)
+            {
+                int index = Ld.IndexOf(d3);
+                var thresholdLine10 = WpfPlotA1Last.Plot.Add.VerticalLine(x: index);
+                thresholdLine10.LineWidth = 1.5f;
+                thresholdLine10.Color = ScottPlot.Colors.Red;
+            }
+
+            WpfPlotA1Last.Refresh();
         }
 
         private void UIUpdates()
@@ -1122,6 +1338,10 @@ namespace Eddy
         HorizontalLine thresholdLine1;
         HorizontalLine thresholdLine2;
         HorizontalLine thresholdLine3;
+
+        HorizontalLine thresholdLine21;
+        HorizontalLine thresholdLine22;
+        HorizontalLine thresholdLine23;
         public void D1Seeting()
         {
             //WpfPlot1.Plot.Clear();
@@ -1178,31 +1398,31 @@ namespace Eddy
             WpfPlotA1.Plot.Axes.Rules.Clear();
             WpfPlotA1.Plot.Axes.Rules.Add(rule);
 
-            var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 1);
+            var d1 = DeviceCOM.Configuration.Frequency.FD.FirstOrDefault(d => d.FN == 3);
 
-            if (thresholdLine1 != null)
+            if (thresholdLine21 != null)
             {
-                WpfPlotA1.Plot.Remove(thresholdLine1);
+                WpfPlotA1.Plot.Remove(thresholdLine21);
             }
-            thresholdLine1 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.LTH);
-            thresholdLine1.LineWidth = 0.5f;
-            thresholdLine1.Color = ScottPlot.Colors.Orange;
+            thresholdLine21 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.LTH);
+            thresholdLine21.LineWidth = 0.5f;
+            thresholdLine21.Color = ScottPlot.Colors.Orange;
 
-            if (thresholdLine2 != null)
+            if (thresholdLine22 != null)
             {
-                WpfPlotA1.Plot.Remove(thresholdLine2);
+                WpfPlotA1.Plot.Remove(thresholdLine22);
             }
-            thresholdLine2 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.UTH);
-            thresholdLine2.LineWidth = 0.5f;
-            thresholdLine2.Color = ScottPlot.Colors.Red;
+            thresholdLine22 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.UTH);
+            thresholdLine22.LineWidth = 0.5f;
+            thresholdLine22.Color = ScottPlot.Colors.Red;
 
-            if (thresholdLine3 != null)
+            if (thresholdLine23 != null)
             {
-                WpfPlotA1.Plot.Remove(thresholdLine3);
+                WpfPlotA1.Plot.Remove(thresholdLine23);
             }
-            thresholdLine3 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.TH);
-            thresholdLine3.LineWidth = 0.5f;
-            thresholdLine3.Color = ScottPlot.Colors.White;
+            thresholdLine23 = WpfPlotA1.Plot.Add.HorizontalLine(y: d1.TH);
+            thresholdLine23.LineWidth = 0.5f;
+            thresholdLine23.Color = ScottPlot.Colors.White;
         }
 
         private void ProcessPortData(string indata)
@@ -1294,14 +1514,38 @@ namespace Eddy
                 MessageBox.Show("The tube/calibration is in progress, no calibration are allowed!", "Information");
             }
             else
-            {               
+            {
                 byte[] data = new byte[6];
                 data[0] = Convert.ToByte(2);
                 data[1] = Convert.ToByte(61);
                 data[2] = Convert.ToByte(1);
                 data[3] = Convert.ToByte(1);
 
-                deviceCOM.WriteDataInByte(data);
+                if (!deviceCOM.WriteDataInByte(data))
+                {
+                    MessageBox.Show("Tno response from the ECT Instrument, please reboot it and try again!!!", "Information");
+                }
+            }
+        }
+
+        private void btnCalibration_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (DeviceCOM.IsTubeSatart || DeviceCOM.IsCalibarationStart)
+            {
+                MessageBox.Show("The tube/calibration is in progress, no calibration are allowed!", "Information");
+            }
+            else
+            {
+                byte[] data = new byte[6];
+                data[0] = Convert.ToByte(2);
+                data[1] = Convert.ToByte(58);
+                data[2] = Convert.ToByte(1);
+                data[3] = Convert.ToByte(1);
+
+                if (!deviceCOM.WriteDataInByte(data))
+                {
+                    MessageBox.Show("Tno response from the ECT Instrument, please reboot it and try again!!!", "Information");
+                }
             }
         }
     }

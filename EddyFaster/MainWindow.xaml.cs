@@ -153,7 +153,7 @@ namespace _8F
             dispatcherTimerClear = new DispatcherTimer();
             dispatcherTimerClear.Tick += new EventHandler(dispatcherTimerClear_Tick);
             dispatcherTimerClear.Interval = TimeSpan.FromMilliseconds(FrameRetenTimeInMS);
-            dispatcherTimerClear.Start();
+            //dispatcherTimerClear.Start();
 
             Status status = new Status() { FC = 23 };
             bool rat = false;
@@ -253,9 +253,10 @@ namespace _8F
                 List<Cordinate> cordinates = new List<Cordinate>();
 
                 // Sample count (little-endian)
-                int noOfSample = BitConverter.ToUInt16(indata, 1);
+                int action = indata[1];
+                int noOfSample = BitConverter.ToUInt16(indata, 2);
 
-                int offset = 3;
+                int offset = 4;
 
                 for (int i = 0; i < noOfSample; i++)
                 {
@@ -286,21 +287,42 @@ namespace _8F
                 if (cordinates.Count == 0)
                     return;
 
-                dispatcherTimerClear.Stop();
-                dispatcherTimerClear.Start();
+                //dispatcherTimerClear.Stop();
+                //dispatcherTimerClear.Start();
 
+                // If Receive Start Index 
+                if (action == 1)
+                {
+                    DeviceCOM.cordinateQueue.Clear();
+                }
+
+                DeviceCOM.cordinateQueue.RemoveAll(d => !d.IsRelevant);
+
+                if (action == 3)
+                {
+                   
+                }
+
+                // Only add between start and end index. 
+                //if (action == 1 || action == 3)
+                //{
+                //    // Add to queue
+                //    DeviceCOM.cordinateQueue.Add(
+                //        new CordinateQueue() { cordinates = cordinates, IsRelevant = true, Action = action }
+                //    );
+                //}
                 DeviceCOM.cordinateQueue.Add(
-                    new CordinateQueue() { cordinates = cordinates }
+                    new CordinateQueue() { cordinates = cordinates, IsRelevant = (action == 1 || action == 2 || action == 3), Action = action }
                 );
 
                 // Keep only last 10 batches
-                if (DeviceCOM.cordinateQueue.Count > FrameReten)
-                {
-                    DeviceCOM.cordinateQueue.RemoveRange(
-                        0,
-                        DeviceCOM.cordinateQueue.Count - FrameReten
-                    );
-                }
+                //if (DeviceCOM.cordinateQueue.Count > FrameReten)
+                //{
+                //    DeviceCOM.cordinateQueue.RemoveRange(
+                //        0,
+                //        DeviceCOM.cordinateQueue.Count - FrameReten
+                //    );
+                //}
 
                 DeviceCOM.IsResponseRefreshRequired = true;
             }
@@ -372,7 +394,7 @@ namespace _8F
             //    CheckSerailNumber();
             //}
 
-            cn2.Children.Clear();
+           
 
             if (DeviceCOM.IsSystemBusy)
             {
@@ -392,6 +414,7 @@ namespace _8F
 
             if (DeviceCOM.IsResponseRefreshRequired)
             {
+                cn2.Children.Clear();
                 RefreshResponse();
 
                 var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
@@ -642,11 +665,10 @@ namespace _8F
                     {
                         if (ch.IsSeleted == true)
                         {
-                            
 
-                            if (_mode.M == 1)
+                            if (_mode.M == 1 && graphData.Id == 1)
                             {
-                                _mode.OE = new OuterElliplse { a = graphData.height_O, b = graphData.width_O, t = graphData.angel_O };
+                                _mode.OE = new OuterElliplse { a = graphData.height_O, b = graphData.width_O, t = 0, s = graphData.angel_O, ns = graphData.NG };
                             }                            
 
                             // Gdata.isEnable enable/disable the frequency graph                             
@@ -701,11 +723,10 @@ namespace _8F
                         }
                         else
                         {
-
-                            byte[] data2 = new byte[12];
+                            byte[] data2 = new byte[16];
                             data2[0] = Convert.ToByte(2);
                             data2[1] = Convert.ToByte(2);
-                            data2[2] = Convert.ToByte(7);
+                            data2[2] = Convert.ToByte(11);
                             data2[3] = Convert.ToByte(1);
 
                             data2[4] = (byte)(Convert.ToInt16(_mode.OE.a) & 0xFF);        // Low byte
@@ -717,8 +738,16 @@ namespace _8F
                             data2[8] = (byte)(Convert.ToInt16(_mode.OE.t) & 0xFF);
                             data2[9] = (byte)((Convert.ToInt16(_mode.OE.t) >> 8) & 0xFF);
 
+                            data2[10] = (byte)(Convert.ToInt16(_mode.OE.s) & 0xFF);
+                            data2[11] = (byte)((Convert.ToInt16(_mode.OE.s) >> 8) & 0xFF);
+
+                            data2[12] = (byte)(Convert.ToInt16(_mode.OE.ns) & 0xFF);
+                            data2[13] = (byte)((Convert.ToInt16(_mode.OE.ns) >> 8) & 0xFF);
+
+
                             portCOM.WriteDataInBytes(data2);
 
+                            System.Threading.Thread.Sleep(500);
                             int length = (frequencyWrite.FD.Count * 10) + 6;
                             byte[] data = new byte[length];
                             data[0] = Convert.ToByte(2);
@@ -1106,7 +1135,7 @@ namespace _8F
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             var IsClearAll = (((Border)sender).Name == "btnClear1All") || (((Border)sender).Name == "btnClearAll") || (((Border)sender).Name == "btnClear2All");
-            ClearGraphDataWithoutBalance(IsClearAll);;
+            ClearGraphDataWithoutBalance(IsClearAll);
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -1156,6 +1185,7 @@ namespace _8F
                     DeviceCOM.responses.AddRange(balaceData);
                 }
             }
+            DeviceCOM.cordinateQueue.Clear();
             DeviceCOM.IsResponseRefreshRequired = true;
         }
         public void ClearGraphData(bool IsDataClear = true)

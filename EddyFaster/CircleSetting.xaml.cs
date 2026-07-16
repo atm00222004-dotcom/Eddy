@@ -145,7 +145,7 @@ namespace _8F
              Gdata.width_O =Convert.ToInt64(txtWidth.Text);
              Gdata.height_O = Convert.ToInt64(txtWidth.Text);
              Gdata.angel_O = Convert.ToInt64(txtAngel.Text);
-            Gdata.NG = Convert.ToInt64(txtNGSolenoid.Text);
+             Gdata.NG = Convert.ToInt64(txtNGSolenoid.Text);
 
 
             ellipseWrite.FD.Add(frequ);
