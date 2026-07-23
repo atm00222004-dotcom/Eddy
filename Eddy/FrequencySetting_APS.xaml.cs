@@ -94,7 +94,7 @@ namespace Eddy
                     //}
                     else if (item.FN == 3)
                     {
-                        txtH2.Text = item.H.ToString();
+                        txtH2.Text = item.G.ToString(); // 
                         txtL2.Text = item.L.ToString();                       
                     }
                 }
@@ -198,7 +198,7 @@ namespace Eddy
                                 //}
                                 else if (item.FN == 3)
                                 {
-                                    item.H = Convert.ToInt32(txtH2.Text);
+                                    item.G = Convert.ToDecimal(txtH2.Text);
                                     item.L = Convert.ToInt32(txtL2.Text);
 
                                     item.X = Convert.ToInt32(txtPostAMPX.Text);
@@ -244,7 +244,9 @@ namespace Eddy
                         {
                             data1[startBytes] = Convert.ToByte(fd.FN);
 
-                            ushort h = Convert.ToUInt16(fd.H);
+                            var gaint = Convert.ToInt16(fd.G * 10);
+
+                            ushort h = (fd.FN ==1? Convert.ToUInt16(fd.H): Convert.ToUInt16(gaint));
                             ushort l = Convert.ToUInt16(fd.L);
                             ushort x = Convert.ToUInt16(fd.X);
                             ushort y = Convert.ToUInt16(fd.Y);

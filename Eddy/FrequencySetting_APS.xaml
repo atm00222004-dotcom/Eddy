@@ -128,8 +128,8 @@
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="1" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="5" Name="txtTH2" />
 
 
-                <Label Content="High Pass Filter" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
-                <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="0" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="3" Name="txtH2" />
+                <Label Content="Post Gain(dB)" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="2"></Label>
+                <TextBox  Grid.Row="0" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="3" Name="txtH2" />
 
                 <Label Content="Low Pass Filter" FontSize="16" FontWeight="Bold" Grid.Row="0" Grid.Column="4"></Label>
                 <TextBox PreviewTextInput="PreviewTextInput_NumericOnly" Grid.Row="0" Margin="0,0,20,0" FontSize="16"  VerticalAlignment="top"  Grid.Column="5" Name="txtL2" />

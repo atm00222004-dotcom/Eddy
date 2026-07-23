@@ -145,6 +145,7 @@ namespace Eddy
             DeviceCOM.PortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
 
             DeviceCOM.MaxValue = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["MaxValue"]);
+            DeviceCOM.MaxValueABS = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["MaxValueABS"]);
             DeviceCOM.Factor = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
             DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["DBConnection"]);
 
@@ -264,7 +265,9 @@ namespace Eddy
             {
                 data1[startBytes] = Convert.ToByte(fd.FN);
 
-                ushort h = Convert.ToUInt16(fd.H);
+                var gaint = Convert.ToInt16(fd.G * 10);
+
+                ushort h = (fd.FN == 1 ? Convert.ToUInt16(fd.H) : Convert.ToUInt16(gaint));
                 ushort l = Convert.ToUInt16(fd.L);
                 ushort x = Convert.ToUInt16(fd.X);
                 ushort y = Convert.ToUInt16(fd.Y);
@@ -503,7 +506,7 @@ namespace Eddy
             WpfPlotA1Last.Plot.Axes.Rules.Add(rule1);
 
             myPlotA1Last = WpfPlotA1Last.Plot;
-            myPlotA1Last.Title("Last A1 Response (" + d1.F.ToString() + "," + d1.G.ToString() + "," + d1.PP.ToString() + ")");
+            myPlotA1Last.Title("Last A1 Response (" +  d1.G.ToString()  + ")");
 
             //myPlot4.Grid.XAxis.IsVisible = false;
             //myPlot4.Grid.XAxis.IsVisible = false;
@@ -819,7 +822,7 @@ namespace Eddy
                 var AmpFA1 = 0;
                 if (d.Amp_ABS != 0)
                 {
-                    AmpFA1 = (DeviceCOM.Factor * d.Amp_ABS) / DeviceCOM.MaxValue;
+                    AmpFA1 = (DeviceCOM.Factor * d.Amp_ABS) / DeviceCOM.MaxValueABS;
                 }
 
 
@@ -920,7 +923,7 @@ namespace Eddy
                 var AmpF = 0;
                 if (d.Amp != 0)
                 {
-                    AmpF = (DeviceCOM.Factor * d.Amp_ABS) / DeviceCOM.MaxValue;
+                    AmpF = (DeviceCOM.Factor * d.Amp_ABS) / DeviceCOM.MaxValueABS;
                 }
 
 
@@ -1277,7 +1280,7 @@ namespace Eddy
                             var AmpF_ABS = 0;
                             if (amp_ABS != 0)
                             {
-                                AmpF_ABS = ((DeviceCOM.Factor * amp_ABS) / DeviceCOM.MaxValue);
+                                AmpF_ABS = ((DeviceCOM.Factor * amp_ABS) / DeviceCOM.MaxValueABS);
                             }
 
                             logger1.Add(AmpF);

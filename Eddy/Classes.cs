@@ -308,7 +308,9 @@ namespace Eddy
                             {
                                 data1[startBytes] = Convert.ToByte(fd.FN);
 
-                                ushort h = Convert.ToUInt16(fd.H);
+                                var gaint = Convert.ToInt16(fd.G * 10);
+
+                                ushort h = (fd.FN == 1 ? Convert.ToUInt16(fd.H) : Convert.ToUInt16(gaint));
                                 ushort l = Convert.ToUInt16(fd.L);
                                 ushort x = Convert.ToUInt16(fd.X);
                                 ushort y = Convert.ToUInt16(fd.Y);
@@ -643,7 +645,9 @@ namespace Eddy
                             {
                                 data1[startBytes] = Convert.ToByte(fd.FN);
 
-                                ushort h = Convert.ToUInt16(fd.H);
+                                var gaint = Convert.ToInt16(fd.G * 10);
+
+                                ushort h = (fd.FN == 1 ? Convert.ToUInt16(fd.H) : Convert.ToUInt16(gaint));
                                 ushort l = Convert.ToUInt16(fd.L);
                                 ushort x = Convert.ToUInt16(fd.X);
                                 ushort y = Convert.ToUInt16(fd.Y);

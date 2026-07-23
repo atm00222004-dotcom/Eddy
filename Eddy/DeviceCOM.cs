@@ -34,6 +34,7 @@ namespace Eddy
         public static string DBConnection;
         public static int BaudRate;
         public static int MaxValue;
+        public static int MaxValueABS;
         public static int Factor;
         public static Configuration Configuration;
         public static bool IsTubeSatart = false;
@@ -283,6 +284,7 @@ namespace Eddy
     {
         public int FN = 0;
         public int H = 10;
+        public decimal G = 30;
         public int L = 100;
         public int X = 10;
         public int Y = 10;
