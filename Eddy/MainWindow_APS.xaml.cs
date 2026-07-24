@@ -186,7 +186,11 @@ namespace Eddy
 
             if (System.IO.File.Exists("Config.txt"))
             {
-                DeviceCOM.Configuration = JsonConvert.DeserializeObject<Configuration>(System.IO.File.ReadAllText("Config.txt"));
+                var config = JsonConvert.DeserializeObject<Configuration>(System.IO.File.ReadAllText("Config.txt"));
+                if (DeviceCOM.Configuration.Frequency.FD.Count == config.Frequency.FD.Count)
+                {
+                    DeviceCOM.Configuration = config;
+                }
                 ddlTT.SelectedIndex = DeviceCOM.Configuration.TestTime - 1;
             }
             else

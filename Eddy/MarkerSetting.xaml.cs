@@ -89,7 +89,7 @@ namespace Eddy
 
                     var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isAbsolute"]);
                     var rat = false;
-                    if (isAbsolute)
+                    if (isAbsolute || !DeviceCOM.IsJSON)
                     {
                         byte[] data = new byte[23];
                         data[0] = Convert.ToByte(2);

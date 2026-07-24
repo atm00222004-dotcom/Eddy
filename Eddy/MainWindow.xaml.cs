@@ -78,7 +78,7 @@ namespace Eddy
             //DeviceCOM.Ok = 100;
             //DeviceCOM.NoOk = 200;
             DeviceCOM.IsAttRequired = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsAttRequired"]);
-
+            DeviceCOM.IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
                 new MenuItemViewModel { Header = "File",
@@ -132,12 +132,12 @@ namespace Eddy
             DeviceCOM.Configuration.Frequency = new Frequency();
             DeviceCOM.Configuration.Frequency.FD = new List<FD>();
             DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 1 });
-            DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 3 });
+            //DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 3 });
             //DeviceCOM.Configuration.Frequency.FD.Add(new FD() { FN = 2, E = 0 });
             DeviceCOM.Configuration.Filter = new Filter();
             DeviceCOM.Configuration.Filter.FD = new List<FilterFD>();
             DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 1 });
-            DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 3 });
+            //DeviceCOM.Configuration.Filter.FD.Add(new FilterFD() { FN = 3 });
 
             DeviceCOM.BaudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
             DeviceCOM.PortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
@@ -177,7 +177,11 @@ namespace Eddy
 
             if (System.IO.File.Exists("Config.txt"))
             {
-                DeviceCOM.Configuration = JsonConvert.DeserializeObject<Configuration>(System.IO.File.ReadAllText("Config.txt"));
+                var config = JsonConvert.DeserializeObject<Configuration>(System.IO.File.ReadAllText("Config.txt"));
+                if (DeviceCOM.Configuration.Frequency.FD.Count == config.Frequency.FD.Count)
+                {
+                    DeviceCOM.Configuration = config;
+                }
                 ddlTT.SelectedIndex = DeviceCOM.Configuration.TestTime - 1;
             }
             else
@@ -185,14 +189,121 @@ namespace Eddy
                 ddlTT.SelectedIndex = tt - 1;
             }
 
-            deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+            
+
             var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
             if (IsEddyAdvance)
             {
-                ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
-                configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
-                configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
-                deviceCOM.WriteData(JsonConvert.SerializeObject(configurationToWrite));
+                if (DeviceCOM.IsJSON)
+                {
+                    deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+
+                    ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
+                    configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
+                    configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
+                    deviceCOM.WriteData(JsonConvert.SerializeObject(configurationToWrite));
+                }
+                else
+                {
+                    byte[] data = new byte[23];
+                    data[0] = Convert.ToByte(2);
+                    data[1] = Convert.ToByte(50);
+                    data[2] = Convert.ToByte(18);
+
+                    data[3] = (byte)(DeviceCOM.Configuration.Marker.FmS & 0xFF);
+                    data[4] = (byte)((DeviceCOM.Configuration.Marker.FmS >> 8) & 0xFF);
+
+                    data[5] = (byte)(DeviceCOM.Configuration.Marker.RmS & 0xFF);
+                    data[6] = (byte)((DeviceCOM.Configuration.Marker.RmS >> 8) & 0xFF);
+
+                    data[7] = (byte)(DeviceCOM.Configuration.Marker.M1 & 0xFF);
+                    data[8] = (byte)((DeviceCOM.Configuration.Marker.M1 >> 8) & 0xFF);
+
+                    data[9] = (byte)(DeviceCOM.Configuration.Marker.M2 & 0xFF);
+                    data[10] = (byte)((DeviceCOM.Configuration.Marker.M2 >> 8) & 0xFF);
+
+                    data[11] = (byte)(DeviceCOM.Configuration.Marker.P1mS & 0xFF);
+                    data[12] = (byte)((DeviceCOM.Configuration.Marker.P1mS >> 8) & 0xFF);
+
+                    data[13] = (byte)(DeviceCOM.Configuration.Marker.C1C2 & 0xFF);
+                    data[14] = (byte)((DeviceCOM.Configuration.Marker.C1C2 >> 8) & 0xFF);
+
+                    data[15] = (byte)(DeviceCOM.Configuration.Marker.CC2 & 0xFF);
+                    data[16] = (byte)((DeviceCOM.Configuration.Marker.CC2 >> 8) & 0xFF);
+
+                    data[17] = (byte)(DeviceCOM.Configuration.Marker.C2E & 0xFF);
+                    data[18] = (byte)((DeviceCOM.Configuration.Marker.C2E >> 8) & 0xFF);
+
+                    data[19] = (byte)(DeviceCOM.Configuration.Marker.MABC & 0xFF);
+                    data[20] = (byte)((DeviceCOM.Configuration.Marker.MABC >> 8) & 0xFF);
+
+                    deviceCOM.WriteDataInByte(data);
+
+                    byte[] data1 = new byte[29];
+                    data1[0] = Convert.ToByte(2);
+                    data1[1] = Convert.ToByte(57);
+                    data1[2] = Convert.ToByte(24);
+                    data1[3] = Convert.ToByte(1);
+                    data1[4] = Convert.ToByte(0);
+                    data1[5] = Convert.ToByte(1);
+
+                    int startBytes = 6;
+                    foreach (var fd in DeviceCOM.Configuration.Frequency.FD)
+                    {
+                        data1[startBytes] = Convert.ToByte(fd.FN);
+
+                        data1[startBytes + 1] = (byte)(fd.F & 0xFF);         // Lowest byte
+                        data1[startBytes + 2] = (byte)((fd.F >> 8) & 0xFF);  // Byte 2
+                        data1[startBytes + 3] = (byte)((fd.F >> 16) & 0xFF); // Byte 3
+                        data1[startBytes + 4] = (byte)((fd.F >> 24) & 0xFF); // Highest byte
+
+                        var gaint = Convert.ToInt16(fd.G * 10);
+                        data1[startBytes + 5] = (byte)(gaint & 0xFF);
+                        data1[startBytes + 6] = (byte)((gaint >> 8) & 0xFF);
+
+                        data1[startBytes + 7] = (byte)(fd.LTH & 0xFF);
+                        data1[startBytes + 8] = (byte)((fd.LTH >> 8) & 0xFF);
+
+                        data1[startBytes + 9] = (byte)(fd.UTH & 0xFF);
+                        data1[startBytes + 10] = (byte)((fd.UTH >> 8) & 0xFF);
+
+                        startBytes = startBytes + 11;
+                    }
+
+                    foreach (var fd in DeviceCOM.Configuration.Filter.FD)
+                    {
+                        data1[startBytes] = Convert.ToByte(fd.FN);
+
+                        var gaint = Convert.ToInt16(fd.G * 10);
+
+                        ushort h = (fd.FN == 1 ? Convert.ToUInt16(fd.H) : Convert.ToUInt16(gaint));
+                        ushort l = Convert.ToUInt16(fd.L);
+                        ushort x = Convert.ToUInt16(fd.X);
+                        ushort y = Convert.ToUInt16(fd.Y);
+
+                        // H
+                        data1[startBytes + 1] = (byte)(h & 0xFF);         // Low byte
+                        data1[startBytes + 2] = (byte)((h >> 8) & 0xFF);  // High byte
+
+                        // L
+                        data1[startBytes + 3] = (byte)(l & 0xFF);
+                        data1[startBytes + 4] = (byte)((l >> 8) & 0xFF);
+
+                        // X
+                        data1[startBytes + 5] = (byte)(x & 0xFF);
+                        data1[startBytes + 6] = (byte)((x >> 8) & 0xFF);
+
+                        // Y
+                        data1[startBytes + 7] = (byte)(y & 0xFF);
+                        data1[startBytes + 8] = (byte)((y >> 8) & 0xFF);
+
+                        startBytes = startBytes + 9;
+                    }
+
+                    data1[startBytes] = (byte)DeviceCOM.Configuration.Frequency.FD[0].AT;
+
+                    deviceCOM.WriteDataInByte(data1);
+                }
             }
             else
             {

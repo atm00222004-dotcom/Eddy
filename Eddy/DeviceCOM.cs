@@ -41,6 +41,7 @@ namespace Eddy
         public static GraphData graphData;
         public static bool IsTestOn = false;
         public static bool IsAttRequired = false;
+        public static bool IsJSON = false;
         public static DateTime busyStamp = System.DateTime.Now;
         public static Part part;
         public static bool IsLogEnable = false;

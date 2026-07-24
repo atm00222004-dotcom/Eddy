@@ -267,19 +267,25 @@ namespace Eddy
                     var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
                     if (IsEddyAdvance)
                     {
-                        rat1 = true;
+                        rat1 = true;                        
 
-                        var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isAbsolute"]);
-
-                        if (isAbsolute)
+                        if (DeviceCOM.IsJSON)
                         {
-                            byte[] data1 = new byte[50];
+                            ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
+                            configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
+                            configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
+                            var data = JsonConvert.SerializeObject(configurationToWrite);
+                            rat2 = mainWindow.deviceCOM.WriteData(data);
+                        }
+                        else 
+                        { 
+                            byte[] data1 = new byte[29];
                             data1[0] = Convert.ToByte(2);
                             data1[1] = Convert.ToByte(57);
-                            data1[2] = Convert.ToByte(45);
+                            data1[2] = Convert.ToByte(24);
                             data1[3] = Convert.ToByte(1);
-                            data1[4] = Convert.ToByte(1);
-                            data1[5] = Convert.ToByte(2);
+                            data1[4] = Convert.ToByte(0);
+                            data1[5] = Convert.ToByte(1);
 
                             int startBytes = 6;
                             foreach (var fd in DeviceCOM.Configuration.Frequency.FD)
@@ -338,14 +344,8 @@ namespace Eddy
 
                             rat2 = mainWindow.deviceCOM.WriteDataInByte(data1);
                         }
-                        else
-                        {
-                            ConfigurationToWrite configurationToWrite = new ConfigurationToWrite();
-                            configurationToWrite.FQ = DeviceCOM.Configuration.Frequency.FD;
-                            configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
-                            var data = JsonConvert.SerializeObject(configurationToWrite);
-                            rat2 = mainWindow.deviceCOM.WriteData(data);
-                        }
+                        
+                        
                     }
                     else
                     {
@@ -610,7 +610,7 @@ namespace Eddy
 
                         if (isAbsolute)
                         {
-                            byte[] data1 = new byte[50];
+                            byte[] data1 = new byte[49];
                             data1[0] = Convert.ToByte(2);
                             data1[1] = Convert.ToByte(57);
                             data1[2] = Convert.ToByte(45);
