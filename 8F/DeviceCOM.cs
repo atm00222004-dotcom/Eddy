@@ -1051,6 +1051,7 @@ namespace _8F
         public string Name { get; set; } = "D";
         public int freq { get; set; } = 400;
         public int gain { get; set; } = 10;
+        public int txStrength { get; set; } = 100;
         public int phase { get; set; } = 0;
         public bool isEnable { get; set; } = true;
         public double height = DeviceCOM.DefaultHeight;
@@ -1117,6 +1118,7 @@ namespace _8F
         public int G;
         public int P;
         public int E;
+        public int T;
         
     }
     public class Frequ

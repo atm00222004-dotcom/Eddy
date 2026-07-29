@@ -28,11 +28,14 @@ namespace _8F
         public DeviceCOM portCOM;
         private DispatcherTimer clearLabelTimer;
         private List<GraphData> tempList;
+        private bool isTxStrengthEnabled;
+
         public Freq()
         {
             InitializeComponent();
 
-
+            isTxStrengthEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsTxStrengthEnable"]);
+            colTxStrength.Visibility = isTxStrengthEnabled ? Visibility.Visible : Visibility.Collapsed;
 
             var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
             if (selectedChannel != null && selectedChannel.graphDatas != null)
@@ -45,7 +48,8 @@ namespace _8F
                     freq = x.freq,
                     gain = x.gain,
                     phase = x.phase,
-                    isEnable = x.isEnable
+                    isEnable = x.isEnable,
+                    txStrength = x.txStrength == 0 ? 100 : x.txStrength // default 100
                 }).ToList();
 
                 gdFreq.ItemsSource = tempList;
@@ -94,7 +98,8 @@ namespace _8F
                             F = Gdata.freq,
                             G = Gdata.gain,
                             P = Gdata.phase,
-                            E = Gdata.isEnable ? 1 : 0
+                            E = Gdata.isEnable ? 1 : 0,
+                            T = Gdata.txStrength,
                         };
 
                         frequencyWrite.FD.Add(frequency);
@@ -109,11 +114,13 @@ namespace _8F
                     }
                     else
                     {
-                        int length = (frequencyWrite.FD.Count * 10) + 6;
+                        //int length = (frequencyWrite.FD.Count * 10) + 6;
+                        int length = (frequencyWrite.FD.Count * (isTxStrengthEnabled ? 11 : 10)) + 6;
                         byte[] data = new byte[length];
                         data[0] = Convert.ToByte(2);
                         data[1] = Convert.ToByte(4);
-                        data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
+                        //data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
+                        data[2] = Convert.ToByte((frequencyWrite.FD.Count * (isTxStrengthEnabled ? 11 : 10)) + 1);
                         data[3] = Convert.ToByte(ch.Id);
                         int startB = 4;
                         foreach (var kvp in frequencyWrite.FD)
@@ -133,7 +140,14 @@ namespace _8F
 
                             data[startB + 9] = (byte)(kvp.E);
 
-                            startB = startB + 10;
+                            if(isTxStrengthEnabled)
+                            {
+                                data[startB + 10] = (byte)(kvp.T);
+
+                            }
+
+                            //startB = startB + 10;
+                            startB = startB + (isTxStrengthEnabled ? 11 : 10);
                         }
 
                         rat = portCOM.WriteDataInBytes(data);
@@ -149,6 +163,10 @@ namespace _8F
                             original.gain = updated.gain;
                             original.phase = updated.phase;
                             original.isEnable = updated.isEnable;
+                            if (isTxStrengthEnabled)
+                            {
+                                original.txStrength = updated.txStrength;
+                            }
                         }
                     }
 
@@ -207,6 +225,8 @@ namespace _8F
                 if (item.phase < 0 || item.phase > 359)
                     validationMsg.Add($"{item.Name}: Phase must be 0–359");
 
+                if (isTxStrengthEnabled && (item.txStrength < 1 || item.txStrength > 100))
+                    validationMsg.Add($"{item.Name}: Tx Strength must be 1–100");
             }
 
             return validationMsg;

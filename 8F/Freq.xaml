@@ -35,6 +35,7 @@
                         <DataGridTextColumn Header="Frequency" Width="*" Binding="{Binding freq}" />
                         <DataGridTextColumn Header="Gain" Width="*" Binding="{Binding gain}" />
                         <DataGridTextColumn Header="Phase" Width="*" Binding="{Binding phase}" />
+                        <DataGridTextColumn x:Name="colTxStrength" Header="Tx Strength" Width="*" Binding="{Binding txStrength}" />
                         <DataGridCheckBoxColumn Header="Status" Width="*" Binding="{Binding isEnable}" />
                     </DataGrid.Columns>
                 </DataGrid>
