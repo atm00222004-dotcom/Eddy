@@ -340,7 +340,7 @@ namespace Eddy
                                 startBytes = startBytes + 9;
                             }
 
-                            data1[startBytes] = Convert.ToByte(DeviceCOM.Configuration.Frequency.FD[0].AT);
+                            data1[startBytes] = (byte)DeviceCOM.Configuration.Frequency.FD[0].AT;
 
                             rat2 = mainWindow.deviceCOM.WriteDataInByte(data1);
                         }
@@ -671,7 +671,7 @@ namespace Eddy
                                 startBytes = startBytes + 9;
                             }
 
-                            data1[startBytes] = Convert.ToByte(DeviceCOM.Configuration.Frequency.FD[0].AT);
+                            data1[startBytes] = (byte)DeviceCOM.Configuration.Frequency.FD[0].AT;
 
                             rat2 = mainWindow.deviceCOM.WriteDataInByte(data1);
                         }
