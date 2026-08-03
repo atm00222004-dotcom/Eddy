@@ -1265,12 +1265,11 @@ namespace _8F
                         else
                         {
                             //int length = (frequencyWrite.FD.Count * 10) + 6;
-                            int length = (frequencyWrite.FD.Count * (isTxStrengthEnabled ? 11 : 10)) + 6;
+                            int length = (frequencyWrite.FD.Count * 10) + (isTxStrengthEnabled ? 7 : 6);
                             byte[] data = new byte[length];
                             data[0] = Convert.ToByte(2);
                             data[1] = Convert.ToByte(4);
-                           // data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
-                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * (isTxStrengthEnabled ? 11 : 10)) + 1);
+                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
                             data[3] = Convert.ToByte(ch.Id);
                             int startB = 4;
                             foreach (var kvp in frequencyWrite.FD)
@@ -1290,14 +1289,13 @@ namespace _8F
 
                                 data[startB + 9] = (byte)(kvp.E);
 
-                                if (isTxStrengthEnabled)
-                                {
-                                    data[startB + 10] = (byte)(kvp.T);
 
-                                }
+                                startB = startB + 10;
+                            }
 
-                                //startB = startB + 10;
-                                startB = startB + (isTxStrengthEnabled ? 11 : 10);
+                            if (isTxStrengthEnabled)
+                            {
+                                data[startB] = (byte)frequencyWrite.T;
                             }
 
                             rat1 = portCOM.WriteDataInBytes(data);

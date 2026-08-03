@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_8F"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Window1" 
         ResizeMode="NoResize" Height="520" WindowStartupLocation="CenterScreen"  Width="720"  WindowState="Normal"  WindowStyle="None"
@@ -35,14 +36,43 @@
                         <DataGridTextColumn Header="Frequency" Width="*" Binding="{Binding freq}" />
                         <DataGridTextColumn Header="Gain" Width="*" Binding="{Binding gain}" />
                         <DataGridTextColumn Header="Phase" Width="*" Binding="{Binding phase}" />
-                        <DataGridTextColumn x:Name="colTxStrength" Header="Tx Strength" Width="*" Binding="{Binding txStrength}" />
                         <DataGridCheckBoxColumn Header="Status" Width="*" Binding="{Binding isEnable}" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
 
-            <Separator VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
+            <Grid Grid.Row="3" Margin="20,10,20,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
+                <Label x:Name="lblTxStrength"
+           Grid.Column="0"
+           Content="Tx Strength (%)"
+           FontSize="16"
+           FontWeight="SemiBold"
+           VerticalAlignment="Center"/>
+
+                <xctk:IntegerUpDown
+                x:Name="txtTxStrength"
+                Grid.Column="1"
+                Width="100"
+                Height="36"
+                FontSize="16"
+                Minimum="1"
+                Maximum="100"
+                Value="100"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Left"/>
+
+                <TextBlock Grid.Column="2"
+               Margin="15,0,0,0"
+               VerticalAlignment="Center"
+               FontSize="14"
+               Foreground="Gray"/>
+            </Grid>
             <Border Width="250" Name="btnConfigSave" MouseDown="btnConfigSave_Click" Margin="18" Background="#305371" Grid.Column="0" Grid.Row="4" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                 <Label Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Save Config" RenderTransformOrigin="0.575,0.022" ></Label>
             </Border>

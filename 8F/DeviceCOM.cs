@@ -1023,6 +1023,7 @@ namespace _8F
     {
         public int Id = 0;
         public bool IsSeleted = false;
+        public int TxStrength = 100;
         public List<GraphData> graphDatas;
     }
 
@@ -1051,7 +1052,6 @@ namespace _8F
         public string Name { get; set; } = "D";
         public int freq { get; set; } = 400;
         public int gain { get; set; } = 10;
-        public int txStrength { get; set; } = 100;
         public int phase { get; set; } = 0;
         public bool isEnable { get; set; } = true;
         public double height = DeviceCOM.DefaultHeight;
@@ -1109,6 +1109,7 @@ namespace _8F
     {
         public int FC;
         public int CN;
+        public int T;
         public List<Frequency> FD;
     }
     public class Frequency
@@ -1118,7 +1119,7 @@ namespace _8F
         public int G;
         public int P;
         public int E;
-        public int T;
+        //public int T;
         
     }
     public class Frequ
