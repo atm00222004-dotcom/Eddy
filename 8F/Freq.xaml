@@ -62,7 +62,6 @@
                 Height="36"
                 FontSize="16"
                 Minimum="1"
-                Maximum="100"
                 Value="100"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Left"/>

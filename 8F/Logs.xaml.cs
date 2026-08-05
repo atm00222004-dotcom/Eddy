@@ -200,7 +200,7 @@ namespace _8F
 
                                     left.AutoItem()
                                         .AlignMiddle()
-                                        .Text("SHORTER EDDY REPORT")
+                                        .Text("Sorter Eddy Report")
                                         .FontSize(18)
                                         .Bold()
                                         .FontColor("#0D3B6E");
@@ -626,7 +626,7 @@ namespace _8F
 
                                     left.AutoItem()
                                         .AlignMiddle()
-                                        .Text("SHORTER EDDY REPORT")
+                                        .Text("Sorter Eddy Report")
                                         .FontSize(18)
                                         .Bold()
                                         .FontColor("#0D3B6E");
