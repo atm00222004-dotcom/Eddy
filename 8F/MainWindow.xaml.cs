@@ -1269,7 +1269,8 @@ namespace _8F
                             byte[] data = new byte[length];
                             data[0] = Convert.ToByte(2);
                             data[1] = Convert.ToByte(4);
-                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
+                            //data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
+                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + (isTxStrengthEnabled ? 2 : 1));
                             data[3] = Convert.ToByte(ch.Id);
                             int startB = 4;
                             foreach (var kvp in frequencyWrite.FD)
