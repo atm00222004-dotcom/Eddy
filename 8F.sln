@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eddy", "Eddy\Eddy.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EddyFaster", "EddyFaster\EddyFaster.csproj", "{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineInfo", "MachineInfo\MachineInfo.csproj", "{E3630F22-8D06-47F3-9616-DDA65EABC578}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationKeyGenerator", "ConfigurationKeyGenerator\ConfigurationKeyGenerator.csproj", "{350A8496-3660-49F9-9662-7F031FBEFE8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3630F22-8D06-47F3-9616-DDA65EABC578}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3630F22-8D06-47F3-9616-DDA65EABC578}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3630F22-8D06-47F3-9616-DDA65EABC578}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3630F22-8D06-47F3-9616-DDA65EABC578}.Release|Any CPU.Build.0 = Release|Any CPU
+		{350A8496-3660-49F9-9662-7F031FBEFE8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{350A8496-3660-49F9-9662-7F031FBEFE8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{350A8496-3660-49F9-9662-7F031FBEFE8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{350A8496-3660-49F9-9662-7F031FBEFE8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
