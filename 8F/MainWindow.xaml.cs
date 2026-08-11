@@ -5,11 +5,15 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
+using System.IO;
 using System.IO.Ports;
+using System.Management;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Channels;
 using System.Windows;
 using System.Windows.Controls;
@@ -70,6 +74,11 @@ namespace _8F
 
         public MainWindow()
         {
+            if (!ValidateMachine())
+            {
+                Close();
+                return;
+            }
 
             InitializeComponent();
 
@@ -322,6 +331,291 @@ namespace _8F
 
 
 
+        }
+
+        private bool ValidateMachine()
+        {
+            try
+            {
+                string filePath = @"C:\ProgramData\Eddy\Config.txt";
+
+                // 1. Configuration file does not exist
+                if (!File.Exists(filePath))
+                {
+                    MessageBox.Show(
+                        "The application configuration file could not be found.\n\n" +
+                        "Please contact your administrator to obtain a valid configuration file.",
+                        "Configuration Required",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
+                    return false;
+                }
+
+                // 2. Read encrypted configuration
+                string encryptedText = File.ReadAllText(filePath).Trim();
+
+                if (string.IsNullOrWhiteSpace(encryptedText))
+                {
+                    MessageBox.Show(
+                        "The application configuration file is empty.\n\n" +
+                        "Please contact your administrator for a valid configuration file.",
+                        "Invalid Configuration",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    return false;
+                }
+
+                // 3. AES Key
+                byte[] key = Encoding.UTF8.GetBytes("12345678901234567890123456789012");
+
+                // 4. AES IV
+                byte[] iv = Encoding.UTF8.GetBytes("1234567890123456");
+
+                // 5. Convert Base64
+                byte[] encryptedBytes;
+
+                try
+                {
+                    encryptedBytes = Convert.FromBase64String(encryptedText);
+                }
+                catch
+                {
+                    MessageBox.Show(
+                        "The application configuration file is invalid or corrupted.\n\n" +
+                        "Please contact your administrator for a valid configuration file.",
+                        "Invalid Configuration",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    return false;
+                }
+
+                string json;
+
+                // 6. Decrypt configuration
+                using (Aes aes = Aes.Create())
+                {
+                    aes.Key = key;
+                    aes.IV = iv;
+                    aes.Mode = CipherMode.CBC;
+                    aes.Padding = PaddingMode.PKCS7;
+
+                    using MemoryStream ms =
+                        new MemoryStream(encryptedBytes);
+
+                    using CryptoStream cs =
+                        new CryptoStream(
+                            ms,
+                            aes.CreateDecryptor(),
+                            CryptoStreamMode.Read);
+
+                    using StreamReader reader =
+                        new StreamReader(cs);
+
+                    json = reader.ReadToEnd();
+                }
+
+                // 7. Parse JSON
+                using JsonDocument document =JsonDocument.Parse(json);
+
+                JsonElement root = document.RootElement;
+
+                // 8. Get configured Machine ID
+                if (!root.TryGetProperty(
+                        "MachineId",
+                        out JsonElement machineIdElement))
+                {
+                    MessageBox.Show(
+                        "The configuration file is missing required machine information.\n\n" +
+                        "Please contact your administrator for a valid configuration file.",
+                        "Invalid Configuration",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    return false;
+                }
+
+                string configuredMachineId =
+                    machineIdElement.GetString()?.Trim() ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(configuredMachineId))
+                {
+                    MessageBox.Show(
+                        "The configuration file does not contain valid machine information.\n\n" +
+                        "Please contact your administrator for assistance.",
+                        "Invalid Configuration",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    return false;
+                }
+
+                // 9. Generate current machine ID
+                string currentMachineId = GetMachineId();
+
+                if (string.IsNullOrWhiteSpace(currentMachineId))
+                {
+                    MessageBox.Show(
+                        "Unable to verify this computer.\n\n" +
+                        "Please contact your administrator for assistance.",
+                        "Machine Verification Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    return false;
+                }
+
+                // 10. Compare Machine IDs
+                if (!string.Equals(
+                        configuredMachineId,
+                        currentMachineId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show(
+                        "This configuration is not authorized for this computer.\n\n" +
+                        "Please contact your administrator to obtain a configuration " +
+                        "file assigned to this computer.",
+                        "Machine Verification Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    return false;
+                }
+
+                // Machine verified successfully
+                return true;
+            }
+            catch (CryptographicException)
+            {
+                MessageBox.Show(
+                    "The application configuration could not be verified.\n\n" +
+                    "Please contact your administrator for a valid configuration file.",
+                    "Configuration Verification Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                return false;
+            }
+            //catch (JsonException)
+            //{
+            //    MessageBox.Show(
+            //        "The application configuration is invalid or corrupted.\n\n" +
+            //        "Please contact your administrator for a valid configuration file.",
+            //        "Invalid Configuration",
+            //        MessageBoxButton.OK,
+            //        MessageBoxImage.Error);
+
+            //    return false;
+            //}
+            catch
+            {
+                MessageBox.Show(
+                    "The application could not verify its configuration.\n\n" +
+                    "Please contact your administrator for assistance.",
+                    "Configuration Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                return false;
+            }
+        }
+
+        private string GetMachineId()
+        {
+            try
+            {
+                string cpuId =
+                    GetWmiValue("Win32_Processor", "ProcessorId");
+
+                string biosSerial =
+                    GetWmiValue("Win32_BIOS", "SerialNumber");
+
+                string boardSerial =
+                    GetWmiValue("Win32_BaseBoard", "SerialNumber");
+
+                string systemUuid =
+                    GetWmiValue("Win32_ComputerSystemProduct", "UUID");
+
+                string diskSerial =
+                    GetWmiValue("Win32_DiskDrive", "SerialNumber");
+
+                // Normalize values
+                cpuId = Normalize(cpuId);
+                biosSerial = Normalize(biosSerial);
+                boardSerial = Normalize(boardSerial);
+                systemUuid = Normalize(systemUuid);
+                diskSerial = Normalize(diskSerial);
+
+                // Check if all hardware information is unavailable
+                if (string.IsNullOrWhiteSpace(cpuId) &&
+                    string.IsNullOrWhiteSpace(biosSerial) &&
+                    string.IsNullOrWhiteSpace(boardSerial) &&
+                    string.IsNullOrWhiteSpace(systemUuid) &&
+                    string.IsNullOrWhiteSpace(diskSerial))
+                {
+                    return string.Empty;
+                }
+
+                // IMPORTANT:
+                // This MUST be exactly the same in MachineInfo.
+                string combined =
+                    $"CPU:{cpuId}|" +
+                    $"BIOS:{biosSerial}|" +
+                    $"BOARD:{boardSerial}|" +
+                    $"UUID:{systemUuid}|" +
+                    $"DISK:{diskSerial}";
+
+                using (SHA256 sha = SHA256.Create())
+                {
+                    byte[] hash =
+                        sha.ComputeHash(
+                            Encoding.UTF8.GetBytes(combined));
+
+                    StringBuilder sb = new StringBuilder();
+
+                    foreach (byte b in hash)
+                    {
+                        sb.Append(b.ToString("X2"));
+                    }
+
+                    return sb.ToString();
+                }
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private string Normalize(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            return value.Trim().ToUpperInvariant();
+        }
+
+        private string GetWmiValue(string className,string propertyName)
+        {
+            try
+            {
+                using (ManagementObjectSearcher searcher =
+                    new ManagementObjectSearcher(
+                        $"SELECT {propertyName} FROM {className}"))
+                {
+                    foreach (ManagementObject obj in searcher.Get())
+                    {
+                        return obj[propertyName]?.ToString() ?? "";
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return string.Empty;
         }
 
         private void Client_DataReceived(object sender, string data)
