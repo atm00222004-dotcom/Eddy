@@ -1,21 +1,106 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Git\\8F\\",
+  "WorkspaceRootPath": "D:\\New folder\\Eddy\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\git\\8f\\8f\\portcom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\portcom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\git\\8f\\8f\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\new folder\\eddy\\8f\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Compac\\AppData\\Local\\Temp\\.vsdbgsrc\\811f0c1102ba7a3d32ee827d0bb52f1af2ec958c7f3fb7abe7c05f601195e6c8\\XamlReader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|d:\\new folder\\eddy\\eddy\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|solutionrelative:eddy\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\git\\8f\\8f\\8f.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\8f.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|d:\\new folder\\eddy\\eddy\\devicecom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|solutionrelative:eddy\\devicecom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\logs.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\logs.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\new folder\\eddy\\8f\\services\\inspectionlogrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\services\\inspectionlogrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\new folder\\eddy\\8f\\models\\inspectionlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\models\\inspectionlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|d:\\new folder\\eddy\\eddy\\logs.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|solutionrelative:eddy\\logs.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|d:\\new folder\\eddy\\eddy\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|solutionrelative:eddy\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|d:\\new folder\\eddy\\eddy\\frequencysetting_aps.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A4DFACD0-6A3B-4B2C-8D2A-719F7E95EB5C}|Eddy\\Eddy.csproj|solutionrelative:eddy\\frequencysetting_aps.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|d:\\new folder\\eddy\\configurationkeygenerator\\views\\generateconfiguration.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|solutionrelative:configurationkeygenerator\\views\\generateconfiguration.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|d:\\new folder\\eddy\\configurationkeygenerator\\services\\jsonservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|solutionrelative:configurationkeygenerator\\services\\jsonservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|d:\\new folder\\eddy\\configurationkeygenerator\\services\\configurationfileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|solutionrelative:configurationkeygenerator\\services\\configurationfileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|d:\\new folder\\eddy\\configurationkeygenerator\\services\\configurationkeylogservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|solutionrelative:configurationkeygenerator\\services\\configurationkeylogservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|d:\\new folder\\eddy\\configurationkeygenerator\\models\\configurationgeneration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|solutionrelative:configurationkeygenerator\\models\\configurationgeneration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\new folder\\eddy\\8f\\operatormaster.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\operatormaster.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\new folder\\eddy\\8f\\partfamilymaster.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\partfamilymaster.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|d:\\new folder\\eddy\\8f\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3EB7831D-29D0-4274-B997-B603EC15C8B5}|8F\\8F.csproj|solutionrelative:8f\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E3630F22-8D06-47F3-9616-DDA65EABC578}|MachineInfo\\MachineInfo.csproj|d:\\new folder\\eddy\\machineinfo\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{E3630F22-8D06-47F3-9616-DDA65EABC578}|MachineInfo\\MachineInfo.csproj|solutionrelative:machineinfo\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E3630F22-8D06-47F3-9616-DDA65EABC578}|MachineInfo\\MachineInfo.csproj|d:\\new folder\\eddy\\machineinfo\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E3630F22-8D06-47F3-9616-DDA65EABC578}|MachineInfo\\MachineInfo.csproj|solutionrelative:machineinfo\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|d:\\new folder\\eddy\\configurationkeygenerator\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|solutionrelative:configurationkeygenerator\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|d:\\new folder\\eddy\\configurationkeygenerator\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{350A8496-3660-49F9-9662-7F031FBEFE8D}|ConfigurationKeyGenerator\\ConfigurationKeyGenerator.csproj|solutionrelative:configurationkeygenerator\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -25,56 +110,325 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "App.config",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\EddyFaster\\App.config",
+              "RelativeDocumentMoniker": "EddyFaster\\App.config",
+              "ToolTip": "D:\\New folder\\Eddy\\EddyFaster\\App.config",
+              "RelativeToolTip": "EddyFaster\\App.config",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAABtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2026-08-12T11:16:41.535Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "XamlReader.cs",
-              "DocumentMoniker": "C:\\Users\\Compac\\AppData\\Local\\Temp\\.vsdbgsrc\\811f0c1102ba7a3d32ee827d0bb52f1af2ec958c7f3fb7abe7c05f601195e6c8\\XamlReader.cs",
-              "ToolTip": "C:\\Users\\Compac\\AppData\\Local\\Temp\\.vsdbgsrc\\811f0c1102ba7a3d32ee827d0bb52f1af2ec958c7f3fb7abe7c05f601195e6c8\\XamlReader.cs [Read Only]",
-              "ViewState": "AQIAAKEBAAAAAAAAAAAnwLYBAAAAAAAA",
+              "Title": "App.config",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\Eddy\\App.config",
+              "RelativeDocumentMoniker": "Eddy\\App.config",
+              "ToolTip": "D:\\New folder\\Eddy\\Eddy\\App.config",
+              "RelativeToolTip": "Eddy\\App.config",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAABtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2026-08-12T11:16:11.134Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Logs.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\EddyFaster\\Logs.xaml.cs",
+              "RelativeDocumentMoniker": "EddyFaster\\Logs.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\EddyFaster\\Logs.xaml.cs",
+              "RelativeToolTip": "EddyFaster\\Logs.xaml.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAkwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-25T08:26:49.178Z",
-              "EditorCaption": " [Read Only]"
+              "WhenOpened": "2026-08-12T10:39:03.447Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "8F.csproj",
-              "DocumentMoniker": "D:\\Git\\8F\\8F\\8F.csproj",
-              "RelativeDocumentMoniker": "8F\\8F.csproj",
-              "ToolTip": "D:\\Git\\8F\\8F\\8F.csproj",
-              "RelativeToolTip": "8F\\8F.csproj",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2024-07-25T06:38:12.3Z"
+              "Title": "DeviceCOM.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\Eddy\\DeviceCOM.cs",
+              "RelativeDocumentMoniker": "Eddy\\DeviceCOM.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\Eddy\\DeviceCOM.cs",
+              "RelativeToolTip": "Eddy\\DeviceCOM.cs",
+              "ViewState": "AgIAAJAAAAAAAAAAAAD4v54AAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:01:18.169Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PortCOM.cs",
-              "DocumentMoniker": "D:\\Git\\8F\\8F\\PortCOM.cs",
-              "RelativeDocumentMoniker": "8F\\PortCOM.cs",
-              "ToolTip": "D:\\Git\\8F\\8F\\PortCOM.cs",
-              "RelativeToolTip": "8F\\PortCOM.cs",
-              "ViewState": "AQIAACQAAAAAAAAAAAAMwBwAAAAaAAAA",
+              "DocumentIndex": 8,
+              "Title": "InspectionLogRepository.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\8F\\Services\\InspectionLogRepository.cs",
+              "RelativeDocumentMoniker": "8F\\Services\\InspectionLogRepository.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\8F\\Services\\InspectionLogRepository.cs",
+              "RelativeToolTip": "8F\\Services\\InspectionLogRepository.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAQwC4AAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-25T06:38:47.984Z",
+              "WhenOpened": "2026-08-12T10:18:45.055Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "InspectionLog.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\8F\\Models\\InspectionLog.cs",
+              "RelativeDocumentMoniker": "8F\\Models\\InspectionLog.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\8F\\Models\\InspectionLog.cs",
+              "RelativeToolTip": "8F\\Models\\InspectionLog.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:18:37.989Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Logs.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\Eddy\\Logs.xaml.cs",
+              "RelativeDocumentMoniker": "Eddy\\Logs.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\Eddy\\Logs.xaml.cs",
+              "RelativeToolTip": "Eddy\\Logs.xaml.cs",
+              "ViewState": "AgIAAKgAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:13:29.863Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "D:\\Git\\8F\\8F\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "8F\\MainWindow.xaml.cs",
-              "ToolTip": "D:\\Git\\8F\\8F\\MainWindow.xaml.cs",
-              "RelativeToolTip": "8F\\MainWindow.xaml.cs",
-              "ViewState": "AQIAAA8AAAAAAAAAAAAAABsAAAAaAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-25T06:00:57.884Z",
+              "Title": "App.config",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\8F\\App.config",
+              "RelativeDocumentMoniker": "8F\\App.config",
+              "ToolTip": "D:\\New folder\\Eddy\\8F\\App.config",
+              "RelativeToolTip": "8F\\App.config",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAAC0AAABtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2026-08-12T06:38:12.464Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\EddyFaster\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "EddyFaster\\AssemblyInfo.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\EddyFaster\\AssemblyInfo.cs",
+              "RelativeToolTip": "EddyFaster\\AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:45:52.386Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\EddyFaster\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "EddyFaster\\MainWindow.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\EddyFaster\\MainWindow.xaml.cs",
+              "RelativeToolTip": "EddyFaster\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAJAGAAAAAAAAAIA0wHgGAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:46:00.846Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\EddyFaster\\App.xaml.cs",
+              "RelativeDocumentMoniker": "EddyFaster\\App.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\EddyFaster\\App.xaml.cs",
+              "RelativeToolTip": "EddyFaster\\App.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:45:56.253Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\Eddy\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "Eddy\\AssemblyInfo.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\Eddy\\AssemblyInfo.cs",
+              "RelativeToolTip": "Eddy\\AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:13:24.765Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "FrequencySetting_APS.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\Eddy\\FrequencySetting_APS.xaml.cs",
+              "RelativeDocumentMoniker": "Eddy\\FrequencySetting_APS.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\Eddy\\FrequencySetting_APS.xaml.cs",
+              "RelativeToolTip": "Eddy\\FrequencySetting_APS.xaml.cs",
+              "ViewState": "AgIAAIMAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:12:47.767Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "GenerateConfiguration.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Views\\GenerateConfiguration.xaml.cs",
+              "RelativeDocumentMoniker": "ConfigurationKeyGenerator\\Views\\GenerateConfiguration.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Views\\GenerateConfiguration.xaml.cs",
+              "RelativeToolTip": "ConfigurationKeyGenerator\\Views\\GenerateConfiguration.xaml.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAQwE4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:11:26.965Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "OperatorMaster.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\8F\\OperatorMaster.xaml.cs",
+              "RelativeDocumentMoniker": "8F\\OperatorMaster.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\8F\\OperatorMaster.xaml.cs",
+              "RelativeToolTip": "8F\\OperatorMaster.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T06:40:00.134Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "App.xaml",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\MachineInfo\\App.xaml",
+              "RelativeDocumentMoniker": "MachineInfo\\App.xaml",
+              "ToolTip": "D:\\New folder\\Eddy\\MachineInfo\\App.xaml",
+              "RelativeToolTip": "MachineInfo\\App.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-08-11T12:59:24.049Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ConfigurationKeyLogService.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Services\\ConfigurationKeyLogService.cs",
+              "RelativeDocumentMoniker": "ConfigurationKeyGenerator\\Services\\ConfigurationKeyLogService.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Services\\ConfigurationKeyLogService.cs",
+              "RelativeToolTip": "ConfigurationKeyGenerator\\Services\\ConfigurationKeyLogService.cs",
+              "ViewState": "AgIAADEAAAAAAAAAAAAQwKoAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-11T12:50:52.017Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ConfigurationFileService.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Services\\ConfigurationFileService.cs",
+              "RelativeDocumentMoniker": "ConfigurationKeyGenerator\\Services\\ConfigurationFileService.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Services\\ConfigurationFileService.cs",
+              "RelativeToolTip": "ConfigurationKeyGenerator\\Services\\ConfigurationFileService.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-11T12:51:03.531Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "JsonService.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Services\\JsonService.cs",
+              "RelativeDocumentMoniker": "ConfigurationKeyGenerator\\Services\\JsonService.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Services\\JsonService.cs",
+              "RelativeToolTip": "ConfigurationKeyGenerator\\Services\\JsonService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-11T12:51:21.182Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\8F\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "8F\\AssemblyInfo.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\8F\\AssemblyInfo.cs",
+              "RelativeToolTip": "8F\\AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T06:40:21.31Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "PartFamilyMaster.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\8F\\PartFamilyMaster.xaml.cs",
+              "RelativeDocumentMoniker": "8F\\PartFamilyMaster.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\8F\\PartFamilyMaster.xaml.cs",
+              "RelativeToolTip": "8F\\PartFamilyMaster.xaml.cs",
+              "ViewState": "AgIAAGwAAAAAAAAAAAAYwH0AAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T07:35:57.258Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "ConfigurationGeneration.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Models\\ConfigurationGeneration.cs",
+              "RelativeDocumentMoniker": "ConfigurationKeyGenerator\\Models\\ConfigurationGeneration.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\Models\\ConfigurationGeneration.cs",
+              "RelativeToolTip": "ConfigurationKeyGenerator\\Models\\ConfigurationGeneration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T10:01:00.06Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\MachineInfo\\App.xaml.cs",
+              "RelativeDocumentMoniker": "MachineInfo\\App.xaml.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\MachineInfo\\App.xaml.cs",
+              "RelativeToolTip": "MachineInfo\\App.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-11T12:59:20.648Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "ConfigurationKeyGenerator\\AssemblyInfo.cs",
+              "ToolTip": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\AssemblyInfo.cs",
+              "RelativeToolTip": "ConfigurationKeyGenerator\\AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-11T12:50:28.697Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "ConfigurationKeyGenerator\\MainWindow.xaml",
+              "ToolTip": "D:\\New folder\\Eddy\\ConfigurationKeyGenerator\\MainWindow.xaml",
+              "RelativeToolTip": "ConfigurationKeyGenerator\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-08-11T12:50:03.964Z"
             }
           ]
         }

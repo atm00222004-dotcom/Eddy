@@ -23,3 +23,28 @@ D:\jaspreet\Eddy\MachineInfo\bin\Debug\net8.0-windows\System.Management.dll
 D:\jaspreet\Eddy\MachineInfo\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Management.dll
 D:\jaspreet\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.csproj.AssemblyReference.cache
 D:\jaspreet\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineI.09CCD6AB.Up2Date
+D:\New folder\Eddy\MachineInfo\bin\Debug\net8.0-windows\MachineInfo.exe
+D:\New folder\Eddy\MachineInfo\bin\Debug\net8.0-windows\MachineInfo.deps.json
+D:\New folder\Eddy\MachineInfo\bin\Debug\net8.0-windows\MachineInfo.runtimeconfig.json
+D:\New folder\Eddy\MachineInfo\bin\Debug\net8.0-windows\MachineInfo.dll
+D:\New folder\Eddy\MachineInfo\bin\Debug\net8.0-windows\MachineInfo.pdb
+D:\New folder\Eddy\MachineInfo\bin\Debug\net8.0-windows\System.CodeDom.dll
+D:\New folder\Eddy\MachineInfo\bin\Debug\net8.0-windows\System.Management.dll
+D:\New folder\Eddy\MachineInfo\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Management.dll
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.csproj.AssemblyReference.cache
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MainWindow.baml
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MainWindow.g.cs
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\App.g.cs
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo_MarkupCompile.cache
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.g.resources
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.GeneratedMSBuildEditorConfig.editorconfig
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.AssemblyInfoInputs.cache
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.AssemblyInfo.cs
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.csproj.CoreCompileInputs.cache
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.sourcelink.json
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineI.09CCD6AB.Up2Date
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.dll
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\refint\MachineInfo.dll
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.pdb
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\MachineInfo.genruntimeconfig.cache
+D:\New folder\Eddy\MachineInfo\obj\Debug\net8.0-windows\ref\MachineInfo.dll

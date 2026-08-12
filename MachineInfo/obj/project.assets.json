@@ -110,23 +110,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\jaspr\\.nuget\\packages\\": {},
+    "C:\\Users\\atm00\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\jaspreet\\Eddy\\MachineInfo\\MachineInfo.csproj",
+      "projectUniqueName": "D:\\New folder\\Eddy\\MachineInfo\\MachineInfo.csproj",
       "projectName": "MachineInfo",
-      "projectPath": "D:\\jaspreet\\Eddy\\MachineInfo\\MachineInfo.csproj",
-      "packagesPath": "C:\\Users\\jaspr\\.nuget\\packages\\",
-      "outputPath": "D:\\jaspreet\\Eddy\\MachineInfo\\obj\\",
+      "projectPath": "D:\\New folder\\Eddy\\MachineInfo\\MachineInfo.csproj",
+      "packagesPath": "C:\\Users\\atm00\\.nuget\\packages\\",
+      "outputPath": "D:\\New folder\\Eddy\\MachineInfo\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\jaspr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\atm00\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

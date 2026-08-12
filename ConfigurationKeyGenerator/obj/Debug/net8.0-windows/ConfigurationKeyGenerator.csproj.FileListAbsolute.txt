@@ -29,3 +29,34 @@ D:\jaspreet\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\Configuratio
 D:\jaspreet\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ref\ConfigurationKeyGenerator.dll
 D:\jaspreet\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\Assets\Magkraft.jpg
 D:\jaspreet\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator_Content.g.cs
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\Assets\Magkraft.jpg
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\ConfigurationKeyGenerator.exe
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\ConfigurationKeyGenerator.deps.json
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\ConfigurationKeyGenerator.runtimeconfig.json
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\ConfigurationKeyGenerator.dll
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\ConfigurationKeyGenerator.pdb
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\Microsoft.Extensions.Logging.Abstractions.dll
+D:\New folder\Eddy\ConfigurationKeyGenerator\bin\Debug\net8.0-windows\Npgsql.dll
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.csproj.AssemblyReference.cache
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\MainWindow.baml
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\Views\ConfigurationKeyList.baml
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\Views\GenerateConfiguration.baml
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\MainWindow.g.cs
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\Views\ConfigurationKeyList.g.cs
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\Views\GenerateConfiguration.g.cs
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\App.g.cs
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator_Content.g.cs
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator_MarkupCompile.cache
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.g.resources
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.GeneratedMSBuildEditorConfig.editorconfig
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.AssemblyInfoInputs.cache
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.AssemblyInfo.cs
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.csproj.CoreCompileInputs.cache
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.sourcelink.json
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\Configur.F6B394EE.Up2Date
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.dll
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\refint\ConfigurationKeyGenerator.dll
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.pdb
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ConfigurationKeyGenerator.genruntimeconfig.cache
+D:\New folder\Eddy\ConfigurationKeyGenerator\obj\Debug\net8.0-windows\ref\ConfigurationKeyGenerator.dll

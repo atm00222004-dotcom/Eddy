@@ -1,11 +1,11 @@
-﻿using Npgsql;
+using Npgsql;
 using ConfigurationKeyGenerator.Models;
 
 namespace ConfigurationKeyGenerator.Services
 {
     public class ConfigurationKeyLogService
     {
-        private readonly string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=Jass@9781;Database=EddyShorter";
+        private readonly string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=ary123;Database=Eddy";
         public void Save(ConfigurationKeyLog log)
         {
 
