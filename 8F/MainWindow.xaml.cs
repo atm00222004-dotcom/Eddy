@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
 using System.Configuration;
@@ -275,25 +275,26 @@ namespace _8F
             InitialGraphData(true);
 
             var CodePortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["CodePortName"]);
-            _serialPort = new SerialPort(CodePortName, 115200);
-            _serialPort.DataBits = 8;
-            _serialPort.Parity = Parity.Even;
-            _serialPort.StopBits = StopBits.One;
-            _serialPort.Handshake = Handshake.None;
-            // Subscribe to the DataReceived event
-            _serialPort.DataReceived += OnDataReceived;
-
-            try
+            if (!string.IsNullOrEmpty(CodePortName) && !CodePortName.Equals("NONE", StringComparison.OrdinalIgnoreCase))
             {
-                if (!_serialPort.IsOpen)
+                try
                 {
-                    _serialPort.Open();
-                    //Console.WriteLine($"Serial port {_serialPort.PortName} opened at {_serialPort.BaudRate} baud.");
-                }
-            }
-            catch
-            {
+                    _serialPort = new SerialPort(CodePortName, 115200);
+                    _serialPort.DataBits = 8;
+                    _serialPort.Parity = Parity.Even;
+                    _serialPort.StopBits = StopBits.One;
+                    _serialPort.Handshake = Handshake.None;
+                    _serialPort.DataReceived += OnDataReceived;
 
+                    if (!_serialPort.IsOpen)
+                    {
+                        _serialPort.Open();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"CodePort {CodePortName} error: {ex.Message}");
+                }
             }
 
 
@@ -631,6 +632,7 @@ namespace _8F
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             System.Threading.Thread.Sleep(20);
+            if (_serialPort == null) return;
             string data = _serialPort.ReadExisting();
             ProcessCode(data);
         }
@@ -933,10 +935,9 @@ namespace _8F
 
             try
             {
-                if (!_serialPort.IsOpen)
+                if (_serialPort != null && !_serialPort.IsOpen)
                 {
                     _serialPort.Open();
-                    //Console.WriteLine($"Serial port {_serialPort.PortName} opened at {_serialPort.BaudRate} baud.");
                 }
             }
             catch
