@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -697,7 +697,7 @@ namespace _8F
                         if (ChangeType == 0 && graphData.Id <= FrequencyNo)
                         {
                             // write data to port for freq and setting
-                            Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase, E = graphData.isEnable ? 1 : 0 };
+                            Frequency frequency = new Frequency() { FN = graphData.Id, F = graphData.freq, G = graphData.gain, P = graphData.phase, ST = graphData.txStrength, PG = graphData.postGain, E = graphData.isEnable ? 1 : 0 };
                             Frequ frequ = new Frequ() { FN = graphData.Id, ED = new List<Elliplse>() };
                             foreach (var el in graphData.ellipses)
                             {
@@ -748,11 +748,11 @@ namespace _8F
                             portCOM.WriteDataInBytes(data2);
 
                             System.Threading.Thread.Sleep(500);
-                            int length = (frequencyWrite.FD.Count * 10) + 6;
+                            int length = (frequencyWrite.FD.Count * 10) + 8;
                             byte[] data = new byte[length];
                             data[0] = Convert.ToByte(2);
                             data[1] = Convert.ToByte(4);
-                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
+                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 3);
                             data[3] = Convert.ToByte(ch.Id);
                             int startB = 4;
                             foreach (var kvp in frequencyWrite.FD)
@@ -773,6 +773,13 @@ namespace _8F
                                 data[startB + 9] = (byte)(kvp.E);
 
                                 startB = startB + 10;
+                            }
+
+                            var firstFreq = frequencyWrite.FD.FirstOrDefault();
+                            if (firstFreq != null)
+                            {
+                                data[startB]     = (byte)(firstFreq.ST & 0xFF);
+                                data[startB + 1] = (byte)(firstFreq.PG & 0xFF);
                             }
 
                             rat1 = portCOM.WriteDataInBytes(data);

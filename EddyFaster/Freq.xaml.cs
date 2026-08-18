@@ -115,31 +115,39 @@ namespace _8F
                         }
                         else
                         {
-                            int length = (frequencyWrite.FD.Count * 10) + 6;
+                            int length = (frequencyWrite.FD.Count * 10) + 8;
                             byte[] data = new byte[length];
-                            data[0] = Convert.ToByte(2);
-                            data[1] = Convert.ToByte(4);
-                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 1);
-                            data[3] = Convert.ToByte(ch.Id);
+
+                            data[0] = Convert.ToByte(2); // STX
+                            data[1] = Convert.ToByte(4); // Function Code
+                            data[2] = Convert.ToByte((frequencyWrite.FD.Count * 10) + 3); // Payload length (N*10 + 1 CN + 1 ST + 1 PG)
+                            data[3] = Convert.ToByte(ch.Id); // Channel ID
+
                             int startB = 4;
                             foreach (var kvp in frequencyWrite.FD)
                             {
-                                data[startB] = Convert.ToByte(kvp.FN);
+                                data[startB]     = Convert.ToByte(kvp.FN);                  // Byte 0: FN (1B)
 
-                                data[startB + 1] = (byte)(kvp.F & 0xFF);         // Lowest byte
-                                data[startB + 2] = (byte)((kvp.F >> 8) & 0xFF);  // Byte 2
-                                data[startB + 3] = (byte)((kvp.F >> 16) & 0xFF); // Byte 3
-                                data[startB + 4] = (byte)((kvp.F >> 24) & 0xFF); // Highest byte
+                                data[startB + 1] = (byte)(kvp.F & 0xFF);                    // Byte 1: Freq Low
+                                data[startB + 2] = (byte)((kvp.F >> 8) & 0xFF);             // Byte 2: Freq Byte 2
+                                data[startB + 3] = (byte)((kvp.F >> 16) & 0xFF);            // Byte 3: Freq Byte 3
+                                data[startB + 4] = (byte)((kvp.F >> 24) & 0xFF);            // Byte 4: Freq Byte 4
 
-                                data[startB + 5] = (byte)(kvp.G & 0xFF);         // Lowest byte
-                                data[startB + 6] = (byte)((kvp.G >> 8) & 0xFF);  // Byte 2
+                                data[startB + 5] = (byte)(kvp.G & 0xFF);                    // Byte 5: Gain Low
+                                data[startB + 6] = (byte)((kvp.G >> 8) & 0xFF);             // Byte 6: Gain High
 
-                                data[startB + 7] = (byte)(kvp.P & 0xFF);         // Lowest byte
-                                data[startB + 8] = (byte)((kvp.P >> 8) & 0xFF);  // Byte 2
+                                data[startB + 7] = (byte)(kvp.P & 0xFF);                    // Byte 7: Phase Low
+                                data[startB + 8] = (byte)((kvp.P >> 8) & 0xFF);             // Byte 8: Phase High
 
-                                data[startB + 9] = (byte)(kvp.E);
+                                data[startB + 9] = (byte)(kvp.E);                           // Byte 9: Enable (1B)
 
                                 startB = startB + 10;
+                            }
+                            var firstFreq = frequencyWrite.FD.FirstOrDefault();
+                            if (firstFreq != null)
+                            {
+                                data[startB]     = (byte)(firstFreq.ST & 0xFF);              // Byte 10: TxStrength (1B)
+                                data[startB + 1] = (byte)(firstFreq.PG & 0xFF);              // Byte 11: PostGain (1B)
                             }
 
                             rat = portCOM.WriteDataInBytes(data);
@@ -228,7 +236,7 @@ namespace _8F
             }
             else
             {
-                if (Convert.ToInt32(txtTxStrength.Text) < 0 || Convert.ToInt32(txtTxStrength.Text) > 100)
+                if (Convert.ToInt32(txtTxStrength.Text) < 1 || Convert.ToInt32(txtTxStrength.Text) > 100)
                 {
                     validationMsg.Add("Tx Strength is required and the range is 1 to 100.");
                 }
@@ -239,7 +247,7 @@ namespace _8F
             }
             else
             {
-                if (Convert.ToInt32(txtPostGain.Text) < 0 || Convert.ToInt32(txtPostGain.Text) > 100)
+                if (Convert.ToInt32(txtPostGain.Text) < 1 || Convert.ToInt32(txtPostGain.Text) > 100)
                 {
                     validationMsg.Add("Post Gain is required and the range is 1 to 60.");
                 }
