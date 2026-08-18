@@ -1053,6 +1053,8 @@ namespace _8F
         public int freq { get; set; } = 400;
         public int gain { get; set; } = 10;
         public int phase { get; set; } = 0;
+        public int strength = 100;
+        public int postGain = 60;
         public bool isEnable { get; set; } = true;
         public double height = DeviceCOM.DefaultHeight;
         public double width = DeviceCOM.DefaultWidth;

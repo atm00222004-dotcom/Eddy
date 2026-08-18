@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System;
@@ -1022,6 +1022,9 @@ namespace _8F
         public int freq = 2000;
         public int gain = 35;
         public int phase = 0;
+        public int txStrength = 100;
+        public int strength { get => txStrength; set => txStrength = value; }
+        public int postGain = 60;
         public bool isEnable = true;
         public double height = DeviceCOM.DefaultHeight;
         public double width = DeviceCOM.DefaultWidth;
@@ -1101,6 +1104,8 @@ namespace _8F
         public int G;
         public int P;
         public int E;
+        public int ST;
+        public int PG;
         
     }
     public class Frequ

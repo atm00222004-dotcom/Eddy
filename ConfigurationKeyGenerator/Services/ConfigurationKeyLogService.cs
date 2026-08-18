@@ -5,7 +5,7 @@ namespace ConfigurationKeyGenerator.Services
 {
     public class ConfigurationKeyLogService
     {
-        private readonly string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=ary123;Database=Eddy";
+        private readonly string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=aryan123;Database=EddyShorter";
         public void Save(ConfigurationKeyLog log)
         {
 

@@ -233,7 +233,6 @@ namespace ConfigurationKeyGenerator.Views
 
             }
 
-
             return ProductType.EddyShorter;
         }
         private bool ValidateForm()
