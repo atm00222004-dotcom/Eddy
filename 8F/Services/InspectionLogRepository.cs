@@ -384,13 +384,12 @@ namespace _8F.Services
         }
 
         /// <summary>
-        /// Soft-deletes a raw Auto Ellipse test run by setting IsDeleted = true.
+        /// Hard-deletes a raw Auto Ellipse test run permanently from PostgreSQL.
         /// </summary>
-        public async Task<bool> SoftDeleteAutoEllipseTestAsync(long testId)
+        public async Task<bool> DeleteAutoEllipseTestAsync(long testId)
         {
             const string sql = @"
-                UPDATE public.""AutoEllipseTests""
-                SET ""IsDeleted"" = TRUE
+                DELETE FROM public.""AutoEllipseTests""
                 WHERE ""Id"" = @Id;";
 
             try
@@ -404,7 +403,7 @@ namespace _8F.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error soft deleting AutoEllipse test record: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error hard deleting AutoEllipse test record: {ex.Message}");
                 return false;
             }
         }
@@ -419,7 +418,7 @@ namespace _8F.Services
                 SELECT ""Id"", ""ChId"", ""TestNumber"", ""TimeStamp"", ""OperatorName"", ""FrequencyValues""
                 FROM public.""AutoEllipseTests""
                 WHERE ""ChId"" = @ChId AND ""IsDeleted"" = FALSE
-                ORDER BY ""TestNumber"" ASC;";
+                ORDER BY ""TimeStamp"" ASC, ""Id"" ASC;";
 
             try
             {

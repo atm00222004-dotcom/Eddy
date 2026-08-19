@@ -55,6 +55,14 @@ namespace _8F
             PopulateChannels();
         }
 
+        private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == System.Windows.Input.MouseButton.Left)
+            {
+                try { DragMove(); } catch { }
+            }
+        }
+
         private void AutoEllipse_Unloaded(object sender, RoutedEventArgs e)
         {
             DeviceCOM.IsAutoEllipseActive = false;
@@ -210,7 +218,7 @@ namespace _8F
                 foreach (var record in dbRecords)
                 {
                     DataRow row = _activeTable.NewRow();
-                    row["IsSelected"] = true;
+                    row["IsSelected"] = false;
                     row["DbId"] = record.Id;
                     row["TestName"] = $"Test {record.TestNumber}";
                     row["Timestamp"] = record.TimeStamp.ToLocalTime().ToString("HH:mm:ss.fff");
@@ -285,20 +293,20 @@ namespace _8F
                 {
                     int chId = cboChannel.SelectedIndex + 1;
 
-                    // Soft Delete in Database
+                    // Hard Delete in Database
                     if (dbId > 0)
                     {
                         Task.Run(async () =>
                         {
-                            await _repository.SoftDeleteAutoEllipseTestAsync(dbId);
+                            await _repository.DeleteAutoEllipseTestAsync(dbId);
                         });
                     }
 
-                    // Update local records
+                    // Remove from local records
                     if (_channelRawRecords.TryGetValue(chId, out var rawList))
                     {
                         var rec = rawList.FirstOrDefault(r => r.Id == dbId || $"Test {r.TestNumber}" == testName);
-                        if (rec != null) rec.IsDeleted = true;
+                        if (rec != null) rawList.Remove(rec);
                     }
 
                     _activeTable?.Rows.Remove(row);
@@ -324,14 +332,18 @@ namespace _8F
                 return;
             }
 
-            if (DeviceCOM.IsBalanceRequired)
+            int chId = cboChannel.SelectedIndex + 1;
+
+            bool isChannelBalanced = !DeviceCOM.IsBalanceRequired &&
+                                     (DeviceCOM.responses != null && DeviceCOM.responses.Any(r => r.CN == chId && r.IsBalacenced));
+
+            if (DeviceCOM.IsBalanceRequired || !isChannelBalanced)
             {
-                lblStatus.Text = "Unable to test because balance command is required!";
-                MessageBox.Show("Unable to run test because a Balance command is required first!\n\nPlease perform a Balance command on the main screen before running test acquisition.", "Balance Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                lblStatus.Text = "Please click Balance first.";
+                MessageBox.Show("Please click Balance first.", "Balance Required", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            int chId = cboChannel.SelectedIndex + 1;
             if (!_channelTables.ContainsKey(chId))
             {
                 _ = SetupChannelTableAndColumnsAsync(chId);
@@ -351,7 +363,6 @@ namespace _8F
             _lastProcessedResponseIndex = DeviceCOM.responses?.Count ?? 0;
 
             btnRunTest.IsEnabled = false;
-            btnStopTest.IsEnabled = true;
             cboChannel.IsEnabled = false;
 
             lblStatus.Text = "Acquiring multi-frequency test run from ECT instrument...";
@@ -402,7 +413,19 @@ namespace _8F
                     var resp = DeviceCOM.responses[i];
                     if (resp == null || resp.CN != chId || resp.FD == null) continue;
 
-                    int testNum = _activeTable.Rows.Count + 1;
+                    int maxTestNum = 0;
+                    if (_activeTable.Rows.Count > 0)
+                    {
+                        foreach (DataRow r in _activeTable.Rows)
+                        {
+                            string name = r.Field<string>("TestName") ?? "";
+                            if (name.StartsWith("Test ") && int.TryParse(name.Substring(5), out int num))
+                            {
+                                if (num > maxTestNum) maxTestNum = num;
+                            }
+                        }
+                    }
+                    int testNum = maxTestNum + 1;
                     DataRow newRow = _activeTable.NewRow();
                     newRow["IsSelected"] = true; // Checked by default
                     newRow["TestName"] = $"Test {testNum}";
@@ -478,7 +501,6 @@ namespace _8F
             _acquisitionTimer.Stop();
 
             btnRunTest.IsEnabled = true;
-            btnStopTest.IsEnabled = false;
             cboChannel.IsEnabled = true;
 
             int rowCount = _activeTable?.Rows.Count ?? 0;

@@ -5,96 +5,138 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Auto Ellipse Calibration" Height="620" Width="1080"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Background="#F8FAFC">
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        WindowStyle="None" Background="Transparent" AllowsTransparency="True">
 
-    <Grid Margin="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Window.Resources>
+        <!-- Magkraft Rounded Pill Button Style (Matches CircleSetting.xaml) -->
+        <Style x:Key="MagkraftButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#305371"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#FF000000"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#94A3B8"/>
+                                <Setter Property="Foreground" Value="#E2E8F0"/>
+                                <Setter Property="BorderBrush" Value="#CBD5E1"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1E3A8A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
+        <Style x:Key="MagkraftSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource MagkraftButtonStyle}">
+            <Setter Property="Background" Value="#64748B"/>
+        </Style>
+    </Window.Resources>
 
-        <!-- Controls Bar -->
-        <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="10,6" Margin="0,0,0,8">
-            <Grid>
+    <!-- Outer Rounded Card Border (Matches CircleSetting.xaml style) -->
+    <Border Name="brRef" Margin="4" Background="#DBDBDB" BorderBrush="#B0B0B0" BorderThickness="1" CornerRadius="20" MouseDown="Window_MouseDown">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Header Title & Close -->
+                <RowDefinition Height="Auto"/> <!-- Separator -->
+                <RowDefinition Height="Auto"/> <!-- Controls Bar -->
+                <RowDefinition Height="*"/>    <!-- DataGrid Table -->
+                <RowDefinition Height="Auto"/> <!-- Status Bar -->
+                <RowDefinition Height="Auto"/> <!-- Action Buttons -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Header Title & Top-Right Close Button -->
+            <Grid Grid.Row="0" Margin="0,4,0,8">
+                <Label Content="Auto Ellipse Calibration" FontSize="22" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Name="btnCloseHeader" Content="Close" Width="80" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Click="btnClose_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Separator -->
+            <Separator Grid.Row="1" Margin="0,0,0,10" Background="#A0A0A0"/>
+
+            <!-- 2. Controls Bar (Channel Selector & Selection Buttons) -->
+            <Grid Grid.Row="2" Margin="4,0,4,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="160"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Content="Channel:" Foreground="#0F172A" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" Grid.Column="0"/>
-                <ComboBox Name="cboChannel" Grid.Column="1" Height="28" FontSize="13" SelectionChanged="cboChannel_SelectionChanged"/>
+                <Label Content="Channel:" Foreground="#0F172A" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Grid.Column="0" Margin="0,0,8,0"/>
+                <ComboBox Name="cboChannel" Grid.Column="1" Height="32" FontSize="14" FontWeight="SemiBold" VerticalContentAlignment="Center" SelectionChanged="cboChannel_SelectionChanged"/>
 
                 <StackPanel Grid.Column="3" Orientation="Horizontal">
-                    <Button Name="btnSelectAll" Content="Select All" Width="90" Height="28" FontSize="12" FontWeight="SemiBold" 
-                            Background="#475569" Foreground="White" Click="btnSelectAll_Click" Margin="0,0,8,0" Cursor="Hand"/>
-                    <Button Name="btnDeselectAll" Content="Deselect All" Width="95" Height="28" FontSize="12" FontWeight="SemiBold" 
-                            Background="#64748B" Foreground="White" Click="btnDeselectAll_Click" Cursor="Hand"/>
+                    <Button Name="btnSelectAll" Content="Select All" Width="110" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Click="btnSelectAll_Click" Margin="0,0,8,0"/>
+                    <Button Name="btnDeselectAll" Content="Deselect All" Width="115" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Click="btnDeselectAll_Click"/>
                 </StackPanel>
             </Grid>
-        </Border>
 
-        <!-- Captured Multi-Frequency Test Runs Table -->
-        <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="4" Margin="0,0,0,8">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <!-- 3. DataGrid Table Container -->
+            <Border Grid.Row="3" Background="#FFFFFF" BorderBrush="#A0A0A0" BorderThickness="1" CornerRadius="10" Padding="6" Margin="4,0,4,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <TextBlock Text="Captured Multi-Frequency Test Runs Table" Foreground="#0F172A" FontSize="13" FontWeight="Bold" Margin="4,2,0,4"/>
+                    <Label Content="Captured Multi-Frequency Test Runs Table" Foreground="#0F172A" FontSize="15" FontWeight="Bold" Margin="4,0,0,4"/>
 
-                <DataGrid Name="dgTestResults" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
-                          Background="#FFFFFF" RowBackground="#FFFFFF" AlternatingRowBackground="#F8FAFC"
-                          Foreground="#0F172A" GridLinesVisibility="All" HorizontalGridLinesBrush="#E2E8F0" VerticalGridLinesBrush="#E2E8F0"
-                          HeadersVisibility="Column" FontSize="12" ColumnHeaderHeight="28" RowHeight="26"
-                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <DataGrid.Resources>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="Background" Value="#305371"/>
-                            <Setter Property="Foreground" Value="White"/>
-                            <Setter Property="FontWeight" Value="Bold"/>
-                            <Setter Property="Padding" Value="4,2"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                        </Style>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="Padding" Value="3,2"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
-                        </Style>
-                    </DataGrid.Resources>
-                </DataGrid>
+                    <DataGrid Name="dgTestResults" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
+                              Background="#FFFFFF" RowBackground="#FFFFFF" AlternatingRowBackground="#F8FAFC"
+                              Foreground="#0F172A" GridLinesVisibility="All" HorizontalGridLinesBrush="#CBD5E1" VerticalGridLinesBrush="#CBD5E1"
+                              HeadersVisibility="Column" FontSize="13" ColumnHeaderHeight="32" RowHeight="28"
+                              HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#305371"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Padding" Value="6,4"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Padding" Value="4,2"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGrid.Resources>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- 4. Status Bar Notice -->
+            <Border Grid.Row="4" Background="#E2E8F0" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="4,0,4,10">
+                <TextBlock Name="lblStatus" Text="Ready for Auto Ellipse calibration." Foreground="#0F172A" FontSize="13" FontWeight="SemiBold"/>
+            </Border>
+
+            <!-- 5. Bottom Action Buttons Bar -->
+            <Grid Grid.Row="5" Margin="4,0,4,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Name="btnRunTest" Content="Run Test" Width="150" Height="40" Style="{StaticResource MagkraftButtonStyle}" FontSize="16" Click="btnRunTest_Click" Margin="0,0,10,0"/>
+                    <Button Name="btnMakeEllipse" Content="Make Ellipse" Width="160" Height="40" Style="{StaticResource MagkraftButtonStyle}" FontSize="16" Click="btnMakeEllipse_Click" IsEnabled="False"/>
+                </StackPanel>
             </Grid>
-        </Border>
-
-        <!-- Status Bar -->
-        <Border Grid.Row="3" Background="#E2E8F0" CornerRadius="4" Padding="6,4" Margin="0,0,0,8">
-            <TextBlock Name="lblStatus" Text="Ready for Auto Ellipse calibration." Foreground="#1E293B" FontSize="12" FontWeight="Medium"/>
-        </Border>
-
-        <!-- Action Buttons Bar -->
-        <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Button Name="btnRunTest" Content="Run Test" Width="120" Height="36" FontSize="13" FontWeight="Bold" 
-                        Background="#305371" Foreground="White" Click="btnRunTest_Click" Margin="0,0,8,0" Cursor="Hand"/>
-                <Button Name="btnStopTest" Content="Stop Test" Width="100" Height="36" FontSize="13" FontWeight="Bold" 
-                        Background="#DC2626" Foreground="White" Click="btnStopTest_Click" IsEnabled="False" Margin="0,0,8,0" Cursor="Hand"/>
-                <Button Name="btnMakeEllipse" Content="Make Ellipse" Width="140" Height="36" FontSize="13" FontWeight="Bold" 
-                        Background="#305371" Foreground="White" Click="btnMakeEllipse_Click" IsEnabled="False" Margin="0,0,8,0" Cursor="Hand"/>
-            </StackPanel>
-
-            <Button Name="btnClose" Grid.Column="1" Content="Close" Width="90" Height="36" FontSize="13" FontWeight="Bold" 
-                    Background="#64748B" Foreground="White" Click="btnClose_Click" Cursor="Hand"/>
         </Grid>
-    </Grid>
+    </Border>
 </Window>
