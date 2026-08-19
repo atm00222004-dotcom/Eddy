@@ -1,0 +1,121 @@
+<Window x:Class="_8F.MakeEllipseSelection"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Make Ellipse: Select Test Runs" Height="700" Width="1000"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Background="#F8FAFC">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1.3*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Header & Convenience Selection Controls -->
+        <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Select Test Runs for Ellipse Calibration" Foreground="#0F172A" FontSize="15" FontWeight="Bold"/>
+                    <TextBlock Text="Check the test runs you want to include in the centroid and spread calculation." Foreground="#64748B" FontSize="13"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Name="btnSelectAll" Content="Select All" Width="100" Height="32" FontSize="13" FontWeight="SemiBold" 
+                            Background="#E2E8F0" Foreground="#0F172A" BorderBrush="#CBD5E1" Click="btnSelectAll_Click" Margin="0,0,8,0" Cursor="Hand"/>
+                    <Button Name="btnDeselectAll" Content="Deselect All" Width="100" Height="32" FontSize="13" FontWeight="SemiBold" 
+                            Background="#E2E8F0" Foreground="#0F172A" BorderBrush="#CBD5E1" Click="btnDeselectAll_Click" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Test Runs Selection DataGrid Table -->
+        <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Captured Test Runs Selection" Foreground="#0F172A" FontSize="14" FontWeight="Bold" Margin="4,0,0,6"/>
+
+                <DataGrid Name="dgSelection" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
+                          Background="#FFFFFF" RowBackground="#FFFFFF" AlternatingRowBackground="#F1F5F9"
+                          Foreground="#0F172A" GridLinesVisibility="All" HorizontalGridLinesBrush="#CBD5E1" VerticalGridLinesBrush="#CBD5E1"
+                          HeadersVisibility="Column" FontSize="13" ColumnHeaderHeight="32">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#305371"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="6,4"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGrid.Resources>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Computed Parameters Table (Per Frequency) -->
+        <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Computed Ellipse Threshold Parameters (Per Frequency)" Foreground="#305371" FontSize="14" FontWeight="Bold" Margin="4,0,0,6"/>
+
+                <DataGrid Name="dgComputedParameters" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True"
+                          Background="#FFFFFF" RowBackground="#F8FAFC" Foreground="#0F172A" GridLinesVisibility="All" 
+                          HorizontalGridLinesBrush="#CBD5E1" VerticalGridLinesBrush="#CBD5E1" HeadersVisibility="Column" FontSize="13" ColumnHeaderHeight="30">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#F1F5F9"/>
+                            <Setter Property="Foreground" Value="#305371"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="6,4"/>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Frequency" Binding="{Binding FrequencyName}" Width="140"/>
+                        <DataGridTextColumn Header="Center X (ex)" Binding="{Binding CenterX}" Width="120"/>
+                        <DataGridTextColumn Header="Center Y (ey)" Binding="{Binding CenterY}" Width="120"/>
+                        <DataGridTextColumn Header="Width" Binding="{Binding Width}" Width="120"/>
+                        <DataGridTextColumn Header="Height" Binding="{Binding Height}" Width="120"/>
+                        <DataGridTextColumn Header="Rotation (angel)" Binding="{Binding RotationAngle}" Width="130"/>
+                        <DataGridTextColumn Header="Sample Count" Binding="{Binding SampleCount}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="3" Background="#E2E8F0" CornerRadius="4" Padding="8" Margin="0,0,0,12">
+            <TextBlock Name="lblStatus" Text="Select test run(s) and click 'Compute &amp; Apply Ellipse(s)'." Foreground="#1E293B" FontSize="13" FontWeight="Medium"/>
+        </Border>
+
+        <!-- Action Buttons Bar -->
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Name="btnComputeApply" Grid.Column="0" Content="Compute &amp; Apply Ellipse(s)" Width="230" Height="40" FontSize="14" FontWeight="Bold" 
+                    Background="#305371" Foreground="White" Click="btnComputeApply_Click" HorizontalAlignment="Left" Cursor="Hand"/>
+
+            <Button Name="btnClose" Grid.Column="1" Content="Close" Width="110" Height="40" FontSize="14" FontWeight="Bold" 
+                    Background="#64748B" Foreground="White" Click="btnClose_Click" Cursor="Hand"/>
+        </Grid>
+    </Grid>
+</Window>

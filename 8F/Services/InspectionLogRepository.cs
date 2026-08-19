@@ -17,6 +17,7 @@ namespace _8F.Services
     {
         private readonly string _connectionString;
         private readonly string _offlineQueuePath;
+        private readonly string _autoEllipseOfflineQueuePath;
 
         public InspectionLogRepository(string? connectionString = null)
         {
@@ -27,9 +28,11 @@ namespace _8F.Services
                 ?? ConfigurationManager.AppSettings["ConnectionString"]
                 ?? "Host=localhost;Port=5432;Username=postgres;Password=ary123;Database=Eddy;Pooling=true;Minimum Pool Size=2;Maximum Pool Size=20;";
 
-            _offlineQueuePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Eddy", "offline_logs_queue.json");
+            var eddyDataFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Eddy");
+
+            _offlineQueuePath = Path.Combine(eddyDataFolder, "offline_logs_queue.json");
+            _autoEllipseOfflineQueuePath = Path.Combine(eddyDataFolder, "auto_ellipse_offline_queue.json");
         }
 
         #region 1. Connection Setup & Health Check
@@ -334,6 +337,219 @@ namespace _8F.Services
             }
 
             return syncedCount;
+        }
+
+        #endregion
+
+        #region 6. Auto Ellipse Operations
+
+        /// <summary>
+        /// Inserts a raw multi-frequency Auto Ellipse test run into PostgreSQL.
+        /// </summary>
+        public async Task<bool> InsertAutoEllipseTestAsync(AutoEllipseTest test)
+        {
+            const string sql = @"
+                INSERT INTO public.""AutoEllipseTests"" (
+                    ""ChId"", ""TestNumber"", ""TimeStamp"", ""OperatorName"", ""FrequencyValues"", ""IsDeleted""
+                ) VALUES (
+                    @ChId, @TestNumber, @TimeStamp, @OperatorName, @FrequencyValues::json, @IsDeleted
+                )
+                RETURNING ""Id"";";
+
+            try
+            {
+                await using var conn = await GetOpenConnectionAsync();
+                await using var cmd = new NpgsqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@ChId", test.ChannelId);
+                cmd.Parameters.AddWithValue("@TestNumber", test.TestNumber);
+                cmd.Parameters.AddWithValue("@TimeStamp", test.TimeStamp.ToUniversalTime());
+                cmd.Parameters.AddWithValue("@OperatorName", (object?)test.OperatorName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FrequencyValues", string.IsNullOrWhiteSpace(test.FrequencyValuesJson) ? "{}" : test.FrequencyValuesJson);
+                cmd.Parameters.AddWithValue("@IsDeleted", test.IsDeleted);
+
+                var insertedId = await cmd.ExecuteScalarAsync();
+                if (insertedId != null && insertedId != DBNull.Value)
+                {
+                    test.Id = Convert.ToInt64(insertedId);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                EnqueueOfflineAutoEllipseTest(test, ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Soft-deletes a raw Auto Ellipse test run by setting IsDeleted = true.
+        /// </summary>
+        public async Task<bool> SoftDeleteAutoEllipseTestAsync(long testId)
+        {
+            const string sql = @"
+                UPDATE public.""AutoEllipseTests""
+                SET ""IsDeleted"" = TRUE
+                WHERE ""Id"" = @Id;";
+
+            try
+            {
+                await using var conn = await GetOpenConnectionAsync();
+                await using var cmd = new NpgsqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Id", testId);
+
+                int rows = await cmd.ExecuteNonQueryAsync();
+                return rows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error soft deleting AutoEllipse test record: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Fetches all active (non-deleted) raw Auto Ellipse test runs for a given channel from PostgreSQL.
+        /// </summary>
+        public async Task<List<AutoEllipseTest>> GetAutoEllipseTestsByChannelAsync(int channelId)
+        {
+            List<AutoEllipseTest> list = new();
+            const string sql = @"
+                SELECT ""Id"", ""ChId"", ""TestNumber"", ""TimeStamp"", ""OperatorName"", ""FrequencyValues""
+                FROM public.""AutoEllipseTests""
+                WHERE ""ChId"" = @ChId AND ""IsDeleted"" = FALSE
+                ORDER BY ""TestNumber"" ASC;";
+
+            try
+            {
+                await using var conn = await GetOpenConnectionAsync();
+                await using var cmd = new NpgsqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@ChId", channelId);
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    list.Add(new AutoEllipseTest
+                    {
+                        Id = reader.GetInt64(0),
+                        ChannelId = reader.GetInt32(1),
+                        TestNumber = reader.GetInt32(2),
+                        TimeStamp = reader.GetDateTime(3),
+                        OperatorName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                        FrequencyValuesJson = reader.IsDBNull(5) ? "{}" : reader.GetString(5),
+                        IsDeleted = false
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetAutoEllipseTestsByChannelAsync error: {ex.Message}");
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Inserts a computed Auto Ellipse result record into PostgreSQL for audit logging.
+        /// </summary>
+        public async Task<bool> InsertAutoEllipseResultAsync(AutoEllipseResultRecord result)
+        {
+            const string sql = @"
+                INSERT INTO public.""AutoEllipseResults"" (
+                    ""ChId"", ""Frequency"", ""TimeStamp"", ""SelectedTestIds"",
+                    ""ComputedCenterX"", ""ComputedCenterY"",
+                    ""ComputedWidth"", ""ComputedHeight"", ""ComputedRotationAngle"",
+                    ""SampleCount""
+                ) VALUES (
+                    @ChId, @Frequency, @TimeStamp, @SelectedTestIds::json,
+                    @ComputedCenterX, @ComputedCenterY,
+                    @ComputedWidth, @ComputedHeight, @ComputedRotationAngle,
+                    @SampleCount
+                )
+                RETURNING ""Id"";";
+
+            try
+            {
+                await using var conn = await GetOpenConnectionAsync();
+                await using var cmd = new NpgsqlCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue("@ChId", result.ChannelId);
+                cmd.Parameters.AddWithValue("@Frequency", result.Frequency ?? string.Empty);
+                cmd.Parameters.AddWithValue("@TimeStamp", result.TimeStamp.ToUniversalTime());
+                cmd.Parameters.AddWithValue("@SelectedTestIds", string.IsNullOrWhiteSpace(result.SelectedTestIdsJson) ? "[]" : result.SelectedTestIdsJson);
+                cmd.Parameters.AddWithValue("@ComputedCenterX", result.ComputedCenterX);
+                cmd.Parameters.AddWithValue("@ComputedCenterY", result.ComputedCenterY);
+                cmd.Parameters.AddWithValue("@ComputedWidth", result.ComputedWidth);
+                cmd.Parameters.AddWithValue("@ComputedHeight", result.ComputedHeight);
+                cmd.Parameters.AddWithValue("@ComputedRotationAngle", result.ComputedRotationAngle);
+                cmd.Parameters.AddWithValue("@SampleCount", result.SampleCount);
+
+                var insertedId = await cmd.ExecuteScalarAsync();
+                if (insertedId != null && insertedId != DBNull.Value)
+                {
+                    result.Id = Convert.ToInt64(insertedId);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error inserting AutoEllipse result audit: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Updates AutoEllipseTests rows for a channel setting Applied = true and AppliedTimeStamp = now.
+        /// </summary>
+        public async Task<bool> UpdateAutoEllipseTestsAppliedAsync(int channelId)
+        {
+            const string sql = @"
+                UPDATE public.""AutoEllipseTests""
+                SET ""Applied"" = TRUE, ""AppliedTimeStamp"" = @AppliedTimeStamp
+                WHERE ""ChId"" = @ChId AND ""Applied"" = FALSE;";
+
+            try
+            {
+                await using var conn = await GetOpenConnectionAsync();
+                await using var cmd = new NpgsqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@ChId", channelId);
+                cmd.Parameters.AddWithValue("@AppliedTimeStamp", DateTime.UtcNow);
+
+                int rows = await cmd.ExecuteNonQueryAsync();
+                return rows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating AutoEllipseTests applied state: {ex.Message}");
+                return false;
+            }
+        }
+
+        private void EnqueueOfflineAutoEllipseTest(AutoEllipseTest test, string reason)
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(_autoEllipseOfflineQueuePath);
+                if (!Directory.Exists(dir) && dir != null)
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                List<AutoEllipseTest> queue = new();
+                if (File.Exists(_autoEllipseOfflineQueuePath))
+                {
+                    var json = File.ReadAllText(_autoEllipseOfflineQueuePath);
+                    queue = JsonSerializer.Deserialize<List<AutoEllipseTest>>(json) ?? new();
+                }
+
+                queue.Add(test);
+                File.WriteAllText(_autoEllipseOfflineQueuePath, JsonSerializer.Serialize(queue, new JsonSerializerOptions { WriteIndented = true }));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Critical: Failed to queue offline auto ellipse test: {ex.Message}");
+            }
         }
 
         #endregion

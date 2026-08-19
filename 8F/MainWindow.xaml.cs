@@ -40,6 +40,7 @@ namespace _8F
     {
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
         public CircleSetting ellipsesPop { get; set; }
+        public AutoEllipse autoEllipsePop { get; set; }
         public PartConfig partConfig { get; set; }
         public PartConfigReNew partConfigReNew { get; set; }
         public DeviceCOM portCOM;
@@ -241,6 +242,7 @@ namespace _8F
                     {
                         new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
                         new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
+                        new MenuItemViewModel { Header = "Auto Ellipse", mainWindow = this },
                         isRenewConfig ? new MenuItemViewModel { Header = "Operator Master", mainWindow = this } : null,
                         isRenewConfig ? new MenuItemViewModel { Header = "Part Master", mainWindow = this } : null,
                         new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
@@ -252,6 +254,7 @@ namespace _8F
                     {
                         new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
                         new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
+                        new MenuItemViewModel { Header = "Auto Ellipse", mainWindow = this },
                         new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                         new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this }
                     }
@@ -2696,6 +2699,13 @@ namespace _8F
                         ellipsesPop.portCOM = mainWindow.portCOM;
                         ellipsesPop.Owner = mainWindow;
                         ellipsesPop.ShowDialog();
+                    }
+                    else if (Header == "Auto Ellipse")
+                    {
+                        var autoEllipsePop = new AutoEllipse();
+                        autoEllipsePop.portCOM = mainWindow.portCOM;
+                        autoEllipsePop.Owner = mainWindow;
+                        autoEllipsePop.ShowDialog();
                     }
                     else if (Header == "Part Master")
                     {

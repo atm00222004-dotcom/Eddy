@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System;
@@ -56,6 +56,7 @@ namespace _8F
         public static string Code;
         public static bool IsJSON = false;
         public static bool IsLogRequiredOnBalance = false;
+        public static bool IsAutoEllipseActive = false;
         DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;
@@ -269,35 +270,41 @@ namespace _8F
                         {
                             responses.Add(res);
 
-                            var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
-                            if (res.OR == 1)
+                            if (!IsAutoEllipseActive)
                             {
-                                cnt.ResultOkCount = cnt.ResultOkCount + 1;
-                            }
-                            else
-                            {
-                                cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
-                            }
-                            cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
-                            IsResponseRefreshRequired = true;
-
-                            if (!string.IsNullOrEmpty(Code))
-                            {
-                                Task.Run(() =>
+                                var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
+                                if (cnt != null)
                                 {
-                                    WriteLogCSV(Convert.ToBoolean(res.OR), DateTime.Now, res);
-                                });
-                            }
+                                    if (res.OR == 1)
+                                    {
+                                        cnt.ResultOkCount = cnt.ResultOkCount + 1;
+                                    }
+                                    else
+                                    {
+                                        cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
+                                    }
+                                    cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
+                                }
+                                IsResponseRefreshRequired = true;
 
-                            if (!IsLogDisable && IsLogEnable)
-                            {
-                                Task.Run(() =>
+                                if (!string.IsNullOrEmpty(Code))
                                 {
-                                    WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now, res);
-                                });
-                            }
+                                    Task.Run(() =>
+                                    {
+                                        WriteLogCSV(Convert.ToBoolean(res.OR), DateTime.Now, res);
+                                    });
+                                }
 
-                            DeviceCOM.IsLogDisable = false;
+                                if (!IsLogDisable && IsLogEnable)
+                                {
+                                    Task.Run(() =>
+                                    {
+                                        WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now, res);
+                                    });
+                                }
+
+                                DeviceCOM.IsLogDisable = false;
+                            }
 
                         }
                     }
@@ -352,35 +359,41 @@ namespace _8F
                         {
                             responses.Add(res);
 
-                            var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
-                            if (res.OR == 1)
+                            if (!IsAutoEllipseActive)
                             {
-                                cnt.ResultOkCount = cnt.ResultOkCount + 1;
-                            }
-                            else
-                            {  
-                                cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
-                            }
-                            cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
-                            IsResponseRefreshRequired = true;
-
-                            if (!string.IsNullOrEmpty(Code))
-                            {
-                                Task.Run(() =>
+                                var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
+                                if (cnt != null)
                                 {
-                                    WriteLogCSV(Convert.ToBoolean(res.OR), DateTime.Now, res);
-                                });
-                            }
+                                    if (res.OR == 1)
+                                    {
+                                        cnt.ResultOkCount = cnt.ResultOkCount + 1;
+                                    }
+                                    else
+                                    {  
+                                        cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
+                                    }
+                                    cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
+                                }
+                                IsResponseRefreshRequired = true;
 
-                            if (!IsLogDisable && IsLogEnable)
-                            {
-                                Task.Run(() =>
+                                if (!string.IsNullOrEmpty(Code))
                                 {
-                                    WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now, res);                                    
-                                });
-                            }
+                                    Task.Run(() =>
+                                    {
+                                        WriteLogCSV(Convert.ToBoolean(res.OR), DateTime.Now, res);
+                                    });
+                                }
 
-                            DeviceCOM.IsLogDisable = false;
+                                if (!IsLogDisable && IsLogEnable)
+                                {
+                                    Task.Run(() =>
+                                    {
+                                        WriteLog(res.CN, Convert.ToBoolean(res.OR), DateTime.Now, res);                                    
+                                    });
+                                }
+
+                                DeviceCOM.IsLogDisable = false;
+                            }
 
                         }
                     }

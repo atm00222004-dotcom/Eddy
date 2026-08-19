@@ -1,0 +1,634 @@
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Media;
+using System.Windows.Threading;
+using _8F.Models;
+using _8F.Services;
+
+namespace _8F
+{
+    /// <summary>
+    /// Interaction logic for AutoEllipse.xaml
+    /// </summary>
+    public partial class AutoEllipse : Window
+    {
+        public bool IsSaved { get; set; } = false;
+        public DeviceCOM portCOM { get; set; }
+
+        private readonly Dictionary<int, DataTable> _channelTables = new();
+        private readonly Dictionary<int, List<AutoEllipseTest>> _channelRawRecords = new();
+        private readonly DispatcherTimer _acquisitionTimer;
+        private readonly InspectionLogRepository _repository;
+
+        private bool _isTestActive = false;
+        private DateTime _testStartTime;
+        private int _lastProcessedResponseIndex = 0;
+        private DataTable? _activeTable;
+
+        public AutoEllipse()
+        {
+            InitializeComponent();
+
+            _repository = new InspectionLogRepository();
+
+            _acquisitionTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(100)
+            };
+            _acquisitionTimer.Tick += AcquisitionTimer_Tick;
+
+            Loaded += AutoEllipse_Loaded;
+        }
+
+        private void AutoEllipse_Loaded(object sender, RoutedEventArgs e)
+        {
+            DeviceCOM.IsAutoEllipseActive = true;
+            Unloaded += AutoEllipse_Unloaded;
+            Closed += AutoEllipse_Closed;
+            PopulateChannels();
+        }
+
+        private void AutoEllipse_Unloaded(object sender, RoutedEventArgs e)
+        {
+            DeviceCOM.IsAutoEllipseActive = false;
+        }
+
+        private void AutoEllipse_Closed(object? sender, EventArgs e)
+        {
+            DeviceCOM.IsAutoEllipseActive = false;
+        }
+
+        private void PopulateChannels()
+        {
+            cboChannel.Items.Clear();
+
+            if (DeviceCOM.channelDatas == null || DeviceCOM.channelDatas.Count == 0)
+            {
+                cboChannel.Items.Add("Channel-1");
+            }
+            else
+            {
+                foreach (var ch in DeviceCOM.channelDatas)
+                {
+                    if (ch.Id <= DeviceCOM.ChannelNo)
+                    {
+                        cboChannel.Items.Add($"Channel-{ch.Id}");
+                    }
+                }
+            }
+
+            if (cboChannel.Items.Count > 0)
+            {
+                cboChannel.SelectedIndex = 0;
+            }
+        }
+
+        private async void cboChannel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cboChannel.SelectedIndex >= 0)
+            {
+                int chId = cboChannel.SelectedIndex + 1;
+                await SetupChannelTableAndColumnsAsync(chId);
+            }
+        }
+
+        private async Task SetupChannelTableAndColumnsAsync(int channelId)
+        {
+            dgTestResults.Columns.Clear();
+
+            bool isNewTable = !_channelTables.ContainsKey(channelId);
+            if (isNewTable)
+            {
+                DataTable dt = new DataTable();
+                dt.Columns.Add("IsSelected", typeof(bool));
+                dt.Columns.Add("DbId", typeof(long));
+                dt.Columns.Add("TestName", typeof(string));
+                dt.Columns.Add("Timestamp", typeof(string));
+
+                var chData = DeviceCOM.channelDatas?.FirstOrDefault(c => c.Id == channelId);
+                if (chData != null && chData.graphDatas != null)
+                {
+                    foreach (var freq in chData.graphDatas)
+                    {
+                        dt.Columns.Add($"F{freq.Id}", typeof(string));
+                        dt.Columns.Add($"F{freq.Id}_X", typeof(double));
+                        dt.Columns.Add($"F{freq.Id}_Y", typeof(double));
+                    }
+                }
+                else
+                {
+                    dt.Columns.Add("F1", typeof(string));
+                    dt.Columns.Add("F1_X", typeof(double));
+                    dt.Columns.Add("F1_Y", typeof(double));
+                }
+
+                _channelTables[channelId] = dt;
+                _channelRawRecords[channelId] = new List<AutoEllipseTest>();
+            }
+
+            _activeTable = _channelTables[channelId];
+            dgTestResults.ItemsSource = _activeTable.DefaultView;
+
+            // 1. Front CheckBox Selection Column (Include)
+            dgTestResults.Columns.Add(new DataGridCheckBoxColumn
+            {
+                Header = "Include",
+                Binding = new Binding("IsSelected"),
+                Width = 50
+            });
+
+            // 2. Test Name Column
+            dgTestResults.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Test #",
+                Binding = new Binding("TestName"),
+                IsReadOnly = true,
+                Width = 60
+            });
+
+            // 3. Timestamp Column
+            dgTestResults.Columns.Add(new DataGridTextColumn
+            {
+                Header = "Timestamp",
+                Binding = new Binding("Timestamp"),
+                IsReadOnly = true,
+                Width = 90
+            });
+
+            // 4. Combined Frequency Columns: Dn (X,Y) with Auto-Star Sizing
+            var activeCh = DeviceCOM.channelDatas?.FirstOrDefault(c => c.Id == channelId);
+            if (activeCh != null && activeCh.graphDatas != null)
+            {
+                foreach (var freq in activeCh.graphDatas)
+                {
+                    dgTestResults.Columns.Add(new DataGridTextColumn
+                    {
+                        Header = $"{freq.Name} (X,Y)",
+                        Binding = new Binding($"F{freq.Id}"),
+                        IsReadOnly = true,
+                        Width = new DataGridLength(1, DataGridLengthUnitType.Star)
+                    });
+                }
+            }
+
+            // 5. Per-Row Delete Action Column
+            FrameworkElementFactory btnFactory = new FrameworkElementFactory(typeof(Button));
+            btnFactory.SetValue(Button.ContentProperty, "Delete");
+            btnFactory.SetValue(Button.BackgroundProperty, new SolidColorBrush(Color.FromRgb(220, 38, 38)));
+            btnFactory.SetValue(Button.ForegroundProperty, Brushes.White);
+            btnFactory.SetValue(Button.FontWeightProperty, FontWeights.Bold);
+            btnFactory.SetValue(Button.FontSizeProperty, 11.0);
+            btnFactory.SetValue(Button.WidthProperty, 55.0);
+            btnFactory.SetValue(Button.HeightProperty, 20.0);
+            btnFactory.SetValue(Button.CursorProperty, System.Windows.Input.Cursors.Hand);
+            btnFactory.AddHandler(Button.ClickEvent, new RoutedEventHandler(btnDeleteRow_Click));
+
+            DataTemplate cellTemplate = new DataTemplate();
+            cellTemplate.VisualTree = btnFactory;
+
+            dgTestResults.Columns.Add(new DataGridTemplateColumn
+            {
+                Header = "Action",
+                CellTemplate = cellTemplate,
+                Width = 65
+            });
+
+            // Load Historical Data from PostgreSQL for this Channel
+            if (isNewTable)
+            {
+                lblStatus.Text = $"Loading Channel-{channelId} calibration data from PostgreSQL...";
+                var dbRecords = await _repository.GetAutoEllipseTestsByChannelAsync(channelId);
+
+                _channelRawRecords[channelId] = dbRecords;
+                foreach (var record in dbRecords)
+                {
+                    DataRow row = _activeTable.NewRow();
+                    row["IsSelected"] = true;
+                    row["DbId"] = record.Id;
+                    row["TestName"] = $"Test {record.TestNumber}";
+                    row["Timestamp"] = record.TimeStamp.ToLocalTime().ToString("HH:mm:ss.fff");
+
+                    if (!string.IsNullOrWhiteSpace(record.FrequencyValuesJson))
+                    {
+                        try
+                        {
+                            var freqDict = JsonConvert.DeserializeObject<Dictionary<string, Newtonsoft.Json.Linq.JObject>>(record.FrequencyValuesJson);
+                            if (freqDict != null)
+                            {
+                                foreach (var kvp in freqDict)
+                                {
+                                    string key = kvp.Key; // e.g. "F1", "F2"
+                                    double x = kvp.Value["x"]?.ToObject<double>() ?? 0.0;
+                                    double y = kvp.Value["y"]?.ToObject<double>() ?? 0.0;
+
+                                    if (_activeTable.Columns.Contains(key)) row[key] = $"{x:F2}, {y:F2}";
+                                    if (_activeTable.Columns.Contains($"{key}_X")) row[$"{key}_X"] = x;
+                                    if (_activeTable.Columns.Contains($"{key}_Y")) row[$"{key}_Y"] = y;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error parsing JSON for test {record.TestNumber}: {ex.Message}");
+                        }
+                    }
+
+                    _activeTable.Rows.Add(row);
+                }
+            }
+
+            int rowCount = _activeTable.Rows.Count;
+            lblStatus.Text = $"Channel-{channelId} loaded. Captured test runs: {rowCount}";
+            btnMakeEllipse.IsEnabled = rowCount > 0;
+        }
+
+        private void btnSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (_activeTable == null) return;
+            foreach (DataRow row in _activeTable.Rows)
+            {
+                row["IsSelected"] = true;
+            }
+        }
+
+        private void btnDeselectAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (_activeTable == null) return;
+            foreach (DataRow row in _activeTable.Rows)
+            {
+                row["IsSelected"] = false;
+            }
+        }
+
+        private void btnDeleteRow_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is DataRowView rowView)
+            {
+                DataRow row = rowView.Row;
+                string testName = row.Field<string>("TestName") ?? "Test";
+                long dbId = row.Field<long?>("DbId") ?? 0;
+
+                var confirmResult = MessageBox.Show(
+                    $"Are you sure you want to delete {testName}?",
+                    "Confirm Delete Run",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (confirmResult == MessageBoxResult.Yes)
+                {
+                    int chId = cboChannel.SelectedIndex + 1;
+
+                    // Soft Delete in Database
+                    if (dbId > 0)
+                    {
+                        Task.Run(async () =>
+                        {
+                            await _repository.SoftDeleteAutoEllipseTestAsync(dbId);
+                        });
+                    }
+
+                    // Update local records
+                    if (_channelRawRecords.TryGetValue(chId, out var rawList))
+                    {
+                        var rec = rawList.FirstOrDefault(r => r.Id == dbId || $"Test {r.TestNumber}" == testName);
+                        if (rec != null) rec.IsDeleted = true;
+                    }
+
+                    _activeTable?.Rows.Remove(row);
+
+                    int remaining = _activeTable?.Rows.Count ?? 0;
+                    btnMakeEllipse.IsEnabled = remaining > 0;
+                    lblStatus.Text = $"{testName} removed. Remaining test runs: {remaining}";
+                }
+            }
+        }
+
+        private void btnRunTest_Click(object sender, RoutedEventArgs e)
+        {
+            if (DeviceCOM.IsLogEnable)
+            {
+                MessageBox.Show("Cannot run Auto Ellipse while production logging is active. Please stop log first.", "Command Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (DeviceCOM.IsSystemBusy)
+            {
+                MessageBox.Show("System is currently busy. Please wait for previous operation to complete.", "System Busy", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (DeviceCOM.IsBalanceRequired)
+            {
+                lblStatus.Text = "Unable to test because balance command is required!";
+                MessageBox.Show("Unable to run test because a Balance command is required first!\n\nPlease perform a Balance command on the main screen before running test acquisition.", "Balance Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int chId = cboChannel.SelectedIndex + 1;
+            if (!_channelTables.ContainsKey(chId))
+            {
+                _ = SetupChannelTableAndColumnsAsync(chId);
+            }
+
+            // Trigger ECT test hardware acquisition across all frequencies (FC = 17)
+            bool success = SendTestCommand();
+            if (!success)
+            {
+                lblStatus.Text = "Failed to communicate with ECT hardware.";
+                MessageBox.Show("Unable to start test acquisition due to communication error.", "Communication Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _isTestActive = true;
+            _testStartTime = DateTime.Now;
+            _lastProcessedResponseIndex = DeviceCOM.responses?.Count ?? 0;
+
+            btnRunTest.IsEnabled = false;
+            btnStopTest.IsEnabled = true;
+            cboChannel.IsEnabled = false;
+
+            lblStatus.Text = "Acquiring multi-frequency test run from ECT instrument...";
+            _acquisitionTimer.Start();
+        }
+
+        private bool SendTestCommand()
+        {
+            try
+            {
+                if (portCOM == null) return false;
+
+                BalanceTest testCmd = new BalanceTest { FC = 17, CN = 0 };
+                bool isJson = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+
+                if (isJson)
+                {
+                    return portCOM.WriteData(JsonConvert.SerializeObject(testCmd));
+                }
+                else
+                {
+                    byte[] data = new byte[6];
+                    data[0] = Convert.ToByte(2);  // STX
+                    data[1] = Convert.ToByte(17); // FC 17 (Test Command)
+                    data[2] = Convert.ToByte(1);  // Length
+                    data[3] = Convert.ToByte(0);  // CN 0
+
+                    return portCOM.WriteDataInBytes(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SendTestCommand exception: {ex.Message}");
+                return false;
+            }
+        }
+
+        private void AcquisitionTimer_Tick(object? sender, EventArgs e)
+        {
+            if (!_isTestActive || _activeTable == null) return;
+
+            int chId = cboChannel.SelectedIndex + 1;
+
+            if (DeviceCOM.responses != null && DeviceCOM.responses.Count > _lastProcessedResponseIndex)
+            {
+                for (int i = _lastProcessedResponseIndex; i < DeviceCOM.responses.Count; i++)
+                {
+                    var resp = DeviceCOM.responses[i];
+                    if (resp == null || resp.CN != chId || resp.FD == null) continue;
+
+                    int testNum = _activeTable.Rows.Count + 1;
+                    DataRow newRow = _activeTable.NewRow();
+                    newRow["IsSelected"] = true; // Checked by default
+                    newRow["TestName"] = $"Test {testNum}";
+                    newRow["Timestamp"] = DateTime.Now.ToString("HH:mm:ss.fff");
+
+                    Dictionary<string, object> freqValuesJson = new();
+
+                    foreach (var fd in resp.FD)
+                    {
+                        string colDisplay = $"F{fd.FN}";
+                        string colX = $"F{fd.FN}_X";
+                        string colY = $"F{fd.FN}_Y";
+
+                        if (_activeTable.Columns.Contains(colDisplay)) newRow[colDisplay] = $"{fd.X:F2}, {fd.Y:F2}";
+                        if (_activeTable.Columns.Contains(colX)) newRow[colX] = (double)fd.X;
+                        if (_activeTable.Columns.Contains(colY)) newRow[colY] = (double)fd.Y;
+
+                        freqValuesJson[$"F{fd.FN}"] = new { x = fd.X, y = fd.Y };
+                    }
+
+                    // Save Raw Run to DB
+                    AutoEllipseTest testRecord = new AutoEllipseTest
+                    {
+                        ChannelId = chId,
+                        TestNumber = testNum,
+                        TimeStamp = DateTime.UtcNow,
+                        OperatorName = DeviceCOM.part?.Name ?? "Operator",
+                        FrequencyValuesJson = JsonConvert.SerializeObject(freqValuesJson),
+                        IsDeleted = false
+                    };
+
+                    Task.Run(async () =>
+                    {
+                        await _repository.InsertAutoEllipseTestAsync(testRecord);
+                    });
+
+                    newRow["DbId"] = testRecord.Id;
+                    _activeTable.Rows.Add(newRow);
+
+                    if (_channelRawRecords.TryGetValue(chId, out var rawList))
+                    {
+                        rawList.Add(testRecord);
+                    }
+
+                    // Auto-scroll DataGrid to latest row
+                    if (_activeTable.Rows.Count > 0)
+                    {
+                        dgTestResults.ScrollIntoView(_activeTable.DefaultView[_activeTable.Rows.Count - 1]);
+                    }
+
+                    StopAcquisition($"Test {testNum} captured successfully across all frequencies.");
+                    break;
+                }
+
+                _lastProcessedResponseIndex = DeviceCOM.responses.Count;
+            }
+
+            // Timeout check (10 seconds)
+            if (_isTestActive && (DateTime.Now - _testStartTime).TotalSeconds >= 10)
+            {
+                StopAcquisition("Acquisition timed out waiting for hardware response.");
+            }
+        }
+
+        private void btnStopTest_Click(object sender, RoutedEventArgs e)
+        {
+            StopAcquisition("Test run cancelled by operator.");
+        }
+
+        private void StopAcquisition(string statusMsg)
+        {
+            _isTestActive = false;
+            _acquisitionTimer.Stop();
+
+            btnRunTest.IsEnabled = true;
+            btnStopTest.IsEnabled = false;
+            cboChannel.IsEnabled = true;
+
+            int rowCount = _activeTable?.Rows.Count ?? 0;
+            btnMakeEllipse.IsEnabled = rowCount > 0;
+            lblStatus.Text = statusMsg;
+        }
+
+        private void btnMakeEllipse_Click(object sender, RoutedEventArgs e)
+        {
+            if (_activeTable == null || _activeTable.Rows.Count == 0)
+            {
+                MessageBox.Show("No test runs captured in table for this channel.", "No Data", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int chId = cboChannel.SelectedIndex + 1;
+
+            var selectedRows = _activeTable.AsEnumerable()
+                .Where(r => r.Field<bool>("IsSelected"))
+                .ToList();
+
+            if (selectedRows.Count == 0)
+            {
+                MessageBox.Show("Please check at least one test run in the table to compute threshold ellipses.", "No Runs Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (selectedRows.Count < 3)
+            {
+                var warnResult = MessageBox.Show(
+                    $"Only {selectedRows.Count} test run(s) checked. Computing ellipses with fewer than 3 runs may yield narrow thresholds.\n\nDo you want to proceed?",
+                    "Low Sample Count Warning",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (warnResult != MessageBoxResult.Yes) return;
+            }
+
+            try
+            {
+                var chData = DeviceCOM.channelDatas?.FirstOrDefault(c => c.Id == chId);
+                if (chData == null || chData.graphDatas == null)
+                {
+                    MessageBox.Show("Channel configuration is invalid.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Extract Selected Test IDs for Audit Log
+                List<long> selectedDbIds = new();
+                _channelRawRecords.TryGetValue(chId, out var rawRecords);
+
+                foreach (var sRow in selectedRows)
+                {
+                    string tName = sRow.Field<string>("TestName") ?? "";
+                    long dbId = sRow.Field<long?>("DbId") ?? 0;
+                    if (dbId > 0)
+                    {
+                        selectedDbIds.Add(dbId);
+                    }
+                    else if (rawRecords != null)
+                    {
+                        var match = rawRecords.FirstOrDefault(r => $"Test {r.TestNumber}" == tName);
+                        if (match != null && match.Id > 0)
+                        {
+                            selectedDbIds.Add(match.Id);
+                        }
+                    }
+                }
+                string selectedTestIdsJson = JsonConvert.SerializeObject(selectedDbIds);
+
+                foreach (var graph in chData.graphDatas)
+                {
+                    string colX = $"F{graph.Id}_X";
+                    string colY = $"F{graph.Id}_Y";
+
+                    List<(double X, double Y)> points = new();
+
+                    foreach (DataRow row in selectedRows)
+                    {
+                        if (_activeTable.Columns.Contains(colX) && _activeTable.Columns.Contains(colY) &&
+                            row[colX] != DBNull.Value && row[colY] != DBNull.Value)
+                        {
+                            double x = Convert.ToDouble(row[colX]);
+                            double y = Convert.ToDouble(row[colY]);
+                            points.Add((x, y));
+                        }
+                    }
+
+                    var result = EllipseFitter.FitEllipse(graph.Name, graph.Id, points);
+
+                    if (result.IsValid)
+                    {
+                        if (graph.ellipses == null) graph.ellipses = new List<Ellips>();
+                        if (graph.ellipses.Count == 0) graph.ellipses.Add(new Ellips { Id = 1 });
+
+                        var targetEll = graph.ellipses[0];
+                        targetEll.ex = result.CenterX;
+                        targetEll.ey = result.CenterY;
+                        targetEll.width = result.Width;
+                        targetEll.height = result.Height;
+                        targetEll.angel = result.RotationAngle;
+
+                        // Save Computed Audit Record to DB with SelectedTestIds
+                        AutoEllipseResultRecord auditRecord = new AutoEllipseResultRecord
+                        {
+                            ChannelId = chId,
+                            Frequency = graph.Name,
+                            TimeStamp = DateTime.UtcNow,
+                            SelectedTestIdsJson = selectedTestIdsJson,
+                            ComputedCenterX = result.CenterX,
+                            ComputedCenterY = result.CenterY,
+                            ComputedWidth = result.Width,
+                            ComputedHeight = result.Height,
+                            ComputedRotationAngle = result.RotationAngle,
+                            SampleCount = result.SampleCount
+                        };
+
+                        Task.Run(async () =>
+                        {
+                            await _repository.InsertAutoEllipseResultAsync(auditRecord);
+                        });
+                    }
+                }
+
+                // Apply changes to ECT Hardware & Main UI
+                if (Owner is MainWindow mw)
+                {
+                    mw.ImplementChanges(2);
+                }
+
+                IsSaved = true;
+                string statusText = $"Auto Ellipse threshold applied to Channel-{chId} using {selectedRows.Count} of {_activeTable.Rows.Count} selected test runs.";
+                lblStatus.Text = statusText;
+
+                MessageBox.Show(statusText, "Threshold Applied Successfully", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = $"Computation error: {ex.Message}";
+                MessageBox.Show($"Error computing Auto Ellipse: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isTestActive)
+            {
+                StopAcquisition("Window closing.");
+            }
+            Close();
+        }
+    }
+}
