@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ConfigurationKeyGenerator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bb515c0798ffa5e925a311f04dc4e2d0ec7098b8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e14399c3bca87721c2d45462ac1fc0b90f83df71")]
 [assembly: System.Reflection.AssemblyProductAttribute("ConfigurationKeyGenerator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ConfigurationKeyGenerator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

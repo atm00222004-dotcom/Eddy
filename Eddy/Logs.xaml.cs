@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -55,6 +55,12 @@ namespace Eddy
 
                 listOfLog = new List<LogData>();
                
+                if (string.IsNullOrEmpty(DeviceCOM.DBConnection))
+                {
+                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["DBConnection"])
+                        ?? Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]);
+                }
+
                 using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
                 {
                     string sql = @"
@@ -685,7 +691,7 @@ namespace Eddy
                                                     statsRow.AutoItem().AlignMiddle()
                                                         .Text("Start: ").FontSize(8).FontColor("#ccd6e0");
                                                     statsRow.AutoItem().AlignMiddle()
-                                                        .Text($"{log.LogStartDate:dd/MM/yy HH:mm}").FontSize(8).Bold().FontColor("#FFFFFF");
+                                                        .Text($"{log.LogStartDate}").FontSize(8).Bold().FontColor("#FFFFFF");
 
                                                     statsRow.ConstantItem(5);
                                                     statsRow.AutoItem().AlignMiddle()
@@ -695,7 +701,7 @@ namespace Eddy
                                                     statsRow.AutoItem().AlignMiddle()
                                                         .Text("End: ").FontSize(8).FontColor("#ccd6e0");
                                                     statsRow.AutoItem().AlignMiddle()
-                                                        .Text($"{log.LogEndDate:dd/MM/yy HH:mm}").FontSize(8).Bold().FontColor("#FFFFFF");
+                                                        .Text($"{log.LogEndDate}").FontSize(8).Bold().FontColor("#FFFFFF");
 
                                                     statsRow.ConstantItem(5);
                                                     statsRow.AutoItem().AlignMiddle()
@@ -1044,6 +1050,12 @@ namespace Eddy
 
             try
             {
+                if (string.IsNullOrEmpty(DeviceCOM.DBConnection))
+                {
+                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["DBConnection"])
+                        ?? Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]);
+                }
+
                 using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
                 {
                     con.Open();
@@ -1104,6 +1116,12 @@ namespace Eddy
 
             try
             {
+                if (string.IsNullOrEmpty(DeviceCOM.DBConnection))
+                {
+                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["DBConnection"])
+                        ?? Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]);
+                }
+
                 using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
                 {
                     con.Open();
