@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,10 +24,10 @@ namespace _8F
     public partial class CircleSetting : Window
     {
         public bool IsSaved = false;
-        public DeviceCOM portCOM;
+        public DeviceCOM? portCOM;
         string _selectChannel;
         public ObservableCollection<EllipsDTO> ellipses { get; set; } = new();
-        private DispatcherTimer clearLabelTimer;
+        private DispatcherTimer clearLabelTimer = new();
         public CircleSetting(string selectChannel)
         {
             InitializeComponent();
@@ -70,7 +70,7 @@ namespace _8F
         {
             if (IsSaved)
             {
-                btnConfigSave_Click(btnConfigSave, null);
+                btnConfigSave_Click(btnConfigSave, e);
             }
             this.Close();
         }
@@ -88,7 +88,10 @@ namespace _8F
                 //    btnConfigSave_Click(sender, e);
 
                 IsSaved = true;
-                ((MainWindow)this.Owner).ImplementChanges(2);
+                if (this.Owner is MainWindow mw)
+                {
+                    mw.ImplementChanges(2);
+                }
 
             }
             catch (Exception ex)
@@ -102,7 +105,7 @@ namespace _8F
             clearLabelTimer.Start();
         }
 
-        private void ClearLabelTimer_Tick(object sender, EventArgs e)
+        private void ClearLabelTimer_Tick(object? sender, EventArgs e)
         {
             lblMsg.Content = string.Empty;
             clearLabelTimer.Stop(); // Stop the timer after clearing
@@ -112,11 +115,14 @@ namespace _8F
         {
             lblMsg.Content = "";
             var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+            if (ch == null) return;
+
             ElliplseWrite ellipseWrite = new ElliplseWrite();
             ellipseWrite.FC = 5;
             ellipseWrite.CN = ch.Id;
             ellipseWrite.FD = new List<Frequ>();
             var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == _selectChannel);
+            if (Gdata == null) return;
 
             Frequ frequ = new Frequ();
             frequ.FN = Gdata.Id;
@@ -171,11 +177,11 @@ namespace _8F
 
             var rat = false;
 
-            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
             if (IsJSON)
             {
                
-                rat = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+                rat = portCOM != null && portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
             }
             else
             {
@@ -211,7 +217,7 @@ namespace _8F
                     start1B = start1B + 11;
                 }
 
-                rat = portCOM.WriteDataInBytes(data1);
+                rat = portCOM != null && portCOM.WriteDataInBytes(data1);
             }
 
             if (rat)
@@ -328,17 +334,20 @@ namespace _8F
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (IsSaved)
+            if (IsSaved && btnConfigSave != null)
             {
-                btnConfigSave_Click(btnConfigSave, null);
+                btnConfigSave_Click(btnConfigSave, new RoutedEventArgs());
             }
             //this.Close();
         }
 
         private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var text = e.AddedItems[0].ToString();
-            //ChangeFreq(text);
+            if (e.AddedItems != null && e.AddedItems.Count > 0 && e.AddedItems[0] != null)
+            {
+                var text = e.AddedItems[0]!.ToString();
+                //ChangeFreq(text);
+            }
         }
     }
 }

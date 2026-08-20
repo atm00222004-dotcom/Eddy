@@ -25,17 +25,17 @@ namespace _8F
 {
     public class DeviceCOM
     {
-        public SerialPort port;
-        public static List<ChannelData> channelDatas;
-        public static List<Response> responses;
+        public SerialPort port = new();
+        public static List<ChannelData> channelDatas = new();
+        public static List<Response> responses = new();
         public static bool IsResponseRefreshRequired = false;
         public static bool IsBalanceAll = false;
         public static bool IsBalanceBusyEnable = false;
         public static bool IsResponseClearRequired = false;
         public static int CommunicationType;
-        public static string PortName;
+        public static string PortName = string.Empty;
         public static int BaudRate;
-        public static string IpAddress;
+        public static string IpAddress = string.Empty;
         public static int SPort;
         public static int ChannelNo = 4;
         public static int DefaultHeight = 0;
@@ -43,23 +43,23 @@ namespace _8F
         public static int DefaultHeight_O = 0;
         public static int DefaultWidth_O = 0;
         public static int DefaultAngel_O = 0;
-        public static string ConnectionString;
+        public static string ConnectionString = string.Empty;
         public static bool IsLogEnable = false;
         public static bool IsSystemBusy = false;
         public static DateTime busyStamp = System.DateTime.Now; 
-        public static Part part;
-        public static List<Counter> counter;
+        public static Part part = new();
+        public static List<Counter> counter = new();
         public static bool IsLogDisable = false;
         public static bool IsBalanceRequired = false;
         public static bool IsBinRequired = false;
         public static int ERRCode = 0;
-        public static string Code;
+        public static string Code = string.Empty;
         public static bool IsJSON = false;
         public static bool IsLogRequiredOnBalance = false;
         public static bool IsAutoEllipseActive = false;
-        DispatcherTimer dispatcherTimer;
-        TcpClient client;
-        NetworkStream stream;
+        DispatcherTimer dispatcherTimer = new();
+        TcpClient? client;
+        NetworkStream? stream;
         public static bool PortAck = false ;
         public static string PortData = "";
         private ManualResetEvent _ackEvent = new ManualResetEvent(false);
@@ -121,8 +121,9 @@ namespace _8F
             }
 
         }
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        private void dispatcherTimer_Tick(object? sender, EventArgs e)
         {
+            if (client == null) return;
             client.NoDelay = false;
             if (!client.Connected)
             {
@@ -147,7 +148,7 @@ namespace _8F
                         }).Start();
 
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
@@ -202,7 +203,7 @@ namespace _8F
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -257,12 +258,10 @@ namespace _8F
                             fd.FN = indata[5 + (i * 6)];
                             fd.R = indata[6 + (i * 6)];
                             int offset = 7 + (i * 6);
-                            short x = (short)(indata[offset] | (indata[offset + 1] << 8));
-                            short y = (short)(indata[offset + 2] | (indata[offset + 3] << 8));
+                            short x = (short)((ushort)indata[offset] | ((ushort)indata[offset + 1] << 8));
+                            short y = (short)((ushort)indata[offset + 2] | ((ushort)indata[offset + 3] << 8));
                             fd.X = x;
                             fd.Y = y;
-                            fd.X = (short)(indata[7 + (i * 6)] | (indata[8 + (i * 6)] << 8));
-                            fd.Y = (short)(indata[9 + (i * 6)] | (indata[10 + (i * 6)] << 8));
                             res.FD.Add(fd);
                         }
 
@@ -335,7 +334,7 @@ namespace _8F
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -349,11 +348,11 @@ namespace _8F
                 {
                     var res = JsonConvert.DeserializeObject<Response>(indata);
 
-                    if (res.FC == 19)
+                    if (res != null && res.FC == 19)
                     {
                         IsResponseClearRequired = true;
                     }
-                    else if (res.FC == 20)
+                    else if (res != null && res.FC == 20)
                     {
                         if (ChannelNo >= res?.CN)
                         {
@@ -397,12 +396,12 @@ namespace _8F
 
                         }
                     }
-                    else if (res.FC == 21)
+                    else if (res?.FC == 21)
                     {
                         IsSystemBusy = true;
                         busyStamp = System.DateTime.Now;
                     }
-                    else if (res.FC == 22)
+                    else if (res?.FC == 22)
                     {
                         IsSystemBusy = false;
                         ERRCode = res.ERR;
@@ -421,7 +420,7 @@ namespace _8F
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -435,7 +434,9 @@ namespace _8F
                 {
                     string sql = string.Empty;
                     con.Open();
-                    var fdData = JsonConvert.SerializeObject(DeviceCOM.channelDatas.FirstOrDefault(r => r.Id == ChId).graphDatas);
+                    var targetCh = DeviceCOM.channelDatas.FirstOrDefault(r => r.Id == ChId);
+                    if (targetCh == null) return;
+                    var fdData = JsonConvert.SerializeObject(targetCh.graphDatas);
 
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
                     if (ChId == 1)
@@ -495,7 +496,7 @@ namespace _8F
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -513,7 +514,7 @@ namespace _8F
                 {
                     List<string> lines = new List<string>();
                     var FileName = "EddyLog_" + System.DateTime.Now.ToShortDateString();
-                    string FilePath = System.Configuration.ConfigurationSettings.AppSettings["CSVPath"].ToString() + FileName + ".csv";
+                    string FilePath = System.Configuration.ConfigurationManager.AppSettings["CSVPath"]?.ToString() + FileName + ".csv";
                     if (!File.Exists(FilePath))
                     {
                         string line = "TimeStamp,Code,Operator Name,Result";
@@ -543,7 +544,7 @@ namespace _8F
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -650,7 +651,7 @@ namespace _8F
                 }                
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (CommunicationType == 1)
                 {
@@ -752,8 +753,8 @@ namespace _8F
                 }
                 else if (CommunicationType == 1)
                 {
-                    dispatcherTimer.Stop();
-                    if (!client.Connected)
+                    dispatcherTimer?.Stop();
+                    if (client != null && !client.Connected)
                     {
                         client = new TcpClient();
                         IPAddress iPAddress = IPAddress.Parse(IpAddress);
@@ -761,7 +762,7 @@ namespace _8F
                         client.Connect(ipEndPoint);
                     }
 
-                    if (client.Connected)
+                    if (client?.Connected == true)
                     {
                         var messageBytes = Encoding.UTF8.GetBytes(data);
                         stream = client.GetStream();
@@ -782,15 +783,15 @@ namespace _8F
                                 return true;
                             }
                         }
-                        dispatcherTimer.Start();
+                        dispatcherTimer?.Start();
                         return true;
                     }
-                    dispatcherTimer.Start();
+                    dispatcherTimer?.Start();
                     return false;
                 }
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (CommunicationType == 1)
                 {
@@ -849,8 +850,8 @@ namespace _8F
                 }
                 else if (CommunicationType == 1)
                 {
-                    dispatcherTimer.Stop();
-                    if (!client.Connected)
+                    dispatcherTimer?.Stop();
+                    if (client != null && !client.Connected)
                     {
                         client = new TcpClient();
                         IPAddress iPAddress = IPAddress.Parse(IpAddress);
@@ -858,7 +859,7 @@ namespace _8F
                         client.Connect(ipEndPoint);
                     }
 
-                    if (client.Connected)
+                    if (client?.Connected == true)
                     {
                         var messageBytes = Encoding.UTF8.GetBytes(data);
                         stream = client.GetStream();
@@ -867,21 +868,21 @@ namespace _8F
                         var buffer = new byte[client.Available];
                         int received = stream.Read(buffer);
                         stream.Flush();
-                        dispatcherTimer.Start();
+                        dispatcherTimer?.Start();
                         if (buffer[0] == 21)
                         {
                             DeviceCOM.IsSystemBusy = true;
                         }
                     }
-                    dispatcherTimer.Start();
+                    dispatcherTimer?.Start();
                 }
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (CommunicationType == 1)
                 {
-                    dispatcherTimer.Start();
+                    dispatcherTimer?.Start();
                 }
 
                 return false;
@@ -945,7 +946,7 @@ namespace _8F
                 }              
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (CommunicationType == 1)
                 {
@@ -992,13 +993,16 @@ namespace _8F
                 
                 if (!string.IsNullOrEmpty(sData))
                 {
-                    getSerialNumber = JsonConvert.DeserializeObject<GetSerialNumber>(sData);
-                    getSerialNumber.S1 = setSerialNumber.S1;
-                    getSerialNumber.S2 = setSerialNumber.S2;
-
+                    var parsed = JsonConvert.DeserializeObject<GetSerialNumber>(sData);
+                    if (parsed != null)
+                    {
+                        getSerialNumber = parsed;
+                        getSerialNumber.S1 = setSerialNumber.S1;
+                        getSerialNumber.S2 = setSerialNumber.S2;
+                    }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 
             }
@@ -1037,13 +1041,13 @@ namespace _8F
         public int Id = 0;
         public bool IsSeleted = false;
         public int TxStrength = 100;
-        public List<GraphData> graphDatas;
+        public List<GraphData> graphDatas = new();
     }
 
     public class PartTypeData
     {
-        public string Name { get; set; }
-        public List<string> Values { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public List<string> Values { get; set; } = new();
     }
 
     public class Counter
@@ -1100,8 +1104,8 @@ namespace _8F
         public double ex { get; set; }
         public double ey { get; set; }
         public double angel { get; set; }
-        public string ColorName { get; set; }
-        public string ChannelName { get; set; }
+        public string ColorName { get; set; } = string.Empty;
+        public string ChannelName { get; set; } = string.Empty;
     }
     
     public class Response
@@ -1110,7 +1114,7 @@ namespace _8F
         public int CN;
         public int OR;
         public bool IsBalacenced = false;
-        public List<FreqResult> FD;
+        public List<FreqResult> FD = new();
         public int ERR { get; set; }
     }
     public class FreqResult
@@ -1125,7 +1129,7 @@ namespace _8F
         public int FC;
         public int CN;
         public int T;
-        public List<Frequency> FD;
+        public List<Frequency> FD = new();
     }
     public class Frequency
     {
@@ -1140,13 +1144,13 @@ namespace _8F
     public class Frequ
     {
         public int FN;
-        public List<Elliplse> ED;
+        public List<Elliplse> ED = new();
     }
     public class ElliplseWrite
     {
         public int FC;
         public int CN;
-        public List<Frequ> FD;
+        public List<Frequ> FD = new();
     }
     public class Elliplse
     {
@@ -1168,7 +1172,7 @@ namespace _8F
     {
         public int FC;
         public int M;
-        public OuterElliplse OE;
+        public OuterElliplse OE = new();
     }
 
     public class OuterElliplse
@@ -1211,7 +1215,7 @@ namespace _8F
     public class Operator
     {
         public int Id { get; set; }
-        public string OperatorName { get; set; }
+        public string OperatorName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
     }
 
@@ -1219,37 +1223,37 @@ namespace _8F
     {
         public int Id { get; set; }
         public int PartFamilyId { get; set; }
-        public string PartNumber { get; set; }
+        public string PartNumber { get; set; } = string.Empty;
         public bool IsActive { get; set; }
     }
 
     public class PartFamily
     {
         public int Id { get; set; }
-        public string FamilyName { get; set; }
+        public string FamilyName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
     }
 
     public class BatchDetail
     {
         public DateTime TimeStamp { get; set; }
-        public string BatchName { get; set; }
+        public string BatchName { get; set; } = string.Empty;
         public bool Result { get; set; }
-        public string FDData { get; set; }
-        public string PartData { get; set; }
+        public string FDData { get; set; } = string.Empty;
+        public string PartData { get; set; } = string.Empty;
     }
     public class PartConfiguration
     {
-        public string BatchName { get; set; }
-        public string Name { get; set; }
-        public string Grade { get; set; }
-        public string CheckedBy { get; set; }
-        public string CompanyName { get; set; }
+        public string BatchName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Grade { get; set; } = string.Empty;
+        public string CheckedBy { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
 
-        public string ProductionOrder { get; set; }
-        public string MachineNumber { get; set; }
-        public string PartNumber { get; set; }
-        public string PartFamily { get; set; }
+        public string ProductionOrder { get; set; } = string.Empty;
+        public string MachineNumber { get; set; } = string.Empty;
+        public string PartNumber { get; set; } = string.Empty;
+        public string PartFamily { get; set; } = string.Empty;
     }
 
     public class SetSerialNumber
@@ -1263,13 +1267,15 @@ namespace _8F
     public class GetSerialNumber
     {
         public int FC;
-        public string S;
+        public string S { get; set; } = string.Empty;
         public int S1;
         public int S2;
     }
 
     public class MyColor
     {
+        public string ColorName { get; set; } = string.Empty;
+
         public static string GetColorName(int index)
         {
             string MyColor = "Black";
@@ -1353,31 +1359,31 @@ namespace _8F
 
     public class LogData
     {
-        public string BatchName { get; set; }
-        public string LogStartDate { get; set; }
-        public string LogEndDate { get; set; }
+        public string BatchName { get; set; } = string.Empty;
+        public string LogStartDate { get; set; } = string.Empty;
+        public string LogEndDate { get; set; } = string.Empty;
         public int PassCount { get; set; }
         public int FailCount { get; set; }
         public int TotalCount { get; set; }
 
         // IsReNewConfig
         public DateTime LogDateRaw { get; set; }
-        public string ProductionOrder { get; set; }   
-        public string Date { get; set; }
+        public string ProductionOrder { get; set; } = string.Empty;   
+        public string Date { get; set; } = string.Empty;
 
     }
 
     public class LogData1
     {
-        public string BatchName { get; set; }
-        public string PartName { get; set; }
-        public string SrNo { get; set; }
-        public string TimeStamp { get; set; }
-        public string ResultStatus { get; set; }
-        public string Ch1Result { get; set; }
-        public string Ch2Result { get; set; }
-        public string Ch3Result { get; set; }
-        public string Ch4Result { get; set; }
+        public string BatchName { get; set; } = string.Empty;
+        public string PartName { get; set; } = string.Empty;
+        public string SrNo { get; set; } = string.Empty;
+        public string TimeStamp { get; set; } = string.Empty;
+        public string ResultStatus { get; set; } = string.Empty;
+        public string Ch1Result { get; set; } = string.Empty;
+        public string Ch2Result { get; set; } = string.Empty;
+        public string Ch3Result { get; set; } = string.Empty;
+        public string Ch4Result { get; set; } = string.Empty;
 
     }
 

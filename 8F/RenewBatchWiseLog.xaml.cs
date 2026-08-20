@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -20,9 +20,9 @@ namespace _8F
     {
         public bool IsSaved = false;
 
-        public List<LogData> listOfLog;
+        public List<LogData> listOfLog = new();
 
-        private bool IsReNewConfig =>Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isrenewconfig"]);
+        private bool IsReNewConfig =>Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isrenewconfig"]);
 
         private string BatchCaption => IsReNewConfig ? "Shift" : "Batch Name";
 
@@ -52,7 +52,7 @@ namespace _8F
             try
             {
                 listOfLog = new List<LogData>();
-                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
                 {
                     string sql = @"
                         SELECT 
@@ -76,10 +76,10 @@ namespace _8F
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         LogData _part = new LogData();
-                        _part.BatchName = dt.Rows[i]["BatchName"].ToString();
+                        _part.BatchName = dt.Rows[i]["BatchName"]?.ToString() ?? string.Empty;
                         _part.ProductionOrder = dt.Rows[i]["ProductionOrder"] == DBNull.Value
-                            ? null
-                            : dt.Rows[i]["ProductionOrder"].ToString();
+                            ? string.Empty
+                            : (dt.Rows[i]["ProductionOrder"]?.ToString() ?? string.Empty);
                         DateTime logDate = Convert.ToDateTime(dt.Rows[i]["LogDate"]);
                         _part.LogDateRaw = logDate;
                         _part.Date = logDate.ToString("dd/MM/yyyy");
@@ -91,7 +91,7 @@ namespace _8F
                     grdlogs.ItemsSource = listOfLog;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Something went wrong. Please try again.");
             }
@@ -159,7 +159,7 @@ namespace _8F
                                     var imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Magkraft.jpg");
                                     var imageBytes = File.ReadAllBytes(imagePath);
 
-                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes, ImageScaling.FitHeight);
+                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes);
                                     left.ConstantItem(10);
                                     left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
                                 });
@@ -286,7 +286,7 @@ namespace _8F
                                     var imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Magkraft.jpg");
                                     var imageBytes = File.ReadAllBytes(imagePath);
 
-                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes, ImageScaling.FitHeight);
+                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes);
                                     left.ConstantItem(10);
                                     left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
                                 });
@@ -325,23 +325,24 @@ namespace _8F
                                                     });
                                                 });
 
-                                            var details = GetBatchDetails(log.BatchName, log.LogDateRaw, log.ProductionOrder);
+                                             var details = GetBatchDetails(log.BatchName, log.LogDateRaw, log.ProductionOrder);
+                                             if (details != null)
+                                             {
+                                                 foreach (var group in details.GroupBy(d => BuildSettingsKey(d.FDData, d.PartData)))
+                                                 {
+                                                     List<GraphData> fdList = new();
+                                                     try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData) ?? new(); }
+                                                     catch { fdList = new(); }
 
-                                            foreach (var group in details.GroupBy(d => BuildSettingsKey(d.FDData, d.PartData)))
-                                            {
-                                                List<GraphData> fdList = new();
-                                                try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData); }
-                                                catch { fdList = new(); }
+                                                     PartConfiguration? part = null;
+                                                     try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
+                                                     catch { part = null; }
 
-                                                PartConfiguration part = null;
-                                                try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
-                                                catch { part = null; }
-
-                                                batch.Item()
-                                                    .BorderTop(1).BorderColor("#E8E8E8")
-                                                    .Padding(7).PaddingLeft(12).PaddingRight(12)
-                                                    .Column(grp =>
-                                                    {
+                                                     batch.Item()
+                                                         .BorderTop(1).BorderColor("#E8E8E8")
+                                                         .Padding(7).PaddingLeft(12).PaddingRight(12)
+                                                         .Column(grp =>
+                                                         {
                                                         grp.Item()
                                                             .Border(1).BorderColor("#DDDDDD").Background("#FAFAFA").Padding(10)
                                                             .Column(section =>
@@ -370,7 +371,7 @@ namespace _8F
 
                                                                     foreach (var d in fdList)
                                                                     {
-                                                                        table.Cell().Border(1).Padding(3).Text(d.Name);
+                                                                        table.Cell().Border(1).Padding(3).Text(d.Name ?? string.Empty);
                                                                         table.Cell().Border(1).Padding(3).Text(d.freq.ToString());
                                                                         table.Cell().Border(1).Padding(3).Text(d.gain.ToString());
                                                                         table.Cell().Border(1).Padding(3).Text(d.phase.ToString());
@@ -404,7 +405,7 @@ namespace _8F
 
                                                                     foreach (var d in fdList)
                                                                     {
-                                                                        table.Cell().Border(1).Padding(3).Text(d.Name);
+                                                                        table.Cell().Border(1).Padding(3).Text(d.Name ?? string.Empty);
                                                                         table.Cell().Border(1).Padding(3).Text(d.height.ToString("0.##"));
                                                                         table.Cell().Border(1).Padding(3).Text(d.width.ToString("0.##"));
                                                                         table.Cell().Border(1).Padding(3).Text(d.ex.ToString("0.##"));
@@ -493,7 +494,8 @@ namespace _8F
                                                                 });
                                                             });
                                                     });
-                                            }
+                                                 }
+                                             }
                                         });
                                 }
                             });
@@ -519,50 +521,65 @@ namespace _8F
             }
         }
 
-        private List<BatchDetail> GetBatchDetails(string batchName, DateTime? logDate, string productionOrder)
+        private List<BatchDetail>? GetBatchDetails(string batchName, DateTime? logDate, string productionOrder)
         {
             try
             {
                 List<BatchDetail> list = new List<BatchDetail>();
 
-                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
                 {
                     con.Open();
 
-                    string sql = @"SELECT ""TimeStamp"", ""BatchName"", ""Result"", ""FDData"", ""PartData""
-                                   FROM public.""Logs""
-                                   WHERE ""BatchName"" = @BatchName";
+                    string sql = @"
+                        SELECT ""TimeStamp"", ""BatchName"", ""Result"", ""FDData"", ""PartData""
+                        FROM public.""Logs""
+                        WHERE 1=1";
 
-                    if (logDate.HasValue)
-                        sql += @" AND ""TimeStamp""::date = @LogDate";
-
-                    // match production order (handles NULL correctly via IS NOT DISTINCT FROM)
-                    sql += @" AND ""PartData"" ->> 'ProductionOrder' IS NOT DISTINCT FROM @ProductionOrder";
+                    if (IsReNewConfig)
+                    {
+                        sql += @"
+                          AND ""BatchName"" = @BatchName
+                          AND DATE(""TimeStamp"") = @LogDate::date
+                          AND (
+                                @ProductionOrder = '' 
+                             OR ""PartData""::jsonb->>'ProductionOrder' = @ProductionOrder
+                          )";
+                    }
+                    else
+                    {
+                        sql += @" AND ""BatchName"" = @BatchName";
+                    }
 
                     sql += @" ORDER BY ""TimeStamp""";
 
-                    NpgsqlCommand cmd = new NpgsqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("@BatchName", batchName);
-
-                    if (logDate.HasValue)
-                        cmd.Parameters.AddWithValue("@LogDate", logDate.Value.Date);
-
-                    cmd.Parameters.AddWithValue("@ProductionOrder",
-                        (object)productionOrder ?? DBNull.Value);
-
-                    DataTable dt = new DataTable();
-                    dt.Load(cmd.ExecuteReader());
-
-                    foreach (DataRow row in dt.Rows)
+                    using (var cmd = new NpgsqlCommand(sql, con))
                     {
-                        list.Add(new BatchDetail()
+                        cmd.Parameters.AddWithValue("@BatchName", (object?)batchName ?? DBNull.Value);
+
+                        if (IsReNewConfig)
                         {
-                            TimeStamp = Convert.ToDateTime(row["TimeStamp"]),
-                            BatchName = row["BatchName"].ToString(),
-                            Result = Convert.ToBoolean(row["Result"]),
-                            FDData = row["FDData"].ToString(),
-                            PartData = row["PartData"].ToString()
-                        });
+                            cmd.Parameters.AddWithValue("@LogDate", logDate.HasValue ? (object)logDate.Value.Date : DBNull.Value);
+                            cmd.Parameters.AddWithValue("@ProductionOrder", (object?)productionOrder ?? "");
+                        }
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            DataTable dt = new DataTable();
+                            dt.Load(reader);
+
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                list.Add(new BatchDetail()
+                                {
+                                    TimeStamp = Convert.ToDateTime(row["TimeStamp"]),
+                                    BatchName = row["BatchName"]?.ToString() ?? string.Empty,
+                                    Result = Convert.ToBoolean(row["Result"]),
+                                    FDData = row["FDData"]?.ToString() ?? string.Empty,
+                                    PartData = row["PartData"]?.ToString() ?? string.Empty
+                                });
+                            }
+                        }
                     }
                 }
 
@@ -578,9 +595,10 @@ namespace _8F
         {
             try
             {
-                Button btn = sender as Button;
+                Button? btn = sender as Button;
+                if (btn == null) return;
 
-                LogData log = btn.Tag as LogData;
+                LogData? log = btn.Tag as LogData;
 
                 if (log == null)
                     return;
@@ -612,6 +630,7 @@ namespace _8F
             try
             {
                 var details = GetBatchDetails(log.BatchName, log.LogDateRaw, log.ProductionOrder);
+                if (details == null) return;
 
                 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -634,7 +653,7 @@ namespace _8F
                                     var imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Magkraft.jpg");
                                     var imageBytes = File.ReadAllBytes(imagePath);
 
-                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes, ImageScaling.FitHeight);
+                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes);
                                     left.ConstantItem(10);
                                     left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
                                 });
@@ -672,10 +691,10 @@ namespace _8F
                                         foreach (var group in details.GroupBy(d => BuildSettingsKey(d.FDData, d.PartData)))
                                         {
                                             List<GraphData> fdList = new();
-                                            try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData); }
+                                            try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData ?? "[]") ?? new(); }
                                             catch { fdList = new(); }
 
-                                            PartConfiguration part = null;
+                                            PartConfiguration? part = null;
                                             try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
                                             catch { part = null; }
 
@@ -854,13 +873,13 @@ namespace _8F
 
                 MessageBox.Show("PDF Generated Successfully");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Something went wrong. Please try again.");
             }
         }
 
-        void LV(IContainer c, string label, string value)
+        void LV(IContainer c, string label, string? value)
         {
             c.Text(t =>
             {

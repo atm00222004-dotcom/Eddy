@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
-using System.IO;
 using System.IO.Ports;
 using System.Management;
 using System.Net.Sockets;
@@ -38,15 +37,16 @@ namespace _8F
     /// </summary>
     public partial class MainWindow : Window
     {
-        public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
-        public CircleSetting ellipsesPop { get; set; }
-        public AutoEllipse autoEllipsePop { get; set; }
-        public PartConfig partConfig { get; set; }
-        public PartConfigReNew partConfigReNew { get; set; }
-        public DeviceCOM portCOM;
-        public Report report;
-        DispatcherTimer dispatcherTimer;
+        public ObservableCollection<MenuItemViewModel> MenuItems { get; set; } = new();
+        public CircleSetting? ellipsesPop { get; set; }
+        public AutoEllipse? autoEllipsePop { get; set; }
+        public PartConfig? partConfig { get; set; }
+        public PartConfigReNew? partConfigReNew { get; set; }
+        public DeviceCOM? portCOM;
+        public Report? report;
+        DispatcherTimer? dispatcherTimer;
         public int chNo;
+        public string filename { get; set; } = string.Empty;
         double factor = 20;
 
         int ScreenId = 1;
@@ -57,7 +57,7 @@ namespace _8F
         int seqLength = 0;
         int CommunicationType = 0;
         int FrequencyNo = 8;
-        public string WebPage;
+        public string WebPage = string.Empty;
 
         int modeApp = 0;
         int mode = 0;
@@ -65,13 +65,13 @@ namespace _8F
         public SolidColorBrush disableColor = new SolidColorBrush(Colors.DarkGray);
         public SolidColorBrush enableColor = new SolidColorBrush(Colors.White);
         bool IsSerialmatch = true;
-        private SerialPort _serialPort;
+        private SerialPort? _serialPort;
 
         DateTime CodeReadTime = DateTime.Now;
         int CodeReadGapInMS = 100;
-        bool isRenewConfig = Convert.ToBoolean(ConfigurationSettings.AppSettings["isrenewconfig"]);
-        bool isTestLogOff = Convert.ToBoolean(ConfigurationSettings.AppSettings["IsTestLogOff"]);
-        bool isTxStrengthEnabled = Convert.ToBoolean(ConfigurationSettings.AppSettings["IsTxStrengthEnable"]);
+        bool isRenewConfig = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isrenewconfig"]);
+        bool isTestLogOff = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTestLogOff"]);
+        bool isTxStrengthEnabled = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTxStrengthEnable"]);
 
         public MainWindow()
         {
@@ -86,34 +86,37 @@ namespace _8F
             //DeviceCOM.Test();
             if (imgLogo.Visibility == Visibility.Visible)
             {
-                string LogoPath = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["LogoPath"]);
-                imgLogo.Source = new BitmapImage(new Uri(LogoPath));
+                string? LogoPath = System.Configuration.ConfigurationManager.AppSettings["LogoPath"];
+                if (!string.IsNullOrEmpty(LogoPath))
+                {
+                    imgLogo.Source = new BitmapImage(new Uri(LogoPath));
+                }
             }
 
             //List<string> lines = new List<string>
             //{
             //    "Application Started at " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss")
             //};
-            //string FilePath = System.Configuration.ConfigurationSettings.AppSettings["CSVPath"].ToString() +  "asd.csv";
+            //string FilePath = System.Configuration.ConfigurationManager.AppSettings["CSVPath"].ToString() +  "asd.csv";
 
             //File.AppendAllLines(FilePath, lines);
             //var FileName = System.DateTime.Now.ToString();
 
-            WebPage = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["WebPage"]);
-            DeviceCOM.IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
-            DeviceCOM.IsLogRequiredOnBalance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsLogRequiredOnBalance"]);
-            ScreenId = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["ScreenId"]);
-            BoxSize1 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize1"]);
-            BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize2"]);
-            BoxSize3 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize3"]);
-            BoxSize4 = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BoxSize4"]);
-            FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["FrequencyNo"]);
-            var LogEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["LogEnable"]);
-            modeApp = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["AppMode"]);
-            CodeReadGapInMS = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CodeReadGapInMS"]);
+            WebPage = System.Configuration.ConfigurationManager.AppSettings["WebPage"] ?? string.Empty;
+            DeviceCOM.IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
+            DeviceCOM.IsLogRequiredOnBalance = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsLogRequiredOnBalance"]);
+            ScreenId = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["ScreenId"]);
+            BoxSize1 = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["BoxSize1"]);
+            BoxSize2 = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["BoxSize2"]);
+            BoxSize3 = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["BoxSize3"]);
+            BoxSize4 = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["BoxSize4"]);
+            FrequencyNo = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["FrequencyNo"]);
+            var LogEnabled = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["LogEnable"]);
+            modeApp = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["AppMode"]);
+            CodeReadGapInMS = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["CodeReadGapInMS"]);
             if (modeApp == 1)
             {
-                mode = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Mode"]);
+                mode = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Mode"]);
             }
             if (!LogEnabled)
             {
@@ -167,12 +170,12 @@ namespace _8F
 
             portCOM = new DeviceCOM();
 
-            factor = Convert.ToDouble(System.Configuration.ConfigurationSettings.AppSettings["Factor"]);
-            DeviceCOM.DefaultWidth = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width"]);
-            DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height"]);
-            DeviceCOM.DefaultWidth_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Width_O"]);
-            DeviceCOM.DefaultHeight_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Height_O"]);
-            DeviceCOM.DefaultAngel_O = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Angel_O"]);
+            factor = Convert.ToDouble(System.Configuration.ConfigurationManager.AppSettings["Factor"]);
+            DeviceCOM.DefaultWidth = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Width"]);
+            DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Height"]);
+            DeviceCOM.DefaultWidth_O = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Width_O"]);
+            DeviceCOM.DefaultHeight_O = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Height_O"]);
+            DeviceCOM.DefaultAngel_O = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Angel_O"]);
 
             if (modeApp == 1)
             {
@@ -182,19 +185,19 @@ namespace _8F
             {
                 el11.Visibility = Visibility.Hidden;
             }
-            CommunicationType = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["CommunicationType"]);
-            int baudRate = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BaudRate"]);
-            string portName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["PortName"]);
+            CommunicationType = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["CommunicationType"]);
+            int baudRate = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["BaudRate"]);
+            string portName = System.Configuration.ConfigurationManager.AppSettings["PortName"] ?? string.Empty;
 
-            string IpAddress = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["IP"]);
-            int Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]);
+            string IpAddress = System.Configuration.ConfigurationManager.AppSettings["IP"] ?? string.Empty;
+            int Port = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["Port"]);
 
-            DeviceCOM.ConnectionString = System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"];
+            DeviceCOM.ConnectionString = System.Configuration.ConfigurationManager.AppSettings["ConnectionString"] ?? string.Empty;
 
             portCOM.InitialPort(CommunicationType, portName, baudRate, IpAddress, Port);
 
             DeviceCOM.responses = new List<Response>();
-            chNo = Convert.ToInt16(System.Configuration.ConfigurationSettings.AppSettings["Channel"]);
+            chNo = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Channel"]);
             DeviceCOM.ChannelNo = chNo;
             if (chNo == 1)
             {
@@ -238,7 +241,7 @@ namespace _8F
                         }
                 },
                 new MenuItemViewModel { Header = "Configuration",
-                    MenuItems = LogEnabled ? new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel>
+                    MenuItems = LogEnabled ? new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
                     {
                         new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
                         new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
@@ -248,7 +251,7 @@ namespace _8F
                         new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
                         new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
                         //new MenuItemViewModel { Header = "Data Log", mainWindow = this }
-                    }.Where(x => x != null)
+                    }.OfType<MenuItemViewModel>()
                     ):
                     new ObservableCollection<MenuItemViewModel>
                     {
@@ -277,7 +280,7 @@ namespace _8F
 
             InitialGraphData(true);
 
-            var CodePortName = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["CodePortName"]);
+            var CodePortName = Convert.ToString(System.Configuration.ConfigurationManager.AppSettings["CodePortName"]);
             if (!string.IsNullOrEmpty(CodePortName) && !CodePortName.Equals("NONE", StringComparison.OrdinalIgnoreCase))
             {
                 try
@@ -309,7 +312,7 @@ namespace _8F
             Status status = new Status() { FC = 23 };
 
             bool rat = false;
-            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
             if (IsJSON)
             {
                 rat = portCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
@@ -680,21 +683,24 @@ namespace _8F
                                     BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
 
                                     bool rat = false;
-                                    var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                                    var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
 
-                                    if (IsJSON)
+                                    if (portCOM != null)
                                     {
-                                        rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
-                                    }
-                                    else
-                                    {
-                                        byte[] data1 = new byte[6];
-                                        data1[0] = Convert.ToByte(2);
-                                        data1[1] = Convert.ToByte(17);
-                                        data1[2] = Convert.ToByte(1);
-                                        data1[3] = Convert.ToByte(0);
+                                        if (IsJSON)
+                                        {
+                                            rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                                        }
+                                        else
+                                        {
+                                            byte[] data1 = new byte[6];
+                                            data1[0] = Convert.ToByte(2);
+                                            data1[1] = Convert.ToByte(17);
+                                            data1[2] = Convert.ToByte(1);
+                                            data1[3] = Convert.ToByte(0);
 
-                                        rat = portCOM.WriteDataInBytes(data1);
+                                            rat = portCOM.WriteDataInBytes(data1);
+                                        }
                                     }
 
                                     if (!rat)
@@ -736,7 +742,7 @@ namespace _8F
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Console.WriteLine("Error reading data: " + ex.Message);
             }
@@ -815,8 +821,9 @@ namespace _8F
         private void CheckSerailNumber()
         {
             // Get Serial Numner 
-            var serial = portCOM.GetSeialNumber();
-            string sNumber = System.Configuration.ConfigurationSettings.AppSettings["SerialNumber"]; ;
+            var serial = portCOM?.GetSeialNumber();
+            if (serial == null) return;
+            string sNumber = System.Configuration.ConfigurationManager.AppSettings["SerialNumber"] ?? string.Empty; ;
 
             sNumber = Reverse(serial.S1 + sNumber + serial.S2);
 
@@ -831,7 +838,7 @@ namespace _8F
             }
         }
 
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        private void dispatcherTimer_Tick(object? sender, EventArgs e)
         {
             //if (!IsSerialmatch)
             //{
@@ -862,18 +869,20 @@ namespace _8F
                 var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
 
                 var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
+                if (cnt != null)
+                {
+                    lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                    lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
-                lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
-                lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+                    lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                    lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
-                lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
-                lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
-
-                lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
-                lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+                    lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                    lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+                }
 
                 DeviceCOM.IsResponseRefreshRequired = false;
 
@@ -909,9 +918,12 @@ namespace _8F
                     {
                         var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
                         var res = JsonConvert.DeserializeObject<Response>(rData);
-                        res.CN = ch.Id;
-                        res.IsBalacenced = true;
-                        DeviceCOM.responses.Add(res);
+                        if (res != null)
+                        {
+                            res.CN = ch.Id;
+                            res.IsBalacenced = true;
+                            DeviceCOM.responses.Add(res);
+                        }
                     }
                 }
 
@@ -950,7 +962,6 @@ namespace _8F
 
         }
 
-        public string filename { get; set; }
         public void InitialGraphData(bool IsPayLaod)
         {
             if (IsPayLaod)
@@ -1321,13 +1332,14 @@ namespace _8F
 
         public bool ImplementChanges(int ChangeType)
         {
+            if (portCOM == null) return false;
             var rat = false;
             if (ChangeType == 0)
             {
                 FrequencyCount frequencyCount = new FrequencyCount() { FC = 1, C = FrequencyNo, NC = chNo };
                 Mode _mode = new Mode() { FC = 2, M = 0 };
 
-                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
                 if (IsJSON)
                 {
                     portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));
@@ -1553,7 +1565,7 @@ namespace _8F
                         bool rat1 = false;
                         bool rat2 = false;
 
-                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
                         if (IsJSON)
                         {
                             rat1 = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
@@ -1752,8 +1764,8 @@ namespace _8F
             ellipse.CaptureMouse();
 
             // find the TranslateTransform inside RenderTransform
-            TransformGroup tg = ellipse.RenderTransform as TransformGroup;
-            dragTransform = tg.Children.OfType<TranslateTransform>().FirstOrDefault();
+            TransformGroup? tg = ellipse.RenderTransform as TransformGroup;
+            dragTransform = tg?.Children.OfType<TranslateTransform>().FirstOrDefault();
 
 
         }
@@ -1802,9 +1814,9 @@ namespace _8F
             ellipsesPop.ShowDialog();
         }
 
-        private void ellipsesPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ellipsesPop_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (ellipsesPop.IsSaved)
+            if (ellipsesPop != null && ellipsesPop.IsSaved)
             {
                 ImplementChanges(2);
             }
@@ -1817,9 +1829,9 @@ namespace _8F
             var currentChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
             if (currentChannel?.Id != 1)
             {
-                currentChannel.IsSeleted = false;
+                if (currentChannel != null) currentChannel.IsSeleted = false;
                 var nextCh = DeviceCOM.channelDatas.FirstOrDefault(c => c.Id == 1);
-                nextCh.IsSeleted = true;
+                if (nextCh != null) nextCh.IsSeleted = true;
                 btnCh1.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
@@ -1836,9 +1848,9 @@ namespace _8F
             var currentChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
             if (currentChannel?.Id != chId)
             {
-                currentChannel.IsSeleted = false;
+                if (currentChannel != null) currentChannel.IsSeleted = false;
                 var nextCh = DeviceCOM.channelDatas.FirstOrDefault(c => c.Id == chId);
-                nextCh.IsSeleted = true;
+                if (nextCh != null) nextCh.IsSeleted = true;
                 btnCh1.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh2.Background = new SolidColorBrush(Colors.DarkGray);
                 btnCh3.Background = new SolidColorBrush(Colors.DarkGray);
@@ -1851,6 +1863,7 @@ namespace _8F
 
         private void btnBalance_Click(object sender, RoutedEventArgs e)
         {
+            if (portCOM == null) return;
             if (DeviceCOM.IsSystemBusy)
             {
                 MessageBox.Show("System is busy so you can not perform this command, please wait...", "System Information");
@@ -1864,7 +1877,7 @@ namespace _8F
                 BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = ChId };
 
                 bool rat = false;
-                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
                 if (IsJSON)
                 {
                     rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
@@ -1898,6 +1911,7 @@ namespace _8F
 
         private void btnTest_Click(object sender, RoutedEventArgs e)
         {
+            if (portCOM == null) return;
             if (DeviceCOM.IsSystemBusy)
             {
                 MessageBox.Show("System is busy so you can not perform this command, please wait...", "System Information");
@@ -1912,7 +1926,7 @@ namespace _8F
                 BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = ChId };
 
                 bool rat = false;
-                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
 
                 if (IsJSON)
                 {
@@ -1965,12 +1979,13 @@ namespace _8F
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            if (portCOM == null) return;
             if (CommunicationType == 0)
             {
                 Status exitData = new Status() { FC = 24 };
 
                 bool rat = false;
-                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
 
                 if (IsJSON)
                 {
@@ -2115,6 +2130,7 @@ namespace _8F
         {
             ClearGraphData(false);
             var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
+            if (selectedChannel == null) return;
             var selectedChannelData = DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList();
 
             foreach (var item in selectedChannelData)
@@ -2332,6 +2348,7 @@ namespace _8F
         {
             var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
             var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
+            if (cnt == null) return;
 
             cnt.ResultCount = 0;
             cnt.ResultOkCount = 0;
@@ -2377,7 +2394,7 @@ namespace _8F
                         data[2] = Convert.ToByte(1);
                         data[3] = DeviceCOM.IsLogEnable ? Convert.ToByte(1) : Convert.ToByte(2);
 
-                        var rat = portCOM.WriteDataInBytes(data);
+                        var rat = portCOM != null && portCOM.WriteDataInBytes(data);
 
                         if (!rat)
                         {
@@ -2388,7 +2405,7 @@ namespace _8F
             }
             else
             {
-                var IsReNewConfig = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsReNewConfig"]);
+                var IsReNewConfig = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsReNewConfig"]);
                 if (IsReNewConfig)
                 {
                     partConfigReNew = new PartConfigReNew();
@@ -2410,7 +2427,7 @@ namespace _8F
 
         }
 
-        private void partConfig_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void partConfig_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             if (DeviceCOM.IsLogEnable)
             {
@@ -2427,10 +2444,11 @@ namespace _8F
 
         private void btnStop_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (portCOM == null) return;
             Status status = new Status() { FC = 18 };
 
             bool rat = false;
-            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
 
             if (IsJSON)
             {
@@ -2451,6 +2469,7 @@ namespace _8F
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
+            if (portCOM == null) return;
             if (e.Key == Key.B || e.Key == Key.Space || e.Key == Key.R)
             {
                 if (e.Key == Key.B)
@@ -2464,7 +2483,7 @@ namespace _8F
                         BalanceTest balanceTest = new BalanceTest() { FC = 16, CN = 0 };
 
                         bool rat = false;
-                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
                         if (IsJSON)
                         {
                             rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
@@ -2499,22 +2518,24 @@ namespace _8F
                 {
                     var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
                     var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
+                    if (cnt != null)
+                    {
+                        cnt.ResultCount = 0;
+                        cnt.ResultOkCount = 0;
+                        cnt.ResultOkNotCount = 0;
 
-                    cnt.ResultCount = 0;
-                    cnt.ResultOkCount = 0;
-                    cnt.ResultOkNotCount = 0;
+                        lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
+                        lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                        lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
-                    lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
-                    lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                    lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+                        lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
+                        lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                        lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
-                    lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
-                    lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                    lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
-
-                    lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
-                    lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                    lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+                        lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
+                        lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                        lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+                    }
 
                     lblCode.Content = "";
                 }
@@ -2531,7 +2552,7 @@ namespace _8F
                         BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
 
                         bool rat = false;
-                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                        var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
 
                         if (IsJSON)
                         {
@@ -2653,13 +2674,13 @@ namespace _8F
             _command = new CommandViewModel(Execute);
         }
 
-        public string Header { get; set; }
-        public Freq freqPop { get; set; }
-        string filename { get; set; }
-        public CircleSetting ellipsesPop { get; set; }
-        public MainWindow mainWindow { get; set; }
-        public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
-        public bool isRenewConfig = Convert.ToBoolean(ConfigurationSettings.AppSettings["isrenewconfig"]);
+        public string Header { get; set; } = string.Empty;
+        public Freq? freqPop { get; set; }
+        string filename { get; set; } = string.Empty;
+        public CircleSetting? ellipsesPop { get; set; }
+        public MainWindow? mainWindow { get; set; }
+        public ObservableCollection<MenuItemViewModel> MenuItems { get; set; } = new();
+        public bool isRenewConfig = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isrenewconfig"]);
         public ICommand Command
         {
             get
@@ -2670,6 +2691,7 @@ namespace _8F
 
         private void Execute()
         {
+            if (mainWindow == null) return;
             // (NOTE: In a view model, you normally should not use MessageBox.Show()).
             //MessageBox.Show("Clicked at " + Header);
             if (DeviceCOM.IsLogEnable)
@@ -2730,7 +2752,7 @@ namespace _8F
 
                             MessageBox.Show(msg, "Information");
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             MessageBox.Show("Error while writing the configuration!!!!", "Information");
                         }
@@ -2745,14 +2767,17 @@ namespace _8F
                                 foreach (var item in ch.graphDatas)
                                 {
                                     var freq = chNo1?.graphDatas.FirstOrDefault(g => g.Id == item.Id);
-                                    item.freq = freq.freq;
-                                    item.gain = freq.gain;
-                                    item.phase = freq.phase;
-                                    item.height = freq.height;
-                                    item.width = freq.width;
-                                    item.ex = freq.ex;
-                                    item.ey = freq.ey;
-                                    item.angel = freq.angel;
+                                    if (freq != null)
+                                    {
+                                        item.freq = freq.freq;
+                                        item.gain = freq.gain;
+                                        item.phase = freq.phase;
+                                        item.height = freq.height;
+                                        item.width = freq.width;
+                                        item.ex = freq.ex;
+                                        item.ey = freq.ey;
+                                        item.angel = freq.angel;
+                                    }
                                 }
                             }
                         }
@@ -2815,7 +2840,7 @@ namespace _8F
                             }
 
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             MessageBox.Show("Error while saving the configation file!!!!", "Error Information");
                         }
@@ -2848,7 +2873,7 @@ namespace _8F
 
 
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             MessageBox.Show("Error while saving the configuration file!!!!", "Error Information");
                         }
@@ -2869,7 +2894,8 @@ namespace _8F
                             if (result == true)
                             {
                                 string data = File.ReadAllText(dialog.FileName);
-                                DeviceCOM.channelDatas = JsonConvert.DeserializeObject<List<ChannelData>>(data);
+                                var parsedChData = JsonConvert.DeserializeObject<List<ChannelData>>(data);
+                                if (parsedChData != null) DeviceCOM.channelDatas = parsedChData;
                                 // Open document
                                 mainWindow.filename = dialog.FileName;
                                 mainWindow.SelectCh1();
@@ -2888,14 +2914,14 @@ namespace _8F
 
 
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             MessageBox.Show("Error while loading the configuration file!!!!", "Error Information");
                         }
                     }
                     else if (Header == "New")
                     {
-                        mainWindow.filename = null;
+                        mainWindow.filename = string.Empty;
                         mainWindow.InitialGraphData(false);
                         mainWindow.ClearGraphData();
                         var rat = mainWindow.ImplementChanges(0);
@@ -2941,17 +2967,17 @@ namespace _8F
         }
 
 
-        private void freqPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void freqPop_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (freqPop.IsSaved)
+            if (freqPop != null && freqPop.IsSaved && mainWindow != null)
             {
                 mainWindow.ImplementChanges(1);
             }
         }
 
-        private void ellipsesPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ellipsesPop_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (ellipsesPop.IsSaved)
+            if (ellipsesPop != null && ellipsesPop.IsSaved && mainWindow != null)
             {
                 mainWindow.ImplementChanges(2);
             }
@@ -2966,17 +2992,17 @@ namespace _8F
             _action = action;
         }
 
-        public void Execute(object o)
+        public void Execute(object? o)
         {
             _action();
         }
 
-        public bool CanExecute(object o)
+        public bool CanExecute(object? o)
         {
             return true;
         }
 
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add { }
             remove { }
@@ -2986,8 +3012,8 @@ namespace _8F
     public class TcpClientWithEvents
     {
         private readonly TcpClient _client = new TcpClient();
-        private NetworkStream _stream;
-        private CancellationTokenSource _cts;
+        private NetworkStream? _stream;
+        private CancellationTokenSource? _cts;
 
         public event EventHandler<string>? DataReceived;
         public event EventHandler? Disconnected;
@@ -3006,7 +3032,7 @@ namespace _8F
 
             try
             {
-                while (!token.IsCancellationRequested)
+                while (!token.IsCancellationRequested && _stream != null)
                 {
                     int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length, token);
                     if (bytesRead == 0)

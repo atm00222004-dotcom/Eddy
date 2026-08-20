@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,17 +24,17 @@ namespace _8F
     /// </summary>
     public partial class Freq : Window
     {
-        public bool IsSaved = false; 
-        public DeviceCOM portCOM;
-        private DispatcherTimer clearLabelTimer;
-        private List<GraphData> tempList;
+        public bool IsSaved = false;
+        public DeviceCOM? portCOM;
+        private DispatcherTimer clearLabelTimer = new();
+        private List<GraphData> tempList = new();
         private bool isTxStrengthEnabled;
 
         public Freq()
         {
             InitializeComponent();
 
-            isTxStrengthEnabled = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsTxStrengthEnable"]);
+            isTxStrengthEnabled = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTxStrengthEnable"]);
             lblTxStrength.Visibility = isTxStrengthEnabled ? Visibility.Visible : Visibility.Collapsed;
             txtTxStrength.Visibility = isTxStrengthEnabled ? Visibility.Visible : Visibility.Collapsed;
             var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
@@ -72,6 +72,7 @@ namespace _8F
                 lblMsg.Content = "";
 
                 var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
+                if (ch == null) return;
 
                 // commit latest edits
                 gdFreq.CommitEdit(DataGridEditingUnit.Cell, true);
@@ -130,10 +131,10 @@ namespace _8F
 
                     var rat = false;
 
-                    var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                    var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
                     if (IsJSON)
                     {
-                        rat = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        rat = portCOM != null && portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
                     }
                     else
                     {
@@ -173,7 +174,7 @@ namespace _8F
                             data[startB] = (byte)frequencyWrite.T;
                         }
 
-                        rat = portCOM.WriteDataInBytes(data);
+                        rat = portCOM != null && portCOM.WriteDataInBytes(data);
                     }
 
                     // Copy temp data → original data
@@ -213,7 +214,7 @@ namespace _8F
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
@@ -227,7 +228,7 @@ namespace _8F
 
         }
 
-        private void ClearLabelTimer_Tick(object sender, EventArgs e)
+        private void ClearLabelTimer_Tick(object? sender, EventArgs e)
         {
             lblMsg.Content = string.Empty;
             clearLabelTimer.Stop(); // Stop the timer after clearing
@@ -236,7 +237,7 @@ namespace _8F
         public List<string> Validaton(List<GraphData> list)
         {
             List<string> validationMsg = new List<string>();
-            var MinFreq = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["MinFreq"]);
+            var MinFreq = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["MinFreq"]);
             foreach (var item in list)
             {
                 if (item.freq < MinFreq || item.freq > 50000)

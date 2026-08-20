@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -83,7 +83,7 @@ namespace _8F
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
@@ -166,8 +166,10 @@ namespace _8F
 
         private void ddlBatchType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var text = e.AddedItems[0].ToString();
-            if (text == "Manual")
+            if (e.AddedItems != null && e.AddedItems.Count > 0 && e.AddedItems[0] != null)
+            {
+                var text = e.AddedItems[0]!.ToString();
+                if (text == "Manual")
             {
                 lblBatchSize.Visibility = Visibility.Hidden;
                 txtBatchSize.Visibility = Visibility.Hidden;
@@ -184,4 +186,5 @@ namespace _8F
             }
         }
     }
+}
 }

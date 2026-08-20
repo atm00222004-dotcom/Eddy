@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -25,10 +25,10 @@ namespace _8F
     public partial class PartConfigReNew : Window
     {
         public bool IsSaved = false;
-        List<Operator> operators;
-        List<PartFamily> partFamilies;
-        List<PartMaster> parts;
-        public DeviceCOM portCOM;
+        List<Operator> operators = new();
+        List<PartFamily> partFamilies = new();
+        List<PartMaster> parts = new();
+        public DeviceCOM? portCOM;
 
         public PartConfigReNew()
         {
@@ -88,7 +88,7 @@ namespace _8F
                         data[2] = Convert.ToByte(1);
                         data[3] = DeviceCOM.IsLogEnable ? Convert.ToByte(2) : Convert.ToByte(1);
 
-                        var rat = portCOM.WriteDataInBytes(data);
+                        var rat = portCOM != null && portCOM.WriteDataInBytes(data);
 
                         if (rat)
                         {
@@ -119,7 +119,7 @@ namespace _8F
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
@@ -128,35 +128,22 @@ namespace _8F
         public List<string> Validaton()
         {
             List<string> validationMsg = new List<string>();
-
             if (string.IsNullOrEmpty(txtProductionOrder.Text))
             {
-                validationMsg.Add("Production Order is required.");
+                validationMsg.Add("Please enter production order!");
             }
-
-            if (string.IsNullOrEmpty(ddlShift.Text))
-            {
-                validationMsg.Add("Shift is required.");
-            }
-
-            if (string.IsNullOrEmpty(ddlOperator.Text))
-            {
-                validationMsg.Add("Operator Name is required.");
-            }
-
             if (string.IsNullOrEmpty(txtMachineNumber.Text))
             {
-                validationMsg.Add("Machine Number is required.");
+                validationMsg.Add("Please enter machine number!");
             }
 
-            if (string.IsNullOrEmpty(ddlPartFamily.Text))
+            if (ddlPartFamily.SelectedItem == null)
             {
-                validationMsg.Add("Part Family is required.");
+                validationMsg.Add("Please select part family!");
             }
-
-            if (string.IsNullOrEmpty(ddlPartNumber.Text))
+            if (ddlPartNumber.SelectedItem == null)
             {
-                validationMsg.Add("Part Number is required.");
+                validationMsg.Add("Please select part number!");
             }
 
             return validationMsg;
@@ -179,7 +166,7 @@ namespace _8F
             if (ddlPartFamily.SelectedItem == null)
                 return;
 
-            string selectedFamily = ddlPartFamily.SelectedItem.ToString();
+            string selectedFamily = ddlPartFamily.SelectedItem?.ToString() ?? string.Empty;
 
             int familyId = partFamilies
                 .First(x => x.FamilyName == selectedFamily)
@@ -216,7 +203,7 @@ namespace _8F
             operators = new List<Operator>();
 
             using (var con = new NpgsqlConnection(
-                System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+                System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
             {
                 con.Open();
 
@@ -241,7 +228,7 @@ namespace _8F
             parts = new List<PartMaster>();
 
             using (var con = new NpgsqlConnection(
-                System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+                System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
             {
                 con.Open();
 
@@ -272,7 +259,7 @@ namespace _8F
             partFamilies = new List<PartFamily>();
 
             using (var con = new NpgsqlConnection(
-                System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+                System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
             {
                 con.Open();
 

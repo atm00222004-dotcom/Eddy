@@ -1,4 +1,4 @@
-﻿using Npgsql;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -26,7 +26,7 @@ namespace _8F
         {
             operatorList.Clear();
 
-            using (var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]))
+            using (var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]))
             {
                 con.Open();
 
@@ -43,7 +43,7 @@ namespace _8F
                     operatorList.Add(new Operator()
                     {
                         Id = Convert.ToInt32(reader["Id"]),
-                        OperatorName = reader["OperatorName"].ToString(),
+                        OperatorName = reader["OperatorName"]?.ToString() ?? string.Empty,
                         IsActive = Convert.ToBoolean(reader["IsActive"])
                     });
                 }
@@ -80,7 +80,7 @@ namespace _8F
                 return;
             }
 
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             if (SelectedId == 0)
@@ -128,7 +128,7 @@ namespace _8F
         // =========================
         private bool OperatorExists(string name, int ignoreId = 0)
         {
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             string sql = @"SELECT COUNT(1)
@@ -171,7 +171,7 @@ namespace _8F
                 MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                 return;
 
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             string sql = @"UPDATE public.""Operators""

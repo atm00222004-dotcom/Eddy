@@ -20,7 +20,7 @@ namespace _8F
     public partial class AutoEllipse : Window
     {
         public bool IsSaved { get; set; } = false;
-        public DeviceCOM portCOM { get; set; }
+        public DeviceCOM? portCOM { get; set; }
 
         private readonly Dictionary<int, DataTable> _channelTables = new();
         private readonly Dictionary<int, List<AutoEllipseTest>> _channelRawRecords = new();
@@ -376,7 +376,7 @@ namespace _8F
                 if (portCOM == null) return false;
 
                 BalanceTest testCmd = new BalanceTest { FC = 17, CN = 0 };
-                bool isJson = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+                bool isJson = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
 
                 if (isJson)
                 {

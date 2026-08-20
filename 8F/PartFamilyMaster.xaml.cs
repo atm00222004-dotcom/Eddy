@@ -1,4 +1,4 @@
-﻿using Npgsql;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -30,7 +30,7 @@ namespace _8F
         {
             familyList.Clear();
 
-            using (var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]))
+            using (var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]))
             {
                 con.Open();
 
@@ -47,7 +47,7 @@ namespace _8F
                     familyList.Add(new PartFamily()
                     {
                         Id = Convert.ToInt32(reader["Id"]),
-                        FamilyName = reader["FamilyName"].ToString(),
+                        FamilyName = reader["FamilyName"]?.ToString() ?? string.Empty,
                         IsActive = Convert.ToBoolean(reader["IsActive"])
                     });
                 }
@@ -81,7 +81,7 @@ namespace _8F
             grdFamilies.Visibility = Visibility.Visible;
             txtFamiliesMessage.Visibility = Visibility.Collapsed;
 
-            PartFamily selectedFamily = null;
+            PartFamily? selectedFamily = null;
 
             if (SelectedFamilyId > 0)
                 selectedFamily = familyList.Find(x => x.Id == SelectedFamilyId);
@@ -123,7 +123,7 @@ namespace _8F
                 return;
             }
 
-            using (var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]))
+            using (var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]))
             {
                 con.Open();
 
@@ -144,7 +144,7 @@ namespace _8F
                     {
                         Id = Convert.ToInt32(reader["Id"]),
                         PartFamilyId = Convert.ToInt32(reader["PartFamilyId"]),
-                        PartNumber = reader["PartNumber"].ToString(),
+                        PartNumber = reader["PartNumber"]?.ToString() ?? string.Empty,
                         IsActive = Convert.ToBoolean(reader["IsActive"])
                     });
                 }
@@ -167,7 +167,7 @@ namespace _8F
 
         private bool FamilyExists(string name, int ignoreId = 0)
         {
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             string sql = @"SELECT COUNT(1)
@@ -185,7 +185,7 @@ namespace _8F
 
         private bool PartExists(string partNo, int familyId, int ignoreId = 0)
         {
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             string sql = @"SELECT COUNT(1)
@@ -264,7 +264,7 @@ namespace _8F
                 MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                 return;
 
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             string sql = @"UPDATE public.""PartFamilies""
@@ -309,7 +309,7 @@ namespace _8F
                 MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                 return;
 
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             string sql = @"UPDATE public.""Parts""
@@ -344,7 +344,7 @@ namespace _8F
                 return;
             }
 
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             if (SelectedFamilyId == 0)
@@ -409,7 +409,7 @@ namespace _8F
                 return;
             }
 
-            using var con = new NpgsqlConnection(ConfigurationSettings.AppSettings["ConnectionString"]);
+            using var con = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
             con.Open();
 
             if (SelectedPartId == 0)

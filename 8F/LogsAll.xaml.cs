@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace _8F
     public partial class LogAll : Window
     {
         public bool IsSaved = false;
-        public List<LogData1> listOfLog;
+        public List<LogData1> listOfLog = new();
         public LogAll()
         {
             InitializeComponent();
@@ -52,7 +52,7 @@ namespace _8F
             {
                 listOfLog = new List<LogData1>();
 
-                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
                 {
                     //string sql = "select coalesce(dt1.\"LogDate\",dt2.\"LogDate\" ) as  \"LogDate\", coalesce(\"PassCount\", 0) as \"PassCount\",coalesce(\"FailCount\",0) as \"FailCount\" from (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"FailCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'false' group by \"Result\", \"TimeStamp\"::date) dt1 Full join (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"PassCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'true' group by \"Result\", \"TimeStamp\"::date) dt2 on dt1.\"LogDate\" = dt2.\"LogDate\";";
 
@@ -69,18 +69,21 @@ namespace _8F
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         LogData1 _part = new LogData1();
-                        _part.BatchName = dt.Rows[i]["BatchName"].ToString();
-                        _part.PartName =  dt.Rows[i]["PartName"].ToString();
-                        DateTimeOffset dto = DateTimeOffset.Parse(dt.Rows[i]["TimeStamp"].ToString());
-                        _part.TimeStamp = dto.ToString("dd/MM/yy HH:mm:ss");
+                        _part.BatchName = dt.Rows[i]["BatchName"]?.ToString() ?? string.Empty;
+                        _part.PartName =  dt.Rows[i]["PartName"]?.ToString() ?? string.Empty;
+                        string ts = dt.Rows[i]["TimeStamp"]?.ToString() ?? string.Empty;
+                        if (!string.IsNullOrEmpty(ts) && DateTimeOffset.TryParse(ts, out DateTimeOffset dto))
+                        {
+                            _part.TimeStamp = dto.ToString("dd/MM/yy HH:mm:ss");
+                        }
 
-                        _part.ResultStatus = dt.Rows[i]["ResultStatus"].ToString();
-                        _part.SrNo = dt.Rows[i]["SrNo"].ToString();
+                        _part.ResultStatus = dt.Rows[i]["ResultStatus"]?.ToString() ?? string.Empty;
+                        _part.SrNo = dt.Rows[i]["SrNo"]?.ToString() ?? string.Empty;
 
-                        _part.Ch1Result = dt.Rows[i]["Ch1Result"].ToString();
-                        _part.Ch2Result = dt.Rows[i]["Ch2Result"].ToString();
-                        _part.Ch3Result = dt.Rows[i]["Ch3Result"].ToString();
-                        _part.Ch4Result = dt.Rows[i]["Ch4Result"].ToString();
+                        _part.Ch1Result = dt.Rows[i]["Ch1Result"]?.ToString() ?? string.Empty;
+                        _part.Ch2Result = dt.Rows[i]["Ch2Result"]?.ToString() ?? string.Empty;
+                        _part.Ch3Result = dt.Rows[i]["Ch3Result"]?.ToString() ?? string.Empty;
+                        _part.Ch4Result = dt.Rows[i]["Ch4Result"]?.ToString() ?? string.Empty;
 
 
                         listOfLog.Add(_part);
@@ -89,7 +92,7 @@ namespace _8F
                     grdlogs.ItemsSource = listOfLog; // .OrderBy(t => Convert.ToDateTime(t.LogStartDate)); ;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }

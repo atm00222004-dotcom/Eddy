@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -19,10 +19,10 @@ namespace _8F
     {
         public bool IsSaved = false;
 
-        public List<LogData> listOfLog;
+        public List<LogData> listOfLog = new();
 
         private bool IsReNewConfig =>
-            Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isrenewconfig"]);
+            Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isrenewconfig"]);
 
         private string BatchCaption => IsReNewConfig ? "Shift" : "Batch Name";
 
@@ -54,7 +54,7 @@ namespace _8F
             {
                 listOfLog = new List<LogData>();
 
-                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
                 {
                     //string sql = "select coalesce(dt1.\"LogDate\",dt2.\"LogDate\" ) as  \"LogDate\", coalesce(\"PassCount\", 0) as \"PassCount\",coalesce(\"FailCount\",0) as \"FailCount\" from (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"FailCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'false' group by \"Result\", \"TimeStamp\"::date) dt1 Full join (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"PassCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'true' group by \"Result\", \"TimeStamp\"::date) dt2 on dt1.\"LogDate\" = dt2.\"LogDate\";";
 
@@ -71,12 +71,18 @@ namespace _8F
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         LogData _part = new LogData();
-                        _part.BatchName = dt.Rows[i]["BatchName"].ToString();
-                        DateTimeOffset dto = DateTimeOffset.Parse(dt.Rows[i]["StartDate"].ToString());
-                        _part.LogStartDate = dto.ToString("dd/MM/yy HH:mm:ss");
+                        _part.BatchName = dt.Rows[i]["BatchName"]?.ToString() ?? string.Empty;
+                        string sDate = dt.Rows[i]["StartDate"]?.ToString() ?? string.Empty;
+                        if (!string.IsNullOrEmpty(sDate) && DateTimeOffset.TryParse(sDate, out DateTimeOffset dto))
+                        {
+                            _part.LogStartDate = dto.ToString("dd/MM/yy HH:mm:ss");
+                        }
 
-                        DateTimeOffset dto1 = DateTimeOffset.Parse(dt.Rows[i]["EndDate"].ToString());
-                        _part.LogEndDate = dto1.ToString("dd/MM/yy HH:mm:ss");
+                        string eDate = dt.Rows[i]["EndDate"]?.ToString() ?? string.Empty;
+                        if (!string.IsNullOrEmpty(eDate) && DateTimeOffset.TryParse(eDate, out DateTimeOffset dto1))
+                        {
+                            _part.LogEndDate = dto1.ToString("dd/MM/yy HH:mm:ss");
+                        }
 
                         _part.PassCount = Convert.ToInt32(dt.Rows[i]["PassCount"]);
                         _part.FailCount = Convert.ToInt32(dt.Rows[i]["FailCount"]);
@@ -87,7 +93,7 @@ namespace _8F
                     grdlogs.ItemsSource = listOfLog; // .OrderBy(t => Convert.ToDateTime(t.LogStartDate)); ;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Something went wrong. Please try again.");
 
@@ -194,7 +200,7 @@ namespace _8F
                                         .Height(25)
                                         .Width(25)
                                         .AlignMiddle()
-                                        .Image(imageBytes, ImageScaling.FitHeight);
+                                        .Image(imageBytes);
 
                                     left.ConstantItem(10);
 
@@ -310,7 +316,7 @@ namespace _8F
 
                                                         try
                                                         {
-                                                            fdList = JsonConvert.DeserializeObject<List<GraphData>>(item.FDData);
+                                                             fdList = JsonConvert.DeserializeObject<List<GraphData>>(item.FDData ?? "[]") ?? new();
                                                         }
                                                         catch
                                                         {
@@ -418,7 +424,7 @@ namespace _8F
                                                                  .Bold()
                                                                  .FontColor("#0D3B6E");
 
-                                                             PartConfiguration part = null;
+                                                             PartConfiguration? part = null;
 
                                                              try
                                                              {
@@ -521,7 +527,7 @@ namespace _8F
             List<BatchDetail> list = new List<BatchDetail>();
 
             using (var con = new NpgsqlConnection(
-                System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]))
+                System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
             {
                 con.Open();
 
@@ -549,10 +555,10 @@ namespace _8F
                     list.Add(new BatchDetail()
                     {
                         TimeStamp = Convert.ToDateTime(row["TimeStamp"]),
-                        BatchName = row["BatchName"].ToString(),
+                        BatchName = row["BatchName"]?.ToString() ?? string.Empty,
                         Result = Convert.ToBoolean(row["Result"]),
-                        FDData = row["FDData"].ToString(),
-                        PartData = row["PartData"].ToString()
+                        FDData = row["FDData"]?.ToString() ?? string.Empty,
+                        PartData = row["PartData"]?.ToString() ?? string.Empty
                     });
                 }
             }
@@ -564,9 +570,9 @@ namespace _8F
         {
             try
             {
-                Button btn = sender as Button;
+                Button? btn = sender as Button;
 
-                LogData log = btn.Tag as LogData;
+                LogData? log = btn?.Tag as LogData;
 
                 if (log == null)
                     return;
@@ -620,7 +626,7 @@ namespace _8F
                                         .Height(25)
                                         .Width(25)
                                         .AlignMiddle()
-                                        .Image(imageBytes, ImageScaling.FitHeight);
+                                        .Image(imageBytes);
 
                                     left.ConstantItem(10);
 
@@ -730,7 +736,7 @@ namespace _8F
 
                                                     try
                                                     {
-                                                        fdList = JsonConvert.DeserializeObject<List<GraphData>>(item.FDData);
+                                                        fdList = JsonConvert.DeserializeObject<List<GraphData>>(item.FDData ?? "[]") ?? new();
                                                     }
                                                     catch
                                                     {
@@ -839,7 +845,7 @@ namespace _8F
                                                            .Bold()
                                                            .FontColor("#0D3B6E");
 
-                                                       PartConfiguration part = null;
+                                                       PartConfiguration? part = null;
 
                                                        try
                                                        {
@@ -936,7 +942,7 @@ namespace _8F
             }
         }
 
-        void LV(IContainer c, string label, string value)
+        void LV(IContainer c, string label, string? value)
         {
             c.Text(t =>
             {
