@@ -128,6 +128,10 @@ namespace _8F
                         dt.Columns.Add($"F{freq.Id}", typeof(string));
                         dt.Columns.Add($"F{freq.Id}_X", typeof(double));
                         dt.Columns.Add($"F{freq.Id}_Y", typeof(double));
+
+                        if (!dt.Columns.Contains(freq.Name)) dt.Columns.Add(freq.Name, typeof(string));
+                        if (!dt.Columns.Contains($"{freq.Name}_X")) dt.Columns.Add($"{freq.Name}_X", typeof(double));
+                        if (!dt.Columns.Contains($"{freq.Name}_Y")) dt.Columns.Add($"{freq.Name}_Y", typeof(double));
                     }
                 }
                 else
@@ -232,13 +236,37 @@ namespace _8F
                             {
                                 foreach (var kvp in freqDict)
                                 {
-                                    string key = kvp.Key; // e.g. "F1", "F2"
+                                    string rawKey = kvp.Key; // e.g. "F1", "D1", "1"
+                                    string keyNum = new string(rawKey.Where(char.IsDigit).ToArray());
+
                                     double x = kvp.Value["x"]?.ToObject<double>() ?? 0.0;
                                     double y = kvp.Value["y"]?.ToObject<double>() ?? 0.0;
 
-                                    if (_activeTable.Columns.Contains(key)) row[key] = $"{x:F2}, {y:F2}";
-                                    if (_activeTable.Columns.Contains($"{key}_X")) row[$"{key}_X"] = x;
-                                    if (_activeTable.Columns.Contains($"{key}_Y")) row[$"{key}_Y"] = y;
+                                    string[] targetDisplayCols = new[] { rawKey, $"F{keyNum}", $"D{keyNum}" };
+                                    string[] targetXCols = new[] { $"{rawKey}_X", $"F{keyNum}_X", $"D{keyNum}_X" };
+                                    string[] targetYCols = new[] { $"{rawKey}_Y", $"F{keyNum}_Y", $"D{keyNum}_Y" };
+
+                                    foreach (var cName in targetDisplayCols)
+                                    {
+                                        if (!string.IsNullOrEmpty(cName) && _activeTable.Columns.Contains(cName))
+                                        {
+                                            row[cName] = $"{x:F2}, {y:F2}";
+                                        }
+                                    }
+                                    foreach (var cName in targetXCols)
+                                    {
+                                        if (!string.IsNullOrEmpty(cName) && _activeTable.Columns.Contains(cName))
+                                        {
+                                            row[cName] = x;
+                                        }
+                                    }
+                                    foreach (var cName in targetYCols)
+                                    {
+                                        if (!string.IsNullOrEmpty(cName) && _activeTable.Columns.Contains(cName))
+                                        {
+                                            row[cName] = y;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -492,11 +520,6 @@ namespace _8F
             }
         }
 
-        private void btnStopTest_Click(object sender, RoutedEventArgs e)
-        {
-            StopAcquisition("Test run cancelled by operator.");
-        }
-
         private void StopAcquisition(string statusMsg)
         {
             DeviceCOM.IsAutoEllipseActive = false;
@@ -533,13 +556,8 @@ namespace _8F
 
             if (selectedRows.Count < 3)
             {
-                var warnResult = MessageBox.Show(
-                    $"Only {selectedRows.Count} test run(s) checked. Computing ellipses with fewer than 3 runs may yield narrow thresholds.\n\nDo you want to proceed?",
-                    "Low Sample Count Warning",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (warnResult != MessageBoxResult.Yes) return;
+                MessageBox.Show("Please select a minimum of 3 test runs to compute threshold ellipses.", "Insufficient Test Runs", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
 
             try
@@ -574,25 +592,45 @@ namespace _8F
                 }
                 string selectedTestIdsJson = JsonConvert.SerializeObject(selectedDbIds);
 
+                double aStretch = 1.0;
+                double bStretch = 1.0;
+
+                if (chkAutoStretch.IsChecked != true)
+                {
+                    if (!double.TryParse(txtStretchA.Text, out aStretch) || aStretch <= 0)
+                    {
+                        aStretch = 1.0;
+                    }
+                    if (!double.TryParse(txtStretchB.Text, out bStretch) || bStretch <= 0)
+                    {
+                        bStretch = 1.0;
+                    }
+                }
+
                 foreach (var graph in chData.graphDatas)
                 {
-                    string colX = $"F{graph.Id}_X";
-                    string colY = $"F{graph.Id}_Y";
+                    string[] possibleColX = new[] { $"F{graph.Id}_X", $"D{graph.Id}_X", $"{graph.Name}_X", $"{graph.Id}_X" };
+                    string[] possibleColY = new[] { $"F{graph.Id}_Y", $"D{graph.Id}_Y", $"{graph.Name}_Y", $"{graph.Id}_Y" };
+
+                    string? colX = possibleColX.FirstOrDefault(c => _activeTable.Columns.Contains(c));
+                    string? colY = possibleColY.FirstOrDefault(c => _activeTable.Columns.Contains(c));
 
                     List<(double X, double Y)> points = new();
 
-                    foreach (DataRow row in selectedRows)
-                    {
-                        if (_activeTable.Columns.Contains(colX) && _activeTable.Columns.Contains(colY) &&
-                            row[colX] != DBNull.Value && row[colY] != DBNull.Value)
+                    if (colX != null && colY != null)
+                    {   
+                        foreach (DataRow row in selectedRows)
                         {
-                            double x = Convert.ToDouble(row[colX]);
-                            double y = Convert.ToDouble(row[colY]);
-                            points.Add((x, y));
+                            if (row[colX] != DBNull.Value && row[colY] != DBNull.Value)
+                            {
+                                double x = Convert.ToDouble(row[colX]);
+                                double y = Convert.ToDouble(row[colY]);
+                                points.Add((x, y));
+                            }
                         }
                     }
 
-                    var result = EllipseFitter.FitEllipse(graph.Name, graph.Id, points);
+                    var result = EllipseFitter.FitEllipse(graph.Name, graph.Id, points, aStretch, bStretch);
 
                     if (result.IsValid)
                     {
@@ -644,6 +682,14 @@ namespace _8F
             {
                 lblStatus.Text = $"Computation error: {ex.Message}";
                 MessageBox.Show($"Error computing Auto Ellipse: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void chkAutoStretch_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            if (pnlCustomStretch != null)
+            {
+                pnlCustomStretch.Visibility = (chkAutoStretch.IsChecked == true) ? Visibility.Collapsed : Visibility.Visible;
             }
         }
 

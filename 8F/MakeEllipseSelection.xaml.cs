@@ -133,21 +133,10 @@ namespace _8F
                 .Where(r => r.Field<bool>("IsSelected"))
                 .ToList();
 
-            if (selectedRows.Count == 0)
-            {
-                MessageBox.Show("Please select at least one test run to compute threshold ellipses.", "No Runs Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             if (selectedRows.Count < 3)
             {
-                var warnResult = MessageBox.Show(
-                    $"Only {selectedRows.Count} test run(s) selected. Computing ellipses with fewer than 3 runs may yield narrow thresholds.\n\nDo you want to proceed?",
-                    "Low Sample Count Warning",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (warnResult != MessageBoxResult.Yes) return;
+                MessageBox.Show("Please select a minimum of 3 test runs to compute threshold ellipses.", "Insufficient Test Runs", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
 
             try
@@ -161,7 +150,6 @@ namespace _8F
 
                 List<AutoEllipseResult> computedResults = new();
 
-                // Extract Selected Test IDs for Audit Log
                 List<long> selectedDbIds = new();
                 foreach (var sRow in selectedRows)
                 {
@@ -184,19 +172,24 @@ namespace _8F
 
                 foreach (var graph in chData.graphDatas)
                 {
-                    string colX = $"F{graph.Id}_X";
-                    string colY = $"F{graph.Id}_Y";
+                    string[] possibleColX = new[] { $"F{graph.Id}_X", $"D{graph.Id}_X", $"{graph.Name}_X", $"{graph.Id}_X" };
+                    string[] possibleColY = new[] { $"F{graph.Id}_Y", $"D{graph.Id}_Y", $"{graph.Name}_Y", $"{graph.Id}_Y" };
+
+                    string? colX = possibleColX.FirstOrDefault(c => _selectionTable.Columns.Contains(c));
+                    string? colY = possibleColY.FirstOrDefault(c => _selectionTable.Columns.Contains(c));
 
                     List<(double X, double Y)> points = new();
 
-                    foreach (DataRow row in selectedRows)
+                    if (colX != null && colY != null)
                     {
-                        if (_selectionTable.Columns.Contains(colX) && _selectionTable.Columns.Contains(colY) &&
-                            row[colX] != DBNull.Value && row[colY] != DBNull.Value)
+                        foreach (DataRow row in selectedRows)
                         {
-                            double x = Convert.ToDouble(row[colX]);
-                            double y = Convert.ToDouble(row[colY]);
-                            points.Add((x, y));
+                            if (row[colX] != DBNull.Value && row[colY] != DBNull.Value)
+                            {
+                                double x = Convert.ToDouble(row[colX]);
+                                double y = Convert.ToDouble(row[colY]);
+                                points.Add((x, y));
+                            }
                         }
                     }
 

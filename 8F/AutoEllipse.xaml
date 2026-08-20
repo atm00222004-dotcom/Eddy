@@ -68,7 +68,7 @@
             <!-- Separator -->
             <Separator Grid.Row="1" Margin="0,0,0,10" Background="#A0A0A0"/>
 
-            <!-- 2. Controls Bar (Channel Selector & Selection Buttons) -->
+            <!-- 2. Controls Bar (Channel Selector, Stretch Controls & Selection Buttons) -->
             <Grid Grid.Row="2" Margin="4,0,4,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -79,6 +79,19 @@
 
                 <Label Content="Channel:" Foreground="#0F172A" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Grid.Column="0" Margin="0,0,8,0"/>
                 <ComboBox Name="cboChannel" Grid.Column="1" Height="32" FontSize="14" FontWeight="SemiBold" VerticalContentAlignment="Center" SelectionChanged="cboChannel_SelectionChanged"/>
+
+                <!-- Stretch Factor Controls -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <CheckBox Name="chkAutoStretch" Content="Auto Stretch" FontSize="14" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" IsChecked="True" Checked="chkAutoStretch_CheckedChanged" Unchecked="chkAutoStretch_CheckedChanged"/>
+
+                    <StackPanel Name="pnlCustomStretch" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0" Visibility="Collapsed">
+                        <Label Content="A Stretch:" FontSize="13" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center"/>
+                        <TextBox Name="txtStretchA" Text="1" Width="48" Height="28" FontSize="13" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="2,0,12,0"/>
+
+                        <Label Content="B Stretch:" FontSize="13" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center"/>
+                        <TextBox Name="txtStretchB" Text="1" Width="48" Height="28" FontSize="13" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
 
                 <StackPanel Grid.Column="3" Orientation="Horizontal">
                     <Button Name="btnSelectAll" Content="Select All" Width="110" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Click="btnSelectAll_Click" Margin="0,0,8,0"/>

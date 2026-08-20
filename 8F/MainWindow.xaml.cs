@@ -1683,7 +1683,7 @@ namespace _8F
                 el11.Stroke = new SolidColorBrush(Colors.DarkOrange);
                 rtAngel11.CenterX = (el11.Width / 2);
                 rtAngel11.CenterY = (el11.Height / 2);
-                rtAngel11.Angle = graphData.angel_O;
+                rtAngel11.Angle = graphData.angel_O * -1;
 
                 Ellipse el1_1 = new Ellipse();
                 el1_1.Height = graphData.height_O / factor;
@@ -1702,7 +1702,7 @@ namespace _8F
                 RotateTransform rtAngel1_1 = new RotateTransform();
                 rtAngel1_1.CenterX = (el1_1.Width / 2);
                 rtAngel1_1.CenterY = (el1_1.Height / 2);
-                rtAngel1_1.Angle = graphData.angel_O;
+                rtAngel1_1.Angle = graphData.angel_O * -1;
 
                 TransformGroup transformGroup_1 = new TransformGroup();
                 transformGroup_1.Children.Add(rtAngel1_1);
@@ -1734,7 +1734,7 @@ namespace _8F
                 RotateTransform rtAngel1 = new RotateTransform();
                 rtAngel1.CenterX = (el1.Width / 2);
                 rtAngel1.CenterY = (el1.Height / 2);
-                rtAngel1.Angle = item.angel;
+                rtAngel1.Angle = item.angel * -1;
 
                 TransformGroup transformGroup = new TransformGroup();
                 transformGroup.Children.Add(rtAngel1);

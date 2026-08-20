@@ -111,7 +111,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Name="btnComputeApply" Grid.Column="0" Content="Compute &amp; Apply Ellipse(s)" Width="230" Height="40" FontSize="14" FontWeight="Bold" 
+            <Button Name="btnComputeApply" Grid.Column="0" Content="Use This - Compute &amp; Apply Ellipse(s)" Width="270" Height="40" FontSize="14" FontWeight="Bold" 
                     Background="#305371" Foreground="White" Click="btnComputeApply_Click" HorizontalAlignment="Left" Cursor="Hand"/>
 
             <Button Name="btnClose" Grid.Column="1" Content="Close" Width="110" Height="40" FontSize="14" FontWeight="Bold" 
