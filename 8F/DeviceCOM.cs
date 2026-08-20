@@ -271,9 +271,28 @@ namespace _8F
 
                             if (!IsAutoEllipseActive)
                             {
-                                var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
-                                if (cnt != null)
+                                List<int> targetIds = new List<int> { res.CN };
+                                if (res.CN == 0)
                                 {
+                                    for (int ch = 1; ch <= ChannelNo; ch++)
+                                    {
+                                        targetIds.Add(ch);
+                                    }
+                                }
+                                else
+                                {
+                                    targetIds.Add(0);
+                                }
+
+                                foreach (int targetId in targetIds)
+                                {
+                                    var cnt = counter.FirstOrDefault(c => c.Id == targetId);
+                                    if (cnt == null)
+                                    {
+                                        cnt = new Counter { Id = targetId };
+                                        counter.Add(cnt);
+                                    }
+
                                     if (res.OR == 1)
                                     {
                                         cnt.ResultOkCount = cnt.ResultOkCount + 1;
@@ -360,15 +379,34 @@ namespace _8F
 
                             if (!IsAutoEllipseActive)
                             {
-                                var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
-                                if (cnt != null)
+                                List<int> targetIds = new List<int> { res.CN };
+                                if (res.CN == 0)
                                 {
+                                    for (int ch = 1; ch <= ChannelNo; ch++)
+                                    {
+                                        targetIds.Add(ch);
+                                    }
+                                }
+                                else
+                                {
+                                    targetIds.Add(0);
+                                }
+
+                                foreach (int targetId in targetIds)
+                                {
+                                    var cnt = counter.FirstOrDefault(c => c.Id == targetId);
+                                    if (cnt == null)
+                                    {
+                                        cnt = new Counter { Id = targetId };
+                                        counter.Add(cnt);
+                                    }
+
                                     if (res.OR == 1)
                                     {
                                         cnt.ResultOkCount = cnt.ResultOkCount + 1;
                                     }
                                     else
-                                    {  
+                                    {
                                         cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
                                     }
                                     cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;

@@ -197,6 +197,11 @@ namespace _8F
             portCOM.InitialPort(CommunicationType, portName, baudRate, IpAddress, Port);
 
             DeviceCOM.responses = new List<Response>();
+            DeviceCOM.counter = new List<Counter>();
+            for (int i = 0; i <= 8; i++)
+            {
+                DeviceCOM.counter.Add(new Counter { Id = i });
+            }
             chNo = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Channel"]);
             DeviceCOM.ChannelNo = chNo;
             if (chNo == 1)
@@ -679,6 +684,7 @@ namespace _8F
                                 if (DeviceCOM.IsLogEnable)
                                 {
                                     DeviceCOM.IsLogDisable = false;
+                                    DeviceCOM.IsAutoEllipseActive = false;
                                     DeviceCOM.Code = data;
                                     BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
 
@@ -868,7 +874,7 @@ namespace _8F
 
                 var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
 
-                var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
+                var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId) ?? DeviceCOM.counter.FirstOrDefault(c => c.Id == 0);
                 if (cnt != null)
                 {
                     lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
@@ -1922,6 +1928,7 @@ namespace _8F
                 var IsTestAll = (((Border)sender).Name == "btnTest1All") || (((Border)sender).Name == "btnTestAll") || (((Border)sender).Name == "btnTest2All");
                 var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
                 int ChId = IsTestAll ? 0 : Convert.ToInt32(SChId);
+                DeviceCOM.IsAutoEllipseActive = false;
 
                 BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = ChId };
 
@@ -1974,6 +1981,30 @@ namespace _8F
         {
             var IsClearAll = (((Border)sender).Name == "btnClear1All") || (((Border)sender).Name == "btnClearAll") || (((Border)sender).Name == "btnClear2All");
             ClearGraphDataWithoutBalance(IsClearAll);
+            lblCode.Content = "";
+        }
+
+        private void btnResetCounter_Click(object sender, MouseButtonEventArgs e)
+        {
+            foreach (var cnt in DeviceCOM.counter)
+            {
+                cnt.ResultCount = 0;
+                cnt.ResultOkCount = 0;
+                cnt.ResultOkNotCount = 0;
+            }
+
+            lblTCount.Content = "Total Count - 0";
+            lblOkCount.Content = "OK Count - 0";
+            lblNotOkCount.Content = "Not Ok Count - 0";
+
+            lblTCount1.Content = "Total Count - 0";
+            lblOkCount1.Content = "OK Count - 0";
+            lblNotOkCount1.Content = "Not Ok Count - 0";
+
+            lblTCount2.Content = "Total Count - 0";
+            lblOkCount2.Content = "OK Count - 0";
+            lblNotOkCount2.Content = "Not Ok Count - 0";
+
             lblCode.Content = "";
         }
 
@@ -2516,26 +2547,24 @@ namespace _8F
                 }
                 else if (e.Key == Key.R)
                 {
-                    var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
-                    var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
-                    if (cnt != null)
+                    foreach (var cnt in DeviceCOM.counter)
                     {
                         cnt.ResultCount = 0;
                         cnt.ResultOkCount = 0;
                         cnt.ResultOkNotCount = 0;
-
-                        lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
-                        lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                        lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
-
-                        lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
-                        lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                        lblNotOkCount1.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
-
-                        lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
-                        lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                        lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
                     }
+
+                    lblTCount.Content = "Total Count - 0";
+                    lblOkCount.Content = "OK Count - 0";
+                    lblNotOkCount.Content = "Not Ok Count - 0";
+
+                    lblTCount1.Content = "Total Count - 0";
+                    lblOkCount1.Content = "OK Count - 0";
+                    lblNotOkCount1.Content = "Not Ok Count - 0";
+
+                    lblTCount2.Content = "Total Count - 0";
+                    lblOkCount2.Content = "OK Count - 0";
+                    lblNotOkCount2.Content = "Not Ok Count - 0";
 
                     lblCode.Content = "";
                 }
@@ -2548,7 +2577,7 @@ namespace _8F
                     }
                     else
                     {
-
+                        DeviceCOM.IsAutoEllipseActive = false;
                         BalanceTest balanceTest = new BalanceTest() { FC = 17, CN = 0 };
 
                         bool rat = false;

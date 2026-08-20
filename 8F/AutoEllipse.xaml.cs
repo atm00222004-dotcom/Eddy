@@ -49,7 +49,7 @@ namespace _8F
 
         private void AutoEllipse_Loaded(object sender, RoutedEventArgs e)
         {
-            DeviceCOM.IsAutoEllipseActive = true;
+            DeviceCOM.IsAutoEllipseActive = false;
             Unloaded += AutoEllipse_Unloaded;
             Closed += AutoEllipse_Closed;
             PopulateChannels();
@@ -350,9 +350,11 @@ namespace _8F
             }
 
             // Trigger ECT test hardware acquisition across all frequencies (FC = 17)
+            DeviceCOM.IsAutoEllipseActive = true;
             bool success = SendTestCommand();
             if (!success)
             {
+                DeviceCOM.IsAutoEllipseActive = false;
                 lblStatus.Text = "Failed to communicate with ECT hardware.";
                 MessageBox.Show("Unable to start test acquisition due to communication error.", "Communication Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -497,6 +499,7 @@ namespace _8F
 
         private void StopAcquisition(string statusMsg)
         {
+            DeviceCOM.IsAutoEllipseActive = false;
             _isTestActive = false;
             _acquisitionTimer.Stop();
 
