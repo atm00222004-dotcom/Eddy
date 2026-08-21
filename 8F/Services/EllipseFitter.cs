@@ -169,7 +169,40 @@ namespace _8F.Services
                 a = Math.Sqrt(sq(Xc - x_end[1]) + sq(Yc - y_end[1]));
             }
 
+            // Version 2 Major-Axis Extension:
+            // Extend the major axis outward to comfortably enclose points near/past the endpoints.
+            // 
+            // ⚠️ Code Audit Note 1 (Unconfirmed Math): 'tempHypo = distBase - distHeight' uses a subtraction
+            // of two triangle legs rather than a true hypotenuse calculation (sqrt(base² + height²)).
+            // Ported literally from auto_ellipse_formation_version2.cpp reference as intended heuristic.
+            //
+            // ⚠️ Code Audit Note 2 (Unconfirmed Scale-Dependence): 'if (a < 1e-1) a = a + 5;' uses a flat +5 unit floor.
+            // This flat +5 is scale-dependent (large relative bump for 1-10 range, negligible for large ECT signals).
+            double hypo = 0.0;
+
+            for (int i = 0; i < m; i++)
+            {
+                double distBase = Math.Sqrt(sq(x_proj[i] - x_end[1]) + sq(y_proj[i] - y_end[1]));
+                double distHeight = Math.Sqrt(sq(x_proj[i] - x[i]) + sq(y_proj[i] - y[i]));
+                double tempHypo = distBase - distHeight;
+                if (tempHypo > hypo) hypo = tempHypo;
+            }
+
+            for (int i = 0; i < m; i++)
+            {
+                double distBase = Math.Sqrt(sq(x_proj[i] - x_end[0]) + sq(y_proj[i] - y_end[0]));
+                double distHeight = Math.Sqrt(sq(x_proj[i] - x[i]) + sq(y_proj[i] - y[i]));
+                double tempHypo = distBase - distHeight;
+                if (tempHypo > hypo) hypo = tempHypo;
+            }
+
+            a = a + hypo;
             a = a * a_stretch;
+
+            if (a < 1e-1)
+            {
+                a = a + 5;
+            }
 
             // 8. Find (x_fur, y_fur): original point with maximum distance from its own projection
             double x_fur = x[0];

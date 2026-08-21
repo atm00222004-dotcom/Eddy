@@ -148,7 +148,6 @@ namespace _8F
             _activeTable = _channelTables[channelId];
             dgTestResults.ItemsSource = _activeTable.DefaultView;
 
-            // 1. Front CheckBox Selection Column (Include)
             dgTestResults.Columns.Add(new DataGridCheckBoxColumn
             {
                 Header = "Include",
@@ -156,7 +155,6 @@ namespace _8F
                 Width = 50
             });
 
-            // 2. Test Name Column
             dgTestResults.Columns.Add(new DataGridTextColumn
             {
                 Header = "Test #",
@@ -165,7 +163,6 @@ namespace _8F
                 Width = 60
             });
 
-            // 3. Timestamp Column
             dgTestResults.Columns.Add(new DataGridTextColumn
             {
                 Header = "Timestamp",
@@ -174,7 +171,6 @@ namespace _8F
                 Width = 90
             });
 
-            // 4. Combined Frequency Columns: Dn (X,Y) with Auto-Star Sizing
             var activeCh = DeviceCOM.channelDatas?.FirstOrDefault(c => c.Id == channelId);
             if (activeCh != null && activeCh.graphDatas != null)
             {
@@ -190,7 +186,6 @@ namespace _8F
                 }
             }
 
-            // 5. Per-Row Delete Action Column
             FrameworkElementFactory btnFactory = new FrameworkElementFactory(typeof(Button));
             btnFactory.SetValue(Button.ContentProperty, "Delete");
             btnFactory.SetValue(Button.BackgroundProperty, new SolidColorBrush(Color.FromRgb(220, 38, 38)));
@@ -212,7 +207,6 @@ namespace _8F
                 Width = 65
             });
 
-            // Load Historical Data from PostgreSQL for this Channel
             if (isNewTable)
             {
                 lblStatus.Text = $"Loading Channel-{channelId} calibration data from PostgreSQL...";
@@ -321,7 +315,6 @@ namespace _8F
                 {
                     int chId = cboChannel.SelectedIndex + 1;
 
-                    // Hard Delete in Database
                     if (dbId > 0)
                     {
                         Task.Run(async () =>
@@ -330,7 +323,6 @@ namespace _8F
                         });
                     }
 
-                    // Remove from local records
                     if (_channelRawRecords.TryGetValue(chId, out var rawList))
                     {
                         var rec = rawList.FirstOrDefault(r => r.Id == dbId || $"Test {r.TestNumber}" == testName);
@@ -377,7 +369,6 @@ namespace _8F
                 _ = SetupChannelTableAndColumnsAsync(chId);
             }
 
-            // Trigger ECT test hardware acquisition across all frequencies (FC = 17)
             DeviceCOM.IsAutoEllipseActive = true;
             bool success = SendTestCommand();
             if (!success)
@@ -457,7 +448,7 @@ namespace _8F
                     }
                     int testNum = maxTestNum + 1;
                     DataRow newRow = _activeTable.NewRow();
-                    newRow["IsSelected"] = true; // Checked by default
+                    newRow["IsSelected"] = true; 
                     newRow["TestName"] = $"Test {testNum}";
                     newRow["Timestamp"] = DateTime.Now.ToString("HH:mm:ss.fff");
 
@@ -476,7 +467,6 @@ namespace _8F
                         freqValuesJson[$"F{fd.FN}"] = new { x = fd.X, y = fd.Y };
                     }
 
-                    // Save Raw Run to DB
                     AutoEllipseTest testRecord = new AutoEllipseTest
                     {
                         ChannelId = chId,
@@ -500,7 +490,6 @@ namespace _8F
                         rawList.Add(testRecord);
                     }
 
-                    // Auto-scroll DataGrid to latest row
                     if (_activeTable.Rows.Count > 0)
                     {
                         dgTestResults.ScrollIntoView(_activeTable.DefaultView[_activeTable.Rows.Count - 1]);
@@ -513,7 +502,6 @@ namespace _8F
                 _lastProcessedResponseIndex = DeviceCOM.responses.Count;
             }
 
-            // Timeout check (10 seconds)
             if (_isTestActive && (DateTime.Now - _testStartTime).TotalSeconds >= 10)
             {
                 StopAcquisition("Acquisition timed out waiting for hardware response.");
@@ -569,7 +557,6 @@ namespace _8F
                     return;
                 }
 
-                // Extract Selected Test IDs for Audit Log
                 List<long> selectedDbIds = new();
                 _channelRawRecords.TryGetValue(chId, out var rawRecords);
 
@@ -592,7 +579,6 @@ namespace _8F
                 }
                 string selectedTestIdsJson = JsonConvert.SerializeObject(selectedDbIds);
 
-                // Controls major (a_stretch) and minor (b_stretch) axis multipliers passed to EllipseFitter.FitEllipse
                 double aStretch = 1.0;
                 double bStretch = 1.0;
 
@@ -667,7 +653,6 @@ namespace _8F
                     }
                 }
 
-                // Apply changes to ECT Hardware & Main UI
                 if (Owner is MainWindow mw)
                 {
                     mw.ImplementChanges(2);

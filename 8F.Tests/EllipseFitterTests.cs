@@ -47,8 +47,8 @@ namespace _8F.Tests
             Assert.NotEqual(EllipseFitter.MIN_DIMENSION, result.Width);
             Assert.NotEqual(EllipseFitter.MIN_DIMENSION, result.Height);
 
-            // Expected raw dimensions for reference dataset
-            Assert.InRange(result.Width, 8.0, 15.0);
+            // Expected raw dimensions for reference dataset (Version 2 major-axis extension expands Width to ~33.90)
+            Assert.InRange(result.Width, 8.0, 40.0);
             Assert.InRange(result.Height, 2.0, 8.0);
         }
 

@@ -160,5 +160,19 @@ namespace _8F.Tests
             Assert.Equal(150, ch2.graphDatas[0].width);
             Assert.Equal(45, ch2.graphDatas[0].angel);
         }
+
+        [Fact]
+        public void FitEllipse_ReferenceDataset_Version2MajorAxisExtension()
+        {
+            var referencePoints = new List<(double X, double Y)>
+            {
+                (1, 1), (2, 2), (3, 2), (4, 4), (5, 8), (6, 6), (7, 7), (8, 8), (9, 9), (10, 6)
+            };
+
+            var result = EllipseFitter.FitEllipse("D1", 1, referencePoints);
+
+            Assert.True(result.IsValid);
+            Assert.True(result.Width > 12.56, $"Width ({result.Width}) should be larger than 12.56 due to major axis extension");
+        }
     }
 }
