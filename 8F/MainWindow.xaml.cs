@@ -240,8 +240,10 @@ namespace _8F
                         {
                             new MenuItemViewModel { Header = "New", mainWindow =this },
                             new MenuItemViewModel { Header = "Open" ,mainWindow =this },
+                            new MenuItemViewModel { Header = "Open from Database", mainWindow =this },
                             new MenuItemViewModel { Header = "Save", mainWindow =this },
                             new MenuItemViewModel { Header = "Save As", mainWindow =this },
+                            new MenuItemViewModel { Header = "Export Configuration", mainWindow =this },
                             new MenuItemViewModel { Header = "Exit" ,mainWindow =this }
                         }
                 },
@@ -349,19 +351,39 @@ namespace _8F
         {
             try
             {
+                bool isValidationRequired = false;
+                string? isValStr = System.Configuration.ConfigurationManager.AppSettings["IsMachineValidationRequired"];
+                if (!string.IsNullOrEmpty(isValStr) && bool.TryParse(isValStr, out bool req))
+                {
+                    isValidationRequired = req;
+                }
+
+                if (!isValidationRequired)
+                {
+                    return true;
+                }
+
                 string filePath = @"C:\ProgramData\Eddy\Config.txt";
 
                 // 1. Configuration file does not exist
                 if (!File.Exists(filePath))
                 {
-                    MessageBox.Show(
-                        "The application configuration file could not be found.\n\n" +
-                        "Please contact your administrator to obtain a valid configuration file.",
-                        "Configuration Required",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                    string localConfig = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config.txt");
+                    if (File.Exists(localConfig))
+                    {
+                        filePath = localConfig;
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            "The application configuration file could not be found.\n\n" +
+                            "Please contact your administrator to obtain a valid configuration file.",
+                            "Configuration Required",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
 
-                    return false;
+                        return false;
+                    }
                 }
 
                 // 2. Read encrypted configuration
@@ -2855,8 +2877,23 @@ namespace _8F
                                     File.WriteAllText(mainWindow.filename, conecnt);
                                     this.mainWindow.btnLog.Visibility = Visibility.Visible;
                                     this.mainWindow.btnLog1.Visibility = Visibility.Visible;
-                                    //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                                     this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
+
+                                    // DB Profile Save alongside File Save
+                                    string profileName = System.IO.Path.GetFileNameWithoutExtension(mainWindow.filename);
+                                    var currentChannels = DeviceCOM.channelDatas;
+                                    Task.Run(async () =>
+                                    {
+                                        try
+                                        {
+                                            _8F.Services.InspectionLogRepository repo = new _8F.Services.InspectionLogRepository();
+                                            await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
+                                        }
+                                        catch (Exception dbEx)
+                                        {
+                                            System.Diagnostics.Debug.WriteLine($"Failed to save config profile to DB: {dbEx.Message}");
+                                        }
+                                    });
                                 }
 
                             }
@@ -2864,8 +2901,22 @@ namespace _8F
                             {
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                                 File.WriteAllText(mainWindow.filename, conecnt);
-                                //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                                //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
+
+                                // DB Profile Save alongside File Save
+                                string profileName = System.IO.Path.GetFileNameWithoutExtension(mainWindow.filename);
+                                var currentChannels = DeviceCOM.channelDatas;
+                                Task.Run(async () =>
+                                {
+                                    try
+                                    {
+                                        _8F.Services.InspectionLogRepository repo = new _8F.Services.InspectionLogRepository();
+                                        await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
+                                    }
+                                    catch (Exception dbEx)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine($"Failed to save config profile to DB: {dbEx.Message}");
+                                    }
+                                });
                             }
 
                         }
@@ -2895,9 +2946,23 @@ namespace _8F
 
                                 string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
                                 File.WriteAllText(mainWindow.filename, conecnt);
-                                //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                                //MessageBox.Show("Configuation changes saved at '" + filename + "'!!!!");
                                 this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
+
+                                // DB Profile Save alongside File Save
+                                string profileName = System.IO.Path.GetFileNameWithoutExtension(mainWindow.filename);
+                                var currentChannels = DeviceCOM.channelDatas;
+                                Task.Run(async () =>
+                                {
+                                    try
+                                    {
+                                        _8F.Services.InspectionLogRepository repo = new _8F.Services.InspectionLogRepository();
+                                        await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
+                                    }
+                                    catch (Exception dbEx)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine($"Failed to save config profile to DB: {dbEx.Message}");
+                                    }
+                                });
                             }
 
 
@@ -2912,41 +2977,87 @@ namespace _8F
                         try
                         {
                             var dialog = new Microsoft.Win32.OpenFileDialog();
-                            dialog.FileName = "Document"; // Default file name
-                            dialog.DefaultExt = ".txt"; // Default file extension
-                            dialog.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+                            dialog.Title = "Open Configuration File";
+                            dialog.FileName = "Document";
+                            dialog.DefaultExt = ".txt";
+                            dialog.Filter = "JSON / Text documents (*.json;*.txt)|*.json;*.txt|All Files (*.*)|*.*";
 
-                            // Show open file dialog box
                             bool? result = dialog.ShowDialog();
-
-                            // Process open file dialog box results
                             if (result == true)
                             {
                                 string data = File.ReadAllText(dialog.FileName);
-                                var parsedChData = JsonConvert.DeserializeObject<List<ChannelData>>(data);
-                                if (parsedChData != null) DeviceCOM.channelDatas = parsedChData;
-                                // Open document
-                                mainWindow.filename = dialog.FileName;
-                                mainWindow.SelectCh1();
-                                mainWindow.ClearGraphData();
+                                List<ChannelData>? parsedChData = _8F.Services.ConfigurationImporter.ImportFromJson(data);
 
-                                var rat = mainWindow.ImplementChanges(0);
-                                if (!rat)
+                                if (parsedChData != null && parsedChData.Count > 0)
                                 {
-                                    var msg = "No response from the system, please reboot the ECT Instrument";
-                                    MessageBox.Show(msg, "Information");
+                                    ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
                                 }
-
-                                //this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                                this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
+                                else
+                                {
+                                    MessageBox.Show("Failed to parse valid configuration data from the selected file.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                }
                             }
-
-
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            MessageBox.Show("Error while loading the configuration file!!!!", "Error Information");
+                            MessageBox.Show($"Error loading configuration file: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
+                    }
+                    else if (Header == "Open from Database")
+                    {
+                        try
+                        {
+                            ExportProfilePickerWindow profilePicker = new ExportProfilePickerWindow
+                            {
+                                Title = "Open Configuration Profile from Database",
+                                IsSelectionMode = true,
+                                Owner = mainWindow
+                            };
+                            profilePicker.ShowDialog();
+
+                            if (profilePicker.SelectedProfileId > 0)
+                            {
+                                int pId = profilePicker.SelectedProfileId;
+                                string pName = profilePicker.SelectedProfileName;
+                                Task.Run(async () =>
+                                {
+                                    try
+                                    {
+                                        _8F.Services.InspectionLogRepository repo = new _8F.Services.InspectionLogRepository();
+                                        var dbChannels = await repo.GetConfigProfileAsync(pId);
+
+                                        mainWindow.Dispatcher.Invoke(() =>
+                                        {
+                                            if (dbChannels != null && dbChannels.Count > 0)
+                                            {
+                                                ApplyChannelDataWithMapping(dbChannels, $"DB: {pName}");
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show("Selected database profile contains no channel data.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                            }
+                                        });
+                                    }
+                                    catch (Exception dbEx)
+                                    {
+                                        mainWindow.Dispatcher.Invoke(() =>
+                                        {
+                                            MessageBox.Show($"Error loading profile from database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error accessing database profiles: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else if (Header == "Export Configuration")
+                    {
+                        ExportProfilePickerWindow exportPicker = new ExportProfilePickerWindow();
+                        exportPicker.Owner = mainWindow;
+                        exportPicker.ShowDialog();
                     }
                     else if (Header == "New")
                     {
@@ -2993,6 +3104,42 @@ namespace _8F
                     }
                 }
             }
+        }
+
+        private void ApplyChannelDataWithMapping(List<ChannelData> incoming, string sourceName)
+        {
+            if (mainWindow == null || incoming == null || incoming.Count == 0) return;
+
+            string displayName = System.IO.Path.GetFileName(sourceName);
+            ChannelRemappingWindow remapWin = new ChannelRemappingWindow(incoming, displayName)
+            {
+                Owner = mainWindow
+            };
+            remapWin.ShowDialog();
+
+            if (!remapWin.IsConfirmed)
+            {
+                return; // User cancelled mapping
+            }
+
+            var mappedChannels = _8F.Services.ConfigurationImporter.ApplyRemapping(incoming, remapWin.TargetMappings, remapWin.IsImportAsIs);
+
+            if (mappedChannels != null)
+            {
+                DeviceCOM.channelDatas = mappedChannels;
+            }
+
+            mainWindow.filename = sourceName;
+            mainWindow.SelectCh1();
+            mainWindow.ClearGraphData();
+
+            var rat = mainWindow.ImplementChanges(0);
+            if (!rat)
+            {
+                MessageBox.Show("Configuration loaded into application, but no response from ECT instrument. Please check connection.", "Instrument Notice", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            mainWindow.lblConfigFileName.Content = sourceName;
         }
 
 

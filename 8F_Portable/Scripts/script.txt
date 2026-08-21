@@ -1,0 +1,124 @@
+-- Table: public.Logs
+
+-- DROP TABLE IF EXISTS public."Logs";
+
+CREATE TABLE IF NOT EXISTS public."Logs"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9999999 CACHE 1 ),
+    "ChId" integer NOT NULL,
+    "Result" boolean NOT NULL,
+    "TimeStamp" timestamp without time zone,
+    "FDData" json,
+    "PartData" json,
+    "PartName" text COLLATE pg_catalog."default",
+    "BatchName" text COLLATE pg_catalog."default",
+    "SrNo" text COLLATE pg_catalog."default",
+    "BatchNo" bigint,
+    "Ch1Result" boolean,
+    "Ch2Result" boolean,
+    "Ch3Result" boolean,
+    "Ch4Result" boolean
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Logs"
+    OWNER to postgres;
+
+
+
+
+
+
+-- ==========================================
+-- OPERATORS TABLE
+-- ==========================================
+CREATE TABLE "Operators"
+(
+    "Id" SERIAL PRIMARY KEY,
+    "OperatorName" VARCHAR(100) NOT NULL,
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+
+-- ==========================================
+-- PART FAMILIES TABLE
+-- ==========================================
+CREATE TABLE "PartFamilies"
+(
+    "Id" SERIAL PRIMARY KEY,
+    "FamilyName" VARCHAR(100) NOT NULL,
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+
+-- ==========================================
+-- PARTS TABLE
+-- ==========================================
+CREATE TABLE "Parts"
+(
+    "Id" SERIAL PRIMARY KEY,
+    "PartFamilyId" INT NOT NULL,
+    "PartNumber" VARCHAR(100) NOT NULL,
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
+
+    CONSTRAINT "FK_Parts_PartFamilies"
+        FOREIGN KEY ("PartFamilyId")
+        REFERENCES "PartFamilies"("Id")
+);
+
+
+-- ==========================================
+-- INSERT OPERATORS
+-- ==========================================
+INSERT INTO "Operators" ("OperatorName")
+VALUES
+('Operator 1'),
+('Operator 2'),
+('Operator 3'),
+('Operator 4');
+
+
+-- ==========================================
+-- INSERT PART FAMILIES
+-- ==========================================
+INSERT INTO "PartFamilies" ("FamilyName")
+VALUES
+('Main Plate'),
+('Cover Plate'),
+('Hub Flange'),
+('Hub'),
+('Support Washer');
+
+
+-- ==========================================
+-- INSERT PARTS
+-- ==========================================
+INSERT INTO "Parts" ("PartFamilyId", "PartNumber")
+VALUES
+
+-- Main Plate
+(1, 'L-03120-0HQ5-00'),
+(1, 'L-03120-1554-00'),
+(1, 'L-03120-1982-00'),
+
+-- Cover Plate
+(2, 'L-03124-0GP4-00'),
+(2, 'L-03124-0P20-01'),
+(2, 'L-03124-1732-00'),
+
+-- Hub Flange
+(3, 'L-03125-0GY7-01'),
+(3, 'L-03125-0GBF-05'),
+(3, 'L-03125-2165-05'),
+
+-- Hub
+(4, 'L-03133-0GF8-06'),
+(4, 'L-03133-1418-01'),
+(4, 'L-03133-1418-05'),
+(4, 'L-03133-1717-08'),
+
+-- Support Washer
+(5, 'L-03158-0GK5-00'),
+(5, 'L-03158-0P22-00'),
+(5, 'L-03158-1489-00');

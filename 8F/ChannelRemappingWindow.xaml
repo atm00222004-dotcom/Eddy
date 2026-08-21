@@ -1,0 +1,93 @@
+<Window x:Class="_8F.ChannelRemappingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Channel Remapping" Height="460" Width="680"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        WindowStyle="None" Background="Transparent" AllowsTransparency="True">
+
+    <Window.Resources>
+        <Style x:Key="MagkraftButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#305371"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#FF000000"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#94A3B8"/>
+                                <Setter Property="Foreground" Value="#E2E8F0"/>
+                                <Setter Property="BorderBrush" Value="#CBD5E1"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1E3A8A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MagkraftSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource MagkraftButtonStyle}">
+            <Setter Property="Background" Value="#64748B"/>
+        </Style>
+    </Window.Resources>
+
+    <Border Name="brRef" Margin="4" Background="#DBDBDB" BorderBrush="#B0B0B0" BorderThickness="1" CornerRadius="20" MouseDown="Window_MouseDown">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Header Title -->
+                <RowDefinition Height="Auto"/> <!-- Separator -->
+                <RowDefinition Height="Auto"/> <!-- Description -->
+                <RowDefinition Height="*"/>    <!-- Mapping Rows List -->
+                <RowDefinition Height="Auto"/> <!-- Warning Notice -->
+                <RowDefinition Height="Auto"/> <!-- Action Buttons -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Header Title -->
+            <Grid Grid.Row="0" Margin="0,4,0,8">
+                <Label Content="Import Channel Remapping" FontSize="20" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Name="btnCloseHeader" Content="Close" Width="70" Height="30" Style="{StaticResource MagkraftSecondaryButtonStyle}" FontSize="13" Click="btnCancel_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+
+            <Separator Grid.Row="1" Margin="0,0,0,8" Background="#A0A0A0"/>
+
+            <!-- 2. Description -->
+            <TextBlock Grid.Row="2" Name="lblSourceDescription" Text="Select target channel(s) for each source channel found in the configuration." Foreground="#334155" FontSize="13" FontWeight="SemiBold" Margin="4,0,4,10" TextWrapping="Wrap"/>
+
+            <!-- 3. Mapping Rows List Container -->
+            <Border Grid.Row="3" Background="#FFFFFF" BorderBrush="#A0A0A0" BorderThickness="1" CornerRadius="10" Padding="10" Margin="4,0,4,10">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Name="pnlMappingRows"/>
+                </ScrollViewer>
+            </Border>
+
+            <!-- 4. Warning Notice -->
+            <Border Grid.Row="4" Name="brdWarning" Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="4,0,4,10" Visibility="Collapsed">
+                <TextBlock Name="lblWarning" Text="⚠️ Warning: Target channel is selected by multiple source channels. The last source will overwrite earlier ones." Foreground="#92400E" FontSize="13" FontWeight="Bold"/>
+            </Border>
+
+            <!-- 5. Action Buttons -->
+            <Grid Grid.Row="5" Margin="4,0,4,4">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Name="btnImportAsIs" Content="Import As-Is (Exact Match)" Width="190" Height="36" Style="{StaticResource MagkraftSecondaryButtonStyle}" FontSize="13" Click="btnImportAsIs_Click" Margin="0,0,10,0"/>
+                    <Button Name="btnApplyMapping" Content="Apply Mapping" Width="140" Height="36" Style="{StaticResource MagkraftButtonStyle}" FontSize="14" Click="btnApplyMapping_Click" Margin="0,0,10,0"/>
+                    <Button Name="btnCancel" Content="Cancel" Width="90" Height="36" Style="{StaticResource MagkraftSecondaryButtonStyle}" FontSize="14" Click="btnCancel_Click"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

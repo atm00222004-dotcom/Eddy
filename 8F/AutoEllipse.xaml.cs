@@ -592,6 +592,7 @@ namespace _8F
                 }
                 string selectedTestIdsJson = JsonConvert.SerializeObject(selectedDbIds);
 
+                // Controls major (a_stretch) and minor (b_stretch) axis multipliers passed to EllipseFitter.FitEllipse
                 double aStretch = 1.0;
                 double bStretch = 1.0;
 

@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-D:\New folder\Eddy\8F\obj\Debug\net8.0-windows\
+d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\
 _8F
 none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
-D:\New folder\Eddy\8F\App.xaml
-14194536342
+d:\New folder\Eddy\8F\App.xaml
+16-203202257
 11613912260
-23-2015120
+26-763488505
 210-2001612781
-AutoEllipse.xaml;CircleSetting.xaml;Freq.xaml;Logs.xaml;LogsAll.xaml;MainWindow.xaml;MakeEllipseSelection.xaml;OperatorMaster.xaml;PartConfig.xaml;PartConfigReNew.xaml;PartFamilyMaster.xaml;RenewBatchWiseLog.xaml;Report.xaml;TestWindow.xaml;
+AutoEllipse.xaml;ChannelRemappingWindow.xaml;CircleSetting.xaml;ExportProfilePickerWindow.xaml;Freq.xaml;Logs.xaml;LogsAll.xaml;MainWindow.xaml;MakeEllipseSelection.xaml;OperatorMaster.xaml;PartConfig.xaml;PartConfigReNew.xaml;PartFamilyMaster.xaml;RenewBatchWiseLog.xaml;Report.xaml;TestWindow.xaml;
 
 False
 

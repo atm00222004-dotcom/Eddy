@@ -122,3 +122,70 @@ VALUES
 (5, 'L-03158-0GK5-00'),
 (5, 'L-03158-0P22-00'),
 (5, 'L-03158-1489-00');
+
+
+-- ==========================================
+-- CHANNEL CONFIGURATION PERSISTENCE TABLES
+-- ==========================================
+
+-- 1. ConfigProfiles: Saved configuration files / profiles
+CREATE TABLE IF NOT EXISTS public."ConfigProfiles"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "Name" text NOT NULL,
+    "OperatorName" text,
+    "CreatedAt" timestamp without time zone NOT NULL DEFAULT now(),
+    "UpdatedAt" timestamp without time zone NOT NULL DEFAULT now()
+);
+
+-- 2. ConfigChannels: Channels per profile (1-4)
+CREATE TABLE IF NOT EXISTS public."ConfigChannels"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "ConfigProfileId" integer NOT NULL REFERENCES public."ConfigProfiles"("Id") ON DELETE CASCADE,
+    "ChannelNumber" integer NOT NULL,
+    "IsSelected" boolean NOT NULL DEFAULT false,
+    "TxStrength" numeric
+);
+
+-- 3. ConfigFrequencies: Frequencies per channel (D1-D8)
+-- Note: Top-level Height/Width/Ex/Ey/Angel are stored for 100% lossless round-tripping,
+-- while live canvas rendering uses ConfigEllipses.
+CREATE TABLE IF NOT EXISTS public."ConfigFrequencies"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "ConfigChannelId" integer NOT NULL REFERENCES public."ConfigChannels"("Id") ON DELETE CASCADE,
+    "FrequencyNumber" integer NOT NULL,
+    "Name" text NOT NULL,
+    "Freq" numeric,
+    "Gain" numeric,
+    "Phase" numeric,
+    "IsEnable" boolean NOT NULL DEFAULT true,
+    "Strength" numeric,
+    "PostGain" numeric,
+    -- Vestigial / default top-level ellipse fields
+    "Height" numeric,
+    "Width" numeric,
+    "Ex" numeric,
+    "Ey" numeric,
+    "Angel" numeric,
+    -- Overlay fields (used when modeApp == 1)
+    "HeightO" numeric,
+    "WidthO" numeric,
+    "ExO" numeric,
+    "EyO" numeric,
+    "AngelO" numeric
+);
+
+-- 4. ConfigEllipses: Per-frequency ellipses list items
+CREATE TABLE IF NOT EXISTS public."ConfigEllipses"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "ConfigFrequencyId" integer NOT NULL REFERENCES public."ConfigFrequencies"("Id") ON DELETE CASCADE,
+    "EllipseIndex" integer NOT NULL,
+    "Height" numeric,
+    "Width" numeric,
+    "Ex" numeric,
+    "Ey" numeric,
+    "Angel" numeric
+);

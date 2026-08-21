@@ -303,7 +303,6 @@
           }
         }
       },
-      "System.CodeDom/8.0.0": {},
       "System.IO.Ports/8.0.0": {
         "dependencies": {
           "runtime.native.System.IO.Ports": "8.0.0"
@@ -330,9 +329,6 @@
         }
       },
       "System.Management/8.0.0": {
-        "dependencies": {
-          "System.CodeDom": "8.0.0"
-        },
         "runtime": {
           "lib/net8.0/System.Management.dll": {
             "assemblyVersion": "8.0.0.0",
@@ -439,13 +435,6 @@
       "sha512": "sha512-IcfB4jKtM9pkzP9OpYelEcUX1MiDt0IJPBh3XYYdEISFF+6Mc+T8WWi0dr9wVh1gtcdVjubVEIBgB8BHESlGfQ==",
       "path": "runtime.osx-x64.runtime.native.system.io.ports/8.0.0",
       "hashPath": "runtime.osx-x64.runtime.native.system.io.ports.8.0.0.nupkg.sha512"
-    },
-    "System.CodeDom/8.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-WTlRjL6KWIMr/pAaq3rYqh0TJlzpouaQ/W1eelssHgtlwHAH25jXTkUphTYx9HaIIf7XA6qs/0+YhtLEQRkJ+Q==",
-      "path": "system.codedom/8.0.0",
-      "hashPath": "system.codedom.8.0.0.nupkg.sha512"
     },
     "System.IO.Ports/8.0.0": {
       "type": "package",
