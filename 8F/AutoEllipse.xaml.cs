@@ -631,7 +631,6 @@ namespace _8F
                         targetEll.height = result.Height;
                         targetEll.angel = result.RotationAngle;
 
-                        // Save Computed Audit Record to DB with SelectedTestIds
                         AutoEllipseResultRecord auditRecord = new AutoEllipseResultRecord
                         {
                             ChannelId = chId,

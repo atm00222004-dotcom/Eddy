@@ -12,7 +12,7 @@ namespace _8F.Services
         public double CenterY { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
-        public double RotationAngle { get; set; } // Represented as 'angel' in 8F model
+        public double RotationAngle { get; set; }
         public int SampleCount { get; set; }
         public bool IsValid { get; set; } = true;
     }
@@ -70,7 +70,6 @@ namespace _8F.Services
             List<double> x = pointList.Select(p => p.X).ToList();
             List<double> y = pointList.Select(p => p.Y).ToList();
 
-            // Closed-Form OLS Line Fit: y = slope * x + y_intercept
             double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
             for (int i = 0; i < m; i++)
             {
@@ -105,7 +104,6 @@ namespace _8F.Services
                 y_proj[i] = slope * x_proj[i] + y_intercept;
             }
 
-            // 3. Find index_end[0]: projected point farthest from x_proj[0], y_proj[0]
             int index_end0 = 0;
             double max_dist = 0.0;
             for (int i = 1; i < m; i++)
@@ -118,7 +116,6 @@ namespace _8F.Services
                 }
             }
 
-            // 4. Find index_end[1]: projected point farthest from x_proj[index_end[0]], y_proj[index_end[0]]
             int index_end1 = 0;
             max_dist = 0.0;
             for (int i = 0; i < m; i++)
@@ -139,12 +136,10 @@ namespace _8F.Services
             x_end[1] = x_proj[index_end1];
             y_end[1] = y_proj[index_end1];
 
-            // 5. end_dist[0], end_dist[1]: perpendicular distance from extreme projected points back to unprojected points
             double[] end_dist = new double[2];
             end_dist[0] = Math.Sqrt(sq(x_end[0] - x[index_end0]) + sq(y_end[0] - y[index_end0]));
             end_dist[1] = Math.Sqrt(sq(x_end[1] - x[index_end1]) + sq(y_end[1] - y[index_end1]));
 
-            // 6. Center, exactly as C++ computes it (distance-weighted):
             double Xc = 0.0;
             double Yc = 0.0;    
             double end_dist_sum = end_dist[0] + end_dist[1];
@@ -158,7 +153,6 @@ namespace _8F.Services
             }
             Yc = slope * Xc + y_intercept;
 
-            // 7. 'a' = distance from (Xc, Yc) to whichever end point has smaller end_dist:
             double a = 0.0;
             if (end_dist[0] < end_dist[1])
             {
@@ -168,23 +162,13 @@ namespace _8F.Services
             {
                 a = Math.Sqrt(sq(Xc - x_end[1]) + sq(Yc - y_end[1]));
             }
-
-            // Version 2 Major-Axis Extension:
-            // Extend the major axis outward to comfortably enclose points near/past the endpoints.
-            // 
-            // ⚠️ Code Audit Note 1 (Unconfirmed Math): 'tempHypo = distBase - distHeight' uses a subtraction
-            // of two triangle legs rather than a true hypotenuse calculation (sqrt(base² + height²)).
-            // Ported literally from auto_ellipse_formation_version2.cpp reference as intended heuristic.
-            //
-            // ⚠️ Code Audit Note 2 (Unconfirmed Scale-Dependence): 'if (a < 1e-1) a = a + 5;' uses a flat +5 unit floor.
-            // This flat +5 is scale-dependent (large relative bump for 1-10 range, negligible for large ECT signals).
             double hypo = 0.0;
 
             for (int i = 0; i < m; i++)
             {
                 double distBase = Math.Sqrt(sq(x_proj[i] - x_end[1]) + sq(y_proj[i] - y_end[1]));
                 double distHeight = Math.Sqrt(sq(x_proj[i] - x[i]) + sq(y_proj[i] - y[i]));
-                double tempHypo = distBase - distHeight;
+                double tempHypo = distHeight - distBase; 
                 if (tempHypo > hypo) hypo = tempHypo;
             }
 
@@ -192,19 +176,19 @@ namespace _8F.Services
             {
                 double distBase = Math.Sqrt(sq(x_proj[i] - x_end[0]) + sq(y_proj[i] - y_end[0]));
                 double distHeight = Math.Sqrt(sq(x_proj[i] - x[i]) + sq(y_proj[i] - y[i]));
-                double tempHypo = distBase - distHeight;
+                double tempHypo = distHeight - distBase;
                 if (tempHypo > hypo) hypo = tempHypo;
             }
 
             a = a + hypo;
-            a = a * a_stretch;
 
-            if (a < 1e-1)
+            if (a < 5e-1)
             {
                 a = a + 5;
             }
 
-            // 8. Find (x_fur, y_fur): original point with maximum distance from its own projection
+            a = a * a_stretch;
+
             double x_fur = x[0];
             double y_fur = y[0];
             double max_dev = 0.0;
@@ -219,7 +203,6 @@ namespace _8F.Services
                 }
             }
 
-            // 9. Recompute major-axis endpoints from center and 'a':
             double sqrtSlopeSqPlus1 = Math.Sqrt(slopeSqPlus1);
             x_end[0] = Xc + (a / sqrtSlopeSqPlus1);
             y_end[0] = slope * x_end[0] + y_intercept;
@@ -227,7 +210,6 @@ namespace _8F.Services
             x_end[1] = Xc - (a / sqrtSlopeSqPlus1);
             y_end[1] = slope * x_end[1] + y_intercept;
 
-            // 10. slope_b[0], slope_b[1]: slope from each major-axis endpoint to (x_fur, y_fur)
             double[] slope_b = new double[2];
             double denom_b0 = (x_end[0] - x_fur);
             double denom_b1 = (x_end[1] - x_fur);
@@ -235,7 +217,6 @@ namespace _8F.Services
             slope_b[0] = Math.Abs(denom_b0) > 1e-9 ? (y_end[0] - y_fur) / denom_b0 : 0.0;
             slope_b[1] = Math.Abs(denom_b1) > 1e-9 ? (y_end[1] - y_fur) / denom_b1 : 0.0;
 
-            // 11. Solve for x_b[0]/y_b[0] and x_b[1]/y_b[1] via exact C++ two-line-intersection formulas:
             double[] x_b = new double[2];
             double[] y_b = new double[2];
 
@@ -253,22 +234,46 @@ namespace _8F.Services
                 x_b[1] = Xc; y_b[1] = y_fur;
             }
 
-            // 12. 'b' = larger of two resulting distances from (Xc, Yc) to (x_b[0], y_b[0]) and (x_b[1], y_b[1])
             double b1 = Math.Sqrt(sq(Xc - x_b[0]) + sq(Yc - y_b[0]));
             double b2 = Math.Sqrt(sq(Xc - x_b[1]) + sq(Yc - y_b[1]));
 
             double b = (b1 > b2) ? b1 : b2;
 
-            b = b * b_stretch;
-
-            // Fallback for b if b calculation produced 0 or NaN
             if (b <= 1e-9 || double.IsNaN(b))
             {
                 b = max_dev;
             }
 
-            // Step 2 — Only apply the floor to genuinely degenerate results (near-zero or invalid),
-            // not to every legitimately small ellipse.
+            double gsf = 0.5;
+
+            while (gsf >= Math.Pow(2, -6))
+            {
+                bool allInside = true;
+
+                foreach (var (px, py) in pointList)
+                {
+                    if (!IsInsideEllipse(px, py, a, b, Xc, Yc, thetaRad))
+                    {
+                        b = b / (1 - gsf);
+                        gsf *= 0.5;
+                        allInside = false;
+                        break;
+                    }
+                }
+
+                if (allInside)
+                {
+                    b = b * (1 - gsf);
+                }
+            }
+
+            if (b < 5e-1)
+            {
+                b = b + 5;
+            }
+
+            b = b * b_stretch;
+
             double rawWidth = Math.Round(a * 2.0, 2);
             double rawHeight = Math.Round(b * 2.0, 2);
 
@@ -291,6 +296,25 @@ namespace _8F.Services
                 SampleCount = m,
                 IsValid = true
             };
+        }
+
+        /// <summary>
+        /// Checks whether 2D point (x, y) is inside rotated ellipse centered at (Xc, Yc) with semi-axes (a, b) and rotation thetaRad (radians).
+        /// Corrects the bug in reference C++ auto_ellipse_formation_version3.cpp where tempX/tempY were unassigned zero variables during rotation.
+        /// </summary>
+        public static bool IsInsideEllipse(double x, double y, double a, double b, double Xc, double Yc, double thetaRad)
+        {
+            if (a <= 1e-9 || b <= 1e-9) return false;
+
+            double shiftedX = x - Xc;
+            double shiftedY = y - Yc;
+
+            double rotatedX = (shiftedX * Math.Cos(thetaRad)) + (shiftedY * Math.Sin(thetaRad));
+            double rotatedY = (-shiftedX * Math.Sin(thetaRad)) + (shiftedY * Math.Cos(thetaRad));
+
+            double dist = sq(rotatedX / a) + sq(rotatedY / b);
+
+            return dist < 1.0;
         }
 
         private static double sq(double val) => val * val;

@@ -47,9 +47,9 @@ namespace _8F.Tests
             Assert.NotEqual(EllipseFitter.MIN_DIMENSION, result.Width);
             Assert.NotEqual(EllipseFitter.MIN_DIMENSION, result.Height);
 
-            // Expected raw dimensions for reference dataset (Version 2 major-axis extension expands Width to ~33.90)
+            // Expected raw dimensions for reference dataset (Version 3: Width = 21.28, Height = 12.66 due to tightening loop ensuring point (5,8) containment)
             Assert.InRange(result.Width, 8.0, 40.0);
-            Assert.InRange(result.Height, 2.0, 8.0);
+            Assert.InRange(result.Height, 2.0, 15.0);
         }
 
         [Fact]
@@ -75,6 +75,43 @@ namespace _8F.Tests
             // Degenerate single point should still trigger MIN_DIMENSION floor
             Assert.Equal(EllipseFitter.MIN_DIMENSION, result.Width);
             Assert.Equal(EllipseFitter.MIN_DIMENSION, result.Height);
+        }
+
+        [Fact]
+        public void IsInsideEllipse_EvaluatesPointsCorrectly()
+        {
+            double Xc = 0.0, Yc = 0.0;
+            double a = 10.0, b = 5.0;
+            double thetaRad = 0.0;
+
+            // Point at center is inside
+            Assert.True(EllipseFitter.IsInsideEllipse(0.0, 0.0, a, b, Xc, Yc, thetaRad));
+
+            // Point clearly inside (1, 1)
+            Assert.True(EllipseFitter.IsInsideEllipse(1.0, 1.0, a, b, Xc, Yc, thetaRad));
+
+            // Point clearly outside (20, 20)
+            Assert.False(EllipseFitter.IsInsideEllipse(20.0, 20.0, a, b, Xc, Yc, thetaRad));
+
+            // Boundary point (10, 0): dist = (10/10)^2 + (0/5)^2 = 1.0 -> boundary is outside (dist < 1 is false)
+            Assert.False(EllipseFitter.IsInsideEllipse(10.0, 0.0, a, b, Xc, Yc, thetaRad));
+        }
+
+        [Fact]
+        public void FitEllipse_Version3_IterativeTighteningLoopTerminates()
+        {
+            var syntheticPoints = new List<(double X, double Y)>();
+            for (int i = 0; i < 50; i++)
+            {
+                syntheticPoints.Add((i * 0.5, Math.Sin(i) * 3.0 + i * 0.2));
+            }
+
+            var result = EllipseFitter.FitEllipse("D1", 1, syntheticPoints);
+
+            Assert.True(result.IsValid);
+            Assert.Equal(50, result.SampleCount);
+            Assert.True(result.Width > 0);
+            Assert.True(result.Height > 0);
         }
     }
 }
