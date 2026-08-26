@@ -790,20 +790,20 @@ Canvas.Top="227" />
 
             <Grid Grid.Column="8" Grid.Row="0">
                 <Grid.RowDefinitions>
-                    <!--<RowDefinition Height="1*"/>-->
                     <RowDefinition Height="1*"/>
-                    <!--<RowDefinition Height="1*"/>-->
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Border Cursor="Hand" HorizontalAlignment="Center"  Height="40" Margin="4" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
+                <Border Cursor="Hand" HorizontalAlignment="Center" Height="32" Margin="2" Background="#305371" Grid.Column="0" Grid.Row="0" BorderBrush="#FF000000" BorderThickness="1" CornerRadius="10">
                     <Label Foreground="White" FontSize="12" Name="lblTCount" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Total Count - 0" ></Label>
                 </Border>
-                <Border Cursor="Hand" HorizontalAlignment="Center" Height="40" Margin="4" Background="Green" Grid.Column="0" Grid.Row="1" BorderBrush="Green" BorderThickness="1" CornerRadius="10">
+                <Border Cursor="Hand" HorizontalAlignment="Center" Height="32" Margin="2" Background="Green" Grid.Column="0" Grid.Row="1" BorderBrush="Green" BorderThickness="1" CornerRadius="10">
                     <Label Foreground="White" FontSize="12" Name="lblOkCount" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="OK Count - 0" ></Label>
                 </Border>
-                <Border Cursor="Hand" HorizontalAlignment="Center"  Height="40" Margin="4" Background="Red" Grid.Column="0" Grid.Row="2" BorderBrush="Red" BorderThickness="1" CornerRadius="10">
+                <Border Cursor="Hand" HorizontalAlignment="Center" Height="32" Margin="2" Background="Red" Grid.Column="0" Grid.Row="2" BorderBrush="Red" BorderThickness="1" CornerRadius="10">
                     <Label Foreground="White" FontSize="12" Name="lblNotOkCount" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Not Ok Count - 0" ></Label>
                 </Border>
             </Grid>
