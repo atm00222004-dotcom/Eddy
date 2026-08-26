@@ -892,19 +892,16 @@ namespace _8F
             return reversedString;
         }
 
+        private readonly _8F.Services.ILicensingService _licensingService = new _8F.Services.LicensingService();
+
         private void CheckSerailNumber()
         {
-            // Get Serial Numner 
             var serial = portCOM?.GetSeialNumber();
             if (serial == null) return;
-            string sNumber = System.Configuration.ConfigurationManager.AppSettings["SerialNumber"] ?? string.Empty; ;
+            string configSerial = System.Configuration.ConfigurationManager.AppSettings["SerialNumber"] ?? string.Empty;
 
-            sNumber = Reverse(serial.S1 + sNumber + serial.S2);
+            IsSerialmatch = _licensingService.ValidateSerialNumber(serial.S1, serial.S2, serial.S, configSerial);
 
-            if (sNumber == serial.S)
-            {
-                IsSerialmatch = true;
-            }
             if (!IsSerialmatch)
             {
                 MessageBox.Show("Serial number is mistmatch!", "System Information");
