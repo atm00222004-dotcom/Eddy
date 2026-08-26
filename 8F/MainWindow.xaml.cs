@@ -84,8 +84,10 @@ namespace _8F
         // Config-driven feature toggle fields
         bool isOpenEnable = GetConfigBool("isOpenEnable", true);
         public bool isOpenDbEbable = GetConfigBool("isOpenDbEbable", true);
-        bool isSaveEnable = GetConfigBool("IsSaveEnable", true);
-        bool isSaveAsEnable = GetConfigBool("IsSaveAsEnable", true);
+        public bool isSaveToDb = GetConfigBool("IsSaveToDb", true);
+        public bool isSaveToFile = GetConfigBool("IsSaveToFile", false);
+        public bool isSaveAsToDb = GetConfigBool("IsSaveAsToDb", true);
+        public bool isSaveAsToFile = GetConfigBool("IsSaveAsToFile", false);
         bool isExportConfigEnable = GetConfigBool("IsExportConfigurationEnable", GetConfigBool("IsExortEnable", true));
         //bool isChangePasswordEnable = GetConfigBool("IsChangePasswordEnable", true);
         bool isExitEnable = GetConfigBool("IsExitEnable", true);
@@ -304,10 +306,10 @@ namespace _8F
                     MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
                     {
                         new MenuItemViewModel { Header = "New", mainWindow = this },
-                        isOpenDbEbable ? new MenuItemViewModel { Header = "Open", mainWindow = this } : null,
-                        isSaveEnable ? new MenuItemViewModel { Header = "Save", mainWindow = this } : null,
-                        isSaveAsEnable ? new MenuItemViewModel { Header = "Save As", mainWindow = this } : null,
-                        isOpenEnable ? new MenuItemViewModel { Header = "Import Configuration", mainWindow = this } : null,
+                        isOpenEnable ? new MenuItemViewModel { Header = "Open", mainWindow = this } : null,
+                        isOpenDbEbable ? new MenuItemViewModel { Header = "Open from Database", mainWindow = this } : null,
+                        (isSaveToDb || isSaveToFile) ? new MenuItemViewModel { Header = "Save", mainWindow = this } : null,
+                        (isSaveAsToDb || isSaveAsToFile) ? new MenuItemViewModel { Header = "Save As", mainWindow = this } : null,
                         isExportConfigEnable ? new MenuItemViewModel { Header = "Export Configuration", mainWindow = this } : null,
                         isExitEnable ? new MenuItemViewModel { Header = "Exit", mainWindow = this } : null
                     }.OfType<MenuItemViewModel>())
@@ -2942,50 +2944,174 @@ namespace _8F
                         });
 
                     }
-                    else if (Header == "Save" || Header == "Save As")
+                    else if (Header == "Save")
                     {
                         try
                         {
-                            SaveProfileDialog profileDlg = new SaveProfileDialog
+                            if (mainWindow.isSaveToDb)
                             {
-                                Owner = mainWindow
-                            };
-
-                            bool? result = profileDlg.ShowDialog();
-                            if (result == true && !string.IsNullOrWhiteSpace(profileDlg.ProfileName))
-                            {
-                                string profileName = profileDlg.ProfileName.Trim();
-                                var currentChannels = DeviceCOM.channelDatas;
-
-                                Task.Run(async () =>
+                                SaveProfileDialog profileDlg = new SaveProfileDialog
                                 {
-                                    try
-                                    {
-                                        _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
-                                        await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
+                                    Owner = mainWindow
+                                };
 
-                                        mainWindow.Dispatcher.Invoke(() =>
-                                        {
-                                            mainWindow.lblConfigFileName.Content = profileName;
-                                            MessageBox.Show($"Configuration Profile '{profileName}' saved to Database successfully!", "Database Save", MessageBoxButton.OK, MessageBoxImage.Information);
-                                        });
-                                    }
-                                    catch (Exception dbEx)
+                                bool? result = profileDlg.ShowDialog();
+                                if (result == true && !string.IsNullOrWhiteSpace(profileDlg.ProfileName))
+                                {
+                                    string profileName = profileDlg.ProfileName.Trim();
+                                    var currentChannels = DeviceCOM.channelDatas;
+
+                                    Task.Run(async () =>
                                     {
-                                        mainWindow.Dispatcher.Invoke(() =>
+                                        try
                                         {
-                                            MessageBox.Show($"Failed to save profile to database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                                        });
+                                            _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
+                                            await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
+
+                                            mainWindow.Dispatcher.Invoke(() =>
+                                            {
+                                                mainWindow.lblConfigFileName.Content = profileName;
+                                                MessageBox.Show($"Configuration Profile '{profileName}' saved to Database successfully!", "Database Save", MessageBoxButton.OK, MessageBoxImage.Information);
+                                            });
+                                        }
+                                        catch (Exception dbEx)
+                                        {
+                                            mainWindow.Dispatcher.Invoke(() =>
+                                            {
+                                                MessageBox.Show($"Failed to save profile to database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                            else if (mainWindow.isSaveToFile)
+                            {
+                                if (String.IsNullOrEmpty(mainWindow.filename))
+                                {
+                                    Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                                    dlg.FileName = "Document";
+                                    dlg.DefaultExt = ".txt";
+                                    dlg.Filter = "Text documents (.txt)|*.txt";
+
+                                    Nullable<bool> result = dlg.ShowDialog();
+                                    if (result == true)
+                                    {
+                                        mainWindow.filename = dlg.FileName;
+                                        string content = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
+                                        File.WriteAllText(mainWindow.filename, content);
+                                        mainWindow.lblConfigFileName.Content = mainWindow.filename;
+                                        MessageBox.Show("Configuration saved to file successfully!", "File Save", MessageBoxButton.OK, MessageBoxImage.Information);
                                     }
-                                });
+                                }
+                                else
+                                {
+                                    string content = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
+                                    File.WriteAllText(mainWindow.filename, content);
+                                    mainWindow.lblConfigFileName.Content = mainWindow.filename;
+                                    MessageBox.Show("Configuration saved to file successfully!", "File Save", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
                             }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error while saving configuration profile: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show($"Error while saving configuration: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else if (Header == "Save As")
+                    {
+                        try
+                        {
+                            if (mainWindow.isSaveAsToDb)
+                            {
+                                SaveProfileDialog profileDlg = new SaveProfileDialog
+                                {
+                                    Owner = mainWindow
+                                };
+
+                                bool? result = profileDlg.ShowDialog();
+                                if (result == true && !string.IsNullOrWhiteSpace(profileDlg.ProfileName))
+                                {
+                                    string profileName = profileDlg.ProfileName.Trim();
+                                    var currentChannels = DeviceCOM.channelDatas;
+
+                                    Task.Run(async () =>
+                                    {
+                                        try
+                                        {
+                                            _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
+                                            await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
+
+                                            mainWindow.Dispatcher.Invoke(() =>
+                                            {
+                                                mainWindow.lblConfigFileName.Content = profileName;
+                                                MessageBox.Show($"Configuration Profile '{profileName}' saved to Database successfully!", "Database Save", MessageBoxButton.OK, MessageBoxImage.Information);
+                                            });
+                                        }
+                                        catch (Exception dbEx)
+                                        {
+                                            mainWindow.Dispatcher.Invoke(() =>
+                                            {
+                                                MessageBox.Show($"Failed to save profile to database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                            else if (mainWindow.isSaveAsToFile)
+                            {
+                                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                                dlg.FileName = "Document";
+                                dlg.DefaultExt = ".txt";
+                                dlg.Filter = "Text documents (.txt)|*.txt";
+
+                                Nullable<bool> result = dlg.ShowDialog();
+                                if (result == true)
+                                {
+                                    mainWindow.filename = dlg.FileName;
+                                    string content = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
+                                    File.WriteAllText(mainWindow.filename, content);
+                                    mainWindow.lblConfigFileName.Content = mainWindow.filename;
+                                    MessageBox.Show("Configuration saved to file successfully!", "File Save", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error while saving configuration file: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
                     else if (Header == "Open")
+                    {
+                        try
+                        {
+                            var dialog = new Microsoft.Win32.OpenFileDialog();
+                            dialog.Title = "Open Configuration File";
+                            dialog.FileName = "Document";
+                            dialog.DefaultExt = ".txt";
+                            dialog.Filter = "JSON / Text documents (*.json;*.txt)|*.json;*.txt|All Files (*.*)|*.*";
+
+                            bool? result = dialog.ShowDialog();
+                            if (result == true)
+                            {
+                                string data = File.ReadAllText(dialog.FileName);
+                                List<ChannelData>? parsedChData = _8F.Services.ConfigurationImporter.ImportFromJson(data);
+
+                                if (parsedChData != null && parsedChData.Count > 0)
+                                {
+                                    ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Failed to parse valid configuration data from the selected file.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error while opening configuration file: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else if (Header == "Open from Database")
                     {
                         try
                         {
