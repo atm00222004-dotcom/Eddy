@@ -88,6 +88,7 @@ namespace _8F
         public bool isSaveToFile = GetConfigBool("IsSaveToFile", false);
         public bool isSaveAsToDb = GetConfigBool("IsSaveAsToDb", true);
         public bool isSaveAsToFile = GetConfigBool("IsSaveAsToFile", false);
+        bool isImportConfigEnable = GetConfigBool("IsImportConfigurationEnable", false);
         bool isExportConfigEnable = GetConfigBool("IsExportConfigurationEnable", GetConfigBool("IsExortEnable", true));
         //bool isChangePasswordEnable = GetConfigBool("IsChangePasswordEnable", true);
         bool isExitEnable = GetConfigBool("IsExitEnable", true);
@@ -309,6 +310,7 @@ namespace _8F
                         (isOpenEnable || isOpenDbEbable) ? new MenuItemViewModel { Header = "Open", mainWindow = this } : null,
                         (isSaveToDb || isSaveToFile) ? new MenuItemViewModel { Header = "Save", mainWindow = this } : null,
                         (isSaveAsToDb || isSaveAsToFile) ? new MenuItemViewModel { Header = "Save As", mainWindow = this } : null,
+                        isImportConfigEnable ? new MenuItemViewModel { Header = "Import Configuration", mainWindow = this } : null,
                         isExportConfigEnable ? new MenuItemViewModel { Header = "Export Configuration", mainWindow = this } : null,
                         isExitEnable ? new MenuItemViewModel { Header = "Exit", mainWindow = this } : null
                     }.OfType<MenuItemViewModel>())
