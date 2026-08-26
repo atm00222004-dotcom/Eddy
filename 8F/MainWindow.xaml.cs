@@ -2942,123 +2942,47 @@ namespace _8F
                         });
 
                     }
-                    else if (Header == "Save")
+                    else if (Header == "Save" || Header == "Save As")
                     {
                         try
                         {
-                            if (String.IsNullOrEmpty(mainWindow.filename))
+                            SaveProfileDialog profileDlg = new SaveProfileDialog
                             {
-                                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                                dlg.FileName = "Document"; // Default file name
-                                dlg.DefaultExt = ".text"; // Default file extension
-                                dlg.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+                                Owner = mainWindow
+                            };
 
-                                // Show save file dialog box
-                                Nullable<bool> result = dlg.ShowDialog();
-
-                                // Process save file dialog box results
-                                if (result == true)
-                                {
-                                    // Save document
-                                    mainWindow.filename = dlg.FileName;
-
-                                    string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                    File.WriteAllText(mainWindow.filename, conecnt);
-                                    this.mainWindow.btnLog.Visibility = Visibility.Visible;
-                                    this.mainWindow.btnLog1.Visibility = Visibility.Visible;
-                                    this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
-
-                                    // DB Profile Save alongside File Save
-                                    string profileName = System.IO.Path.GetFileNameWithoutExtension(mainWindow.filename);
-                                    var currentChannels = DeviceCOM.channelDatas;
-                                    Task.Run(async () =>
-                                    {
-                                        try
-                                        {
-                                            _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
-                                            await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
-                                        }
-                                        catch (Exception dbEx)
-                                        {
-                                            System.Diagnostics.Debug.WriteLine($"Failed to save config profile to DB: {dbEx.Message}");
-                                        }
-                                    });
-                                }
-
-                            }
-                            else
+                            bool? result = profileDlg.ShowDialog();
+                            if (result == true && !string.IsNullOrWhiteSpace(profileDlg.ProfileName))
                             {
-                                string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                File.WriteAllText(mainWindow.filename, conecnt);
-
-                                // DB Profile Save alongside File Save
-                                string profileName = System.IO.Path.GetFileNameWithoutExtension(mainWindow.filename);
+                                string profileName = profileDlg.ProfileName.Trim();
                                 var currentChannels = DeviceCOM.channelDatas;
+
                                 Task.Run(async () =>
                                 {
                                     try
                                     {
                                         _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
                                         await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
+
+                                        mainWindow.Dispatcher.Invoke(() =>
+                                        {
+                                            mainWindow.lblConfigFileName.Content = profileName;
+                                            MessageBox.Show($"Configuration Profile '{profileName}' saved to Database successfully!", "Database Save", MessageBoxButton.OK, MessageBoxImage.Information);
+                                        });
                                     }
                                     catch (Exception dbEx)
                                     {
-                                        System.Diagnostics.Debug.WriteLine($"Failed to save config profile to DB: {dbEx.Message}");
+                                        mainWindow.Dispatcher.Invoke(() =>
+                                        {
+                                            MessageBox.Show($"Failed to save profile to database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        });
                                     }
                                 });
                             }
-
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            MessageBox.Show("Error while saving the configation file!!!!", "Error Information");
-                        }
-
-                    }
-                    else if (Header == "Save As")
-                    {
-                        try
-                        {
-                            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                            dlg.FileName = "Document"; // Default file name
-                            dlg.DefaultExt = ".text"; // Default file extension
-                            dlg.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
-
-                            // Show save file dialog box
-                            Nullable<bool> result = dlg.ShowDialog();
-
-                            // Process save file dialog box results
-                            if (result == true)
-                            {
-                                // Save document
-                                mainWindow.filename = dlg.FileName;
-
-                                string conecnt = JsonConvert.SerializeObject(DeviceCOM.channelDatas);
-                                File.WriteAllText(mainWindow.filename, conecnt);
-                                this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
-
-                                // DB Profile Save alongside File Save
-                                string profileName = System.IO.Path.GetFileNameWithoutExtension(mainWindow.filename);
-                                var currentChannels = DeviceCOM.channelDatas;
-                                Task.Run(async () =>
-                                {
-                                    try
-                                    {
-                                        _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
-                                        await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
-                                    }
-                                    catch (Exception dbEx)
-                                    {
-                                        System.Diagnostics.Debug.WriteLine($"Failed to save config profile to DB: {dbEx.Message}");
-                                    }
-                                });
-                            }
-
-
-                        }
-                        catch (Exception)
-                        {
-                            MessageBox.Show("Error while saving the configuration file!!!!", "Error Information");
+                            MessageBox.Show($"Error while saving configuration profile: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
                     else if (Header == "Open")
