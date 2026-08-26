@@ -3356,6 +3356,8 @@ namespace _8F
         {
             if (mainWindow == null || incoming == null || incoming.Count == 0) return;
 
+            // Commented out remapping popup window per user request - apply direct 1-to-1 mapping for all channels
+            /*
             string displayName = System.IO.Path.GetFileName(sourceName);
             ChannelRemappingWindow remapWin = new ChannelRemappingWindow(incoming, displayName)
             {
@@ -3369,6 +3371,9 @@ namespace _8F
             }
 
             var mappedChannels = _8F.Services.ConfigurationImporter.ApplyRemapping(incoming, remapWin.TargetMappings, remapWin.IsImportAsIs);
+            */
+
+            var mappedChannels = _8F.Services.ConfigurationImporter.ApplyRemapping(incoming, new Dictionary<int, List<int>>(), isImportAsIs: true);
 
             if (mappedChannels != null)
             {
