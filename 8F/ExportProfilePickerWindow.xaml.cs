@@ -15,7 +15,7 @@ namespace _8F
     /// </summary>
     public partial class ExportProfilePickerWindow : Window
     {
-        private readonly InspectionLogRepository _repository = new InspectionLogRepository();
+        private readonly IConfigProfileRepository _repository = new InspectionLogRepository();
 
         public bool IsSelectionMode { get; set; } = false;
         public int SelectedProfileId { get; private set; } = 0;

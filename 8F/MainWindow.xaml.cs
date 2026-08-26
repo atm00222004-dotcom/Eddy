@@ -2966,7 +2966,7 @@ namespace _8F
                                     {
                                         try
                                         {
-                                            _8F.Services.InspectionLogRepository repo = new _8F.Services.InspectionLogRepository();
+                                            _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
                                             await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
                                         }
                                         catch (Exception dbEx)
@@ -2989,7 +2989,7 @@ namespace _8F
                                 {
                                     try
                                     {
-                                        _8F.Services.InspectionLogRepository repo = new _8F.Services.InspectionLogRepository();
+                                        _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
                                         await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
                                     }
                                     catch (Exception dbEx)
@@ -3035,7 +3035,7 @@ namespace _8F
                                 {
                                     try
                                     {
-                                        _8F.Services.InspectionLogRepository repo = new _8F.Services.InspectionLogRepository();
+                                        _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
                                         await repo.SaveConfigProfileAsync(profileName, "Operator", currentChannels);
                                     }
                                     catch (Exception dbEx)
@@ -3072,7 +3072,7 @@ namespace _8F
                                 {
                                     try
                                     {
-                                        _8F.Services.InspectionLogRepository repo = new _8F.Services.InspectionLogRepository();
+                                        _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
                                         var dbChannels = await repo.GetConfigProfileAsync(pId);
 
                                         mainWindow.Dispatcher.Invoke(() =>

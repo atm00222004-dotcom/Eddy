@@ -25,7 +25,7 @@ namespace _8F
         private readonly Dictionary<int, DataTable> _channelTables = new();
         private readonly Dictionary<int, List<AutoEllipseTest>> _channelRawRecords = new();
         private readonly DispatcherTimer _acquisitionTimer;
-        private readonly InspectionLogRepository _repository;
+        private readonly IAutoEllipseRepository _repository;
 
         private bool _isTestActive = false;
         private DateTime _testStartTime;

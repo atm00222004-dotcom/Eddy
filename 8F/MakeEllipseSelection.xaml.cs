@@ -23,7 +23,7 @@ namespace _8F
         private readonly int _channelId;
         private readonly DataTable _selectionTable;
         private readonly List<AutoEllipseTest> _rawTestRecords;
-        private readonly InspectionLogRepository _repository;
+        private readonly IAutoEllipseRepository _repository;
 
         public MakeEllipseSelection(int channelId, DataTable sourceTable, List<AutoEllipseTest> rawTestRecords)
         {

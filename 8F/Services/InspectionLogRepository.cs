@@ -13,7 +13,7 @@ namespace _8F.Services
     /// Thread-safe database repository for managing Eddy Current inspection logs in PostgreSQL.
     /// Includes connection pooling, parameterized queries, and an offline JSON fallback queue for resilience.
     /// </summary>
-    public class InspectionLogRepository
+    public class InspectionLogRepository : IInspectionLogRepository, IAutoEllipseRepository, IConfigProfileRepository
     {
         private readonly string _connectionString;
         private readonly string _offlineQueuePath;
