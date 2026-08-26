@@ -1,352 +1,71 @@
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Threading;
+using _8F.ViewModels;
 
 namespace _8F
 {
-    /// <summary>
-    /// Interaction logic for Window1.xaml
-    /// </summary>
     public partial class CircleSetting : Window
     {
-        public bool IsSaved = false;
-        public DeviceCOM? portCOM;
-        string _selectChannel;
-        public ObservableCollection<EllipsDTO> ellipses { get; set; } = new();
-        private DispatcherTimer clearLabelTimer = new();
+        public CircleSettingViewModel ViewModel { get; }
+
+        public bool IsSaved
+        {
+            get => ViewModel.IsSaved;
+            set => ViewModel.IsSaved = value;
+        }
+
+        public DeviceCOM? portCOM
+        {
+            get => ViewModel.PortCOM;
+            set => ViewModel.PortCOM = value;
+        }
+
         public CircleSetting(string selectChannel)
         {
             InitializeComponent();
-            _selectChannel = selectChannel;
-            LoadAllChannelsEllipses();
-        }
+            ViewModel = new CircleSettingViewModel(selectChannel);
+            ViewModel.CloseAction = Close;
+            DataContext = ViewModel;
 
-        private void LoadAllChannelsEllipses()
-        {
-            ellipses.Clear();
-
-            var selectedDevice = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
-            if (selectedDevice == null) return;
-
-            int colorIndex = 0;
-
-            foreach (var channel in selectedDevice.graphDatas)
+            Loaded += (s, e) =>
             {
-                foreach (var ell in channel.ellipses)
-                {
-                    var dto = new EllipsDTO
-                    {
-                        Id = ell.Id,
-                        ChannelName = channel.Name,
-                        height = ell.height,
-                        width = ell.width,
-                        ex = ell.ex,
-                        ey = ell.ey,
-                        angel = ell.angel,
-                        ColorName = MyColor.GetColorName(colorIndex++).ToString()
-                    };
-                    ellipses.Add(dto);
-                }
-            }
-
-            gdFreq.ItemsSource = ellipses;
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (IsSaved)
-            {
-                btnConfigSave_Click(btnConfigSave, e);
-            }
-            this.Close();
+                ViewModel.OwnerWindow = Owner;
+                gdFreq.ItemsSource = ViewModel.Ellipses;
+            };
         }
 
         private void btnConfigSave_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                //gdFreq.CommitEdit();
-                gdFreq.CommitEdit(DataGridEditingUnit.Cell, true);
-                gdFreq.CommitEdit(DataGridEditingUnit.Row, true);
-                //CollectionViewSource.GetDefaultView(gdFreq.ItemsSource)?.Refresh();
-                SaveData();
-                //if (!IsSaved)
-                //    btnConfigSave_Click(sender, e);
-
-                IsSaved = true;
-                if (this.Owner is MainWindow mw)
-                {
-                    mw.ImplementChanges(2);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                lblMsg.Content = "Error while saving the Configuration!!! \n Message:- " + ex.Message.ToString();
-            }
-
-            clearLabelTimer = new DispatcherTimer();
-            clearLabelTimer.Interval = TimeSpan.FromSeconds(20);
-            clearLabelTimer.Tick += ClearLabelTimer_Tick;
-            clearLabelTimer.Start();
+            gdFreq.CommitEdit(DataGridEditingUnit.Cell, true);
+            gdFreq.CommitEdit(DataGridEditingUnit.Row, true);
+            ViewModel.SaveConfigCommand.Execute(null);
+            lblMsg.Content = ViewModel.StatusMessage;
         }
 
-        private void ClearLabelTimer_Tick(object? sender, EventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            lblMsg.Content = string.Empty;
-            clearLabelTimer.Stop(); // Stop the timer after clearing
+            ViewModel.CloseCommand.Execute(null);
         }
 
-        private void SaveData()
+        private void btnNew_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            lblMsg.Content = "";
-            var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
-            if (ch == null) return;
-
-            ElliplseWrite ellipseWrite = new ElliplseWrite();
-            ellipseWrite.FC = 5;
-            ellipseWrite.CN = ch.Id;
-            ellipseWrite.FD = new List<Frequ>();
-            var Gdata = ch.graphDatas.FirstOrDefault(d => d.Name == _selectChannel);
-            if (Gdata == null) return;
-
-            Frequ frequ = new Frequ();
-            frequ.FN = Gdata.Id;
-            frequ.ED = new List<Elliplse>();
-
-            if (ch == null) return;
-
-            ellipseWrite.FD.Clear();
-
-            foreach (var graph in ch.graphDatas)
-            {
-                graph.ellipses.Clear();
-
-                var freq = new Frequ();
-                freq.FN = graph.Id;
-                freq.ED = new List<Elliplse>();
-
-                var channelEllipses = ellipses
-                    .Where(e => e.ChannelName == graph.Name)
-                    .ToList();
-
-                int id = 1;
-
-                foreach (var item in channelEllipses)
-                {
-                    Ellips el = new Ellips
-                    {
-                        Id = id++,
-                        height = item.height,
-                        width = item.width,
-                        ex = item.ex,
-                        ey = item.ey,
-                        angel = item.angel
-                    };
-
-                    graph.ellipses.Add(el);
-
-                    freq.ED.Add(new Elliplse()
-                    {
-                        FN = graph.Id,
-                        EId = el.Id,
-                        a = el.height,
-                        b = el.width,
-                        t = el.angel,
-                        x = (int)Math.Round(el.ex, MidpointRounding.AwayFromZero),
-                        y = (int)Math.Round(el.ey, MidpointRounding.AwayFromZero)
-                    });
-                }
-
-                ellipseWrite.FD.Add(freq);
-            }
-
-            var rat = false;
-
-            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsJSON"]);
-            if (IsJSON)
-            {
-               
-                rat = portCOM != null && portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
-            }
-            else
-            {
-                
-                int length1 = (ellipseWrite.FD.Count * 11) + 6;
-                byte[] data1 = new byte[length1];
-                data1[0] = Convert.ToByte(2);
-                data1[1] = Convert.ToByte(5);
-                data1[2] = Convert.ToByte((ellipseWrite.FD.Count * 11) + 1);
-                data1[3] = Convert.ToByte(ch.Id);
-                int start1B = 4;
-
-                foreach (var kvp in ellipseWrite.FD)
-                {
-                    data1[start1B] = Convert.ToByte(kvp.FN);
-
-                    data1[start1B + 1] = (byte)(Convert.ToInt16(kvp.ED[0].a) & 0xFF);         // Lowest byte
-                    data1[start1B + 2] = (byte)((Convert.ToInt16(kvp.ED[0].a) >> 8) & 0xFF);  // Byte 2
-
-                    data1[start1B + 3] = (byte)(Convert.ToInt16(kvp.ED[0].b) & 0xFF);         // Lowest byte
-                    data1[start1B + 4] = (byte)((Convert.ToInt16(kvp.ED[0].b) >> 8) & 0xFF);  // Byte 2
-
-
-                    data1[start1B + 5] = (byte)(Convert.ToInt16(kvp.ED[0].t) & 0xFF);         // Lowest byte
-                    data1[start1B + 6] = (byte)((Convert.ToInt16(kvp.ED[0].t) >> 8) & 0xFF);  // Byte 2
-
-                    data1[start1B + 7] = (byte)(Convert.ToInt16(kvp.ED[0].x) & 0xFF);         // Lowest byte
-                    data1[start1B + 8] = (byte)((Convert.ToInt16(kvp.ED[0].x) >> 8) & 0xFF);  // Byte 2
-
-                    data1[start1B + 9] = (byte)(Convert.ToInt16(kvp.ED[0].y) & 0xFF);         // Lowest byte
-                    data1[start1B + 10] = (byte)((Convert.ToInt16(kvp.ED[0].y) >> 8) & 0xFF);  // Byte 2
-
-                    start1B = start1B + 11;
-                }
-
-                rat = portCOM != null && portCOM.WriteDataInBytes(data1);
-            }
-
-            if (rat)
-            {
-                lblMsg.Content = "Configuration Saved!!!";
-            }
-            else
-            {
-                lblMsg.Content = "Configuration Saved but no response from the ECT Instrument, please reboot it and write the configuration again!!!";
-            }
-
-        }
-
-        public List<String> Validaton()
-        {
-            List<String> validationMsg = new List<string>();
-            //if (string.IsNullOrEmpty(txtAngel.Text))
-            //{
-            //    validationMsg.Add("Angle is required and the range is 0 to 359.");
-            //}
-            //else
-            //{
-            //    if (Convert.ToInt32(txtAngel.Text) < 0 || Convert.ToInt32(txtAngel.Text) > 359)
-            //    {
-            //        validationMsg.Add("Angle is required and the range is 0 to 359.");
-            //    }
-            //}
-            //if (string.IsNullOrEmpty(txtHeight.Text))
-            //{
-            //    validationMsg.Add("Height is required and the range is 100 to 5000.");
-            //}
-            //else
-            //{
-            //    if (Convert.ToInt32(txtHeight.Text) < 100 || Convert.ToInt32(txtHeight.Text) > 5000)
-            //    {
-            //        validationMsg.Add("Height is required and the range is 100 to 5000.");
-            //    }
-            //}
-
-            //if (string.IsNullOrEmpty(txtWidth.Text))
-            //{
-            //    validationMsg.Add("Width is required and the range is 100 to 5000.");
-            //}
-            //else
-            //{
-            //    if (Convert.ToInt32(txtWidth.Text) < 100 || Convert.ToInt32(txtWidth.Text) > 5000)
-            //    {
-            //        validationMsg.Add("Width is required and the range is 100 to 5000.");
-            //    }
-            //}
-
-            //if (string.IsNullOrEmpty(txtX_Shift.Text))
-            //{
-            //    validationMsg.Add("X Offset is required and the range is -2000 to 2000.");
-            //}
-            //else
-            //{
-            //    if (Convert.ToInt32(txtX_Shift.Text) < -2000 || Convert.ToInt32(txtX_Shift.Text) > 2000)
-            //    {
-            //        validationMsg.Add("X Offset is required and the range is -2000 to 2000.");
-            //    }
-            //}
-
-            //if (string.IsNullOrEmpty(txtY_Shift.Text))
-            //{
-            //    validationMsg.Add("Y Offset is required and the range is -2000 to 2000.");
-            //}
-            //else
-            //{
-            //    if (Convert.ToInt32(txtY_Shift.Text) < -2000 || Convert.ToInt32(txtY_Shift.Text) > 2000)
-            //    {
-            //        validationMsg.Add("Y Offset is required and the range is -2000 to 2000.");
-            //    }
-            //}
-
-            return validationMsg;
-        }
-
-        private void PreviewTextInput_NumericOnly(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex("[^0-9]+");
-            e.Handled = regex.IsMatch(e.Text);
-        }
-
-        private void PreviewTextInput_NumericWithNegativeOnly(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex("^[0-9]+([0-9]-)+$");
-            e.Handled = regex.IsMatch(e.Text);
-        }
-
-        private void btnNew_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            EllipsDTO ellips = new EllipsDTO();
-            ellips.Id = ellipses.Count+1;
-            ellips.height= DeviceCOM.DefaultHeight;
-            ellips.width = DeviceCOM.DefaultWidth;
-            //ellips.ColorName = MyColor.GetColor(ellipses.Count).ToString();
-            ellipses.Add(ellips);
-
-            gdFreq.ItemsSource = null;
-            gdFreq.ItemsSource = ellipses;
-
+            ViewModel.AddNewCommand.Execute(null);
         }
 
         private void btn_installSnippet_Click(object sender, RoutedEventArgs e)
         {
-            if (gdFreq.SelectedItem != null)
+            if (gdFreq.SelectedItem is EllipsDTO item)
             {
-                ellipses.Remove((EllipsDTO)gdFreq.SelectedItem);
-                gdFreq.ItemsSource = null;
-                gdFreq.ItemsSource = ellipses;
+                ViewModel.DeleteSelectedCommand.Execute(item);
             }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (IsSaved && btnConfigSave != null)
+            if (ViewModel.IsSaved)
             {
-                btnConfigSave_Click(btnConfigSave, new RoutedEventArgs());
-            }
-            //this.Close();
-        }
-
-        private void ddlFrChennel_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems != null && e.AddedItems.Count > 0 && e.AddedItems[0] != null)
-            {
-                var text = e.AddedItems[0]!.ToString();
-                //ChangeFreq(text);
+                ViewModel.SaveConfigCommand.Execute(null);
             }
         }
     }
