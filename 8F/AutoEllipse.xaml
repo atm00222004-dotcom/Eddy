@@ -62,7 +62,7 @@
             <!-- 1. Header Title & Top-Right Close Button -->
             <Grid Grid.Row="0" Margin="0,4,0,8">
                 <Label Content="Auto Ellipse Calibration" FontSize="22" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Name="btnCloseHeader" Content="Close" Width="80" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Click="btnClose_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <Button Name="btnCloseHeader" Content="Close" Width="80" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Command="{Binding CloseCommand}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
             </Grid>
 
             <!-- Separator -->
@@ -78,24 +78,24 @@
                 </Grid.ColumnDefinitions>
 
                 <Label Content="Channel:" Foreground="#0F172A" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Grid.Column="0" Margin="0,0,8,0"/>
-                <ComboBox Name="cboChannel" Grid.Column="1" Height="32" FontSize="14" FontWeight="SemiBold" VerticalContentAlignment="Center" SelectionChanged="cboChannel_SelectionChanged"/>
+                <ComboBox Name="cboChannel" Grid.Column="1" Height="32" FontSize="14" FontWeight="SemiBold" VerticalContentAlignment="Center" ItemsSource="{Binding Channels}" SelectedIndex="{Binding SelectedChannelIndex}" IsEnabled="{Binding IsChannelEnabled}"/>
 
                 <!-- Stretch Factor Controls -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                    <CheckBox Name="chkAutoStretch" Content="Auto Stretch" FontSize="14" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" IsChecked="True" Checked="chkAutoStretch_CheckedChanged" Unchecked="chkAutoStretch_CheckedChanged"/>
+                    <CheckBox Name="chkAutoStretch" Content="Auto Stretch" FontSize="14" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" IsChecked="{Binding IsAutoStretch, Mode=TwoWay}"/>
 
-                    <StackPanel Name="pnlCustomStretch" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0" Visibility="Collapsed">
+                    <StackPanel Name="pnlCustomStretch" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0" Visibility="{Binding IsCustomStretchVisible}">
                         <Label Content="A Stretch:" FontSize="13" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center"/>
-                        <TextBox Name="txtStretchA" Text="1" Width="48" Height="28" FontSize="13" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="2,0,12,0"/>
+                        <TextBox Name="txtStretchA" Text="{Binding StretchA, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="48" Height="28" FontSize="13" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="2,0,12,0"/>
 
                         <Label Content="B Stretch:" FontSize="13" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center"/>
-                        <TextBox Name="txtStretchB" Text="1" Width="48" Height="28" FontSize="13" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                        <TextBox Name="txtStretchB" Text="{Binding StretchB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="48" Height="28" FontSize="13" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel Grid.Column="3" Orientation="Horizontal">
-                    <Button Name="btnSelectAll" Content="Select All" Width="110" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Click="btnSelectAll_Click" Margin="0,0,8,0"/>
-                    <Button Name="btnDeselectAll" Content="Deselect All" Width="115" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Click="btnDeselectAll_Click"/>
+                    <Button Name="btnSelectAll" Content="Select All" Width="110" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Command="{Binding SelectAllCommand}" Margin="0,0,8,0"/>
+                    <Button Name="btnDeselectAll" Content="Deselect All" Width="115" Height="32" Style="{StaticResource MagkraftButtonStyle}" FontSize="13" Command="{Binding DeselectAllCommand}"/>
                 </StackPanel>
             </Grid>
 
@@ -135,7 +135,7 @@
 
             <!-- 4. Status Bar Notice -->
             <Border Grid.Row="4" Background="#E2E8F0" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="4,0,4,10">
-                <TextBlock Name="lblStatus" Text="Ready for Auto Ellipse calibration." Foreground="#0F172A" FontSize="13" FontWeight="SemiBold"/>
+                <TextBlock Name="lblStatus" Text="{Binding StatusMessage}" Foreground="#0F172A" FontSize="13" FontWeight="SemiBold"/>
             </Border>
 
             <!-- 5. Bottom Action Buttons Bar -->
@@ -146,8 +146,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Button Name="btnRunTest" Content="Run Test" Width="150" Height="40" Style="{StaticResource MagkraftButtonStyle}" FontSize="16" Click="btnRunTest_Click" Margin="0,0,10,0"/>
-                    <Button Name="btnMakeEllipse" Content="Make Ellipse" Width="160" Height="40" Style="{StaticResource MagkraftButtonStyle}" FontSize="16" Click="btnMakeEllipse_Click" IsEnabled="False"/>
+                    <Button Name="btnRunTest" Content="Run Test" Width="150" Height="40" Style="{StaticResource MagkraftButtonStyle}" FontSize="16" Command="{Binding RunTestCommand}" IsEnabled="{Binding IsRunTestEnabled}" Margin="0,0,10,0"/>
+                    <Button Name="btnMakeEllipse" Content="Make Ellipse" Width="160" Height="40" Style="{StaticResource MagkraftButtonStyle}" FontSize="16" Command="{Binding MakeEllipseCommand}" IsEnabled="{Binding IsMakeEllipseEnabled}"/>
                 </StackPanel>
             </Grid>
         </Grid>
