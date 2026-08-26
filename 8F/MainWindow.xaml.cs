@@ -99,6 +99,7 @@ namespace _8F
 
         bool isExitEnable = GetConfigBool("IsExitEnable", true);
 
+        public bool isPasswordEnable = GetConfigBool("IsPasswordEnable", true);
         bool isChangeConfigEnable = GetConfigBool("IsChangeConfigurationEnable", true);
         bool isThresholdSettingEnable = GetConfigBool("IsThresholdSettingEnable", true);
         bool isAutoEllipseEnabled = GetConfigBool("IsAutoEllipseEnable", true);
@@ -2488,15 +2489,18 @@ namespace _8F
 
         private void btnLog_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            PasswordDialog passwordDlg = new PasswordDialog(MenuItemViewModel.CONFIG_MENU_PASSWORD)
+            if (isPasswordEnable)
             {
-                Owner = this
-            };
+                PasswordDialog passwordDlg = new PasswordDialog(MenuItemViewModel.CONFIG_MENU_PASSWORD)
+                {
+                    Owner = this
+                };
 
-            bool? isAuth = passwordDlg.ShowDialog();
-            if (isAuth != true)
-            {
-                return;
+                bool? isAuth = passwordDlg.ShowDialog();
+                if (isAuth != true)
+                {
+                    return;
+                }
             }
 
             lblCode.Content = "";
@@ -2831,15 +2835,18 @@ namespace _8F
 
             if (ConfigurationMenuHeaders.Contains(Header))
             {
-                PasswordDialog passwordDlg = new PasswordDialog(CONFIG_MENU_PASSWORD)
+                if (mainWindow.isPasswordEnable)
                 {
-                    Owner = mainWindow
-                };
+                    PasswordDialog passwordDlg = new PasswordDialog(CONFIG_MENU_PASSWORD)
+                    {
+                        Owner = mainWindow
+                    };
 
-                bool? isAuth = passwordDlg.ShowDialog();
-                if (isAuth != true)
-                {
-                    return;
+                    bool? isAuth = passwordDlg.ShowDialog();
+                    if (isAuth != true)
+                    {
+                        return;
+                    }
                 }
             }
 
