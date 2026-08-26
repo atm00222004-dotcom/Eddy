@@ -83,7 +83,6 @@ namespace _8F
 
         // Config-driven feature toggle fields
         public bool isOpenEnable = GetConfigBool("isOpenEnable", true);
-        public bool isOpenDbEbable = GetConfigBool("isOpenDbEbable", true);
         public bool isSaveToDb = GetConfigBool("IsSaveToDb", true);
         public bool isSaveToFile = GetConfigBool("IsSaveToFile", false);
         public bool isSaveAsToDb = GetConfigBool("IsSaveAsToDb", true);
@@ -307,7 +306,7 @@ namespace _8F
                     MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
                     {
                         new MenuItemViewModel { Header = "New", mainWindow = this },
-                        (isOpenEnable || isOpenDbEbable) ? new MenuItemViewModel { Header = "Open", mainWindow = this } : null,
+                        isOpenEnable ? new MenuItemViewModel { Header = "Open", mainWindow = this } : null,
                         (isSaveToDb || isSaveToFile) ? new MenuItemViewModel { Header = "Save", mainWindow = this } : null,
                         (isSaveAsToDb || isSaveAsToFile) ? new MenuItemViewModel { Header = "Save As", mainWindow = this } : null,
                         isImportConfigEnable ? new MenuItemViewModel { Header = "Import Configuration", mainWindow = this } : null,
@@ -3085,77 +3084,50 @@ namespace _8F
                     {
                         try
                         {
-                            if (mainWindow.isOpenDbEbable)
+                            ExportProfilePickerWindow profilePicker = new ExportProfilePickerWindow
                             {
-                                ExportProfilePickerWindow profilePicker = new ExportProfilePickerWindow
-                                {
-                                    Title = "Open Configuration Profile from Database",
-                                    IsSelectionMode = true,
-                                    Owner = mainWindow
-                                };
-                                profilePicker.ShowDialog();
+                                Title = "Open Configuration Profile from Database",
+                                IsSelectionMode = true,
+                                Owner = mainWindow
+                            };
+                            profilePicker.ShowDialog();
 
-                                if (profilePicker.SelectedProfileId > 0)
-                                {
-                                    int pId = profilePicker.SelectedProfileId;
-                                    string pName = profilePicker.SelectedProfileName;
-                                    Task.Run(async () =>
-                                    {
-                                        try
-                                        {
-                                            _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
-                                            var dbChannels = await repo.GetConfigProfileAsync(pId);
-
-                                            mainWindow.Dispatcher.Invoke(() =>
-                                            {
-                                                if (dbChannels != null && dbChannels.Count > 0)
-                                                {
-                                                    ApplyChannelDataWithMapping(dbChannels, $"DB: {pName}");
-                                                }
-                                                else
-                                                {
-                                                    MessageBox.Show("Selected database profile contains no channel data.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                                                }
-                                            });
-                                        }
-                                        catch (Exception dbEx)
-                                        {
-                                            mainWindow.Dispatcher.Invoke(() =>
-                                            {
-                                                MessageBox.Show($"Error loading profile from database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                                            });
-                                        }
-                                    });
-                                }
-                            }
-                            else if (mainWindow.isOpenEnable)
+                            if (profilePicker.SelectedProfileId > 0)
                             {
-                                var dialog = new Microsoft.Win32.OpenFileDialog();
-                                dialog.Title = "Open Configuration File";
-                                dialog.FileName = "Document";
-                                dialog.DefaultExt = ".txt";
-                                dialog.Filter = "JSON / Text documents (*.json;*.txt)|*.json;*.txt|All Files (*.*)|*.*";
-
-                                bool? result = dialog.ShowDialog();
-                                if (result == true)
+                                int pId = profilePicker.SelectedProfileId;
+                                string pName = profilePicker.SelectedProfileName;
+                                Task.Run(async () =>
                                 {
-                                    string data = File.ReadAllText(dialog.FileName);
-                                    List<ChannelData>? parsedChData = _8F.Services.ConfigurationImporter.ImportFromJson(data);
+                                    try
+                                    {
+                                        _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
+                                        var dbChannels = await repo.GetConfigProfileAsync(pId);
 
-                                    if (parsedChData != null && parsedChData.Count > 0)
-                                    {
-                                        ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
+                                        mainWindow.Dispatcher.Invoke(() =>
+                                        {
+                                            if (dbChannels != null && dbChannels.Count > 0)
+                                            {
+                                                ApplyChannelDataWithMapping(dbChannels, $"DB: {pName}");
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show("Selected database profile contains no channel data.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                            }
+                                        });
                                     }
-                                    else
+                                    catch (Exception dbEx)
                                     {
-                                        MessageBox.Show("Failed to parse valid configuration data from the selected file.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                        mainWindow.Dispatcher.Invoke(() =>
+                                        {
+                                            MessageBox.Show($"Error loading profile from database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        });
                                     }
-                                }
+                                });
                             }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error while opening configuration: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show($"Error accessing database profiles: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
                     else if (Header == "Import Configuration")
