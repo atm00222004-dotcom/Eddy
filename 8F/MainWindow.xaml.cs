@@ -101,6 +101,7 @@ namespace _8F
         bool isPdfReportEnable = GetConfigBool("IsPdfReportEnable", true);
 
         bool isTotalCountVisible = GetConfigBool("IsTotalCountVisible", true);
+        bool isOkCountVisible = GetConfigBool("IsOkCountVisible", true);
         bool isNotOkCountVisible = GetConfigBool("IsNotOkCountVisible", true);
 
         public MainWindow()
@@ -113,7 +114,7 @@ namespace _8F
 
             InitializeComponent();
 
-            // Part 2: UI-Only Hides for Total Count and Not OK Count
+            // UI Hides for Total Count, OK Count, and Not OK Count
             if (!isTotalCountVisible)
             {
                 lblTCount.Visibility = Visibility.Collapsed;
@@ -123,6 +124,17 @@ namespace _8F
                 if (lblTCount.Parent is FrameworkElement p0) p0.Visibility = Visibility.Collapsed;
                 if (lblTCount1.Parent is FrameworkElement p1) p1.Visibility = Visibility.Collapsed;
                 if (lblTCount2.Parent is FrameworkElement p2) p2.Visibility = Visibility.Collapsed;
+            }
+
+            if (!isOkCountVisible)
+            {
+                lblOkCount.Visibility = Visibility.Collapsed;
+                lblOkCount1.Visibility = Visibility.Collapsed;
+                lblOkCount2.Visibility = Visibility.Collapsed;
+
+                if (lblOkCount.Parent is FrameworkElement p0) p0.Visibility = Visibility.Collapsed;
+                if (lblOkCount1.Parent is FrameworkElement p1) p1.Visibility = Visibility.Collapsed;
+                if (lblOkCount2.Parent is FrameworkElement p2) p2.Visibility = Visibility.Collapsed;
             }
 
             if (!isNotOkCountVisible)

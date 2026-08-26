@@ -49,12 +49,19 @@ namespace _8F
         private void ApplyColumnVisibility()
         {
             bool isTotalCountVisible = GetConfigBool("IsTotalCountVisible", true);
+            bool isOkCountVisible = GetConfigBool("IsOkCountVisible", true);
             bool isNotOkCountVisible = GetConfigBool("IsNotOkCountVisible", true);
 
             if (!isTotalCountVisible)
             {
                 var totalCol = grdlogs.Columns.FirstOrDefault(c => c.Header?.ToString() == "Total Count");
                 if (totalCol != null) totalCol.Visibility = Visibility.Collapsed;
+            }
+
+            if (!isOkCountVisible)
+            {
+                var okCol = grdlogs.Columns.FirstOrDefault(c => c.Header?.ToString() == "OK Count" || c.Header?.ToString() == "Ok Count");
+                if (okCol != null) okCol.Visibility = Visibility.Collapsed;
             }
 
             if (!isNotOkCountVisible)
