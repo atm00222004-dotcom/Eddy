@@ -174,5 +174,11 @@ namespace _8F.Tests
             Assert.True(result.IsValid);
             Assert.True(result.Width > 12.56, $"Width ({result.Width}) should be larger than 12.56 due to major axis extension");
         }
+
+        [Fact]
+        public void MenuItemViewModel_ConfigMenuPassword_IsConfiguredCorrectly()
+        {
+            Assert.Equal("best@123", MenuItemViewModel.CONFIG_MENU_PASSWORD);
+        }
     }
 }

@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 d:\New folder\Eddy\8F\App.xaml
-16-203202257
+18-899614625
 11613912260
-26-763488505
+28-1546365245
 210-2001612781
-AutoEllipse.xaml;ChannelRemappingWindow.xaml;CircleSetting.xaml;ExportProfilePickerWindow.xaml;Freq.xaml;Logs.xaml;LogsAll.xaml;MainWindow.xaml;MakeEllipseSelection.xaml;OperatorMaster.xaml;PartConfig.xaml;PartConfigReNew.xaml;PartFamilyMaster.xaml;RenewBatchWiseLog.xaml;Report.xaml;TestWindow.xaml;
+AutoEllipse.xaml;ChannelRemappingWindow.xaml;CircleSetting.xaml;ExportProfilePickerWindow.xaml;Freq.xaml;Logs.xaml;LogsAll.xaml;MainWindow.xaml;MakeEllipseSelection.xaml;OpenSourceSelectionDialog.xaml;OperatorMaster.xaml;PartConfig.xaml;PartConfigReNew.xaml;PartFamilyMaster.xaml;PasswordDialog.xaml;RenewBatchWiseLog.xaml;Report.xaml;TestWindow.xaml;
 
 False
 

@@ -265,8 +265,12 @@ namespace _8F
                             res.FD.Add(fd);
                         }
 
-                        if (ChannelNo >= res?.CN)
+                        if (res != null && ChannelNo >= res.CN)
                         {
+                            if (IsAutoEllipseActive)
+                            {
+                                res.IsAutoEllipseTest = true;
+                            }
                             responses.Add(res);
 
                             if (!IsAutoEllipseActive)
@@ -373,8 +377,12 @@ namespace _8F
                     }
                     else if (res != null && res.FC == 20)
                     {
-                        if (ChannelNo >= res?.CN)
+                        if (res != null && ChannelNo >= res.CN)
                         {
+                            if (IsAutoEllipseActive)
+                            {
+                                res.IsAutoEllipseTest = true;
+                            }
                             responses.Add(res);
 
                             if (!IsAutoEllipseActive)
@@ -1152,6 +1160,7 @@ namespace _8F
         public int CN;
         public int OR;
         public bool IsBalacenced = false;
+        public bool IsAutoEllipseTest = false;
         public List<FreqResult> FD = new();
         public int ERR { get; set; }
     }

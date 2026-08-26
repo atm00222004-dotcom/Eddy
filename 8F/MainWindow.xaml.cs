@@ -69,9 +69,39 @@ namespace _8F
 
         DateTime CodeReadTime = DateTime.Now;
         int CodeReadGapInMS = 100;
+
+        private static bool GetConfigBool(string key, bool defaultValue = true)
+        {
+            string? val = System.Configuration.ConfigurationManager.AppSettings[key];
+            if (string.IsNullOrWhiteSpace(val)) return defaultValue;
+            return bool.TryParse(val, out bool result) ? result : defaultValue;
+        }
+
         bool isRenewConfig = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isrenewconfig"]);
         bool isTestLogOff = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTestLogOff"]);
         bool isTxStrengthEnabled = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTxStrengthEnable"]);
+
+        // Config-driven feature toggle fields
+        bool isOpenEnable = GetConfigBool("isOpenEnable", true);
+        public bool isOpenDbEbable = GetConfigBool("isOpenDbEbable", true);
+        bool isSaveEnable = GetConfigBool("IsSaveEnable", true);
+        bool isSaveAsEnable = GetConfigBool("IsSaveAsEnable", true);
+        bool isExportConfigEnable = GetConfigBool("IsExportConfigurationEnable", GetConfigBool("IsExortEnable", true));
+        //bool isChangePasswordEnable = GetConfigBool("IsChangePasswordEnable", true);
+        bool isExitEnable = GetConfigBool("IsExitEnable", true);
+
+        bool isChangeConfigEnable = GetConfigBool("IsChangeConfigurationEnable", true);
+        bool isThresholdSettingEnable = GetConfigBool("IsThresholdSettingEnable", true);
+        bool isAutoEllipseEnabled = GetConfigBool("IsAutoEllipseEnable", true);
+        bool isWriteConfigEnable = GetConfigBool("IsWriteConfigurationEnable", true);
+        bool isCopyChannel1ConfigEnable = GetConfigBool("IsCopyChannel1ConfigurationEnable", true);
+
+        bool isBatchWiseLogEnable = GetConfigBool("IsBatchWiseLogEnable", true);
+        bool isSerialNoLogEnable = GetConfigBool("IsSerialNumberLogEnable", true);
+        bool isPdfReportEnable = GetConfigBool("IsPdfReportEnable", true);
+
+        bool isTotalCountVisible = GetConfigBool("IsTotalCountVisible", true);
+        bool isNotOkCountVisible = GetConfigBool("IsNotOkCountVisible", true);
 
         public MainWindow()
         {
@@ -82,6 +112,29 @@ namespace _8F
             }
 
             InitializeComponent();
+
+            // Part 2: UI-Only Hides for Total Count and Not OK Count
+            if (!isTotalCountVisible)
+            {
+                lblTCount.Visibility = Visibility.Collapsed;
+                lblTCount1.Visibility = Visibility.Collapsed;
+                lblTCount2.Visibility = Visibility.Collapsed;
+
+                if (lblTCount.Parent is FrameworkElement p0) p0.Visibility = Visibility.Collapsed;
+                if (lblTCount1.Parent is FrameworkElement p1) p1.Visibility = Visibility.Collapsed;
+                if (lblTCount2.Parent is FrameworkElement p2) p2.Visibility = Visibility.Collapsed;
+            }
+
+            if (!isNotOkCountVisible)
+            {
+                lblNotOkCount.Visibility = Visibility.Collapsed;
+                lblNotOkCount1.Visibility = Visibility.Collapsed;
+                lblNotOkCount2.Visibility = Visibility.Collapsed;
+
+                if (lblNotOkCount.Parent is FrameworkElement p0) p0.Visibility = Visibility.Collapsed;
+                if (lblNotOkCount1.Parent is FrameworkElement p1) p1.Visibility = Visibility.Collapsed;
+                if (lblNotOkCount2.Parent is FrameworkElement p2) p2.Visibility = Visibility.Collapsed;
+            }
 
             //DeviceCOM.Test();
             if (imgLogo.Visibility == Visibility.Visible)
@@ -236,51 +289,47 @@ namespace _8F
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
                 new MenuItemViewModel { Header = "File",
-                    MenuItems = new ObservableCollection<MenuItemViewModel>
-                        {
-                            new MenuItemViewModel { Header = "New", mainWindow =this },
-                            new MenuItemViewModel { Header = "Open" ,mainWindow =this },
-                            new MenuItemViewModel { Header = "Open from Database", mainWindow =this },
-                            new MenuItemViewModel { Header = "Save", mainWindow =this },
-                            new MenuItemViewModel { Header = "Save As", mainWindow =this },
-                            new MenuItemViewModel { Header = "Export Configuration", mainWindow =this },
-                            new MenuItemViewModel { Header = "Exit" ,mainWindow =this }
-                        }
+                    MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
+                    {
+                        new MenuItemViewModel { Header = "New", mainWindow = this },
+                        isOpenDbEbable ? new MenuItemViewModel { Header = "Open", mainWindow = this } : null,
+                        isSaveEnable ? new MenuItemViewModel { Header = "Save", mainWindow = this } : null,
+                        isSaveAsEnable ? new MenuItemViewModel { Header = "Save As", mainWindow = this } : null,
+                        isOpenEnable ? new MenuItemViewModel { Header = "Import Configuration", mainWindow = this } : null,
+                        isExportConfigEnable ? new MenuItemViewModel { Header = "Export Configuration", mainWindow = this } : null,
+                        isExitEnable ? new MenuItemViewModel { Header = "Exit", mainWindow = this } : null
+                    }.OfType<MenuItemViewModel>())
                 },
                 new MenuItemViewModel { Header = "Configuration",
                     MenuItems = LogEnabled ? new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
                     {
-                        new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
-                        new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
-                        new MenuItemViewModel { Header = "Auto Ellipse", mainWindow = this },
+                        isChangeConfigEnable ? new MenuItemViewModel { Header = "Change Configuration", mainWindow = this } : null,
+                        isThresholdSettingEnable ? new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this } : null,
+                        isAutoEllipseEnabled ? new MenuItemViewModel { Header = "Auto Ellipse", mainWindow = this } : null,
                         isRenewConfig ? new MenuItemViewModel { Header = "Operator Master", mainWindow = this } : null,
                         isRenewConfig ? new MenuItemViewModel { Header = "Part Master", mainWindow = this } : null,
-                        new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
-                        new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this },
-                        //new MenuItemViewModel { Header = "Data Log", mainWindow = this }
+                        isWriteConfigEnable ? new MenuItemViewModel { Header = "Write Configuration", mainWindow = this } : null,
+                        isCopyChannel1ConfigEnable ? new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this } : null,
                     }.OfType<MenuItemViewModel>()
-                    ):
-                    new ObservableCollection<MenuItemViewModel>
+                    ) :
+                    new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
                     {
-                        new MenuItemViewModel { Header = "Change Configuration", mainWindow = this },
-                        new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this },
-                        new MenuItemViewModel { Header = "Auto Ellipse", mainWindow = this },
-                        new MenuItemViewModel { Header = "Write Configuration", mainWindow = this },
-                        new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this }
-                    }
+                        isChangeConfigEnable ? new MenuItemViewModel { Header = "Change Configuration", mainWindow = this } : null,
+                        isThresholdSettingEnable ? new MenuItemViewModel { Header = "Threshold Setting", mainWindow = this } : null,
+                        isAutoEllipseEnabled ? new MenuItemViewModel { Header = "Auto Ellipse", mainWindow = this } : null,
+                        isWriteConfigEnable ? new MenuItemViewModel { Header = "Write Configuration", mainWindow = this } : null,
+                        isCopyChannel1ConfigEnable ? new MenuItemViewModel { Header = "Copy Channel-1 Configuration", mainWindow = this } : null
+                    }.OfType<MenuItemViewModel>()
+                    )
                 },
                 new MenuItemViewModel
                 {
                     Header = "View Log",
-                    MenuItems = isRenewConfig? new ObservableCollection<MenuItemViewModel>
-                        {
-                            new MenuItemViewModel { Header = "Batch Wise Log", mainWindow = this }
-                        }
-                        : new ObservableCollection<MenuItemViewModel>
-                        {
-                            new MenuItemViewModel { Header = "Batch Wise Log", mainWindow = this },
-                            new MenuItemViewModel { Header = "Serial Number Log", mainWindow = this }
-                        }
+                    MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
+                    {
+                        isBatchWiseLogEnable ? new MenuItemViewModel { Header = "Batch Wise Log", mainWindow = this } : null,
+                        (!isRenewConfig && isSerialNoLogEnable) ? new MenuItemViewModel { Header = "Serial Number Log", mainWindow = this } : null
+                    }.OfType<MenuItemViewModel>())
                 },
             };
             DataContext = this;
@@ -342,9 +391,6 @@ namespace _8F
             {
                 var ratval = ImplementChanges(0);
             }
-
-
-
         }
 
         private bool ValidateMachine()
@@ -899,9 +945,9 @@ namespace _8F
                 var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId) ?? DeviceCOM.counter.FirstOrDefault(c => c.Id == 0);
                 if (cnt != null)
                 {
-                    lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    //lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
                     lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                    lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+                   // lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
                     lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
                     lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
@@ -2016,7 +2062,7 @@ namespace _8F
             }
 
             lblTCount.Content = "Total Count - 0";
-            lblOkCount.Content = "OK Count - 0";
+            lblOkCount.Content = " OK Count - 0";
             lblNotOkCount.Content = "Not Ok Count - 0";
 
             lblTCount1.Content = "Total Count - 0";
@@ -2184,7 +2230,7 @@ namespace _8F
             ClearGraphData(false);
             var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
             if (selectedChannel == null) return;
-            var selectedChannelData = DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList();
+            var selectedChannelData = DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id && !r.IsAutoEllipseTest).ToList();
 
             foreach (var item in selectedChannelData)
             {
@@ -2424,6 +2470,17 @@ namespace _8F
 
         private void btnLog_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            PasswordDialog passwordDlg = new PasswordDialog(MenuItemViewModel.CONFIG_MENU_PASSWORD)
+            {
+                Owner = this
+            };
+
+            bool? isAuth = passwordDlg.ShowDialog();
+            if (isAuth != true)
+            {
+                return;
+            }
+
             lblCode.Content = "";
             if (DeviceCOM.IsLogEnable)
             {
@@ -2479,7 +2536,6 @@ namespace _8F
 
 
         }
-
         private void partConfig_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             if (DeviceCOM.IsLogEnable)
@@ -2656,12 +2712,10 @@ namespace _8F
         private readonly StringBuilder _buffer = new();
         private readonly DispatcherTimer _timer;
 
-        // Event raised when a full barcode is detected
         public event EventHandler<string>? BarcodeScanned;
 
         public BarcodeScanner()
         {
-            // Timer resets when no keys come in for a short time (end of scan)
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
             _timer.Tick += (s, e) =>
             {
@@ -2677,7 +2731,6 @@ namespace _8F
 
         public void HandleKey(KeyEventArgs e)
         {
-            // Convert key input into character
             char c = GetCharFromKey(e.Key);
             if (c == '\0')
                 return;
@@ -2699,7 +2752,6 @@ namespace _8F
 
         private static char GetCharFromKey(Key key)
         {
-            // Simple conversion for A-Z, 0-9 and common symbols
             if (key >= Key.A && key <= Key.Z)
                 return (char)('A' + (key - Key.A));
             if (key >= Key.D0 && key <= Key.D9)
@@ -2718,6 +2770,21 @@ namespace _8F
 
     public class MenuItemViewModel
     {
+        public const string DefaultConfigPassword = "best@123";
+        public const string CONFIG_MENU_PASSWORD = DefaultConfigPassword;
+
+        private static readonly HashSet<string> ConfigurationMenuHeaders = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Change Configuration",
+            "Threshold Setting",
+            "Auto Ellipse",
+            "Operator Master",
+            "Part Master",
+            "Copy Channel-1 Configuration",
+            "Batch Wise Log",
+            "Serial Number Log"
+        };
+
         private readonly ICommand _command;
 
         public MenuItemViewModel()
@@ -2743,8 +2810,21 @@ namespace _8F
         private void Execute()
         {
             if (mainWindow == null) return;
-            // (NOTE: In a view model, you normally should not use MessageBox.Show()).
-            //MessageBox.Show("Clicked at " + Header);
+
+            if (ConfigurationMenuHeaders.Contains(Header))
+            {
+                PasswordDialog passwordDlg = new PasswordDialog(CONFIG_MENU_PASSWORD)
+                {
+                    Owner = mainWindow
+                };
+
+                bool? isAuth = passwordDlg.ShowDialog();
+                if (isAuth != true)
+                {
+                    return;
+                }
+            }
+
             if (DeviceCOM.IsLogEnable)
             {
                 MessageBox.Show("While logging you can not perform this command, please stop the log.", "Command Conflict");
@@ -2976,37 +3056,6 @@ namespace _8F
                     {
                         try
                         {
-                            var dialog = new Microsoft.Win32.OpenFileDialog();
-                            dialog.Title = "Open Configuration File";
-                            dialog.FileName = "Document";
-                            dialog.DefaultExt = ".txt";
-                            dialog.Filter = "JSON / Text documents (*.json;*.txt)|*.json;*.txt|All Files (*.*)|*.*";
-
-                            bool? result = dialog.ShowDialog();
-                            if (result == true)
-                            {
-                                string data = File.ReadAllText(dialog.FileName);
-                                List<ChannelData>? parsedChData = _8F.Services.ConfigurationImporter.ImportFromJson(data);
-
-                                if (parsedChData != null && parsedChData.Count > 0)
-                                {
-                                    ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
-                                }
-                                else
-                                {
-                                    MessageBox.Show("Failed to parse valid configuration data from the selected file.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error loading configuration file: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                    }
-                    else if (Header == "Open from Database")
-                    {
-                        try
-                        {
                             ExportProfilePickerWindow profilePicker = new ExportProfilePickerWindow
                             {
                                 Title = "Open Configuration Profile from Database",
@@ -3051,6 +3100,37 @@ namespace _8F
                         catch (Exception ex)
                         {
                             MessageBox.Show($"Error accessing database profiles: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else if (Header == "Import Configuration")
+                    {
+                        try
+                        {
+                            var dialog = new Microsoft.Win32.OpenFileDialog();
+                            dialog.Title = "Import Configuration File";
+                            dialog.FileName = "Document";
+                            dialog.DefaultExt = ".txt";
+                            dialog.Filter = "JSON / Text documents (*.json;*.txt)|*.json;*.txt|All Files (*.*)|*.*";
+
+                            bool? result = dialog.ShowDialog();
+                            if (result == true)
+                            {
+                                string data = File.ReadAllText(dialog.FileName);
+                                List<ChannelData>? parsedChData = _8F.Services.ConfigurationImporter.ImportFromJson(data);
+
+                                if (parsedChData != null && parsedChData.Count > 0)
+                                {
+                                    ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Failed to parse valid configuration data from the selected file.", "Import Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error loading configuration file: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
                     else if (Header == "Export Configuration")

@@ -35,6 +35,33 @@ namespace _8F
 
             clStartDate.SelectedDate = DateTime.Now;
             clToDate.SelectedDate = DateTime.Now;
+
+            ApplyColumnVisibility();
+        }
+
+        private static bool GetConfigBool(string key, bool defaultValue = true)
+        {
+            string? val = System.Configuration.ConfigurationManager.AppSettings[key];
+            if (string.IsNullOrWhiteSpace(val)) return defaultValue;
+            return bool.TryParse(val, out bool result) ? result : defaultValue;
+        }
+
+        private void ApplyColumnVisibility()
+        {
+            bool isTotalCountVisible = GetConfigBool("IsTotalCountVisible", true);
+            bool isNotOkCountVisible = GetConfigBool("IsNotOkCountVisible", true);
+
+            if (!isTotalCountVisible)
+            {
+                var totalCol = grdlogs.Columns.FirstOrDefault(c => c.Header?.ToString() == "Total Count");
+                if (totalCol != null) totalCol.Visibility = Visibility.Collapsed;
+            }
+
+            if (!isNotOkCountVisible)
+            {
+                var notOkCol = grdlogs.Columns.FirstOrDefault(c => c.Header?.ToString() == "Not OK Count" || c.Header?.ToString() == "Not Ok Count");
+                if (notOkCol != null) notOkCol.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -318,10 +345,6 @@ namespace _8F
                                                     r.ConstantItem(250).AlignRight().Row(stats =>
                                                     {
                                                         stats.AutoItem().Text($"OK : {log.PassCount}").FontSize(8).Bold().FontColor("#69F0AE");
-                                                        stats.ConstantItem(10);
-                                                        stats.AutoItem().Text($"NOT OK : {log.FailCount}").FontSize(8).Bold().FontColor("#FF5252");
-                                                        stats.ConstantItem(10);
-                                                        stats.AutoItem().Text($"TOTAL : {log.TotalCount}").FontSize(8).Bold().FontColor("#40C4FF");
                                                     });
                                                 });
 
@@ -681,10 +704,6 @@ namespace _8F
                                                 r.ConstantItem(250).AlignRight().Row(stats =>
                                                 {
                                                     stats.AutoItem().Text($"OK : {log.PassCount}").FontSize(8).Bold().FontColor("#69F0AE");
-                                                    stats.ConstantItem(10);
-                                                    stats.AutoItem().Text($"NOT OK : {log.FailCount}").FontSize(8).Bold().FontColor("#FF5252");
-                                                    stats.ConstantItem(10);
-                                                    stats.AutoItem().Text($"TOTAL : {log.TotalCount}").FontSize(8).Bold().FontColor("#40C4FF");
                                                 });
                                             });
 

@@ -271,3 +271,7 @@ d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\ExportProfilePickerWindow.baml
 d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\ExportProfilePickerWindow.g.cs
 d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\ChannelRemappingWindow.baml
 d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\ChannelRemappingWindow.g.cs
+d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\PasswordDialog.baml
+d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\PasswordDialog.g.cs
+d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\OpenSourceSelectionDialog.baml
+d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\OpenSourceSelectionDialog.g.cs

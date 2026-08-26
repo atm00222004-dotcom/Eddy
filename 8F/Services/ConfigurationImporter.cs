@@ -15,7 +15,7 @@ namespace _8F.Services
             {
                 return incomingChannels;
             }
-
+            
             List<ChannelData> resultChannels = DeviceCOM.channelDatas != null && DeviceCOM.channelDatas.Count >= 4
                 ? DeviceCOM.channelDatas
                 : new List<ChannelData>

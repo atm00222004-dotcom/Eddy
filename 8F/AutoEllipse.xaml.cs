@@ -654,7 +654,7 @@ namespace _8F
 
                 if (Owner is MainWindow mw)
                 {
-                    mw.ImplementChanges(2);
+                    mw.ImplementChanges(0);
                 }
 
                 IsSaved = true;
