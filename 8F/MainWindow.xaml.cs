@@ -81,15 +81,22 @@ namespace _8F
         bool isTestLogOff = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTestLogOff"]);
         bool isTxStrengthEnabled = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTxStrengthEnable"]);
 
-        // Config-driven feature toggle fields
-        public bool isOpenEnable = GetConfigBool("isOpenEnable", true);
-        public bool isSaveToDb = GetConfigBool("IsSaveToDb", true);
-        public bool isSaveToFile = GetConfigBool("IsSaveToFile", false);
-        public bool isSaveAsToDb = GetConfigBool("IsSaveAsToDb", true);
-        public bool isSaveAsToFile = GetConfigBool("IsSaveAsToFile", false);
-        bool isImportConfigEnable = GetConfigBool("IsImportConfigurationEnable", false);
-        bool isExportConfigEnable = GetConfigBool("IsExportConfigurationEnable", GetConfigBool("IsExortEnable", true));
-        //bool isChangePasswordEnable = GetConfigBool("IsChangePasswordEnable", true);
+        // Config-driven feature toggle fields (WithDb / WithFile)
+        public bool isOpenWithDb = GetConfigBool("IsOpenWithDb", GetConfigBool("isOpenDbEbable", true));
+        public bool isOpenWithFile = GetConfigBool("IsOpenWithFile", GetConfigBool("isOpenEnable", false));
+
+        public bool isSaveWithDb = GetConfigBool("IsSaveWithDb", GetConfigBool("IsSaveToDb", true));
+        public bool isSaveWithFile = GetConfigBool("IsSaveWithFile", GetConfigBool("IsSaveToFile", false));
+
+        public bool isSaveAsWithDb = GetConfigBool("IsSaveAsWithDb", GetConfigBool("IsSaveAsToDb", true));
+        public bool isSaveAsWithFile = GetConfigBool("IsSaveAsWithFile", GetConfigBool("IsSaveAsToFile", false));
+
+        public bool isImportConfigWithDb = GetConfigBool("IsImportConfigurationWithDb", false);
+        public bool isImportConfigWithFile = GetConfigBool("IsImportConfigurationWithFile", GetConfigBool("IsImportConfigurationEnable", true));
+
+        public bool isExportConfigWithDb = GetConfigBool("IsExportConfigurationWithDb", GetConfigBool("IsExportConfigurationEnable", false));
+        public bool isExportConfigWithFile = GetConfigBool("IsExportConfigurationWithFile", false);
+
         bool isExitEnable = GetConfigBool("IsExitEnable", true);
 
         bool isChangeConfigEnable = GetConfigBool("IsChangeConfigurationEnable", true);
@@ -306,11 +313,11 @@ namespace _8F
                     MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
                     {
                         new MenuItemViewModel { Header = "New", mainWindow = this },
-                        isOpenEnable ? new MenuItemViewModel { Header = "Open", mainWindow = this } : null,
-                        (isSaveToDb || isSaveToFile) ? new MenuItemViewModel { Header = "Save", mainWindow = this } : null,
-                        (isSaveAsToDb || isSaveAsToFile) ? new MenuItemViewModel { Header = "Save As", mainWindow = this } : null,
-                        isImportConfigEnable ? new MenuItemViewModel { Header = "Import Configuration", mainWindow = this } : null,
-                        isExportConfigEnable ? new MenuItemViewModel { Header = "Export Configuration", mainWindow = this } : null,
+                        (isOpenWithDb || isOpenWithFile) ? new MenuItemViewModel { Header = "Open", mainWindow = this } : null,
+                        (isSaveWithDb || isSaveWithFile) ? new MenuItemViewModel { Header = "Save", mainWindow = this } : null,
+                        (isSaveAsWithDb || isSaveAsWithFile) ? new MenuItemViewModel { Header = "Save As", mainWindow = this } : null,
+                        (isImportConfigWithDb || isImportConfigWithFile) ? new MenuItemViewModel { Header = "Import Configuration", mainWindow = this } : null,
+                        (isExportConfigWithDb || isExportConfigWithFile) ? new MenuItemViewModel { Header = "Export Configuration", mainWindow = this } : null,
                         isExitEnable ? new MenuItemViewModel { Header = "Exit", mainWindow = this } : null
                     }.OfType<MenuItemViewModel>())
                 },
@@ -2948,7 +2955,7 @@ namespace _8F
                     {
                         try
                         {
-                            if (mainWindow.isSaveToDb)
+                            if (mainWindow.isSaveWithDb)
                             {
                                 SaveProfileDialog profileDlg = new SaveProfileDialog
                                 {
@@ -2984,7 +2991,7 @@ namespace _8F
                                     });
                                 }
                             }
-                            else if (mainWindow.isSaveToFile)
+                            else if (mainWindow.isSaveWithFile)
                             {
                                 if (String.IsNullOrEmpty(mainWindow.filename))
                                 {
@@ -3021,7 +3028,7 @@ namespace _8F
                     {
                         try
                         {
-                            if (mainWindow.isSaveAsToDb)
+                            if (mainWindow.isSaveAsWithDb)
                             {
                                 SaveProfileDialog profileDlg = new SaveProfileDialog
                                 {
@@ -3057,7 +3064,7 @@ namespace _8F
                                     });
                                 }
                             }
-                            else if (mainWindow.isSaveAsToFile)
+                            else if (mainWindow.isSaveAsWithFile)
                             {
                                 Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
                                 dlg.FileName = "Document";
@@ -3084,113 +3091,212 @@ namespace _8F
                     {
                         try
                         {
-                            ExportProfilePickerWindow profilePicker = new ExportProfilePickerWindow
+                            if (mainWindow.isOpenWithDb)
                             {
-                                Title = "Open Configuration Profile from Database",
-                                IsSelectionMode = true,
-                                Owner = mainWindow
-                            };
-                            profilePicker.ShowDialog();
-
-                            if (profilePicker.SelectedProfileId > 0)
-                            {
-                                int pId = profilePicker.SelectedProfileId;
-                                string pName = profilePicker.SelectedProfileName;
-                                Task.Run(async () =>
+                                ExportProfilePickerWindow profilePicker = new ExportProfilePickerWindow
                                 {
-                                    try
-                                    {
-                                        _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
-                                        var dbChannels = await repo.GetConfigProfileAsync(pId);
+                                    Title = "Open Configuration Profile from Database",
+                                    IsSelectionMode = true,
+                                    Owner = mainWindow
+                                };
+                                profilePicker.ShowDialog();
 
-                                        mainWindow.Dispatcher.Invoke(() =>
-                                        {
-                                            if (dbChannels != null && dbChannels.Count > 0)
-                                            {
-                                                ApplyChannelDataWithMapping(dbChannels, $"DB: {pName}");
-                                            }
-                                            else
-                                            {
-                                                MessageBox.Show("Selected database profile contains no channel data.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                                            }
-                                        });
-                                    }
-                                    catch (Exception dbEx)
-                                    {
-                                        mainWindow.Dispatcher.Invoke(() =>
-                                        {
-                                            MessageBox.Show($"Error loading profile from database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error accessing database profiles: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                    }
-                    else if (Header == "Import Configuration")
-                    {
-                        try
-                        {
-                            var dialog = new Microsoft.Win32.OpenFileDialog();
-                            dialog.Title = "Import Configuration File to Database";
-                            dialog.FileName = "Document";
-                            dialog.DefaultExt = ".txt";
-                            dialog.Filter = "JSON / Text documents (*.json;*.txt)|*.json;*.txt|All Files (*.*)|*.*";
-
-                            bool? result = dialog.ShowDialog();
-                            if (result == true)
-                            {
-                                string data = File.ReadAllText(dialog.FileName);
-                                List<ChannelData>? parsedChData = _8F.Services.ConfigurationImporter.ImportFromJson(data);
-
-                                if (parsedChData != null && parsedChData.Count > 0)
+                                if (profilePicker.SelectedProfileId > 0)
                                 {
-                                    string profileName = System.IO.Path.GetFileNameWithoutExtension(dialog.FileName);
-
-                                    // Import file into database & apply to current session
+                                    int pId = profilePicker.SelectedProfileId;
+                                    string pName = profilePicker.SelectedProfileName;
                                     Task.Run(async () =>
                                     {
                                         try
                                         {
                                             _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
-                                            await repo.SaveConfigProfileAsync(profileName, "Operator", parsedChData);
+                                            var dbChannels = await repo.GetConfigProfileAsync(pId);
 
                                             mainWindow.Dispatcher.Invoke(() =>
                                             {
-                                                ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
-                                                mainWindow.lblConfigFileName.Content = profileName;
-                                                MessageBox.Show($"Configuration imported from '{System.IO.Path.GetFileName(dialog.FileName)}' and saved to Database as '{profileName}'!", "Import to Database", MessageBoxButton.OK, MessageBoxImage.Information);
+                                                if (dbChannels != null && dbChannels.Count > 0)
+                                                {
+                                                    ApplyChannelDataWithMapping(dbChannels, $"DB: {pName}");
+                                                }
+                                                else
+                                                {
+                                                    MessageBox.Show("Selected database profile contains no channel data.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                                }
                                             });
                                         }
                                         catch (Exception dbEx)
                                         {
                                             mainWindow.Dispatcher.Invoke(() =>
                                             {
-                                                ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
-                                                MessageBox.Show($"Configuration loaded from file, but failed to save profile to database: {dbEx.Message}", "Database Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                                MessageBox.Show($"Error loading profile from database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                             });
                                         }
                                     });
                                 }
-                                else
+                            }
+                            else if (mainWindow.isOpenWithFile)
+                            {
+                                var dialog = new Microsoft.Win32.OpenFileDialog();
+                                dialog.Title = "Open Configuration File";
+                                dialog.FileName = "Document";
+                                dialog.DefaultExt = ".txt";
+                                dialog.Filter = "JSON / Text documents (*.json;*.txt)|*.json;*.txt|All Files (*.*)|*.*";
+
+                                bool? result = dialog.ShowDialog();
+                                if (result == true)
                                 {
-                                    MessageBox.Show("Failed to parse valid configuration data from the selected file.", "Import Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    string data = File.ReadAllText(dialog.FileName);
+                                    List<ChannelData>? parsedChData = _8F.Services.ConfigurationImporter.ImportFromJson(data);
+
+                                    if (parsedChData != null && parsedChData.Count > 0)
+                                    {
+                                        ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Failed to parse valid configuration data from the selected file.", "Open Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    }
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error while importing configuration file: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show($"Error accessing configuration profiles: {ex.Message}", "Open Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else if (Header == "Import Configuration")
+                    {
+                        try
+                        {
+                            if (mainWindow.isImportConfigWithFile)
+                            {
+                                var dialog = new Microsoft.Win32.OpenFileDialog();
+                                dialog.Title = "Import Configuration File to Database";
+                                dialog.FileName = "Document";
+                                dialog.DefaultExt = ".txt";
+                                dialog.Filter = "JSON / Text documents (*.json;*.txt)|*.json;*.txt|All Files (*.*)|*.*";
+
+                                bool? result = dialog.ShowDialog();
+                                if (result == true)
+                                {
+                                    string data = File.ReadAllText(dialog.FileName);
+                                    List<ChannelData>? parsedChData = _8F.Services.ConfigurationImporter.ImportFromJson(data);
+
+                                    if (parsedChData != null && parsedChData.Count > 0)
+                                    {
+                                        string profileName = System.IO.Path.GetFileNameWithoutExtension(dialog.FileName);
+
+                                        Task.Run(async () =>
+                                        {
+                                            try
+                                            {
+                                                _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
+                                                await repo.SaveConfigProfileAsync(profileName, "Operator", parsedChData);
+
+                                                mainWindow.Dispatcher.Invoke(() =>
+                                                {
+                                                    ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
+                                                    mainWindow.lblConfigFileName.Content = profileName;
+                                                    MessageBox.Show($"Configuration imported from '{System.IO.Path.GetFileName(dialog.FileName)}' and saved to Database as '{profileName}'!", "Import to Database", MessageBoxButton.OK, MessageBoxImage.Information);
+                                                });
+                                            }
+                                            catch (Exception dbEx)
+                                            {
+                                                mainWindow.Dispatcher.Invoke(() =>
+                                                {
+                                                    ApplyChannelDataWithMapping(parsedChData, dialog.FileName);
+                                                    MessageBox.Show($"Configuration loaded from file, but failed to save profile to database: {dbEx.Message}", "Database Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Failed to parse valid configuration data from the selected file.", "Import Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    }
+                                }
+                            }
+                            else if (mainWindow.isImportConfigWithDb)
+                            {
+                                ExportProfilePickerWindow profilePicker = new ExportProfilePickerWindow
+                                {
+                                    Title = "Import Configuration Profile from Database",
+                                    IsSelectionMode = true,
+                                    Owner = mainWindow
+                                };
+                                profilePicker.ShowDialog();
+
+                                if (profilePicker.SelectedProfileId > 0)
+                                {
+                                    int pId = profilePicker.SelectedProfileId;
+                                    string pName = profilePicker.SelectedProfileName;
+                                    Task.Run(async () =>
+                                    {
+                                        try
+                                        {
+                                            _8F.Services.IConfigProfileRepository repo = new _8F.Services.InspectionLogRepository();
+                                            var dbChannels = await repo.GetConfigProfileAsync(pId);
+
+                                            mainWindow.Dispatcher.Invoke(() =>
+                                            {
+                                                if (dbChannels != null && dbChannels.Count > 0)
+                                                {
+                                                    ApplyChannelDataWithMapping(dbChannels, $"DB: {pName}");
+                                                }
+                                                else
+                                                {
+                                                    MessageBox.Show("Selected database profile contains no channel data.", "Import Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                                }
+                                            });
+                                        }
+                                        catch (Exception dbEx)
+                                        {
+                                            mainWindow.Dispatcher.Invoke(() =>
+                                            {
+                                                MessageBox.Show($"Error loading profile from database: {dbEx.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error while importing configuration: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
                     else if (Header == "Export Configuration")
                     {
-                        ExportProfilePickerWindow exportPicker = new ExportProfilePickerWindow();
-                        exportPicker.Owner = mainWindow;
-                        exportPicker.ShowDialog();
+                        try
+                        {
+                            if (mainWindow.isExportConfigWithDb)
+                            {
+                                ExportProfilePickerWindow exportPicker = new ExportProfilePickerWindow
+                                {
+                                    Owner = mainWindow
+                                };
+                                exportPicker.ShowDialog();
+                            }
+                            else if (mainWindow.isExportConfigWithFile)
+                            {
+                                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                                dlg.FileName = "ExportedConfiguration";
+                                dlg.DefaultExt = ".json";
+                                dlg.Filter = "JSON documents (*.json)|*.json|Text documents (*.txt)|*.txt";
+
+                                bool? result = dlg.ShowDialog();
+                                if (result == true)
+                                {
+                                    string json = JsonConvert.SerializeObject(DeviceCOM.channelDatas, Formatting.Indented);
+                                    File.WriteAllText(dlg.FileName, json);
+                                    MessageBox.Show($"Configuration exported to file '{dlg.FileName}' successfully!", "Export Configuration", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error while exporting configuration: {ex.Message}", "Error Information", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                     else if (Header == "New")
                     {
