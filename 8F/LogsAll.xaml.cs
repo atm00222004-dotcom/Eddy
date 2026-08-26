@@ -48,54 +48,16 @@ namespace _8F
 
         public void LoadLogs()
         {
-            try
+            var vm = new _8F.ViewModels.LogsAllViewModel
             {
-                listOfLog = new List<LogData1>();
-
-                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
-                {
-                    //string sql = "select coalesce(dt1.\"LogDate\",dt2.\"LogDate\" ) as  \"LogDate\", coalesce(\"PassCount\", 0) as \"PassCount\",coalesce(\"FailCount\",0) as \"FailCount\" from (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"FailCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'false' group by \"Result\", \"TimeStamp\"::date) dt1 Full join (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"PassCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'true' group by \"Result\", \"TimeStamp\"::date) dt2 on dt1.\"LogDate\" = dt2.\"LogDate\";";
-
-                    string sql = "SELECT \"BatchName\", \"PartName\", \"SrNo\", \"TimeStamp\",  CASE   WHEN \"Result\" = TRUE THEN 'OK'  ELSE 'Not OK'  END AS \"ResultStatus\", CASE   WHEN \"Ch1Result\" = TRUE THEN 'OK' WHEN Ch1Result IS NULL THEN 'NA'  ELSE 'Not OK'  END AS \"Ch1Result\", CASE   WHEN \"Ch2Result\" = TRUE THEN 'OK' WHEN Ch2Result IS NULL THEN 'NA'  ELSE 'Not OK'  END AS \"Ch2Result\", CASE   WHEN \"Ch3Result\" = TRUE THEN 'OK' WHEN Ch3Result IS NULL THEN 'NA'  ELSE 'Not OK'  END AS \"Ch3Result\", CASE   WHEN \"Ch4Result\" = TRUE THEN 'OK' WHEN Ch4Result IS NULL THEN 'NA'  ELSE 'Not OK'  END AS \"Ch4Result\" FROM public.\"Logs\" l\r\n\tWhere \"BatchName\" like '%" + txtBatchName.Text+ "%' AND \"SrNo\" like '%" + txtSrNo.Text+ "%' AND \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' ";
-
-                    con.Open();
-
-                    var cmd = new NpgsqlCommand(sql, con);
-                    var dataReader = cmd.ExecuteReader();
-
-                    DataTable dt = new DataTable();
-                    dt.Load(dataReader);
-
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        LogData1 _part = new LogData1();
-                        _part.BatchName = dt.Rows[i]["BatchName"]?.ToString() ?? string.Empty;
-                        _part.PartName =  dt.Rows[i]["PartName"]?.ToString() ?? string.Empty;
-                        string ts = dt.Rows[i]["TimeStamp"]?.ToString() ?? string.Empty;
-                        if (!string.IsNullOrEmpty(ts) && DateTimeOffset.TryParse(ts, out DateTimeOffset dto))
-                        {
-                            _part.TimeStamp = dto.ToString("dd/MM/yy HH:mm:ss");
-                        }
-
-                        _part.ResultStatus = dt.Rows[i]["ResultStatus"]?.ToString() ?? string.Empty;
-                        _part.SrNo = dt.Rows[i]["SrNo"]?.ToString() ?? string.Empty;
-
-                        _part.Ch1Result = dt.Rows[i]["Ch1Result"]?.ToString() ?? string.Empty;
-                        _part.Ch2Result = dt.Rows[i]["Ch2Result"]?.ToString() ?? string.Empty;
-                        _part.Ch3Result = dt.Rows[i]["Ch3Result"]?.ToString() ?? string.Empty;
-                        _part.Ch4Result = dt.Rows[i]["Ch4Result"]?.ToString() ?? string.Empty;
-
-
-                        listOfLog.Add(_part);
-                    }
-
-                    grdlogs.ItemsSource = listOfLog; // .OrderBy(t => Convert.ToDateTime(t.LogStartDate)); ;
-                }
-            }
-            catch (Exception)
-            {
-
-            }
+                BatchNameFilter = txtBatchName.Text,
+                SerialNoFilter = txtSrNo.Text,
+                StartDate = clStartDate.SelectedDate,
+                EndDate = clToDate.SelectedDate
+            };
+            vm.LoadLogs();
+            listOfLog = vm.Logs.ToList();
+            grdlogs.ItemsSource = listOfLog;
         }
 
         private void btnDownload_MouseDown(object sender, MouseButtonEventArgs e)

@@ -76,54 +76,15 @@ namespace _8F
 
         public void LoadLogs()
         {
-            try
+            var vm = new _8F.ViewModels.LogsViewModel
             {
-                listOfLog = new List<LogData>();
-
-                using (var con = new NpgsqlConnection(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"]))
-                {
-                    //string sql = "select coalesce(dt1.\"LogDate\",dt2.\"LogDate\" ) as  \"LogDate\", coalesce(\"PassCount\", 0) as \"PassCount\",coalesce(\"FailCount\",0) as \"FailCount\" from (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"FailCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'false' group by \"Result\", \"TimeStamp\"::date) dt1 Full join (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"PassCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'true' group by \"Result\", \"TimeStamp\"::date) dt2 on dt1.\"LogDate\" = dt2.\"LogDate\";";
-
-                    string sql = "SELECT \r\n\"BatchName\", Min(\"TimeStamp\") as \"StartDate\", Max(\"TimeStamp\") as \"EndDate\",\r\n(select Count(1) from  public.\"Logs\" l1 where \"BatchName\" = l.\"BatchName\" and \"Result\" = 'true' ) as \"PassCount\"\r\n,(select Count(1) from  public.\"Logs\" l1 where \"BatchName\" = l.\"BatchName\" and \"Result\" = 'false' ) as \"FailCount\"\r\n\tFROM public.\"Logs\" l\r\n\tWhere \"BatchName\" like '%" + txtBatchName.Text + "%' AND \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' \r\n\tGroup By \"BatchName\"";
-
-                    con.Open();
-
-                    var cmd = new NpgsqlCommand(sql, con);
-                    var dataReader = cmd.ExecuteReader();
-
-                    DataTable dt = new DataTable();
-                    dt.Load(dataReader);
-
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        LogData _part = new LogData();
-                        _part.BatchName = dt.Rows[i]["BatchName"]?.ToString() ?? string.Empty;
-                        string sDate = dt.Rows[i]["StartDate"]?.ToString() ?? string.Empty;
-                        if (!string.IsNullOrEmpty(sDate) && DateTimeOffset.TryParse(sDate, out DateTimeOffset dto))
-                        {
-                            _part.LogStartDate = dto.ToString("dd/MM/yy HH:mm:ss");
-                        }
-
-                        string eDate = dt.Rows[i]["EndDate"]?.ToString() ?? string.Empty;
-                        if (!string.IsNullOrEmpty(eDate) && DateTimeOffset.TryParse(eDate, out DateTimeOffset dto1))
-                        {
-                            _part.LogEndDate = dto1.ToString("dd/MM/yy HH:mm:ss");
-                        }
-
-                        _part.PassCount = Convert.ToInt32(dt.Rows[i]["PassCount"]);
-                        _part.FailCount = Convert.ToInt32(dt.Rows[i]["FailCount"]);
-                        _part.TotalCount = _part.PassCount + _part.FailCount;
-                        listOfLog.Add(_part);
-                    }
-
-                    grdlogs.ItemsSource = listOfLog; // .OrderBy(t => Convert.ToDateTime(t.LogStartDate)); ;
-                }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Something went wrong. Please try again.");
-
-            }
+                BatchNameFilter = txtBatchName.Text,
+                StartDate = clStartDate.SelectedDate,
+                EndDate = clToDate.SelectedDate
+            };
+            vm.LoadLogs();
+            listOfLog = vm.Logs.ToList();
+            grdlogs.ItemsSource = listOfLog;
         }
 
         private void btnDownload_MouseDown(object sender, MouseButtonEventArgs e)
