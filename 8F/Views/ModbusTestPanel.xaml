@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Modbus TCP Slave Diagnostic Panel" Height="380" Width="480"
+        Title="Modbus TCP Slave Diagnostic Panel" Height="420" Width="520"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         Background="#F4F6F9">
 
@@ -19,35 +19,33 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#305371" Padding="12" CornerRadius="6" Margin="0,0,0,16">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock Text="Modbus TCP Slave (Holding Register 0)" Foreground="White" FontSize="16" FontWeight="Bold"/>
-            </StackPanel>
+        <Border Grid.Row="0" Background="#305371" Padding="12" CornerRadius="6" Margin="0,0,0,14">
+            <TextBlock Text="Modbus TCP Slave (Holding Register 0)" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
         </Border>
 
         <!-- Server Status -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16" HorizontalAlignment="Center">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,14">
             <TextBlock Text="Status: " FontSize="14" FontWeight="SemiBold" Foreground="#333333"/>
             <TextBlock Name="lblStatus" Text="Stopped" FontSize="14" FontWeight="Bold" Foreground="Red"/>
         </StackPanel>
 
         <!-- Register Read Display -->
-        <Border Grid.Row="2" Background="White" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="6" Padding="16" Margin="0,0,0,16">
+        <Border Grid.Row="2" Background="White" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="6" Padding="16" Margin="0,0,0,14">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Holding Register 0 (Address 40001 / Offset 0)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="Holding Register 0 (Address 0)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                     <TextBlock Name="lblRegisterValue" Text="0" FontSize="28" FontWeight="Bold" Foreground="#005A9E"/>
                 </StackPanel>
-                <Button Name="btnRefresh" Grid.Column="1" Content="Refresh" Width="80" Height="36" Click="btnRefresh_Click" Background="#305371" Foreground="White" FontWeight="Bold"/>
+                <Button Name="btnRefresh" Grid.Column="1" Content="Refresh" Width="90" Height="36" Click="btnRefresh_Click" Background="#305371" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
             </Grid>
         </Border>
 
         <!-- Register Write Section -->
-        <Border Grid.Row="3" Background="White" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="6" Padding="16">
+        <Border Grid.Row="3" Background="White" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="6" Padding="16" Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="Write New Register Value (0 - 65535):" FontSize="13" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,8"/>
                 <Grid>
@@ -57,12 +55,12 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBox Name="txtWriteValue" Grid.Column="0" Height="36" FontSize="14" Padding="8,6" VerticalContentAlignment="Center" Text="0"/>
-                    <Button Name="btnWrite" Grid.Column="2" Content="Write Register" Width="120" Height="36" Click="btnWrite_Click" Background="#28A745" Foreground="White" FontWeight="Bold"/>
+                    <Button Name="btnWrite" Grid.Column="2" Content="Write Register" Width="120" Height="36" Click="btnWrite_Click" Background="#28A745" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
                 </Grid>
             </StackPanel>
         </Border>
 
         <!-- Close Button -->
-        <Button Name="btnClose" Grid.Row="5" Content="Close" Width="100" Height="32" HorizontalAlignment="Right" Click="btnClose_Click" Margin="0,16,0,0"/>
+        <Button Name="btnClose" Grid.Row="5" Content="Close" Width="100" Height="34" HorizontalAlignment="Right" Click="btnClose_Click" Background="#6C757D" Foreground="White" FontWeight="SemiBold" Cursor="Hand"/>
     </Grid>
 </Window>
