@@ -21,3 +21,4 @@ $RECYCLE.BIN/
 ## Logs and temporary files
 *.log
 scratch/
+*.zip
