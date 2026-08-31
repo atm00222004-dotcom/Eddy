@@ -591,17 +591,6 @@ namespace _8F.ViewModels
                         LogAll logs = new LogAll();
                         logs.ShowDialog();
                     }
-                    else if (Header == "Modbus Diagnostic Panel")
-                    {
-                        if (mainWindow?.modbusSlaveService != null)
-                        {
-                            var panel = new ModbusTestPanel(mainWindow.modbusSlaveService)
-                            {
-                                Owner = mainWindow
-                            };
-                            panel.ShowDialog();
-                        }
-                    }
                 }
             }
         }

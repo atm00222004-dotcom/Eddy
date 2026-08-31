@@ -77,7 +77,7 @@ namespace _8F
             return bool.TryParse(val, out bool result) ? result : defaultValue;
         }
 
-        private static int GetConfigInt(string key, int defaultValue = 502)
+        private static int GetConfigInt(string key, int defaultValue = 5020)
         {
             string? val = System.Configuration.ConfigurationManager.AppSettings[key];
             if (string.IsNullOrWhiteSpace(val)) return defaultValue;
@@ -107,7 +107,7 @@ namespace _8F
         bool isExitEnable = GetConfigBool("IsExitEnable", true);
 
         public bool isModbusServerEnable = GetConfigBool("IsModbusServerEnable", false);
-        public int modbusServerPort = GetConfigInt("ModbusServerPort", 502);
+        public int modbusServerPort = GetConfigInt("ModbusServerPort", 5020);
         public IModbusSlaveService modbusSlaveService = new ModbusSlaveService();
 
         public bool isPasswordEnable = GetConfigBool("IsPasswordEnable", true);
@@ -260,6 +260,7 @@ namespace _8F
             {
                 try
                 {
+                    modbusSlaveService.RegisterValueChanged += OnModbusRegisterIdReceived;
                     modbusSlaveService.Start(modbusServerPort);
                 }
                 catch (Exception ex)
@@ -375,15 +376,7 @@ namespace _8F
                         isBatchWiseLogEnable ? new MenuItemViewModel { Header = "Batch Wise Log", mainWindow = this } : null,
                         (!isRenewConfig && isSerialNoLogEnable) ? new MenuItemViewModel { Header = "Serial Number Log", mainWindow = this } : null
                     }.OfType<MenuItemViewModel>())
-                },
-                isModbusServerEnable ? new MenuItemViewModel
-                {
-                    Header = "Modbus",
-                    MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
-                    {
-                        new MenuItemViewModel { Header = "Modbus Diagnostic Panel", mainWindow = this }
-                    }.OfType<MenuItemViewModel>())
-                } : null
+                }
             }.OfType<MenuItemViewModel>());
             DataContext = this;
 
@@ -2762,6 +2755,40 @@ namespace _8F
                     lblCode.Content = "";
                 }
             }
+        }
+
+        private void OnModbusRegisterIdReceived(object? sender, ushort profileId)
+        {
+            if (profileId == 0) return;
+
+            Dispatcher.Invoke(async () =>
+            {
+                try
+                {
+                    IConfigProfileRepository repo = new InspectionLogRepository();
+                    var dbChannels = await repo.GetConfigProfileAsync(profileId);
+                    if (dbChannels != null && dbChannels.Count > 0)
+                    {
+                        DeviceCOM.channelDatas = dbChannels;
+                        SelectCh1();
+                        ClearGraphData();
+                        var rat = ImplementChanges(0);
+                        if (!rat)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Modbus Auto-Load Profile #{profileId}: Configuration loaded, but no response from ECT instrument.");
+                        }
+                        lblConfigFileName.Content = $"DB: Profile #{profileId}";
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Modbus Auto-Load Profile #{profileId}: Profile #{profileId} not found in database.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error auto-loading Modbus DB Profile #{profileId}: {ex.Message}");
+                }
+            });
         }
     }
 

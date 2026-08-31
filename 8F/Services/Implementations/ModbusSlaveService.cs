@@ -1,4 +1,5 @@
 using NModbus;
+using NModbus.Data;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -16,7 +17,7 @@ namespace _8F.Services.Implementations
         private readonly object _lock = new();
 
         public bool IsRunning { get; private set; }
-        public int Port { get; private set; } = 502;
+        public int Port { get; private set; } = 5020;
 
         public event EventHandler<ushort>? RegisterValueChanged;
 
@@ -49,7 +50,7 @@ namespace _8F.Services.Implementations
             RegisterValueChanged?.Invoke(this, value);
         }
 
-        public void Start(int port = 502)
+        public void Start(int port = 5020)
         {
             if (IsRunning) return;
 
@@ -67,6 +68,15 @@ namespace _8F.Services.Implementations
 
                 // Initialize holding register at starting address 0
                 _slave.DataStore.HoldingRegisters.WritePoints(0, new ushort[] { 0 });
+
+                if (_slave.DataStore.HoldingRegisters is PointSource<ushort> ps)
+                {
+                    ps.AfterWrite += (s, e) =>
+                    {
+                        ushort val = ReadRegister();
+                        RegisterValueChanged?.Invoke(this, val);
+                    };
+                }
 
                 _slaveNetwork.AddSlave(_slave);
 

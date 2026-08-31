@@ -8,7 +8,7 @@ namespace _8F.Services.Interfaces
         int Port { get; }
         ushort ReadRegister();
         void WriteRegister(ushort value);
-        void Start(int port = 502);
+        void Start(int port = 5020);
         void Stop();
         event EventHandler<ushort>? RegisterValueChanged;
     }
