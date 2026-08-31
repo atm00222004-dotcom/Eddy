@@ -77,6 +77,13 @@ namespace _8F
             return bool.TryParse(val, out bool result) ? result : defaultValue;
         }
 
+        private static int GetConfigInt(string key, int defaultValue = 5020)
+        {
+            string? val = System.Configuration.ConfigurationManager.AppSettings[key];
+            if (string.IsNullOrWhiteSpace(val)) return defaultValue;
+            return int.TryParse(val, out int result) ? result : defaultValue;
+        }
+
         bool isRenewConfig = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isrenewconfig"]);
         bool isTestLogOff = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTestLogOff"]);
         bool isTxStrengthEnabled = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTxStrengthEnable"]);
@@ -98,6 +105,10 @@ namespace _8F
         public bool isExportConfigWithFile = GetConfigBool("IsExportConfigurationWithFile", false);
 
         bool isExitEnable = GetConfigBool("IsExitEnable", true);
+
+        public bool isModbusServerEnable = GetConfigBool("IsModbusServerEnable", false);
+        public int modbusServerPort = GetConfigInt("ModbusServerPort", 5020);
+        public IModbusSlaveService modbusSlaveService = new ModbusSlaveService();
 
         public bool isPasswordEnable = GetConfigBool("IsPasswordEnable", true);
         bool isChangeConfigEnable = GetConfigBool("IsChangeConfigurationEnable", true);
@@ -245,6 +256,19 @@ namespace _8F
 
             portCOM = new DeviceCOM();
 
+            if (isModbusServerEnable)
+            {
+                try
+                {
+                    modbusSlaveService.RegisterValueChanged += OnModbusRegisterIdReceived;
+                    modbusSlaveService.Start(modbusServerPort);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Modbus TCP Slave start notice: {ex.Message}");
+                }
+            }
+
             factor = Convert.ToDouble(System.Configuration.ConfigurationManager.AppSettings["Factor"]);
             DeviceCOM.DefaultWidth = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Width"]);
             DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Height"]);
@@ -308,7 +332,7 @@ namespace _8F
                 btnCh4.Visibility = Visibility.Visible;
             }
 
-            MenuItems = new ObservableCollection<MenuItemViewModel>
+            MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
             {
                 new MenuItemViewModel { Header = "File",
                     MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
@@ -352,8 +376,8 @@ namespace _8F
                         isBatchWiseLogEnable ? new MenuItemViewModel { Header = "Batch Wise Log", mainWindow = this } : null,
                         (!isRenewConfig && isSerialNoLogEnable) ? new MenuItemViewModel { Header = "Serial Number Log", mainWindow = this } : null
                     }.OfType<MenuItemViewModel>())
-                },
-            };
+                }
+            }.OfType<MenuItemViewModel>());
             DataContext = this;
 
             InitialGraphData(true);
@@ -2097,6 +2121,11 @@ namespace _8F
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            if (isModbusServerEnable && modbusSlaveService != null)
+            {
+                modbusSlaveService.Stop();
+            }
+
             if (portCOM == null) return;
             if (CommunicationType == 0)
             {
@@ -2726,6 +2755,40 @@ namespace _8F
                     lblCode.Content = "";
                 }
             }
+        }
+
+        private void OnModbusRegisterIdReceived(object? sender, ushort profileId)
+        {
+            if (profileId == 0) return;
+
+            Dispatcher.Invoke(async () =>
+            {
+                try
+                {
+                    IConfigProfileRepository repo = new InspectionLogRepository();
+                    var dbChannels = await repo.GetConfigProfileAsync(profileId);
+                    if (dbChannels != null && dbChannels.Count > 0)
+                    {
+                        DeviceCOM.channelDatas = dbChannels;
+                        SelectCh1();
+                        ClearGraphData();
+                        var rat = ImplementChanges(0);
+                        if (!rat)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Modbus Auto-Load Profile #{profileId}: Configuration loaded, but no response from ECT instrument.");
+                        }
+                        lblConfigFileName.Content = $"DB: Profile #{profileId}";
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Modbus Auto-Load Profile #{profileId}: Profile #{profileId} not found in database.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error auto-loading Modbus DB Profile #{profileId}: {ex.Message}");
+                }
+            });
         }
     }
 
