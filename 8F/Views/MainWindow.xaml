@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_8F"
+        xmlns:vm="clr-namespace:_8F.ViewModels"
         mc:Ignorable="d"
         WindowStyle="None"
         WindowState="Maximized" ResizeMode="NoResize" Closed="Window_Closed" KeyDown="Window_KeyDown"
@@ -36,7 +37,7 @@
                     </Style>
                 </Menu.ItemContainerStyle>
                 <Menu.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type local:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
+                    <HierarchicalDataTemplate DataType="{x:Type vm:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
                         <TextBlock Text="{Binding Header}"/>
                     </HierarchicalDataTemplate>
                 </Menu.ItemTemplate>
