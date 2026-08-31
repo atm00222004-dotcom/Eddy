@@ -77,6 +77,13 @@ namespace _8F
             return bool.TryParse(val, out bool result) ? result : defaultValue;
         }
 
+        private static int GetConfigInt(string key, int defaultValue = 502)
+        {
+            string? val = System.Configuration.ConfigurationManager.AppSettings[key];
+            if (string.IsNullOrWhiteSpace(val)) return defaultValue;
+            return int.TryParse(val, out int result) ? result : defaultValue;
+        }
+
         bool isRenewConfig = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isrenewconfig"]);
         bool isTestLogOff = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTestLogOff"]);
         bool isTxStrengthEnabled = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsTxStrengthEnable"]);
@@ -98,6 +105,10 @@ namespace _8F
         public bool isExportConfigWithFile = GetConfigBool("IsExportConfigurationWithFile", false);
 
         bool isExitEnable = GetConfigBool("IsExitEnable", true);
+
+        public bool isModbusServerEnable = GetConfigBool("IsModbusServerEnable", false);
+        public int modbusServerPort = GetConfigInt("ModbusServerPort", 502);
+        public IModbusSlaveService modbusSlaveService = new ModbusSlaveService();
 
         public bool isPasswordEnable = GetConfigBool("IsPasswordEnable", true);
         bool isChangeConfigEnable = GetConfigBool("IsChangeConfigurationEnable", true);
@@ -245,6 +256,18 @@ namespace _8F
 
             portCOM = new DeviceCOM();
 
+            if (isModbusServerEnable)
+            {
+                try
+                {
+                    modbusSlaveService.Start(modbusServerPort);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Modbus TCP Slave start notice: {ex.Message}");
+                }
+            }
+
             factor = Convert.ToDouble(System.Configuration.ConfigurationManager.AppSettings["Factor"]);
             DeviceCOM.DefaultWidth = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Width"]);
             DeviceCOM.DefaultHeight = Convert.ToInt16(System.Configuration.ConfigurationManager.AppSettings["Height"]);
@@ -308,7 +331,7 @@ namespace _8F
                 btnCh4.Visibility = Visibility.Visible;
             }
 
-            MenuItems = new ObservableCollection<MenuItemViewModel>
+            MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
             {
                 new MenuItemViewModel { Header = "File",
                     MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
@@ -353,7 +376,15 @@ namespace _8F
                         (!isRenewConfig && isSerialNoLogEnable) ? new MenuItemViewModel { Header = "Serial Number Log", mainWindow = this } : null
                     }.OfType<MenuItemViewModel>())
                 },
-            };
+                isModbusServerEnable ? new MenuItemViewModel
+                {
+                    Header = "Modbus",
+                    MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
+                    {
+                        new MenuItemViewModel { Header = "Modbus Diagnostic Panel", mainWindow = this }
+                    }.OfType<MenuItemViewModel>())
+                } : null
+            }.OfType<MenuItemViewModel>());
             DataContext = this;
 
             InitialGraphData(true);
@@ -2097,6 +2128,11 @@ namespace _8F
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            if (isModbusServerEnable && modbusSlaveService != null)
+            {
+                modbusSlaveService.Stop();
+            }
+
             if (portCOM == null) return;
             if (CommunicationType == 0)
             {
