@@ -113,5 +113,49 @@ namespace _8F.Tests
             Assert.True(result.Width > 0);
             Assert.True(result.Height > 0);
         }
+
+        [Fact]
+        public void FitEllipse_WithIdenticalPoints_DoesNotDivideByZeroOrReturnNaN()
+        {
+            var points = new List<(double X, double Y)>
+            {
+                (5.0, 5.0),
+                (5.0, 5.0),
+                (5.0, 5.0)
+            };
+
+            var result = EllipseFitter.FitEllipse("F1", 1, points);
+
+            Assert.True(result.IsValid);
+            Assert.Equal(3, result.SampleCount);
+            Assert.False(double.IsNaN(result.CenterX));
+            Assert.False(double.IsNaN(result.CenterY));
+            Assert.False(double.IsNaN(result.Width));
+            Assert.False(double.IsNaN(result.Height));
+            Assert.False(double.IsNaN(result.RotationAngle));
+        }
+
+        [Fact]
+        public void FitEllipse_WithVerticalPointCloud_BehavesSensiblyWithoutNaN()
+        {
+            var points = new List<(double X, double Y)>
+            {
+                (5.0, 1.0),
+                (5.0, 2.0),
+                (5.0, 3.0),
+                (5.0, 4.0),
+                (5.0, 5.0)
+            };
+
+            var result = EllipseFitter.FitEllipse("F1", 1, points);
+
+            Assert.True(result.IsValid);
+            Assert.Equal(5, result.SampleCount);
+            Assert.False(double.IsNaN(result.CenterX));
+            Assert.False(double.IsNaN(result.CenterY));
+            Assert.False(double.IsNaN(result.Width));
+            Assert.False(double.IsNaN(result.Height));
+            Assert.False(double.IsNaN(result.RotationAngle));
+        }
     }
 }
