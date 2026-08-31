@@ -10,7 +10,7 @@ namespace _8F.Tests
         [Fact]
         public async Task VerifyDatabaseTables()
         {
-            var repo = new InspectionLogRepository();
+            var repo = new InspectionLogRepository("Host=localhost;Port=5432;Username=postgres;Password=aryan123;Database=EddyShorter;Timeout=1;");
             var (isConnected, message) = await repo.TestConnectionAsync();
             Console.WriteLine($"DB Connection Test: IsConnected={isConnected}, Message={message}");
 

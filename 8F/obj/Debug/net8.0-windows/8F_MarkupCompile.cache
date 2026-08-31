@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-d:\New folder\Eddy\8F\obj\Debug\net8.0-windows\
+D:\New folder\Eddy\8F\obj\Debug\net8.0-windows\
 _8F
 none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
-d:\New folder\Eddy\8F\App.xaml
-19203293165
+D:\New folder\Eddy\8F\App.xaml
+19271742186
 11613912260
-42188769580
+772005858058
 210-2001612781
-AutoEllipse.xaml;ChannelRemappingWindow.xaml;CircleSetting.xaml;ExportProfilePickerWindow.xaml;Freq.xaml;Logs.xaml;LogsAll.xaml;MainWindow.xaml;MakeEllipseSelection.xaml;OpenSourceSelectionDialog.xaml;OperatorMaster.xaml;PartConfig.xaml;PartConfigReNew.xaml;PartFamilyMaster.xaml;PasswordDialog.xaml;RenewBatchWiseLog.xaml;Report.xaml;SaveProfileDialog.xaml;TestWindow.xaml;
+Views\AutoEllipse.xaml;Views\ChannelRemappingWindow.xaml;Views\CircleSetting.xaml;Views\ExportProfilePickerWindow.xaml;Views\Freq.xaml;Views\Logs.xaml;Views\LogsAll.xaml;Views\MainWindow.xaml;Views\MakeEllipseSelection.xaml;Views\OpenSourceSelectionDialog.xaml;Views\OperatorMaster.xaml;Views\PartConfig.xaml;Views\PartConfigReNew.xaml;Views\PartFamilyMaster.xaml;Views\PasswordDialog.xaml;Views\RenewBatchWiseLog.xaml;Views\Report.xaml;Views\SaveProfileDialog.xaml;Views\TestWindow.xaml;
 
 False
 

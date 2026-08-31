@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using _8F;
+using _8F.Models;
 using _8F.Services;
+using _8F.ViewModels;
 
 namespace _8F.Tests
 {
