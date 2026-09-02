@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -77,18 +77,18 @@ namespace _8F
             this.Close();
         }
 
-        private void btnConfigSave_Click(object sender, RoutedEventArgs e)
+        private async void btnConfigSave_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 gdFreq.CommitEdit();
                 //CollectionViewSource.GetDefaultView(gdFreq.ItemsSource)?.Refresh();
-                SaveData();
+                await SaveDataAsync();
                 //if (!IsSaved)
                 //    btnConfigSave_Click(sender, e);
 
                 IsSaved = true;
-                ((MainWindow)this.Owner).ImplementChanges(2);
+                await ((MainWindow)this.Owner).ImplementChanges(2);
 
             }
             catch (Exception ex)
@@ -108,7 +108,7 @@ namespace _8F
             clearLabelTimer.Stop(); // Stop the timer after clearing
         }
 
-        private void SaveData()
+        private async Task SaveDataAsync()
         {
             lblMsg.Content = "";
             var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted == true);
@@ -163,8 +163,8 @@ namespace _8F
             if (IsJSON)
             {
 
-                portCOM.WriteData(JsonConvert.SerializeObject(_mode));
-                rat = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+                await portCOM.WriteDataAsync(JsonConvert.SerializeObject(_mode));
+                rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(ellipseWrite));
             }
             else
             {
@@ -191,7 +191,7 @@ namespace _8F
                 data2[13] = (byte)((Convert.ToInt16(_mode.OE.ns) >> 8) & 0xFF);
 
 
-                portCOM.WriteDataInBytes(data2);
+                await portCOM.WriteDataInBytesAsync(data2);
 
                 int length1 = (ellipseWrite.FD.Count * 11) + 6;
                 byte[] data1 = new byte[length1];
@@ -224,7 +224,7 @@ namespace _8F
                     start1B = start1B + 11;
                 }
 
-                rat = portCOM.WriteDataInBytes(data1);
+                rat = await portCOM.WriteDataInBytesAsync(data1);
             }
 
 

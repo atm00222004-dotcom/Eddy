@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -56,11 +56,21 @@ namespace _8F
                 {
                     //string sql = "select coalesce(dt1.\"LogDate\",dt2.\"LogDate\" ) as  \"LogDate\", coalesce(\"PassCount\", 0) as \"PassCount\",coalesce(\"FailCount\",0) as \"FailCount\" from (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"FailCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'false' group by \"Result\", \"TimeStamp\"::date) dt1 Full join (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"PassCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'true' group by \"Result\", \"TimeStamp\"::date) dt2 on dt1.\"LogDate\" = dt2.\"LogDate\";";
 
-                    string sql = "SELECT \r\n\"BatchName\", Min(\"TimeStamp\") as \"StartDate\", Max(\"TimeStamp\") as \"EndDate\",\r\n(select Count(1) from  public.\"Logs\" l1 where \"BatchName\" = l.\"BatchName\" and \"Result\" = 'true' ) as \"PassCount\"\r\n,(select Count(1) from  public.\"Logs\" l1 where \"BatchName\" = l.\"BatchName\" and \"Result\" = 'false' ) as \"FailCount\"\r\n\tFROM public.\"Logs\" l\r\n\tWhere \"BatchName\" like '%" + txtBatchName.Text+ "%' AND \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' \r\n\tGroup By \"BatchName\"";
+                    string sql = "SELECT \"BatchName\", Min(\"TimeStamp\") as \"StartDate\", Max(\"TimeStamp\") as \"EndDate\", " +
+                                 "(select Count(1) from public.\"Logs\" l1 where \"BatchName\" = l.\"BatchName\" and \"Result\" = 'true') as \"PassCount\", " +
+                                 "(select Count(1) from public.\"Logs\" l1 where \"BatchName\" = l.\"BatchName\" and \"Result\" = 'false') as \"FailCount\" " +
+                                 "FROM public.\"Logs\" l " +
+                                 "WHERE \"BatchName\" LIKE @BatchName AND \"TimeStamp\" >= @StartDate AND \"TimeStamp\" <= @EndDate " +
+                                 "GROUP BY \"BatchName\"";
 
                     con.Open();
 
                     var cmd = new NpgsqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("@BatchName", "%" + (txtBatchName.Text ?? "") + "%");
+                    DateTime startDate = clStartDate.SelectedDate ?? (DateTime.TryParse(clStartDate.Text, out var sd) ? sd : DateTime.Now);
+                    DateTime endDate = (clToDate.SelectedDate ?? (DateTime.TryParse(clToDate.Text, out var ed) ? ed : DateTime.Now)).AddDays(1);
+                    cmd.Parameters.AddWithValue("@StartDate", startDate);
+                    cmd.Parameters.AddWithValue("@EndDate", endDate);
                     var dataReader = cmd.ExecuteReader();
 
                     DataTable dt = new DataTable();

@@ -19,8 +19,53 @@ namespace _8F
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    public class VisualHost : FrameworkElement
+    {
+        private readonly VisualCollection _children;
+        public DrawingVisual Visual { get; }
+
+        public VisualHost()
+        {
+            _children = new VisualCollection(this);
+            Visual = new DrawingVisual();
+            _children.Add(Visual);
+        }
+
+        protected override int VisualChildrenCount => _children.Count;
+        protected override Visual GetVisualChild(int index) => _children[index];
+    }
+
     public partial class MainWindow : Window
     {
+        private static readonly SolidColorBrush OrangeBrush = new SolidColorBrush(Colors.Orange);
+        private VisualHost traceVisualHost = new VisualHost();
+        private List<Point> tracePoints = new List<Point>();
+
+        static MainWindow()
+        {
+            OrangeBrush.Freeze();
+        }
+
+        private void RedrawTraceVisual()
+        {
+            using (DrawingContext dc = traceVisualHost.Visual.RenderOpen())
+            {
+                for (int i = 0; i < tracePoints.Count; i++)
+                {
+                    dc.DrawEllipse(OrangeBrush, null, tracePoints[i], 2.0, 2.0);
+                }
+            }
+        }
+
+        private void ClearTraceVisual()
+        {
+            tracePoints.Clear();
+            lastDrawnIndex = 0;
+            using (DrawingContext dc = traceVisualHost.Visual.RenderOpen())
+            {
+            }
+        }
+
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
         public CircleSetting ellipsesPop { get; set; }
         public PartConfig partConfig { get; set; }
@@ -38,6 +83,8 @@ namespace _8F
 
         int modeApp = 1;
         int mode = 1;
+        private int lastDrawnIndex = 0;
+        private int previousAction = 0;
         //bool IsBalanceAll = false;
         public SolidColorBrush disableColor = new SolidColorBrush(Colors.DarkGray);
         public SolidColorBrush enableColor = new SolidColorBrush(Colors.White);
@@ -54,6 +101,8 @@ namespace _8F
         {
 
             InitializeComponent();
+            cn2.Children.Clear();
+            cn2.Children.Add(traceVisualHost);
             
            
             DeviceCOM.cordinateQueue = new List<CordinateQueue>();
@@ -155,32 +204,7 @@ namespace _8F
             dispatcherTimerClear.Interval = TimeSpan.FromMilliseconds(FrameRetenTimeInMS);
             //dispatcherTimerClear.Start();
 
-            Status status = new Status() { FC = 23 };
-            bool rat = false;
-            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
-            DeviceCOM.IsJSON = IsJSON;
-            if (IsJSON)
-            {
-                rat = portCOM.GetSystemStatus(JsonConvert.SerializeObject(status));
-            }
-            else
-            {
-                byte[] data = new byte[5];
-                data[0] = Convert.ToByte(2);
-                data[1] = Convert.ToByte(23);
-                data[2] = Convert.ToByte(0);
-
-                rat = portCOM.GetSystemStatusInBytes(data);
-            }
-
-            if (DeviceCOM.IsSystemBusy || !rat)
-            {
-                ImplementChanges(1);
-            }
-            else
-            {
-                var ratval = ImplementChanges(0);
-            }
+            Loaded += async (s, e) => { await InitializeSystemAsync(); };
 
             IpAddress = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["IP"]);
             Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]);
@@ -204,20 +228,40 @@ namespace _8F
             }
 
         }
+        private static readonly System.Collections.Concurrent.BlockingCollection<byte[]> PacketQueue = new();
+
+        public static void EnqueueIncomingPacket(byte[] data)
+        {
+            if (data != null && data.Length > 0)
+            {
+                PacketQueue.Add(data);
+            }
+        }
+
         private void PollLoop()
         {
             while (true)
             {
-                if (DeviceCOM.receiveBytes != null && DeviceCOM.receiveBytes.Length > 0)
+                try
                 {
-                    var data = DeviceCOM.receiveBytes.ToArray();
-                    DeviceCOM.receiveBytes = null;
+                    if (PacketQueue.TryTake(out var data, 10))
+                    {
+                        processingQueue.Enqueue(data);
+                        TryStartProcessing();
+                    }
+                    else if (DeviceCOM.receiveBytes != null && DeviceCOM.receiveBytes.Length > 0)
+                    {
+                        var fallbackData = DeviceCOM.receiveBytes.ToArray();
+                        DeviceCOM.receiveBytes = null;
 
-                    processingQueue.Enqueue(data);
-                    TryStartProcessing(); // same logic as before
+                        processingQueue.Enqueue(fallbackData);
+                        TryStartProcessing();
+                    }
                 }
-
-                //Thread.Sleep(1); // adjust this depending on how fast you want to pol
+                catch (Exception)
+                {
+                    Thread.Sleep(10);
+                }
             }
         }
 
@@ -290,39 +334,25 @@ namespace _8F
                 //dispatcherTimerClear.Stop();
                 //dispatcherTimerClear.Start();
 
-                // If Receive Start Index 
-                if (action == 1)
+                lock (DeviceCOM.QueueLock)
                 {
-                    DeviceCOM.cordinateQueue.Clear();
+                    // If Receive Start Index or transition after previous part exit (action == 3 -> action == 2 fallback for dropped UDP action == 1)
+                    if (action == 1 || (action == 2 && previousAction == 3))
+                    {
+                        DeviceCOM.cordinateQueue.Clear();
+                        DeviceCOM.responses.Clear();
+                        DeviceCOM.IsTraceResetRequired = true;
+                        System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] NEW PART DETECTED (action={action}, previousAction={previousAction}): IsTraceResetRequired set to true.");
+                    }
+                    previousAction = action;
+
+                    DeviceCOM.cordinateQueue.RemoveAll(d => !d.IsRelevant);
+
+                    DeviceCOM.cordinateQueue.Add(
+                        new CordinateQueue() { cordinates = cordinates, IsRelevant = (action == 1 || action == 2 || action == 3), Action = action }
+                    );
+                    System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] QUEUE_ADD: action={action}, cordinateQueue.Count={DeviceCOM.cordinateQueue.Count}");
                 }
-
-                DeviceCOM.cordinateQueue.RemoveAll(d => !d.IsRelevant);
-
-                if (action == 3)
-                {
-                   
-                }
-
-                // Only add between start and end index. 
-                //if (action == 1 || action == 3)
-                //{
-                //    // Add to queue
-                //    DeviceCOM.cordinateQueue.Add(
-                //        new CordinateQueue() { cordinates = cordinates, IsRelevant = true, Action = action }
-                //    );
-                //}
-                DeviceCOM.cordinateQueue.Add(
-                    new CordinateQueue() { cordinates = cordinates, IsRelevant = (action == 1 || action == 2 || action == 3), Action = action }
-                );
-
-                // Keep only last 10 batches
-                //if (DeviceCOM.cordinateQueue.Count > FrameReten)
-                //{
-                //    DeviceCOM.cordinateQueue.RemoveRange(
-                //        0,
-                //        DeviceCOM.cordinateQueue.Count - FrameReten
-                //    );
-                //}
 
                 DeviceCOM.IsResponseRefreshRequired = true;
             }
@@ -389,85 +419,87 @@ namespace _8F
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            //if (!IsSerialmatch)
-            //{
-            //    CheckSerailNumber();
-            //}
-
-           
-
-            if (DeviceCOM.IsSystemBusy)
+            try
             {
-                brStatus.Background = new SolidColorBrush(Colors.Red);
-                if (mode == 0)
+                if (DeviceCOM.IsSystemBusy)
                 {
-                    if (DeviceCOM.busyStamp.AddSeconds(30) < System.DateTime.Now)
+                    brStatus.Background = new SolidColorBrush(Colors.Red);
+                    if (mode == 0)
                     {
-                        DeviceCOM.IsSystemBusy = false;                        
+                        if (DeviceCOM.busyStamp.AddSeconds(30) < System.DateTime.Now)
+                        {
+                            DeviceCOM.IsSystemBusy = false;                        
+                        }
                     }
-                }
-            }
-            else
-            {
-                brStatus.Background = new SolidColorBrush(Colors.Green);
-            }
-
-            if (DeviceCOM.IsResponseRefreshRequired)
-            {
-                cn2.Children.Clear();
-                RefreshResponse();
-
-                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
-
-                var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
-
-                lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
-                lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
-
-                DeviceCOM.IsResponseRefreshRequired = false;
-
-            }
-
-            if (DeviceCOM.IsResponseClearRequired)
-            {
-                
-                var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
-                if (DeviceCOM.IsBalanceAll)
-                {
-                    ClearGraphData();
                 }
                 else
                 {
-                    ClearGraphDataByChId(Convert.ToInt32(SChId));
+                    brStatus.Background = new SolidColorBrush(Colors.Green);
                 }
 
-                foreach (var ch in DeviceCOM.channelDatas)
+                if (DeviceCOM.IsResponseRefreshRequired)
                 {
-                    if (DeviceCOM.IsBalanceAll || ch.IsSeleted)
-                    {
-                        var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
-                        var res = JsonConvert.DeserializeObject<Response>(rData);
-                        res.CN = ch.Id;
-                        res.IsBalacenced = true;
-                        DeviceCOM.responses.Add(res);
-                    }
+                    RefreshResponse();
+
+                    var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+
+                    var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId);
+
+                    lblTCount2.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    lblOkCount2.Content = "OK Count - " + cnt.ResultOkCount.ToString();
+                    lblNotOkCount2.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+
+                    DeviceCOM.IsResponseRefreshRequired = false;
+
                 }
 
-                DeviceCOM.IsResponseRefreshRequired = true;
-                DeviceCOM.IsResponseClearRequired = false;
+                if (DeviceCOM.IsResponseClearRequired)
+                {
+                    
+                    var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
+                    if (DeviceCOM.IsBalanceAll)
+                    {
+                        ClearGraphData();
+                    }
+                    else
+                    {
+                        ClearGraphDataByChId(Convert.ToInt32(SChId));
+                    }
 
-            }
+                    foreach (var ch in DeviceCOM.channelDatas)
+                    {
+                        if (DeviceCOM.IsBalanceAll || ch.IsSeleted)
+                        {
+                            var rData = "{\"FC\":20,\"CN\":1,\"OR\":0,\"FD\":[{\"FN\":1,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":2,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":3,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":4,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":5,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":6,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":7,\"R\":0,\"X\":0,\"Y\":0},{\"FN\":8,\"R\":0,\"X\":0,\"Y\":0}]}";
+                            var res = JsonConvert.DeserializeObject<Response>(rData);
+                            res.CN = ch.Id;
+                            res.IsBalacenced = true;
+                            lock (DeviceCOM.QueueLock)
+                            {
+                                DeviceCOM.responses.Add(res);
+                            }
+                        }
+                    }
 
-            if (DeviceCOM.ERRCode == 16)
-            {
-                DeviceCOM.ERRCode = 0;
-                MessageBox.Show("Balance Operation failed, please reboot the board.", "Error Information");
+                    DeviceCOM.IsResponseRefreshRequired = true;
+                    DeviceCOM.IsResponseClearRequired = false;
+
+                }
+
+                if (DeviceCOM.ERRCode == 16)
+                {
+                    DeviceCOM.ERRCode = 0;
+                    MessageBox.Show("Balance Operation failed, please reboot the board.", "Error Information");
+                }
+                else if (DeviceCOM.ERRCode == 17)
+                {
+                    DeviceCOM.ERRCode = 0;
+                    MessageBox.Show("Test failed, please reconfigure and rebalance the board.", "Error Information");
+                }
             }
-            else if (DeviceCOM.ERRCode == 17)
+            catch (Exception ex)
             {
-                DeviceCOM.ERRCode = 0;
-                MessageBox.Show("Test failed, please reconfigure and rebalance the board.", "Error Information");
+                System.Diagnostics.Debug.WriteLine($"[dispatcherTimer_Tick] Error: {ex.Message}");
             }
         }
 
@@ -616,7 +648,37 @@ namespace _8F
             return graphDatas;
         }
 
-        public bool ImplementChanges(int ChangeType)
+        private async Task InitializeSystemAsync()
+        {
+            Status status = new Status() { FC = 23 };
+            bool rat = false;
+            var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
+            DeviceCOM.IsJSON = IsJSON;
+            if (IsJSON)
+            {
+                rat = await portCOM.GetSystemStatusAsync(JsonConvert.SerializeObject(status));
+            }
+            else
+            {
+                byte[] data = new byte[5];
+                data[0] = Convert.ToByte(2);
+                data[1] = Convert.ToByte(23);
+                data[2] = Convert.ToByte(0);
+
+                rat = await portCOM.GetSystemStatusInBytesAsync(data);
+            }
+
+            if (DeviceCOM.IsSystemBusy || !rat)
+            {
+                await ImplementChanges(1);
+            }
+            else
+            {
+                var ratval = await ImplementChanges(0);
+            }
+        }
+
+        public async Task<bool> ImplementChanges(int ChangeType)
         {
             var rat = false;
             var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
@@ -627,7 +689,7 @@ namespace _8F
                 
                 if (IsJSON)
                 {
-                    portCOM.WriteData(JsonConvert.SerializeObject(frequencyCount));                   
+                    await portCOM.WriteDataAsync(JsonConvert.SerializeObject(frequencyCount));                   
                 }
                 else
                 {
@@ -638,7 +700,7 @@ namespace _8F
                     data[3] = Convert.ToByte(chNo);
                     data[4] = Convert.ToByte(FrequencyNo);
 
-                    portCOM.WriteDataInBytes(data);
+                    await portCOM.WriteDataInBytesAsync(data);
                    
                 }
 
@@ -715,11 +777,11 @@ namespace _8F
                     {
                         if (IsJSON)
                         {
-                            portCOM.WriteData(JsonConvert.SerializeObject(_mode));
+                            await portCOM.WriteDataAsync(JsonConvert.SerializeObject(_mode));
 
-                            rat1 = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
-                            System.Threading.Thread.Sleep(500);
-                            rat2 = portCOM.WriteData(JsonConvert.SerializeObject(ellipseWrite));
+                            rat1 = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(frequencyWrite));
+                            await Task.Delay(500);
+                            rat2 = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(ellipseWrite));
                         }
                         else
                         {
@@ -745,9 +807,9 @@ namespace _8F
                             data2[13] = (byte)((Convert.ToInt16(_mode.OE.ns) >> 8) & 0xFF);
 
 
-                            portCOM.WriteDataInBytes(data2);
+                            await portCOM.WriteDataInBytesAsync(data2);
 
-                            System.Threading.Thread.Sleep(500);
+                            await Task.Delay(500);
                             int length = (frequencyWrite.FD.Count * 10) + 8;
                             byte[] data = new byte[length];
                             data[0] = Convert.ToByte(2);
@@ -782,8 +844,8 @@ namespace _8F
                                 data[startB + 1] = (byte)(firstFreq.PG & 0xFF);
                             }
 
-                            rat1 = portCOM.WriteDataInBytes(data);
-                            System.Threading.Thread.Sleep(500);
+                            rat1 = await portCOM.WriteDataInBytesAsync(data);
+                            await Task.Delay(500);
 
 
                             int length1 = (ellipseWrite.FD.Count * 11) + 6;
@@ -817,7 +879,7 @@ namespace _8F
                                 start1B = start1B + 11;
                             }
 
-                            rat2 = portCOM.WriteDataInBytes(data1);
+                            rat2 = await portCOM.WriteDataInBytesAsync(data1);
                         }
 
                         
@@ -1030,7 +1092,7 @@ namespace _8F
             }
         }
 
-        private void btnBalance_Click(object sender, RoutedEventArgs e)
+        private async void btnBalance_Click(object sender, RoutedEventArgs e)
         {
             if (DeviceCOM.IsSystemBusy)
             {
@@ -1052,7 +1114,7 @@ namespace _8F
                 var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
                 if (IsJSON)
                 {
-                    rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                    rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(balanceTest));
                 }
                 else
                 {
@@ -1062,7 +1124,7 @@ namespace _8F
                     data[2] = Convert.ToByte(1);
                     data[3] = Convert.ToByte(ChId);
 
-                    rat = portCOM.WriteDataInBytes(data);
+                    rat = await portCOM.WriteDataInBytesAsync(data);
                 }
                 if (rat)
                 {
@@ -1078,7 +1140,7 @@ namespace _8F
 
         }
 
-        private void btnTest_Click(object sender, RoutedEventArgs e)
+        private async void btnTest_Click(object sender, RoutedEventArgs e)
         {
             if (DeviceCOM.IsSystemBusy)
             {
@@ -1098,7 +1160,7 @@ namespace _8F
 
                 if (IsJSON)
                 {
-                    rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                    rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(balanceTest));
                 }
                 else
                 {
@@ -1108,7 +1170,7 @@ namespace _8F
                     data1[2] = Convert.ToByte(1);
                     data1[3] = Convert.ToByte(0);
 
-                    rat = portCOM.WriteDataInBytes(data1);
+                    rat = await portCOM.WriteDataInBytesAsync(data1);
                 }
 
                 if (!rat)
@@ -1145,7 +1207,7 @@ namespace _8F
             ClearGraphDataWithoutBalance(IsClearAll);
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private async void Window_Closed(object sender, EventArgs e)
         {
             if (CommunicationType == 0)
             {
@@ -1155,7 +1217,7 @@ namespace _8F
 
                 if (IsJSON)
                 {
-                    rat = portCOM.WriteData(JsonConvert.SerializeObject(exitData));
+                    rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(exitData));
                 }
                 else
                 {
@@ -1164,7 +1226,7 @@ namespace _8F
                     data[1] = Convert.ToByte(24);
                     data[2] = Convert.ToByte(0);
 
-                    rat = portCOM.WriteDataInBytes(data);
+                    rat = await portCOM.WriteDataInBytesAsync(data);
                 }
 
                 if (portCOM.port.IsOpen)
@@ -1175,52 +1237,100 @@ namespace _8F
         {
             if (IsClearAll)
             {
-                var balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced).ToList();
+                List<Response> balaceData;
+                lock (DeviceCOM.QueueLock)
+                {
+                    balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced).ToList();
+                }
                 ClearGraphData();
                 if (balaceData.Count > 0)
                 {
-                    DeviceCOM.responses.AddRange(balaceData);
+                    lock (DeviceCOM.QueueLock)
+                    {
+                        DeviceCOM.responses.AddRange(balaceData);
+                    }
                 }
             }
             else
             {
                 var SChId = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted)?.Id;
-                var balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced && r.CN == SChId).ToList();
+                List<Response> balaceData;
+                lock (DeviceCOM.QueueLock)
+                {
+                    balaceData = DeviceCOM.responses.Where(r => r.IsBalacenced && r.CN == SChId).ToList();
+                }
                 ClearGraphDataByChId(Convert.ToInt32(SChId));
                 if (balaceData.Count > 0)
                 {
-                    DeviceCOM.responses.AddRange(balaceData);
+                    lock (DeviceCOM.QueueLock)
+                    {
+                        DeviceCOM.responses.AddRange(balaceData);
+                    }
                 }
             }
-            DeviceCOM.cordinateQueue.Clear();
+            lock (DeviceCOM.QueueLock)
+            {
+                DeviceCOM.cordinateQueue.Clear();
+            }
+            cn2.Children.Clear();
+            if (!cn2.Children.Contains(traceVisualHost))
+            {
+                cn2.Children.Add(traceVisualHost);
+            }
+            ClearTraceVisual();
             DeviceCOM.IsResponseRefreshRequired = true;
         }
         public void ClearGraphData(bool IsDataClear = true)
         {
-            if (IsDataClear)
+            lock (DeviceCOM.QueueLock)
             {
-                DeviceCOM.responses = new List<Response>();
+                if (IsDataClear)
+                {
+                    DeviceCOM.responses = new List<Response>();
+                }
+                DeviceCOM.cordinateQueue.Clear();
             }
             cn1.Children.Clear();
             cn2.Children.Clear();
+            if (!cn2.Children.Contains(traceVisualHost))
+            {
+                cn2.Children.Add(traceVisualHost);
+            }
+            ClearTraceVisual();
             rResult1.Fill = new SolidColorBrush(Colors.White);
         }
         public void ClearGraphDataByChId(int chId)
         {
-            DeviceCOM.responses.RemoveAll(r => r.CN == chId);
+            lock (DeviceCOM.QueueLock)
+            {
+                DeviceCOM.responses.RemoveAll(r => r.CN == chId);
+                DeviceCOM.cordinateQueue.Clear();
+            }
 
             if (chId == 1)
             {
                 cn1.Children.Clear();
+                cn2.Children.Clear();
+                if (!cn2.Children.Contains(traceVisualHost))
+                {
+                    cn2.Children.Add(traceVisualHost);
+                }
+                ClearTraceVisual();
                 rResult1.Fill = new SolidColorBrush(Colors.White);
                 lblGraphXY1.Text = "";
             }
         }
         public void RefreshResponse()
         {
-            ClearGraphData(false);
+            cn1.Children.Clear();
             var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
-            var selectedChannelData = DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList();
+            List<Response> selectedChannelData;
+            lock (DeviceCOM.QueueLock)
+            {
+                selectedChannelData = selectedChannel != null
+                    ? DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList()
+                    : new List<Response>();
+            }
 
             foreach (var item in selectedChannelData)
             {
@@ -1310,17 +1420,41 @@ namespace _8F
                 }
             }
 
-            var cordinatesQ = DeviceCOM.cordinateQueue.ToList();
+            List<CordinateQueue> newItems;
+            int currentCount;
+            lock (DeviceCOM.QueueLock)
+            {
+                currentCount = DeviceCOM.cordinateQueue.Count;
+                if (DeviceCOM.IsTraceResetRequired)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] CLEAR_TRACE_VISUAL (IsTraceResetRequired): lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
+                    ClearTraceVisual();
+                    lastDrawnIndex = 0;
+                    DeviceCOM.IsTraceResetRequired = false;
+                }
+                else if (lastDrawnIndex > currentCount)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] CLEAR_TRACE_VISUAL (lastDrawnIndex > currentCount): lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
+                    ClearTraceVisual();
+                    lastDrawnIndex = 0;
+                }
+                int newCount = currentCount - lastDrawnIndex;
+                newItems = newCount > 0
+                    ? DeviceCOM.cordinateQueue.GetRange(lastDrawnIndex, newCount)
+                    : new List<CordinateQueue>();
+                lastDrawnIndex = currentCount;
+            }
 
-            // Add Data in Graph 
-            foreach (var q in cordinatesQ)
+            if (currentCount > 50000)
+            {
+                System.Diagnostics.Debug.WriteLine($"[WARNING] cordinateQueue count exceeded 50,000 points ({currentCount}). Possible stuck part stream.");
+            }
+
+            bool pointAdded = false;
+            foreach (var q in newItems)
             {
                 foreach (var item in q.cordinates)
                 {
-                    Ellipse el1 = new Ellipse();
-                    //el1.Name = "el1_" + q.cordinates.IndexOf(item).ToString();
-                    el1.Height = 4;
-                    el1.Width = 4;
                     var left = (item.X / factor);
                     var top = (item.Y * -1) / (factor);
                     if (left > (seqLength / 2))
@@ -1340,13 +1474,26 @@ namespace _8F
                     {
                         top = ((seqLength / 2) * -1);
                     }
-                    Canvas.SetLeft(el1, left - 2);
-                    Canvas.SetTop(el1, top - 2);
-                    el1.Fill = new SolidColorBrush(Colors.Orange);
-                    cn2.Children.Add(el1);
+
+                    tracePoints.Add(new Point(left, top));
+                    pointAdded = true;
                 }
             }
 
+            if (pointAdded)
+            {
+                System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] TRACE_POINTS_ADDED: newItems={newItems.Count}, total tracePoints={tracePoints.Count}, lastDrawnIndex={lastDrawnIndex}");
+            }
+
+            if (!cn2.Children.Contains(traceVisualHost))
+            {
+                cn2.Children.Add(traceVisualHost);
+            }
+
+            if (pointAdded || lastDrawnIndex == currentCount)
+            {
+                RedrawTraceVisual();
+            }
         }
 
         private void btnResetCounter_Click(object sender, RoutedEventArgs e)
@@ -1397,7 +1544,7 @@ namespace _8F
             }
         }
 
-        private void btnStop_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void btnStop_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Status status = new Status() { FC = 18 };
             bool rat = false;
@@ -1405,7 +1552,7 @@ namespace _8F
 
             if (IsJSON)
             {
-                rat = portCOM.WriteData(JsonConvert.SerializeObject(status));
+                rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(status));
             }
             else
             {
@@ -1414,11 +1561,11 @@ namespace _8F
                 data[1] = Convert.ToByte(18);
                 data[2] = Convert.ToByte(1);
                 data[3] = Convert.ToByte(chNo);
-                rat = portCOM.WriteDataInBytes(data);
+                rat = await portCOM.WriteDataInBytesAsync(data);
             }
         }
 
-        private void Window_KeyDown(object sender, KeyEventArgs e)
+        private async void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.B || e.Key == Key.Space || e.Key == Key.R)
             {
@@ -1435,7 +1582,7 @@ namespace _8F
                         var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
                         if (IsJSON)
                         {
-                            rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                            rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(balanceTest));
                         }
                         else
                         {
@@ -1445,7 +1592,7 @@ namespace _8F
                             data[2] = Convert.ToByte(1);
                             data[3] = Convert.ToByte(0);
 
-                            rat = portCOM.WriteDataInBytes(data);
+                            rat = await portCOM.WriteDataInBytesAsync(data);
                         }
                         if (rat)
                         {
@@ -1489,7 +1636,7 @@ namespace _8F
 
                         if (IsJSON)
                         {
-                            rat = portCOM.WriteData(JsonConvert.SerializeObject(balanceTest));
+                            rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(balanceTest));   
                         }
                         else
                         {
@@ -1499,7 +1646,7 @@ namespace _8F
                             data[2] = Convert.ToByte(1);
                             data[3] = Convert.ToByte(0);
 
-                            rat = portCOM.WriteDataInBytes(data);
+                            rat = await portCOM.WriteDataInBytesAsync(data);
                         }
                         if (!rat)
                         {
@@ -1566,7 +1713,9 @@ namespace _8F
             try
             {
                 // Complete the asynchronous receive operation and get the data
-                DeviceCOM.receiveBytes = u.EndReceive(ar, ref e);
+                byte[] receivedData = u.EndReceive(ar, ref e);
+                DeviceCOM.receiveBytes = receivedData;
+                MainWindow.EnqueueIncomingPacket(receivedData);
             }
             catch (ObjectDisposedException)
             {
@@ -1685,7 +1834,7 @@ namespace _8F
             }
         }
 
-        private void Execute()
+        private async void Execute()
         {
             // (NOTE: In a view model, you normally should not use MessageBox.Show()).
             //MessageBox.Show("Clicked at " + Header);
@@ -1722,7 +1871,7 @@ namespace _8F
                         try
                         {
                             var msg = "Configuation Write successfully!!";
-                            var rat = mainWindow.ImplementChanges(0);
+                            var rat = await mainWindow.ImplementChanges(0);
                             if (!rat)
                             {
                                 msg = "No response from the system, please reboot the board";
@@ -1756,7 +1905,7 @@ namespace _8F
                                 }
                             }
                         }
-                        var rat = mainWindow.ImplementChanges(0);
+                        var rat = await mainWindow.ImplementChanges(0);
                         var msg = "Channel-1 Configuration copied to others successfully!!";
                         if (!rat)
                         {
@@ -1862,7 +2011,7 @@ namespace _8F
                                 mainWindow.SelectCh1();
                                 mainWindow.ClearGraphData();
 
-                                var rat = mainWindow.ImplementChanges(0);
+                                var rat = await mainWindow.ImplementChanges(0);
                                 if (!rat)
                                 {
                                     var msg = "No response from the system, please reboot the board";
@@ -1885,7 +2034,7 @@ namespace _8F
                         this.mainWindow.filename = null;
                         mainWindow.InitialGraphData(false);
                         mainWindow.ClearGraphData();
-                        var rat = mainWindow.ImplementChanges(0);
+                        var rat = await mainWindow.ImplementChanges(0);
                         if (!rat)
                         {
                             var msg = "No response from the system, please reboot the board";
@@ -1918,19 +2067,19 @@ namespace _8F
         }
 
 
-        private void freqPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void freqPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (freqPop.IsSaved)
             {
-                mainWindow.ImplementChanges(1);
+                await mainWindow.ImplementChanges(1);
             }
         }
 
-        private void ellipsesPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void ellipsesPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (ellipsesPop.IsSaved)
             {
-                mainWindow.ImplementChanges(2);
+                await mainWindow.ImplementChanges(2);
             }
         }
     }

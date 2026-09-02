@@ -63,7 +63,7 @@ namespace _8F
             this.Close();
         }
 
-        private void btnConfigSave_Click(object sender, RoutedEventArgs e)
+        private async void btnConfigSave_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace _8F
                         var IsJSON = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsJSON"]);
                         if (IsJSON)
                         {
-                            rat = portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                            rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(frequencyWrite));
                         }
                         else
                         {
@@ -150,7 +150,7 @@ namespace _8F
                                 data[startB + 1] = (byte)(firstFreq.PG & 0xFF);              // Byte 11: PostGain (1B)
                             }
 
-                            rat = portCOM.WriteDataInBytes(data);
+                            rat = await portCOM.WriteDataInBytesAsync(data);
                         }
 
                         if (rat)

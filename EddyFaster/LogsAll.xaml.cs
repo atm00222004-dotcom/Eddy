@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -56,11 +56,24 @@ namespace _8F
                 {
                     //string sql = "select coalesce(dt1.\"LogDate\",dt2.\"LogDate\" ) as  \"LogDate\", coalesce(\"PassCount\", 0) as \"PassCount\",coalesce(\"FailCount\",0) as \"FailCount\" from (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"FailCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'false' group by \"Result\", \"TimeStamp\"::date) dt1 Full join (SELECT  \"TimeStamp\"::date as \"LogDate\", count (1) as \"PassCount\" FROM public.\"Logs\" where \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' AND \"Result\" = 'true' group by \"Result\", \"TimeStamp\"::date) dt2 on dt1.\"LogDate\" = dt2.\"LogDate\";";
 
-                    string sql = "SELECT \"BatchName\", \"PartName\", \"SrNo\", \"TimeStamp\",  CASE   WHEN \"Result\" = TRUE THEN 'OK'  ELSE 'Not OK'  END AS \"ResultStatus\", CASE   WHEN \"Ch1Result\" = TRUE THEN 'OK' WHEN Ch1Result IS NULL THEN 'NA'  ELSE 'Not OK'  END AS \"Ch1Result\", CASE   WHEN \"Ch2Result\" = TRUE THEN 'OK' WHEN Ch2Result IS NULL THEN 'NA'  ELSE 'Not OK'  END AS \"Ch2Result\", CASE   WHEN \"Ch3Result\" = TRUE THEN 'OK' WHEN Ch3Result IS NULL THEN 'NA'  ELSE 'Not OK'  END AS \"Ch3Result\", CASE   WHEN \"Ch4Result\" = TRUE THEN 'OK' WHEN Ch4Result IS NULL THEN 'NA'  ELSE 'Not OK'  END AS \"Ch4Result\" FROM public.\"Logs\" l\r\n\tWhere \"BatchName\" like '%" + txtBatchName.Text+ "%' AND \"SrNo\" like '%" + txtSrNo.Text+ "%' AND \"TimeStamp\" >= '" + clStartDate.Text + "' and \"TimeStamp\" <= '" + Convert.ToDateTime(clToDate.Text).AddDays(1).ToString() + "' ";
+                    string sql = "SELECT \"BatchName\", \"PartName\", \"SrNo\", \"TimeStamp\", " +
+                                 "CASE WHEN \"Result\" = TRUE THEN 'OK' ELSE 'Not OK' END AS \"ResultStatus\", " +
+                                 "CASE WHEN \"Ch1Result\" = TRUE THEN 'OK' WHEN Ch1Result IS NULL THEN 'NA' ELSE 'Not OK' END AS \"Ch1Result\", " +
+                                 "CASE WHEN \"Ch2Result\" = TRUE THEN 'OK' WHEN Ch2Result IS NULL THEN 'NA' ELSE 'Not OK' END AS \"Ch2Result\", " +
+                                 "CASE WHEN \"Ch3Result\" = TRUE THEN 'OK' WHEN Ch3Result IS NULL THEN 'NA' ELSE 'Not OK' END AS \"Ch3Result\", " +
+                                 "CASE WHEN \"Ch4Result\" = TRUE THEN 'OK' WHEN Ch4Result IS NULL THEN 'NA' ELSE 'Not OK' END AS \"Ch4Result\" " +
+                                 "FROM public.\"Logs\" l " +
+                                 "WHERE \"BatchName\" LIKE @BatchName AND \"SrNo\" LIKE @SrNo AND \"TimeStamp\" >= @StartDate AND \"TimeStamp\" <= @EndDate";
 
                     con.Open();
 
                     var cmd = new NpgsqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("@BatchName", "%" + (txtBatchName.Text ?? "") + "%");
+                    cmd.Parameters.AddWithValue("@SrNo", "%" + (txtSrNo.Text ?? "") + "%");
+                    DateTime startDate = clStartDate.SelectedDate ?? (DateTime.TryParse(clStartDate.Text, out var sd) ? sd : DateTime.Now);
+                    DateTime endDate = (clToDate.SelectedDate ?? (DateTime.TryParse(clToDate.Text, out var ed) ? ed : DateTime.Now)).AddDays(1);
+                    cmd.Parameters.AddWithValue("@StartDate", startDate);
+                    cmd.Parameters.AddWithValue("@EndDate", endDate);
                     var dataReader = cmd.ExecuteReader();
 
                     DataTable dt = new DataTable();

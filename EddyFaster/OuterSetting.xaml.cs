@@ -61,7 +61,7 @@ namespace _8F
             this.Close();
         }
 
-        private void btnConfigSave_Click(object sender, RoutedEventArgs e)
+        private async void btnConfigSave_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace _8F
 
                         Frequency frequency = new Frequency() { FN = Gdata.Id, F = Gdata.freq, G = Gdata.gain, P = Gdata.phase, ST = Gdata.txStrength, PG = Gdata.postGain, E = Gdata.isEnable ? 1 : 0 };
                         frequencyWrite.FD.Add(frequency);
-                        var rat =portCOM.WriteData(JsonConvert.SerializeObject(frequencyWrite));
+                        var rat = await portCOM.WriteDataAsync(JsonConvert.SerializeObject(frequencyWrite));
 
                         if (rat)
                         {

@@ -27,12 +27,14 @@ namespace _8F
     {
         public SerialPort port;
         public static List<ChannelData> channelDatas;
+        public static readonly object QueueLock = new object();
         public static List<Response> responses;
         public static List<CordinateQueue> cordinateQueue;
         public static bool IsResponseRefreshRequired = false;
         public static bool IsBalanceAll = false;
         public static bool IsBalanceBusyEnable = false;
         public static bool IsResponseClearRequired = false;
+        public static bool IsTraceResetRequired = false;
         public static int CommunicationType;
         public static string PortName;
         public static int BaudRate;
@@ -59,7 +61,6 @@ namespace _8F
 
         public static byte[] receiveBytes;
 
-        DispatcherTimer dispatcherTimer;
         TcpClient client;
         NetworkStream stream;
         public static bool PortAck = false ;
@@ -95,12 +96,8 @@ namespace _8F
             }
             else if (CommunicationType == 1)
             {
-                dispatcherTimer = new DispatcherTimer();
-                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                dispatcherTimer.Interval = new TimeSpan(10000000);
-                dispatcherTimer.Start();
-
-                client = new TcpClient();
+                client = new TcpClient { NoDelay = true };
+                StartTcpReceiveLoop();
             }
 
             if (counter == null)
@@ -124,45 +121,80 @@ namespace _8F
             }
 
         }
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
+
+        private System.Threading.CancellationTokenSource? _tcpCts;
+
+        public void StartTcpReceiveLoop()
         {
-            client.NoDelay = false;
-            if (!client.Connected)
+            _tcpCts?.Cancel();
+            _tcpCts = new System.Threading.CancellationTokenSource();
+            Task.Run(() => TcpReceiveLoopAsync(_tcpCts.Token));
+        }
+
+        public void StopTcpReceiveLoop()
+        {
+            _tcpCts?.Cancel();
+        }
+
+        private async Task TcpReceiveLoopAsync(System.Threading.CancellationToken cancellationToken)
+        {
+            byte[] buffer = new byte[8192];
+            while (!cancellationToken.IsCancellationRequested)
             {
-                client = new TcpClient();
-                IPAddress iPAddress = IPAddress.Parse(IpAddress);
-                var ipEndPoint = new IPEndPoint(iPAddress, SPort);
-                client.Connect(ipEndPoint);
-            }
-            if (client.Connected)
-            {
-                stream = client.GetStream();
-                if (stream.DataAvailable)
+                try
                 {
-                    try
+                    if (client == null)
                     {
-                        var buffer = new byte[client.Available];
-                        int received = stream.Read(buffer);
-                        var message = Encoding.UTF8.GetString(buffer, 0, received);
-                        new Thread(() =>
+                        client = new TcpClient { NoDelay = true };
+                    }
+                    client.NoDelay = true;
+
+                    if (!client.Connected)
+                    {
+                        try
                         {
-                            ProcessPortData(message);
-                        }).Start();
-
+                            IPAddress iPAddress = IPAddress.Parse(IpAddress);
+                            await client.ConnectAsync(iPAddress, SPort, cancellationToken);
+                            client.NoDelay = true;
+                        }
+                        catch
+                        {
+                            await Task.Delay(1000, cancellationToken);
+                            continue;
+                        }
                     }
-                    catch (Exception ex)
+
+                    if (client.Connected)
                     {
-
+                        stream = client.GetStream();
+                        int received = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                        if (received > 0)
+                        {
+                            var message = Encoding.UTF8.GetString(buffer, 0, received);
+                            Task.Run(() => ProcessPortData(message));
+                        }
+                        else
+                        {
+                            await Task.Delay(50, cancellationToken);
+                        }
                     }
-
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception)
+                {
+                    await Task.Delay(500, cancellationToken);
                 }
             }
         }
+
+
         private void serialPort_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             try
             {
-                System.Threading.Thread.Sleep(50);
                 SerialPort sp = (SerialPort)sender;
                 short[] data;
                 string indata = string.Empty;
@@ -189,7 +221,7 @@ namespace _8F
                         data = buffer.Select(b => (short)b).ToArray();
                     }
 
-                    new Thread(() =>
+                    Task.Run(() =>
                     {
                         if (IsJSON)
                         {
@@ -199,7 +231,7 @@ namespace _8F
                         {
                             ProcessPortDataBytpe(data);
                         }
-                    }).Start();
+                    });
                 }
 
             }
@@ -249,7 +281,15 @@ namespace _8F
 
                         if (ChannelNo >= res?.CN)
                         {
-                            responses.Add(res);
+                            lock (QueueLock)
+                            {
+                                responses.Add(res);
+                                if (responses.Count > 50)
+                                {
+                                    responses.RemoveRange(0, responses.Count - 50);
+                                }
+                                cordinateQueue.Clear();
+                            }
 
                             var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
                             if (res.OR == 1)
@@ -262,6 +302,7 @@ namespace _8F
                             }
                             cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             IsResponseRefreshRequired = true;
+                            IsTraceResetRequired = true;
 
                             //if (!string.IsNullOrEmpty(Code))
                             //{
@@ -331,7 +372,15 @@ namespace _8F
                     {
                         if (ChannelNo >= res?.CN)
                         {
-                            responses.Add(res);
+                            lock (QueueLock)
+                            {
+                                responses.Add(res);
+                                if (responses.Count > 50)
+                                {
+                                    responses.RemoveRange(0, responses.Count - 50);
+                                }
+                                cordinateQueue.Clear();
+                            }
 
                             var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
                             if (res.OR == 1)
@@ -344,6 +393,7 @@ namespace _8F
                             }
                             cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             IsResponseRefreshRequired = true;
+                            IsTraceResetRequired = true;
 
                             //if (!string.IsNullOrEmpty(Code))
                             //{
@@ -408,19 +458,20 @@ namespace _8F
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
                     if (ChId == 1)
                     {
-                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\",\"SrNo\", \"BatchNo\" , \"TimeStamp\")\r\n\t" +
-                            "VALUES (" +
-                            ChId + ", '" +
-                            Result + "', '" +
-                            fdData + "', '" +
-                            partData + "', '" +
-                            DeviceCOM.part.Name + "', '" +
-                            DeviceCOM.part.BatchName + "', '" +
-                            Code + "', " +
-                            DeviceCOM.part.BatchNo + ", '" +
-                            TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"BatchName\" = '" + DeviceCOM.part.BatchName + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
+                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\", \"SrNo\", \"BatchNo\", \"TimeStamp\") " +
+                              "VALUES (@ChId, @Result, @FDData, @PartData, @PartName, @BatchName, @SrNo, @BatchNo, @TimeStamp); " +
+                              "SELECT count(1) FROM public.\"Logs\" WHERE \"BatchName\" = @BatchName AND \"BatchNo\" = @BatchNo;";
 
                         var cmd = new NpgsqlCommand(sql, con);
+                        cmd.Parameters.AddWithValue("@ChId", ChId);
+                        cmd.Parameters.AddWithValue("@Result", Result.ToString());
+                        cmd.Parameters.AddWithValue("@FDData", fdData ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@PartData", partData ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@PartName", DeviceCOM.part?.Name ?? "");
+                        cmd.Parameters.AddWithValue("@BatchName", DeviceCOM.part?.BatchName ?? "");
+                        cmd.Parameters.AddWithValue("@SrNo", Code ?? "");
+                        cmd.Parameters.AddWithValue("@BatchNo", DeviceCOM.part?.BatchNo ?? 0);
+                        cmd.Parameters.AddWithValue("@TimeStamp", TimeStamp);
                         var count = cmd.ExecuteScalar();
 
                         if (DeviceCOM.part.BatchType == 1)
@@ -471,6 +522,42 @@ namespace _8F
             //Code = string.Empty;
         }
 
+        public static string GetCSVDirectoryPath()
+        {
+            string configPath = System.Configuration.ConfigurationSettings.AppSettings["CSVPath"]?.ToString();
+            if (!string.IsNullOrWhiteSpace(configPath))
+            {
+                try
+                {
+                    if (Directory.Exists(configPath))
+                    {
+                        return configPath;
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(configPath);
+                        if (Directory.Exists(configPath))
+                        {
+                            return configPath;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Specified path/drive is invalid or inaccessible
+                }
+            }
+
+            // Fallback path: %LOCALAPPDATA%\EddyFaster\Data
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string fallbackPath = System.IO.Path.Combine(localAppData, "EddyFaster", "Data");
+            if (!Directory.Exists(fallbackPath))
+            {
+                Directory.CreateDirectory(fallbackPath);
+            }
+            return fallbackPath;
+        }
+
         private static void WriteLogCSV(bool Result, DateTime TimeStamp, Response res)
         {
             try
@@ -480,8 +567,9 @@ namespace _8F
                 if (ch != null)
                 {
                     List<string> lines = new List<string>();
-                    var FileName = "EddyLog_" + System.DateTime.Now.ToShortDateString();
-                    string FilePath = System.Configuration.ConfigurationSettings.AppSettings["CSVPath"].ToString() + FileName + ".csv";
+                    var FileName = "EddyLog_" + System.DateTime.Now.ToString("yyyy-MM-dd");
+                    string csvDir = GetCSVDirectoryPath();
+                    string FilePath = System.IO.Path.Combine(csvDir, FileName + ".csv");
                     if (!File.Exists(FilePath))
                     {
                         string line = "TimeStamp,Code,Operator Name,Result";
@@ -517,8 +605,29 @@ namespace _8F
             }
         }
 
+        public Task<bool> WriteDataAsync(string data, bool isFrombak = false)
+        {
+            return Task.Run(() => WriteData(data, isFrombak));
+        }
+
+        public Task<bool> WriteDataInBytesAsync(byte[] data, bool isFrombak = false)
+        {
+            return Task.Run(() => WriteDataInBytes(data, isFrombak));
+        }
+
+        public Task<bool> GetSystemStatusAsync(string data)
+        {
+            return Task.Run(() => GetSystemStatus(data));
+        }
+
+        public Task<bool> GetSystemStatusInBytesAsync(byte[] data)
+        {
+            return Task.Run(() => GetSystemStatusInBytes(data));
+        }
+
         public bool WriteData(string data, bool isFrombak = false)
         {
+            bool success = false;
             try
             {
                 IsBalanceRequired = false;
@@ -583,38 +692,42 @@ namespace _8F
                         }
                     }
                     
-                    byte[] result = new byte[1];
-                    result[0] = Convert.ToByte(PortData[0]);
-
-                    if (result[0] == '0' || result[0] == '2' || result[0] == '3' || result[0] == '4')
+                    if (!string.IsNullOrEmpty(PortData) && PortData.Length > 0)
                     {
-                        if (result[0] == '2')
+                        byte[] result = new byte[1];
+                        result[0] = Convert.ToByte(PortData[0]);
+
+                        if (result[0] == '0' || result[0] == '2' || result[0] == '3' || result[0] == '4')
                         {
-                            DeviceCOM.IsSystemBusy = true;
-                            busyStamp = System.DateTime.Now;
+                            if (result[0] == '2')
+                            {
+                                DeviceCOM.IsSystemBusy = true;
+                                busyStamp = System.DateTime.Now;
+                            }
+                            else if (result[0] == '3')
+                            {
+                                IsBalanceRequired = true;
+                            }
+                            else if (result[0] == '4')
+                            {
+                                IsBinRequired = true;
+                            }
+                            success = true;
+                            return true;
                         }
-                        else if (result[0] == '3')
-                        {
-                            IsBalanceRequired = true;
-                        }
-                        else if (result[0] == '4')
-                        {
-                            IsBinRequired = true;
-                        }
-                        return true;
                     }
 
                     return false;
                 }
                 else if (CommunicationType == 1)
                 {
-                    dispatcherTimer.Stop();
                     if (!client.Connected)
                     {
-                        client = new TcpClient();
+                        client = new TcpClient { NoDelay = true };
                         IPAddress iPAddress = IPAddress.Parse(IpAddress);
                         var ipEndPoint = new IPEndPoint(iPAddress, SPort);
                         client.Connect(ipEndPoint);
+                        client.NoDelay = true;
                     }
 
                     if (client.Connected)
@@ -635,25 +748,37 @@ namespace _8F
                                     DeviceCOM.IsSystemBusy = true;
                                     busyStamp = System.DateTime.Now;
                                 }
+                                success = true;
                                 return true;
                             }
                         }
-                        dispatcherTimer.Start();
+                        success = true;
                         return true;
                     }
-                    dispatcherTimer.Start();
                     return false;
                 }
                 return false;
             }
             catch (Exception ex)
             {
-                if (CommunicationType == 1)
-                {
-                    dispatcherTimer.Start();
-                }
-
                 return false;
+            }
+            finally
+            {
+                PortAck = false;
+                PortData = "";
+                if (!success)
+                {
+                    IsSystemBusy = false;
+                    if (CommunicationType == 0 && port != null && port.IsOpen)
+                    {
+                        try
+                        {
+                            port.DiscardInBuffer();
+                        }
+                        catch { }
+                    }
+                }
             }
         }
 
@@ -694,24 +819,27 @@ namespace _8F
                         }
                     }
 
-                    byte[] result = new byte[1];
-                    result[0] = Convert.ToByte(PortData[0]);
-
-                    if (result[0] == 21)
+                    if (!string.IsNullOrEmpty(PortData) && PortData.Length > 0)
                     {
-                        DeviceCOM.IsSystemBusy = true;
-                        busyStamp = System.DateTime.Now;
+                        byte[] result = new byte[1];
+                        result[0] = Convert.ToByte(PortData[0]);
+
+                        if (result[0] == 21)
+                        {
+                            DeviceCOM.IsSystemBusy = true;
+                            busyStamp = System.DateTime.Now;
+                        }
                     }
                 }
                 else if (CommunicationType == 1)
                 {
-                    dispatcherTimer.Stop();
                     if (!client.Connected)
                     {
-                        client = new TcpClient();
+                        client = new TcpClient { NoDelay = true };
                         IPAddress iPAddress = IPAddress.Parse(IpAddress);
                         var ipEndPoint = new IPEndPoint(iPAddress, SPort);
                         client.Connect(ipEndPoint);
+                        client.NoDelay = true;
                     }
 
                     if (client.Connected)
@@ -723,23 +851,16 @@ namespace _8F
                         var buffer = new byte[client.Available];
                         int received = stream.Read(buffer);
                         stream.Flush();
-                        dispatcherTimer.Start();
                         if (buffer[0] == 21)
                         {
                             DeviceCOM.IsSystemBusy = true;
                         }
                     }
-                    dispatcherTimer.Start();
                 }
                 return true;
             }
             catch (Exception e)
             {
-                if (CommunicationType == 1)
-                {
-                    dispatcherTimer.Start();
-                }
-
                 return false;
             }
         }
@@ -767,12 +888,6 @@ namespace _8F
                 Thread.Sleep(100);
                 string sData = this.port.ReadExisting();
 
-                if (port.IsOpen)
-                {
-                    port.Close();
-                }
-
-                port.DataReceived += serialPort_DataReceived;
                 if (!port.IsOpen)
                 {
                     port.Open();
@@ -796,7 +911,7 @@ namespace _8F
 
         public bool WriteDataInBytes(byte[] data, bool isFrombak = false)
         {
-
+            bool success = false;
             try
             {
                 IsBalanceRequired = false;
@@ -870,25 +985,29 @@ namespace _8F
                         }
                     }
 
-                    byte[] result = new byte[1];
-                    result[0] = Convert.ToByte(PortData[0]);
-
-                    if (result[0] == '0' || result[0] == '2' || result[0] == '3' || result[0] == '4')
+                    if (!string.IsNullOrEmpty(PortData) && PortData.Length > 0)
                     {
-                        if (result[0] == '2')
+                        byte[] result = new byte[1];
+                        result[0] = Convert.ToByte(PortData[0]);
+
+                        if (result[0] == '0' || result[0] == '2' || result[0] == '3' || result[0] == '4')
                         {
-                            DeviceCOM.IsSystemBusy = true;
-                            busyStamp = System.DateTime.Now;
+                            if (result[0] == '2')
+                            {
+                                DeviceCOM.IsSystemBusy = true;
+                                busyStamp = System.DateTime.Now;
+                            }
+                            else if (result[0] == '3')
+                            {
+                                IsBalanceRequired = true;
+                            }
+                            else if (result[0] == '4')
+                            {
+                                IsBinRequired = true;
+                            }
+                            success = true;
+                            return true;
                         }
-                        else if (result[0] == '3')
-                        {
-                            IsBalanceRequired = true;
-                        }
-                        else if (result[0] == '4')
-                        {
-                            IsBinRequired = true;
-                        }
-                        return true;
                     }
 
                     return false;
@@ -897,12 +1016,24 @@ namespace _8F
             }
             catch (Exception ex)
             {
-                if (CommunicationType == 1)
-                {
-                    dispatcherTimer.Start();
-                }
-
                 return false;
+            }
+            finally
+            {
+                PortAck = false;
+                PortData = "";
+                if (!success)
+                {
+                    IsSystemBusy = false;
+                    if (CommunicationType == 0 && port != null && port.IsOpen)
+                    {
+                        try
+                        {
+                            port.DiscardInBuffer();
+                        }
+                        catch { }
+                    }
+                }
             }
         }
         public bool GetSystemStatusInBytes(byte[] data)
@@ -951,24 +1082,22 @@ namespace _8F
                         }
                     }
 
-                    byte[] result = new byte[1];
-                    result[0] = Convert.ToByte(PortData[1]);
-
-                    if (result[0] == 21)
+                    if (!string.IsNullOrEmpty(PortData) && PortData.Length > 1)
                     {
-                        DeviceCOM.IsSystemBusy = true;
-                        busyStamp = System.DateTime.Now;
+                        byte[] result = new byte[1];
+                        result[0] = Convert.ToByte(PortData[1]);
+
+                        if (result[0] == 21)
+                        {
+                            DeviceCOM.IsSystemBusy = true;
+                            busyStamp = System.DateTime.Now;
+                        }
                     }
                 }
                 return true;
             }
             catch (Exception e)
             {
-                if (CommunicationType == 1)
-                {
-                    dispatcherTimer.Start();
-                }
-
                 return false;
             }
         }

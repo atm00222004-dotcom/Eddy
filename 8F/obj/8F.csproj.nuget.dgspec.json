@@ -55,6 +55,10 @@
               "target": "Package",
               "version": "[4.6.1, )"
             },
+            "NModbus": {
+              "target": "Package",
+              "version": "[3.0.83, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
