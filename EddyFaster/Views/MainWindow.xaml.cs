@@ -354,7 +354,9 @@ namespace _8F.Views
                 {
                     // Start of new part: action == 2 (first sample of new part) OR action == 1 when starting test
                     bool isNewPartStart = (action == 2 && (!isPartActive || DeviceCOM.isWaitingForNextPart))
-                                       || (action == 1 && !isPartActive && !DeviceCOM.isWaitingForNextPart);
+                                       || (action == 1 && !isPartActive);
+
+                    _8F.Services.DiagnosticLogger.Log("INGEST_EVAL", $"Action={action}, isPartActive={isPartActive}, isWaitingForNextPart={DeviceCOM.isWaitingForNextPart}, isNewPartStart={isNewPartStart}");
 
                     if (isNewPartStart)
                     {
@@ -363,6 +365,7 @@ namespace _8F.Views
                         DeviceCOM.IsTraceResetRequired = true;
                         DeviceCOM.isWaitingForNextPart = false;
                         DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                        DeviceCOM.hasAlreadyClearedForThisDuplicate = false;
 
                         lastX = short.MinValue;
                         lastY = short.MinValue;
@@ -394,12 +397,15 @@ namespace _8F.Views
                             }
                         }
 
+                        _8F.Services.DiagnosticLogger.Log("INGEST_BRANCH", $"Action={action}, isPartActive={isPartActive}, cordinatesCount={cordinates.Count}");
+
                         if (cordinates.Count > 0)
                         {
                             DeviceCOM.cordinateQueue.Add(
                                 new CordinateQueue() { cordinates = cordinates, IsRelevant = true, Action = action }
                             );
                             DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                            DeviceCOM.hasAlreadyClearedForThisDuplicate = false;
                             _8F.Services.DiagnosticLogger.Log("QUEUE_ADD", $"Action={action}, AddedPts={cordinates.Count}, FirstPt=({cordinates[0].X},{cordinates[0].Y}), LastPt=({cordinates[cordinates.Count-1].X},{cordinates[cordinates.Count-1].Y}), TotalBatches={DeviceCOM.cordinateQueue.Count}");
                             System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] QUEUE_ADD: action={action}, cordinateQueue.Count={DeviceCOM.cordinateQueue.Count}");
                         }
@@ -1355,6 +1361,7 @@ namespace _8F.Views
                 }
                 DeviceCOM.cordinateQueue.Clear();
                 DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                DeviceCOM.hasAlreadyClearedForThisDuplicate = false;
             }
             lastEvaluatedResult.HasValue = false;
             cn1.Children.Clear();
@@ -1373,6 +1380,7 @@ namespace _8F.Views
                 DeviceCOM.responses.RemoveAll(r => r.CN == chId);
                 DeviceCOM.cordinateQueue.Clear();
                 DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                DeviceCOM.hasAlreadyClearedForThisDuplicate = false;
             }
 
             if (chId == 1)
@@ -1801,51 +1809,87 @@ namespace _8F.Views
 
         public UdpReceiver(int port)
         {
-            _remoteIpEndPoint = new IPEndPoint(IPAddress.Any, port);
-            _udpClient = new UdpClient(_remoteIpEndPoint);
-
-            Console.WriteLine($"Listening for UDP messages on port {port}...");
+            try
+            {
+                _remoteIpEndPoint = new IPEndPoint(IPAddress.Any, port);
+                _udpClient = new UdpClient(_remoteIpEndPoint);
+                _8F.Services.DiagnosticLogger.Log("UDP_BOUND", $"UDP socket bound successfully to port {port}");
+            }
+            catch (Exception ex)
+            {
+                _8F.Services.DiagnosticLogger.Log("UDP_BIND_ERR", $"Failed to bind UDP socket to port {port}: {ex}");
+            }
         }
 
         public void StartReceiving()
         {
-            UdpState s = new UdpState();
-            s.e = _remoteIpEndPoint;
-            s.u = _udpClient;
-            // Begin the asynchronous receive operation
-            _udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+            try
+            {
+                UdpState s = new UdpState();
+                s.e = _remoteIpEndPoint;
+                s.u = _udpClient;
+                _udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+                _8F.Services.DiagnosticLogger.Log("UDP_LISTEN_START", "UDP BeginReceive started successfully");
+            }
+            catch (Exception ex)
+            {
+                _8F.Services.DiagnosticLogger.Log("UDP_LISTEN_ERR", $"Failed to start UDP BeginReceive: {ex}");
+            }
         }
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            if (ar.AsyncState == null) return;
-            UdpClient u = ((UdpState)(ar.AsyncState)).u;
-            IPEndPoint? e = ((UdpState)(ar.AsyncState)).e;
+            UdpClient? u = null;
+            IPEndPoint? e = null;
 
             try
             {
-                // Complete the asynchronous receive operation and get the data
-                byte[] receivedData = u.EndReceive(ar, ref e!);
-                DeviceCOM.receiveBytes = receivedData;
-                MainWindow.EnqueueIncomingPacket(receivedData);
+                if (ar.AsyncState is UdpState state)
+                {
+                    u = state.u;
+                    e = state.e;
+                }
+
+                if (u != null)
+                {
+                    byte[] receivedData = u.EndReceive(ar, ref e!);
+                    _8F.Services.DiagnosticLogger.Log("RAW_UDP_RECV", $"Received {receivedData.Length} bytes from {e}");
+                    DeviceCOM.receiveBytes = receivedData;
+                    MainWindow.EnqueueIncomingPacket(receivedData);
+                }
+                else
+                {
+                    _8F.Services.DiagnosticLogger.Log("UDP_REC_ERR", "ReceiveCallback AsyncState was null or invalid UdpState");
+                }
             }
             catch (ObjectDisposedException)
             {
-                // Handle cases where the UdpClient might have been closed
-                Console.WriteLine("UdpClient was disposed.");
+                _8F.Services.DiagnosticLogger.Log("UDP_DISPOSED", "UdpClient was disposed.");
                 return;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during receive: {ex.Message}");
+                _8F.Services.DiagnosticLogger.Log("UDP_REC_ERR", $"Full Exception in ReceiveCallback: {ex.GetType().FullName}: {ex.Message}\nStack: {ex.StackTrace}");
             }
             finally
             {
-                // Restart listening for the next datagram
-                UdpState s = new UdpState();
-                s.e = e; // Use the updated IPEndPoint for the next receive
-                s.u = u;
-                u.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+                try
+                {
+                    if (u != null)
+                    {
+                        UdpState s = new UdpState { e = e, u = u };
+                        u.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+                    }
+                    else if (_udpClient != null)
+                    {
+                        UdpState s = new UdpState { e = _remoteIpEndPoint, u = _udpClient };
+                        _udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _8F.Services.DiagnosticLogger.Log("UDP_RESTART_ERR", $"Error restarting BeginReceive in finally: {ex}");
+                }
             }
         }
 

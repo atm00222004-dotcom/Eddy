@@ -36,6 +36,7 @@ namespace _8F
         public static bool IsResponseClearRequired = false;
         public static bool IsTraceResetRequired = false;
         public static bool hasCurrentTraceBeenEvaluated = false;
+        public static bool hasAlreadyClearedForThisDuplicate = false;
         public static bool isCurrentPartEvaluated = false;
         public static bool isWaitingForNextPart = false;
         public static int CommunicationType;
@@ -293,16 +294,6 @@ namespace _8F
                                     responses.RemoveRange(0, responses.Count - 5000);
                                 }
 
-                                if (hasCurrentTraceBeenEvaluated)
-                                {
-                                    cordinateQueue.Clear();
-                                    IsTraceResetRequired = true;
-                                    _8F.Services.DiagnosticLogger.Log("DECOUPLE_TRACE", $"Stale trace cleared on duplicate FC20 evaluation (CN={res.CN})");
-                                }
-                                else
-                                {
-                                    hasCurrentTraceBeenEvaluated = true;
-                                }
                             }
 
                             var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
@@ -403,13 +394,18 @@ namespace _8F
 
                                 if (hasCurrentTraceBeenEvaluated)
                                 {
-                                    cordinateQueue.Clear();
-                                    IsTraceResetRequired = true;
-                                    _8F.Services.DiagnosticLogger.Log("DECOUPLE_TRACE", $"Stale trace cleared on duplicate FC20 evaluation (CN={res.CN})");
+                                    if (!hasAlreadyClearedForThisDuplicate)
+                                    {
+                                        cordinateQueue.Clear();
+                                        IsTraceResetRequired = true;
+                                        hasAlreadyClearedForThisDuplicate = true;
+                                        _8F.Services.DiagnosticLogger.Log("DECOUPLE_TRACE", $"Stale trace cleared on duplicate FC20 evaluation (CN={res.CN})");
+                                    }
                                 }
                                 else
                                 {
                                     hasCurrentTraceBeenEvaluated = true;
+                                    hasAlreadyClearedForThisDuplicate = false;
                                 }
                             }
 
