@@ -1,0 +1,14 @@
+<Window x:Class="_8F.Views.Report"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_8F"
+        mc:Ignorable="d"
+        Title="Window1" 
+        ResizeMode="NoResize" Height="600" WindowStartupLocation="CenterScreen"  Width="950"  WindowState="Normal"  WindowStyle="ToolWindow"
+        >
+    <Border Name="brRef" Margin="3" Background="#DBDBDB" Grid.Column="1" Grid.Row="2" BorderBrush="#DBDBDB" BorderThickness="1" CornerRadius="20">
+        <WebBrowser Source="http://localhost:3000/Eddy" />
+    </Border>
+</Window>
