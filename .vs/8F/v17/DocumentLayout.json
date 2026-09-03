@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "D:\\New folder\\Eddy\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\diagnostic_freeze.log||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\diagnostic_freeze.log||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\devicecom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\devicecom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\diagnostic_freeze.log||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|solutionrelative:eddyfaster\\diagnostic_freeze.log||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{69C9E8AC-BE56-11AE-DD7C-80876BA529A0}|EddyFaster\\EddyFaster.csproj|d:\\new folder\\eddy\\eddyfaster\\views\\logs.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -279,11 +279,11 @@
       "DocumentGroups": [
         {
           "DockedHeight": 196,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "DeviceCOM.cs",
               "DocumentMoniker": "D:\\New folder\\Eddy\\EddyFaster\\DeviceCOM.cs",
               "RelativeDocumentMoniker": "EddyFaster\\DeviceCOM.cs",
@@ -323,7 +323,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "D:\\New folder\\Eddy\\EddyFaster\\Views\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "EddyFaster\\Views\\MainWindow.xaml.cs",
@@ -336,13 +336,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "diagnostic_freeze.log",
               "DocumentMoniker": "D:\\New folder\\Eddy\\EddyFaster\\diagnostic_freeze.log",
               "RelativeDocumentMoniker": "EddyFaster\\diagnostic_freeze.log",
               "ToolTip": "D:\\New folder\\Eddy\\EddyFaster\\diagnostic_freeze.log",
               "RelativeToolTip": "EddyFaster\\diagnostic_freeze.log",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAAABcAAABnAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2026-09-03T06:57:27.182Z",
               "EditorCaption": ""
@@ -355,7 +355,7 @@
               "RelativeDocumentMoniker": "EddyFaster\\Services\\DiagnosticLogger.cs",
               "ToolTip": "D:\\New folder\\Eddy\\EddyFaster\\Services\\DiagnosticLogger.cs",
               "RelativeToolTip": "EddyFaster\\Services\\DiagnosticLogger.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAUwCEAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAUwCQAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-03T06:57:07.742Z",
               "EditorCaption": ""
