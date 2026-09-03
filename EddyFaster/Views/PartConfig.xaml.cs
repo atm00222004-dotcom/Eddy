@@ -1,0 +1,188 @@
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+
+namespace _8F.Views
+{
+    /// <summary>
+    /// Interaction logic for Window1.xaml
+    /// </summary>
+    public partial class PartConfig : Window
+    {
+        public bool IsSaved = false;
+        public PartConfig()
+        {
+            InitializeComponent();
+            if (DeviceCOM.part == null )
+                DeviceCOM.part = new Part();
+
+            var batchTypes = new List<string>();
+            batchTypes.Add("Manual");
+            batchTypes.Add("Auto");
+            ddlBatchType.ItemsSource = batchTypes;
+            if (DeviceCOM.part.BatchType == 0)
+            {
+                ddlBatchType.SelectedIndex = 0;
+            }
+            else
+            {
+                ddlBatchType.SelectedIndex = 1;
+            }
+            txtBatchName.Text = DeviceCOM.part.BatchName;
+            txtPartName.Text = DeviceCOM.part.Name;
+            txtGrade.Text = DeviceCOM.part.Grade;
+            txtCheckedBy.Text = DeviceCOM.part.CheckedBy;
+            txtCompanyName.Text = DeviceCOM.part.CompanyName;
+            txtBatchSize.Text = DeviceCOM.part.BatchSize.ToString();
+            txtBatchNo.Text = DeviceCOM.part.BatchNo.ToString();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnConfigSave_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var msg = Validaton();
+                if (msg.Count == 0)
+                {
+                    DeviceCOM.part.BatchName = txtBatchName.Text;
+                    DeviceCOM.part.Name = txtPartName.Text;
+                    DeviceCOM.part.Grade = txtGrade.Text;
+                    DeviceCOM.part.CheckedBy = txtCheckedBy.Text;
+                    DeviceCOM.part.CompanyName = txtCompanyName.Text;
+                    DeviceCOM.part.BatchType = ddlBatchType.SelectedIndex;
+                    DeviceCOM.part.BatchSize= string.IsNullOrEmpty(txtBatchSize.Text) ? 0 : Convert.ToInt16(txtBatchSize.Text);
+                    DeviceCOM.part.BatchNo = string.IsNullOrEmpty(txtBatchNo.Text) ? 0 :  Convert.ToInt16(txtBatchNo.Text);
+                    DeviceCOM.IsLogEnable = true;
+                    IsSaved = true;
+                    lblMsg.Content = "Log has been started!!!";
+                }
+                else
+                {
+                    lblMsg.Content = "Validatoin Error:-";
+                    foreach (var m in msg)
+                    {
+                        lblMsg.Content = lblMsg.Content + "\r\n" + (msg.IndexOf(m) + 1).ToString() + ". " + m;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                lblMsg.Content = "Error while saving the Configuration!!!";
+            }
+        }
+
+        public List<String> Validaton()
+        {
+            List<String> validationMsg = new List<string>();
+            if (string.IsNullOrEmpty(txtBatchName.Text))
+            {
+                validationMsg.Add("Batch Name is required.");
+            }
+            if (string.IsNullOrEmpty(txtPartName.Text))
+            {
+                validationMsg.Add("Part Name is required.");
+            }
+            
+            if (string.IsNullOrEmpty(txtGrade.Text))
+            {
+                validationMsg.Add("Grade is required.");
+            }
+            
+
+            if (string.IsNullOrEmpty(txtCompanyName.Text))
+            {
+                validationMsg.Add("Company Name is required.");
+            }
+
+            if (string.IsNullOrEmpty(txtCheckedBy.Text))
+            {
+                validationMsg.Add("Checked By is required.");
+            }
+
+            if (DeviceCOM.part.BatchType == 0)
+            {
+                if (string.IsNullOrEmpty(txtBatchNo.Text))
+                {
+                    validationMsg.Add("Batch No is required and sould be greater than 0");
+                }
+                else
+                {
+                    if (Convert.ToInt16(txtBatchNo.Text) <= 0)
+                    {
+                        validationMsg.Add("Batch No is required and sould be greater than 0");
+                    }
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(txtBatchSize.Text))
+                {
+                    validationMsg.Add("Batch Size is required and sould be greater than 0");
+                }
+                else
+                {
+                    if (Convert.ToInt16(txtBatchSize.Text) <= 0)
+                    {
+                        validationMsg.Add("Batch Size is required and sould be greater than 0");
+                    }
+                }
+            }
+            
+
+            return validationMsg;
+        }
+
+        
+
+        private void PreviewTextInput_NumericOnly(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void PreviewTextInput_NumericWithNegativeOnly(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("^[0-9]+([0-9]-)+$");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void ddlBatchType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count == 0 || e.AddedItems[0] == null) return;
+            var text = e.AddedItems[0]!.ToString();
+            if (text == "Manual")
+            {
+                lblBatchSize.Visibility = Visibility.Hidden;
+                txtBatchSize.Visibility = Visibility.Hidden;
+                lblBatchNo.Visibility = Visibility.Visible;
+                txtBatchNo.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                lblBatchSize.Visibility = Visibility.Hidden;
+                txtBatchSize.Visibility = Visibility.Hidden;
+                lblBatchNo.Visibility = Visibility.Hidden;
+                txtBatchNo.Visibility = Visibility.Hidden;
+                txtBatchNo.Text = "1";
+            }
+        }
+    }
+}

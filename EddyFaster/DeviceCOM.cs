@@ -18,27 +18,29 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-
-
+using _8F.Models;
 
 namespace _8F
 {
-    public class DeviceCOM
+    public class DeviceCOM : IDeviceCommunication, IInspectionLogger
     {
-        public SerialPort port;
-        public static List<ChannelData> channelDatas;
+        public static readonly IInspectionLogger Logger = new InspectionLogger();
+        public SerialPort port = default!;
+        public static List<ChannelData> channelDatas = default!;
         public static readonly object QueueLock = new object();
-        public static List<Response> responses;
-        public static List<CordinateQueue> cordinateQueue;
+        public static List<Response> responses = default!;
+        public static List<CordinateQueue> cordinateQueue = default!;
         public static bool IsResponseRefreshRequired = false;
         public static bool IsBalanceAll = false;
         public static bool IsBalanceBusyEnable = false;
         public static bool IsResponseClearRequired = false;
         public static bool IsTraceResetRequired = false;
+        public static bool isCurrentPartEvaluated = false;
+        public static bool isWaitingForNextPart = false;
         public static int CommunicationType;
-        public static string PortName;
+        public static string PortName = default!;
         public static int BaudRate;
-        public static string IpAddress;
+        public static string IpAddress = default!;
         public static int SPort;
         public static int ChannelNo = 4;
         public static int DefaultHeight = 0;
@@ -46,23 +48,23 @@ namespace _8F
         public static int DefaultHeight_O = 0;
         public static int DefaultWidth_O = 0;
         public static int DefaultAngel_O = 0;
-        public static string ConnectionString;
+        public static string ConnectionString = default!;
         public static bool IsLogEnable = false;
         public static bool IsSystemBusy = false;
         public static DateTime busyStamp = System.DateTime.Now; 
-        public static Part part;
-        public static List<Counter> counter;
+        public static Part part = default!;
+        public static List<Counter> counter = default!;
         public static bool IsLogDisable = false;
         public static bool IsBalanceRequired = false;
         public static bool IsBinRequired = false;
         public static int ERRCode = 0;
-        public static string Code;
+        public static string Code = default!;
         public static bool IsJSON = false;
 
-        public static byte[] receiveBytes;
+        public static byte[] receiveBytes = default!;
 
-        TcpClient client;
-        NetworkStream stream;
+        TcpClient client = default!;
+        NetworkStream stream = default!;
         public static bool PortAck = false ;
         public static string PortData = "";
         private ManualResetEvent _ackEvent = new ManualResetEvent(false);
@@ -171,7 +173,7 @@ namespace _8F
                         if (received > 0)
                         {
                             var message = Encoding.UTF8.GetString(buffer, 0, received);
-                            Task.Run(() => ProcessPortData(message));
+                            _ = Task.Run(() => ProcessPortData(message));
                         }
                         else
                         {
@@ -235,7 +237,7 @@ namespace _8F
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -250,6 +252,7 @@ namespace _8F
 
                     if (indata[1] == 19)
                     {
+                        isCurrentPartEvaluated = false;
                         IsResponseClearRequired = true;
                     }
                     else if (indata[1] == 20)
@@ -268,8 +271,8 @@ namespace _8F
                             fd.R = indata[6 + (i * 6)];
 
                             int offset = 7 + (i * 6);
-                            short x = (short)(indata[offset] | (indata[offset + 1] << 8));
-                            short y = (short)(indata[offset + 2] | (indata[offset + 3] << 8));
+                            short x = (short)((ushort)indata[offset] | (ushort)(indata[offset + 1] << 8));
+                            short y = (short)((ushort)indata[offset + 2] | (ushort)(indata[offset + 3] << 8));
                             fd.X = x;
                             fd.Y = y;
 
@@ -284,25 +287,29 @@ namespace _8F
                             lock (QueueLock)
                             {
                                 responses.Add(res);
-                                if (responses.Count > 50)
+                                if (responses.Count > 5000)
                                 {
-                                    responses.RemoveRange(0, responses.Count - 50);
+                                    responses.RemoveRange(0, responses.Count - 5000);
                                 }
-                                cordinateQueue.Clear();
+                                // cordinateQueue.Clear();
                             }
 
                             var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
-                            if (res.OR == 1)
+                            if (cnt != null)
                             {
-                                cnt.ResultOkCount = cnt.ResultOkCount + 1;
+                                if (res.OR == 1)
+                                {
+                                    cnt.ResultOkCount = cnt.ResultOkCount + 1;
+                                }
+                                else
+                                {
+                                    cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
+                                }
+                                cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             }
-                            else
-                            {
-                                cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
-                            }
-                            cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
+                            isWaitingForNextPart = true;
                             IsResponseRefreshRequired = true;
-                            IsTraceResetRequired = true;
+                            // IsTraceResetRequired = true;
 
                             //if (!string.IsNullOrEmpty(Code))
                             //{
@@ -351,7 +358,7 @@ namespace _8F
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -364,36 +371,43 @@ namespace _8F
                 {
                     var res = JsonConvert.DeserializeObject<Response>(indata);
 
-                    if (res.FC == 19)
+                    if (res != null)
                     {
-                        IsResponseClearRequired = true;
-                    }
-                    else if (res.FC == 20)
+                        if (res.FC == 19)
+                        {
+                            isCurrentPartEvaluated = false;
+                            IsResponseClearRequired = true;
+                        }
+                        else if (res.FC == 20)
                     {
-                        if (ChannelNo >= res?.CN)
+                        if (ChannelNo >= res.CN)
                         {
                             lock (QueueLock)
                             {
                                 responses.Add(res);
-                                if (responses.Count > 50)
+                                if (responses.Count > 5000)
                                 {
-                                    responses.RemoveRange(0, responses.Count - 50);
+                                    responses.RemoveRange(0, responses.Count - 5000);
                                 }
-                                cordinateQueue.Clear();
+                                // cordinateQueue.Clear();
                             }
 
                             var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
-                            if (res.OR == 1)
+                            if (cnt != null)
                             {
-                                cnt.ResultOkCount = cnt.ResultOkCount + 1;
+                                if (res.OR == 1)
+                                {
+                                    cnt.ResultOkCount = cnt.ResultOkCount + 1;
+                                }
+                                else
+                                {  
+                                    cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
+                                }
+                                cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
                             }
-                            else
-                            {  
-                                cnt.ResultOkNotCount = cnt.ResultOkNotCount + 1;
-                            }
-                            cnt.ResultCount = cnt.ResultOkCount + cnt.ResultOkNotCount;
+                            isWaitingForNextPart = true;
                             IsResponseRefreshRequired = true;
-                            IsTraceResetRequired = true;
+                            // IsTraceResetRequired = true;
 
                             //if (!string.IsNullOrEmpty(Code))
                             //{
@@ -434,12 +448,13 @@ namespace _8F
                         }
                     }
                 }
+                }
                 else
                 {
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -447,162 +462,22 @@ namespace _8F
 
         public void WriteLog(int ChId, bool Result, DateTime TimeStamp, Response res)
         {
-            try
-            {
-                using (var con = new NpgsqlConnection(ConnectionString))
-                {
-                    string sql = string.Empty;
-                    con.Open();
-                    var fdData = JsonConvert.SerializeObject(DeviceCOM.channelDatas.FirstOrDefault(r => r.Id == ChId).graphDatas);
-
-                    var partData = JsonConvert.SerializeObject(DeviceCOM.part);
-                    if (ChId == 1)
-                    {
-                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\", \"SrNo\", \"BatchNo\", \"TimeStamp\") " +
-                              "VALUES (@ChId, @Result, @FDData, @PartData, @PartName, @BatchName, @SrNo, @BatchNo, @TimeStamp); " +
-                              "SELECT count(1) FROM public.\"Logs\" WHERE \"BatchName\" = @BatchName AND \"BatchNo\" = @BatchNo;";
-
-                        var cmd = new NpgsqlCommand(sql, con);
-                        cmd.Parameters.AddWithValue("@ChId", ChId);
-                        cmd.Parameters.AddWithValue("@Result", Result.ToString());
-                        cmd.Parameters.AddWithValue("@FDData", fdData ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@PartData", partData ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@PartName", DeviceCOM.part?.Name ?? "");
-                        cmd.Parameters.AddWithValue("@BatchName", DeviceCOM.part?.BatchName ?? "");
-                        cmd.Parameters.AddWithValue("@SrNo", Code ?? "");
-                        cmd.Parameters.AddWithValue("@BatchNo", DeviceCOM.part?.BatchNo ?? 0);
-                        cmd.Parameters.AddWithValue("@TimeStamp", TimeStamp);
-                        var count = cmd.ExecuteScalar();
-
-                        if (DeviceCOM.part.BatchType == 1)
-                        {
-                            if (Convert.ToInt32(count) == DeviceCOM.part.BatchSize)
-                            {
-                                // stop the logging 
-                            }
-
-                            DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
-                        }
-                    }
-                    else
-                    {
-                        if (!Result)
-                        {
-                            sql = "update public.\"Logs\"  set \"Result\" = 'false' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
-                            var cmd = new NpgsqlCommand(sql, con);
-                            var count = cmd.ExecuteScalar();
-                        }
-
-                        //if (ChId == 2)
-                        //{
-                        //    sql = "update public.\"Logs\"  set \"Ch2Result\" = '"+ Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
-                        //    var cmd = new NpgsqlCommand(sql, con);
-                        //    var count = cmd.ExecuteScalar();
-                        //}
-                        //else if (ChId == 3)
-                        //{
-                        //    sql = "update public.\"Logs\"  set \"Ch3Result\" = '" + Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
-                        //    var cmd = new NpgsqlCommand(sql, con);
-                        //    var count = cmd.ExecuteScalar();
-                        //}
-                        //else if (ChId == 4)
-                        //{
-                        //    sql = "update public.\"Logs\"  set \"Ch4Result\" = '" + Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
-                        //    var cmd = new NpgsqlCommand(sql, con);
-                        //    var count = cmd.ExecuteScalar();
-                        //}
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-
-            //Code = string.Empty;
+            Logger.WriteLog(ChId, Result, TimeStamp, res);
         }
 
         public static string GetCSVDirectoryPath()
         {
-            string configPath = System.Configuration.ConfigurationSettings.AppSettings["CSVPath"]?.ToString();
-            if (!string.IsNullOrWhiteSpace(configPath))
-            {
-                try
-                {
-                    if (Directory.Exists(configPath))
-                    {
-                        return configPath;
-                    }
-                    else
-                    {
-                        Directory.CreateDirectory(configPath);
-                        if (Directory.Exists(configPath))
-                        {
-                            return configPath;
-                        }
-                    }
-                }
-                catch
-                {
-                    // Specified path/drive is invalid or inaccessible
-                }
-            }
-
-            // Fallback path: %LOCALAPPDATA%\EddyFaster\Data
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string fallbackPath = System.IO.Path.Combine(localAppData, "EddyFaster", "Data");
-            if (!Directory.Exists(fallbackPath))
-            {
-                Directory.CreateDirectory(fallbackPath);
-            }
-            return fallbackPath;
+            return Logger.GetCSVDirectoryPath();
         }
 
-        private static void WriteLogCSV(bool Result, DateTime TimeStamp, Response res)
+        string IInspectionLogger.GetCSVDirectoryPath()
         {
-            try
-            {
-                // Write to CSV File
-                var ch = DeviceCOM.channelDatas.FirstOrDefault(c => c.Id == res.CN);
-                if (ch != null)
-                {
-                    List<string> lines = new List<string>();
-                    var FileName = "EddyLog_" + System.DateTime.Now.ToString("yyyy-MM-dd");
-                    string csvDir = GetCSVDirectoryPath();
-                    string FilePath = System.IO.Path.Combine(csvDir, FileName + ".csv");
-                    if (!File.Exists(FilePath))
-                    {
-                        string line = "TimeStamp,Code,Operator Name,Result";
-                        foreach (var fd in ch.graphDatas)
-                        {
-                            line = line + ",Frequency Result_" + fd.Id.ToString() + ",Frequency_" + fd.Id.ToString();
-                        }
-                        lines.Add(line);
-                    }
+            return Logger.GetCSVDirectoryPath();
+        }
 
-                    string data = System.DateTime.Now.ToString() + ","+ Code.Replace("\n", "").Replace("\r","") + "," + DeviceCOM.part.CheckedBy + "," + (Result == true ? "Ok" : "No Ok");
-
-                    foreach (var fd in res.FD)
-                    {
-                        var Gdata = ch.graphDatas.FirstOrDefault(d => d.Id == fd.FN);
-                        if (Gdata != null)
-                        {
-                            data = data + "," + (fd.R == 1 ? "Ok" : "No Ok") + "," + Gdata.freq.ToString();
-                        }
-                    }
-
-                    lines.Add(data);
-
-                    if (lines.Count > 0)
-                    {
-                        File.AppendAllLines(FilePath, lines);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
+        public void WriteLogCSV(bool Result, DateTime TimeStamp, Response res)
+        {
+            Logger.WriteLogCSV(Result, TimeStamp, res);
         }
 
         public Task<bool> WriteDataAsync(string data, bool isFrombak = false)
@@ -759,7 +634,7 @@ namespace _8F
                 }
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -859,7 +734,7 @@ namespace _8F
                 }
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
@@ -895,13 +770,16 @@ namespace _8F
                 
                 if (!string.IsNullOrEmpty(sData))
                 {
-                    getSerialNumber = JsonConvert.DeserializeObject<GetSerialNumber>(sData);
-                    getSerialNumber.S1 = setSerialNumber.S1;
-                    getSerialNumber.S2 = setSerialNumber.S2;
-
+                    var parsed = JsonConvert.DeserializeObject<GetSerialNumber>(sData);
+                    if (parsed != null)
+                    {
+                        getSerialNumber = parsed;
+                        getSerialNumber.S1 = setSerialNumber.S1;
+                        getSerialNumber.S2 = setSerialNumber.S2;
+                    }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 
             }
@@ -1014,7 +892,7 @@ namespace _8F
                 }
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -1096,7 +974,7 @@ namespace _8F
                 }
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
@@ -1129,195 +1007,6 @@ namespace _8F
 
 
     }
-    public class ChannelData
-    {
-        public int Id = 0;
-        public bool IsSeleted = false;
-        public List<GraphData> graphDatas;
-    }
-
-    public class Counter
-    {
-        public int Id = 0;
-        public int ResultCount = 0;
-        public int ResultOkCount = 0;
-        public int ResultOkNotCount = 0;
-    }
-    public class GraphData
-    {
-        public int Id = 0;
-        public string Name = "D";
-        public int sol = 400;
-        public int freq = 2000;
-        public int gain = 35;
-        public int phase = 0;
-        public int txStrength = 100;
-        public int strength { get => txStrength; set => txStrength = value; }
-        public int postGain = 60;
-        public bool isEnable = true;
-        public double height = DeviceCOM.DefaultHeight;
-        public double width = DeviceCOM.DefaultWidth;
-        public double ex = 30;
-        public double ey = 30;
-        public double angel = 30;
-        public List<Ellips> ellipses = new List<Ellips>();
-
-        public double height_O = DeviceCOM.DefaultHeight_O;
-        public double width_O = DeviceCOM.DefaultWidth_O;
-        public double ex_O = 0;
-        public double ey_O = 0;
-        public double angel_O = DeviceCOM.DefaultAngel_O;
-        public double NG = DeviceCOM.DefaultAngel_O;
-    }
-    public class Ellips
-    {
-        public int Id = 0;
-        public double height = DeviceCOM.DefaultHeight;
-        public double width = DeviceCOM.DefaultWidth;
-        public double ex = 0;
-        public double ey = 0;
-        public double angel = 0;
-    }
-
-    public class EllipsDTO
-    {
-        public int Id { get; set; }
-        public double height { get; set; }
-        public double width { get; set; }
-        public double ex { get; set; }
-        public double ey { get; set; }
-        public double angel { get; set; }
-        public string ColorName { get; set; }
-    }
-    
-    public class Response
-    {
-        public int FC;
-        public int CN;
-        public int OR;
-        public bool IsBalacenced = false;
-        public List<FreqResult> FD;
-        public int ERR { get; set; }
-    }
-    public class FreqResult
-    {
-        public int FN;
-        public int R;
-        public int X;
-        public int Y;
-    }
-
-    public class Cordinate
-    {
-        public int X;
-        public int Y;
-    }
-    public class CordinateQueue
-    {
-        public List<Cordinate> cordinates { get; set; }
-        public bool IsRelevant { get; set; }
-        public int Action { get; set; }
-    }
-
-    public class FrequencyWrite
-    {
-        public int FC;
-        public int CN;
-        public int S;
-        public List<Frequency> FD;
-    }
-    public class Frequency
-    {
-        public int FN;
-        public int F;        
-        public int G;
-        public int P;
-        public int E;
-        public int ST;
-        public int PG;
-        
-    }
-    public class Frequ
-    {
-        public int FN;
-        public List<Elliplse> ED;
-    }
-    public class ElliplseWrite
-    {
-        public int FC;
-        public int CN;
-        public List<Frequ> FD;
-    }
-    public class Elliplse
-    {
-        public int FN;
-        public int EId;
-        public double a;
-        public double b;
-        public double t;
-        public int x;
-        public int y;
-    }
-    public class FrequencyCount
-    {
-        public int FC;
-        public int C;
-        public int NC;
-    }
-    public class Mode
-    {
-        public int FC;
-        public int M;
-        public OuterElliplse OE;
-    }
-
-    public class OuterElliplse
-    {
-        public double a;
-        public double b;
-        public double t;
-        public double s;
-        public double ns;
-    }
-
-    public class Status
-    {
-        public int FC;        
-    }
-    public class BalanceTest
-    {
-        public int FC;
-        public int CN;
-    }
-
-    public class Part
-    {
-        public string BatchName = "";
-        public string Name = "";
-        public string Grade = "";
-        public string CheckedBy = "";
-        public string CompanyName = "";
-        public int BatchType= 1;
-        public int BatchSize = 5;
-        public int BatchNo = 1;
-    }
-
-    public class SetSerialNumber
-    {
-        public int FC;
-        public int S1;
-        public int S2;
-    }
-
-
-    public class GetSerialNumber
-    {
-        public int FC;
-        public string S;
-        public int S1;
-        public int S2;
-    }
-
     public class MyColor
     {
         public static string GetColorName(int index)
@@ -1401,30 +1090,6 @@ namespace _8F
 
     }
 
-    public class LogData
-    {
-        public string BatchName { get; set; }
-        public string LogStartDate { get; set; }
-        public string LogEndDate { get; set; }
-        public int PassCount { get; set; }
-        public int FailCount { get; set; }
-        public int TotalCount { get; set; }
-
-    }
-
-    public class LogData1
-    {
-        public string BatchName { get; set; }
-        public string PartName { get; set; }
-        public string SrNo { get; set; }
-        public string TimeStamp { get; set; }
-        public string ResultStatus { get; set; }
-        public string Ch1Result { get; set; }
-        public string Ch2Result { get; set; }
-        public string Ch3Result { get; set; }
-        public string Ch4Result { get; set; }
-
-    }
 
     public class SerialPortManager
     {

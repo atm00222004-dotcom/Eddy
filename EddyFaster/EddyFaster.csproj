@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -13,16 +13,17 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql" Version="8.0.3" />
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Report.xaml.cs">
+    <Compile Update="Views\Report.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="PartConfig.xaml.cs">
+    <Compile Update="Views\PartConfig.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="CircleSetting.xaml.cs">
+    <Compile Update="Views\CircleSetting.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
