@@ -1375,11 +1375,22 @@ namespace _8F.Views
                 cn1.Children.Clear();
                 var selectedChannel = DeviceCOM.channelDatas.FirstOrDefault(c => c.IsSeleted);
                 List<Response> selectedChannelData;
+                Cordinate? lastStreamedCoord = null;
                 lock (DeviceCOM.QueueLock)
                 {
                     selectedChannelData = selectedChannel != null
                         ? DeviceCOM.responses.Where(r => r.CN == selectedChannel.Id).ToList()
                         : new List<Response>();
+
+                    for (int i = DeviceCOM.cordinateQueue.Count - 1; i >= 0; i--)
+                    {
+                        var batch = DeviceCOM.cordinateQueue[i];
+                        if (batch?.cordinates != null && batch.cordinates.Count > 0)
+                        {
+                            lastStreamedCoord = batch.cordinates[batch.cordinates.Count - 1];
+                            break;
+                        }
+                    }
                 }
 
                 foreach (var item in selectedChannelData)
@@ -1423,20 +1434,53 @@ namespace _8F.Views
                                 el1.Fill = new SolidColorBrush(Colors.Blue);
                                 el1.Width = 6;
                                 el1.Height = 6;
-                                Canvas.SetLeft(el1, left - 3);
-                                Canvas.SetTop(el1, top - 3);
 
-                                lastEvaluatedResult.Left = left - 3;
-                                lastEvaluatedResult.Top = top - 3;
-                                lastEvaluatedResult.X = fd.X;
-                                lastEvaluatedResult.Y = fd.Y;
+                                int evalX = fd.X;
+                                int evalY = fd.Y;
+                                double evalLeft = left;
+                                double evalTop = top;
+
+                                if (lastStreamedCoord != null)
+                                {
+                                    evalX = lastStreamedCoord.X;
+                                    evalY = lastStreamedCoord.Y;
+                                    evalLeft = (evalX / factor);
+                                    evalTop = (evalY * -1) / (factor);
+                                    if (evalLeft > (seqLength / 2)) evalLeft = (seqLength / 2);
+                                    if (evalTop > (seqLength / 2)) evalTop = (seqLength / 2);
+                                    if (evalLeft < ((seqLength / 2) * -1)) evalLeft = ((seqLength / 2) * -1);
+                                    if (evalTop < ((seqLength / 2) * -1)) evalTop = ((seqLength / 2) * -1);
+                                }
+                                else if (tracePoints.Count > 0)
+                                {
+                                    var lastPt = tracePoints[tracePoints.Count - 1];
+                                    evalLeft = lastPt.X;
+                                    evalTop = lastPt.Y;
+                                    evalX = (int)Math.Round(evalLeft * factor);
+                                    evalY = (int)Math.Round(evalTop * factor * -1);
+                                }
+                                else if (lastEvaluatedResult.HasValue)
+                                {
+                                    evalLeft = lastEvaluatedResult.Left + 3;
+                                    evalTop = lastEvaluatedResult.Top + 3;
+                                    evalX = lastEvaluatedResult.X;
+                                    evalY = lastEvaluatedResult.Y;
+                                }
+
+                                Canvas.SetLeft(el1, evalLeft - 3);
+                                Canvas.SetTop(el1, evalTop - 3);
+
+                                lastEvaluatedResult.Left = evalLeft - 3;
+                                lastEvaluatedResult.Top = evalTop - 3;
+                                lastEvaluatedResult.X = evalX;
+                                lastEvaluatedResult.Y = evalY;
                                 lastEvaluatedResult.OR = item.OR;
                                 lastEvaluatedResult.HasValue = true;
 
                                 btnOverallResult2.Background = (item.OR == 1)
                                     ? new SolidColorBrush(Colors.Green)
                                     : new SolidColorBrush(Colors.Red);
-                                lblGraphXY1.Text = fd.X.ToString() + "," + fd.Y.ToString();
+                                lblGraphXY1.Text = evalX.ToString() + "," + evalY.ToString();
                                 rResult1.Fill = (fd.R == 1) ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
                             }
                             else
