@@ -317,12 +317,21 @@ namespace _8F.Views
 
             Task.Run(() =>
             {
-                while (processingQueue.TryDequeue(out var data))
+                try
                 {
-                    ProcessPortData(data);
+                    while (processingQueue.TryDequeue(out var data))
+                    {
+                        ProcessPortData(data);
+                    }
                 }
-
-                isProcessing = false;
+                catch (Exception ex)
+                {
+                    _8F.Services.DiagnosticLogger.Log("TRY_START_PROC_ERR", $"Exception in processing worker: {ex}");
+                }
+                finally
+                {
+                    isProcessing = false;
+                }
             });
         }
         private bool isPartActive = false;
@@ -339,19 +348,26 @@ namespace _8F.Views
                 int action = indata[1];
                 int noOfSample = BitConverter.ToUInt16(indata, 2);
 
+                _8F.Services.DiagnosticLogger.Log("INGEST_PACKET", $"Action={action}, Samples={noOfSample}, isPartActive={isPartActive}, isWaitingForNextPart={DeviceCOM.isWaitingForNextPart}, qCount={DeviceCOM.cordinateQueue.Count}");
+
                 lock (DeviceCOM.QueueLock)
                 {
-                    // Start of new part: action == 1 OR first action == 2 after part completion / idle
-                    if (action == 1 || (action == 2 && (!isPartActive || DeviceCOM.isWaitingForNextPart)))
+                    // Start of new part: action == 2 (first sample of new part) OR action == 1 when starting test
+                    bool isNewPartStart = (action == 2 && (!isPartActive || DeviceCOM.isWaitingForNextPart))
+                                       || (action == 1 && !isPartActive && !DeviceCOM.isWaitingForNextPart);
+
+                    if (isNewPartStart)
                     {
                         isPartActive = true;
                         DeviceCOM.cordinateQueue.Clear();
                         DeviceCOM.IsTraceResetRequired = true;
                         DeviceCOM.isWaitingForNextPart = false;
+                        DeviceCOM.hasCurrentTraceBeenEvaluated = false;
 
                         lastX = short.MinValue;
                         lastY = short.MinValue;
 
+                        _8F.Services.DiagnosticLogger.Log("STATE_NEW_PART", $"Action={action}, isPartActive=true, isWaitingForNextPart=false, IsTraceResetRequired=true, QueueCleared");
                         System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] NEW PART DETECTED (action={action}): IsTraceResetRequired set to true. Sentinel reset.");
                     }
 
@@ -383,6 +399,8 @@ namespace _8F.Views
                             DeviceCOM.cordinateQueue.Add(
                                 new CordinateQueue() { cordinates = cordinates, IsRelevant = true, Action = action }
                             );
+                            DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                            _8F.Services.DiagnosticLogger.Log("QUEUE_ADD", $"Action={action}, AddedPts={cordinates.Count}, FirstPt=({cordinates[0].X},{cordinates[0].Y}), LastPt=({cordinates[cordinates.Count-1].X},{cordinates[cordinates.Count-1].Y}), TotalBatches={DeviceCOM.cordinateQueue.Count}");
                             System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] QUEUE_ADD: action={action}, cordinateQueue.Count={DeviceCOM.cordinateQueue.Count}");
                         }
                     }
@@ -392,6 +410,7 @@ namespace _8F.Views
                     {
                         isPartActive = false;
                         DeviceCOM.isWaitingForNextPart = true;
+                        _8F.Services.DiagnosticLogger.Log("STATE_PART_EXIT", $"Action=3, isPartActive=false, isWaitingForNextPart=true");
                         System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] PART EXIT (action=3): isPartActive set to false.");
                     }
                 }
@@ -1335,6 +1354,7 @@ namespace _8F.Views
                     DeviceCOM.responses = new List<Response>();
                 }
                 DeviceCOM.cordinateQueue.Clear();
+                DeviceCOM.hasCurrentTraceBeenEvaluated = false;
             }
             lastEvaluatedResult.HasValue = false;
             cn1.Children.Clear();
@@ -1352,6 +1372,7 @@ namespace _8F.Views
             {
                 DeviceCOM.responses.RemoveAll(r => r.CN == chId);
                 DeviceCOM.cordinateQueue.Clear();
+                DeviceCOM.hasCurrentTraceBeenEvaluated = false;
             }
 
             if (chId == 1)
@@ -1477,6 +1498,8 @@ namespace _8F.Views
                                 lastEvaluatedResult.OR = item.OR;
                                 lastEvaluatedResult.HasValue = true;
 
+                                _8F.Services.DiagnosticLogger.Log("REFRESH_EVAL_DOT", $"evalX={evalX}, evalY={evalY}, evalLeft={evalLeft:F1}, evalTop={evalTop:F1}, lastStreamedCoord={(lastStreamedCoord != null ? $"{lastStreamedCoord.X},{lastStreamedCoord.Y}" : "null")}, tracePoints={tracePoints.Count}, qCount={DeviceCOM.cordinateQueue.Count}");
+
                                 btnOverallResult2.Background = (item.OR == 1)
                                     ? new SolidColorBrush(Colors.Green)
                                     : new SolidColorBrush(Colors.Red);
@@ -1503,6 +1526,7 @@ namespace _8F.Views
                     currentCount = DeviceCOM.cordinateQueue.Count;
                     if (DeviceCOM.IsTraceResetRequired)
                     {
+                        _8F.Services.DiagnosticLogger.Log("CLEAR_TRACE", $"Reason=IsTraceResetRequired, lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
                         System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] CLEAR_TRACE_VISUAL (IsTraceResetRequired): lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
                         ClearTraceVisual();
                         lastDrawnIndex = 0;
@@ -1510,6 +1534,7 @@ namespace _8F.Views
                     }
                     else if (lastDrawnIndex > currentCount)
                     {
+                        _8F.Services.DiagnosticLogger.Log("CLEAR_TRACE", $"Reason=lastDrawnIndex > currentCount, lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
                         System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] CLEAR_TRACE_VISUAL (lastDrawnIndex > currentCount): lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
                         ClearTraceVisual();
                         lastDrawnIndex = 0;
@@ -1558,6 +1583,7 @@ namespace _8F.Views
 
                 if (pointAdded)
                 {
+                    _8F.Services.DiagnosticLogger.Log("TRACE_REDRAW", $"AddedBatches={newItems.Count}, TotalTracePoints={tracePoints.Count}, lastDrawnIndex={lastDrawnIndex}");
                     System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] TRACE_POINTS_ADDED: newItems={newItems.Count}, total tracePoints={tracePoints.Count}, lastDrawnIndex={lastDrawnIndex}");
                 }
 
