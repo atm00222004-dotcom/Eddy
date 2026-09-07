@@ -15,6 +15,16 @@ namespace _8F.Services
         {
             if (!IsDiagnosticLoggingEnabled) return;
 
+            WriteLog(tag, message);
+        }
+
+        public static void ForceLog(string tag, string message)
+        {
+            WriteLog(tag, message);
+        }
+
+        private static void WriteLog(string tag, string message)
+        {
             string line = $"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{Thread.CurrentThread.ManagedThreadId:D2}] [{tag}] {message}";
             System.Diagnostics.Debug.WriteLine(line);
 
