@@ -1557,6 +1557,11 @@ namespace _8F.Views
                     }
                 }
 
+                if (tracePoints.Count > 20000)
+                {
+                    tracePoints.RemoveRange(0, tracePoints.Count - 20000);
+                }
+
                 if (pointAdded)
                 {
                     _8F.Services.DiagnosticLogger.Log("TRACE_REDRAW", $"AddedBatches={newItems.Count}, TotalTracePoints={tracePoints.Count}, lastDrawnIndex={lastDrawnIndex}");
