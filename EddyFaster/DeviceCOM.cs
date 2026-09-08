@@ -35,6 +35,8 @@ namespace _8F
         public static bool IsBalanceBusyEnable = false;
         public static bool IsResponseClearRequired = false;
         public static bool IsTraceResetRequired = false;
+        public static bool hasCurrentTraceBeenEvaluated = false;
+        public static bool hasAlreadyClearedForThisDuplicate = false;
         public static bool isCurrentPartEvaluated = false;
         public static bool isWaitingForNextPart = false;
         public static int CommunicationType;
@@ -291,7 +293,7 @@ namespace _8F
                                 {
                                     responses.RemoveRange(0, responses.Count - 5000);
                                 }
-                                // cordinateQueue.Clear();
+
                             }
 
                             var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
@@ -389,7 +391,22 @@ namespace _8F
                                 {
                                     responses.RemoveRange(0, responses.Count - 5000);
                                 }
-                                // cordinateQueue.Clear();
+
+                                if (hasCurrentTraceBeenEvaluated)
+                                {
+                                    if (!hasAlreadyClearedForThisDuplicate)
+                                    {
+                                        cordinateQueue.Clear();
+                                        IsTraceResetRequired = true;
+                                        hasAlreadyClearedForThisDuplicate = true;
+                                        _8F.Services.DiagnosticLogger.Log("DECOUPLE_TRACE", $"Stale trace cleared on duplicate FC20 evaluation (CN={res.CN})");
+                                    }
+                                }
+                                else
+                                {
+                                    hasCurrentTraceBeenEvaluated = true;
+                                    hasAlreadyClearedForThisDuplicate = false;
+                                }
                             }
 
                             var cnt = counter.FirstOrDefault(c => c.Id == res.CN);
@@ -407,6 +424,9 @@ namespace _8F
                             }
                             isWaitingForNextPart = true;
                             IsResponseRefreshRequired = true;
+
+                            string fdSummary = res.FD != null ? string.Join("; ", res.FD.Select(f => $"FN={f.FN}:X={f.X},Y={f.Y},R={f.R}")) : "null";
+                            _8F.Services.DiagnosticLogger.Log("FC20_EVAL", $"CN={res.CN}, OR={res.OR}, TotalCount={cnt?.ResultCount}, isWaitingForNextPart=true, FD=[{fdSummary}]");
                             // IsTraceResetRequired = true;
 
                             //if (!string.IsNullOrEmpty(Code))

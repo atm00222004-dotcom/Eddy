@@ -44,20 +44,25 @@ namespace _8F.Views
             public int X;
             public int Y;
             public int OR;
+            public int R;
             public bool HasValue;
         }
         private LastEvaluatedPoint lastEvaluatedResult;
-        private Ellipse elBlueDot = new Ellipse() { Height = 6, Width = 6, Fill = new SolidColorBrush(Colors.Blue) };
+        private Ellipse elEvalDot = new Ellipse() { Height = 6, Width = 6 };
 
-        private void RenderPersistentBlueDot()
+        private void RenderPersistentEvalDot()
         {
             if (lastEvaluatedResult.HasValue)
             {
-                Canvas.SetLeft(elBlueDot, lastEvaluatedResult.Left);
-                Canvas.SetTop(elBlueDot, lastEvaluatedResult.Top);
-                if (!cn1.Children.Contains(elBlueDot))
+                Canvas.SetLeft(elEvalDot, lastEvaluatedResult.Left);
+                Canvas.SetTop(elEvalDot, lastEvaluatedResult.Top);
+                elEvalDot.Fill = (lastEvaluatedResult.R == 1)
+                    ? new SolidColorBrush(Colors.Green)
+                    : new SolidColorBrush(Colors.Red);
+
+                if (!cn1.Children.Contains(elEvalDot))
                 {
-                    cn1.Children.Add(elBlueDot);
+                    cn1.Children.Add(elEvalDot);
                 }
                 btnOverallResult2.Background = (lastEvaluatedResult.OR == 1)
                     ? new SolidColorBrush(Colors.Green)
@@ -317,12 +322,21 @@ namespace _8F.Views
 
             Task.Run(() =>
             {
-                while (processingQueue.TryDequeue(out var data))
+                try
                 {
-                    ProcessPortData(data);
+                    while (processingQueue.TryDequeue(out var data))
+                    {
+                        ProcessPortData(data);
+                    }
                 }
-
-                isProcessing = false;
+                catch (Exception ex)
+                {
+                    _8F.Services.DiagnosticLogger.Log("TRY_START_PROC_ERR", $"Exception in processing worker: {ex}");
+                }
+                finally
+                {
+                    isProcessing = false;
+                }
             });
         }
         private bool isPartActive = false;
@@ -339,19 +353,29 @@ namespace _8F.Views
                 int action = indata[1];
                 int noOfSample = BitConverter.ToUInt16(indata, 2);
 
+                _8F.Services.DiagnosticLogger.Log("INGEST_PACKET", $"Action={action}, Samples={noOfSample}, isPartActive={isPartActive}, isWaitingForNextPart={DeviceCOM.isWaitingForNextPart}, qCount={DeviceCOM.cordinateQueue.Count}");
+
                 lock (DeviceCOM.QueueLock)
                 {
-                    // Start of new part: action == 1 OR first action == 2 after part completion / idle
-                    if (action == 1 || (action == 2 && (!isPartActive || DeviceCOM.isWaitingForNextPart)))
+                    // Start of new part: action == 2 (first sample of new part) OR action == 1 when starting test
+                    bool isNewPartStart = (action == 2 && (!isPartActive || DeviceCOM.isWaitingForNextPart))
+                                       || (action == 1 && !isPartActive);
+
+                    _8F.Services.DiagnosticLogger.Log("INGEST_EVAL", $"Action={action}, isPartActive={isPartActive}, isWaitingForNextPart={DeviceCOM.isWaitingForNextPart}, isNewPartStart={isNewPartStart}");
+
+                    if (isNewPartStart)
                     {
                         isPartActive = true;
                         DeviceCOM.cordinateQueue.Clear();
                         DeviceCOM.IsTraceResetRequired = true;
                         DeviceCOM.isWaitingForNextPart = false;
+                        DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                        DeviceCOM.hasAlreadyClearedForThisDuplicate = false;
 
                         lastX = short.MinValue;
                         lastY = short.MinValue;
 
+                        _8F.Services.DiagnosticLogger.Log("STATE_NEW_PART", $"Action={action}, isPartActive=true, isWaitingForNextPart=false, IsTraceResetRequired=true, QueueCleared");
                         System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] NEW PART DETECTED (action={action}): IsTraceResetRequired set to true. Sentinel reset.");
                     }
 
@@ -378,11 +402,16 @@ namespace _8F.Views
                             }
                         }
 
+                        _8F.Services.DiagnosticLogger.Log("INGEST_BRANCH", $"Action={action}, isPartActive={isPartActive}, cordinatesCount={cordinates.Count}");
+
                         if (cordinates.Count > 0)
                         {
                             DeviceCOM.cordinateQueue.Add(
                                 new CordinateQueue() { cordinates = cordinates, IsRelevant = true, Action = action }
                             );
+                            DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                            DeviceCOM.hasAlreadyClearedForThisDuplicate = false;
+                            _8F.Services.DiagnosticLogger.Log("QUEUE_ADD", $"Action={action}, AddedPts={cordinates.Count}, FirstPt=({cordinates[0].X},{cordinates[0].Y}), LastPt=({cordinates[cordinates.Count-1].X},{cordinates[cordinates.Count-1].Y}), TotalBatches={DeviceCOM.cordinateQueue.Count}");
                             System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] QUEUE_ADD: action={action}, cordinateQueue.Count={DeviceCOM.cordinateQueue.Count}");
                         }
                     }
@@ -392,6 +421,7 @@ namespace _8F.Views
                     {
                         isPartActive = false;
                         DeviceCOM.isWaitingForNextPart = true;
+                        _8F.Services.DiagnosticLogger.Log("STATE_PART_EXIT", $"Action=3, isPartActive=false, isWaitingForNextPart=true");
                         System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] PART EXIT (action=3): isPartActive set to false.");
                     }
                 }
@@ -1335,6 +1365,8 @@ namespace _8F.Views
                     DeviceCOM.responses = new List<Response>();
                 }
                 DeviceCOM.cordinateQueue.Clear();
+                DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                DeviceCOM.hasAlreadyClearedForThisDuplicate = false;
             }
             lastEvaluatedResult.HasValue = false;
             cn1.Children.Clear();
@@ -1352,6 +1384,8 @@ namespace _8F.Views
             {
                 DeviceCOM.responses.RemoveAll(r => r.CN == chId);
                 DeviceCOM.cordinateQueue.Clear();
+                DeviceCOM.hasCurrentTraceBeenEvaluated = false;
+                DeviceCOM.hasAlreadyClearedForThisDuplicate = false;
             }
 
             if (chId == 1)
@@ -1418,9 +1452,14 @@ namespace _8F.Views
                         }
                         else
                         {
+                            SolidColorBrush resultBrush = (fd.R == 1)
+                                ? new SolidColorBrush(Colors.Green)
+                                : new SolidColorBrush(Colors.Red);
+
+                            el1.Fill = resultBrush;
+
                             if (isLatest)
                             {
-                                el1.Fill = new SolidColorBrush(Colors.Blue);
                                 el1.Width = 6;
                                 el1.Height = 6;
                                 Canvas.SetLeft(el1, left - 3);
@@ -1431,17 +1470,16 @@ namespace _8F.Views
                                 lastEvaluatedResult.X = fd.X;
                                 lastEvaluatedResult.Y = fd.Y;
                                 lastEvaluatedResult.OR = item.OR;
+                                lastEvaluatedResult.R = fd.R;
                                 lastEvaluatedResult.HasValue = true;
+
+                                _8F.Services.DiagnosticLogger.Log("REFRESH_EVAL_DOT", $"evalX={fd.X}, evalY={fd.Y}, left={left:F1}, top={top:F1}, R={fd.R}, OR={item.OR}");
 
                                 btnOverallResult2.Background = (item.OR == 1)
                                     ? new SolidColorBrush(Colors.Green)
                                     : new SolidColorBrush(Colors.Red);
                                 lblGraphXY1.Text = fd.X.ToString() + "," + fd.Y.ToString();
-                                rResult1.Fill = (fd.R == 1) ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
-                            }
-                            else
-                            {
-                                el1.Fill = (fd.R == 1) ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
+                                rResult1.Fill = resultBrush;
                             }
                         }
 
@@ -1452,6 +1490,11 @@ namespace _8F.Views
                     }
                 }
 
+                if (selectedChannelData.Count == 0 && lastEvaluatedResult.HasValue)
+                {
+                    RenderPersistentEvalDot();
+                }
+
                 List<CordinateQueue> newItems;
                 int currentCount;
                 lock (DeviceCOM.QueueLock)
@@ -1459,6 +1502,7 @@ namespace _8F.Views
                     currentCount = DeviceCOM.cordinateQueue.Count;
                     if (DeviceCOM.IsTraceResetRequired)
                     {
+                        _8F.Services.DiagnosticLogger.Log("CLEAR_TRACE", $"Reason=IsTraceResetRequired, lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
                         System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] CLEAR_TRACE_VISUAL (IsTraceResetRequired): lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
                         ClearTraceVisual();
                         lastDrawnIndex = 0;
@@ -1466,6 +1510,7 @@ namespace _8F.Views
                     }
                     else if (lastDrawnIndex > currentCount)
                     {
+                        _8F.Services.DiagnosticLogger.Log("CLEAR_TRACE", $"Reason=lastDrawnIndex > currentCount, lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
                         System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] CLEAR_TRACE_VISUAL (lastDrawnIndex > currentCount): lastDrawnIndex={lastDrawnIndex}, currentCount={currentCount}");
                         ClearTraceVisual();
                         lastDrawnIndex = 0;
@@ -1512,8 +1557,14 @@ namespace _8F.Views
                     }
                 }
 
+                if (tracePoints.Count > 20000)
+                {
+                    tracePoints.RemoveRange(0, tracePoints.Count - 20000);
+                }
+
                 if (pointAdded)
                 {
+                    _8F.Services.DiagnosticLogger.Log("TRACE_REDRAW", $"AddedBatches={newItems.Count}, TotalTracePoints={tracePoints.Count}, lastDrawnIndex={lastDrawnIndex}");
                     System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [Thread-{System.Threading.Thread.CurrentThread.ManagedThreadId}] TRACE_POINTS_ADDED: newItems={newItems.Count}, total tracePoints={tracePoints.Count}, lastDrawnIndex={lastDrawnIndex}");
                 }
 
@@ -1731,51 +1782,87 @@ namespace _8F.Views
 
         public UdpReceiver(int port)
         {
-            _remoteIpEndPoint = new IPEndPoint(IPAddress.Any, port);
-            _udpClient = new UdpClient(_remoteIpEndPoint);
-
-            Console.WriteLine($"Listening for UDP messages on port {port}...");
+            try
+            {
+                _remoteIpEndPoint = new IPEndPoint(IPAddress.Any, port);
+                _udpClient = new UdpClient(_remoteIpEndPoint);
+                _8F.Services.DiagnosticLogger.Log("UDP_BOUND", $"UDP socket bound successfully to port {port}");
+            }
+            catch (Exception ex)
+            {
+                _8F.Services.DiagnosticLogger.Log("UDP_BIND_ERR", $"Failed to bind UDP socket to port {port}: {ex}");
+            }
         }
 
         public void StartReceiving()
         {
-            UdpState s = new UdpState();
-            s.e = _remoteIpEndPoint;
-            s.u = _udpClient;
-            // Begin the asynchronous receive operation
-            _udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+            try
+            {
+                UdpState s = new UdpState();
+                s.e = _remoteIpEndPoint;
+                s.u = _udpClient;
+                _udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+                _8F.Services.DiagnosticLogger.Log("UDP_LISTEN_START", "UDP BeginReceive started successfully");
+            }
+            catch (Exception ex)
+            {
+                _8F.Services.DiagnosticLogger.Log("UDP_LISTEN_ERR", $"Failed to start UDP BeginReceive: {ex}");
+            }
         }
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            if (ar.AsyncState == null) return;
-            UdpClient u = ((UdpState)(ar.AsyncState)).u;
-            IPEndPoint? e = ((UdpState)(ar.AsyncState)).e;
+            UdpClient? u = null;
+            IPEndPoint? e = null;
 
             try
             {
-                // Complete the asynchronous receive operation and get the data
-                byte[] receivedData = u.EndReceive(ar, ref e!);
-                DeviceCOM.receiveBytes = receivedData;
-                MainWindow.EnqueueIncomingPacket(receivedData);
+                if (ar.AsyncState is UdpState state)
+                {
+                    u = state.u;
+                    e = state.e;
+                }
+
+                if (u != null)
+                {
+                    byte[] receivedData = u.EndReceive(ar, ref e!);
+                    _8F.Services.DiagnosticLogger.Log("RAW_UDP_RECV", $"Received {receivedData.Length} bytes from {e}");
+                    DeviceCOM.receiveBytes = receivedData;
+                    MainWindow.EnqueueIncomingPacket(receivedData);
+                }
+                else
+                {
+                    _8F.Services.DiagnosticLogger.Log("UDP_REC_ERR", "ReceiveCallback AsyncState was null or invalid UdpState");
+                }
             }
             catch (ObjectDisposedException)
             {
-                // Handle cases where the UdpClient might have been closed
-                Console.WriteLine("UdpClient was disposed.");
+                _8F.Services.DiagnosticLogger.Log("UDP_DISPOSED", "UdpClient was disposed.");
                 return;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during receive: {ex.Message}");
+                _8F.Services.DiagnosticLogger.Log("UDP_REC_ERR", $"Full Exception in ReceiveCallback: {ex.GetType().FullName}: {ex.Message}\nStack: {ex.StackTrace}");
             }
             finally
             {
-                // Restart listening for the next datagram
-                UdpState s = new UdpState();
-                s.e = e; // Use the updated IPEndPoint for the next receive
-                s.u = u;
-                u.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+                try
+                {
+                    if (u != null)
+                    {
+                        UdpState s = new UdpState { e = e, u = u };
+                        u.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+                    }
+                    else if (_udpClient != null)
+                    {
+                        UdpState s = new UdpState { e = _remoteIpEndPoint, u = _udpClient };
+                        _udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), s);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _8F.Services.DiagnosticLogger.Log("UDP_RESTART_ERR", $"Error restarting BeginReceive in finally: {ex}");
+                }
             }
         }
 

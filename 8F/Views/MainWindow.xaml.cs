@@ -988,9 +988,9 @@ namespace _8F
                 var cnt = DeviceCOM.counter.FirstOrDefault(c => c.Id == SChId) ?? DeviceCOM.counter.FirstOrDefault(c => c.Id == 0);
                 if (cnt != null)
                 {
-                    //lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
+                    lblTCount.Content = "Total Count - " + cnt.ResultCount.ToString();
                     lblOkCount.Content = "OK Count - " + cnt.ResultOkCount.ToString();
-                   // lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
+                    lblNotOkCount.Content = "Not Ok Count - " + cnt.ResultOkNotCount.ToString();
 
                     lblTCount1.Content = "Total Count - " + cnt.ResultCount.ToString();
                     lblOkCount1.Content = "OK Count - " + cnt.ResultOkCount.ToString();
