@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -28,25 +28,25 @@ namespace Eddy
 {
     public class DeviceCOM
     {
-        public SerialPort port;
+        public SerialPort port = new SerialPort();
 
-        public static string PortName;
-        public static string DBConnection;
+        public static string PortName = string.Empty;
+        public static string DBConnection = string.Empty;
         public static int BaudRate;
         public static int MaxValue;
         public static int MaxValueABS;
         public static int Factor;
-        public static Configuration Configuration;
+        public static Configuration Configuration = null!;
         public static bool IsTubeSatart = false;
-        public static GraphData graphData;
+        public static GraphData graphData = new GraphData();
         public static bool IsTestOn = false;
         public static bool IsAttRequired = false;
         public static bool IsJSON = false;
         public static DateTime busyStamp = System.DateTime.Now;
-        public static Part part;
+        public static Part? part;
         public static bool IsLogEnable = false;
-        public static byte[] receiveBytes;
-        public static double[] dataBuffer;
+        public static byte[]? receiveBytes;
+        public static double[]? dataBuffer;
         public static bool IsCalibarationStart = false;
 
         public static int Ok = 0;
@@ -99,7 +99,7 @@ namespace Eddy
 
                 return false;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (port.IsOpen)
                 {
@@ -174,7 +174,7 @@ namespace Eddy
 
                 return false;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (port.IsOpen)
                 {
@@ -217,7 +217,7 @@ namespace Eddy
                 }
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                
                 return false;
@@ -237,9 +237,9 @@ namespace Eddy
     }
     public class Configuration
     {
-        public Marker Marker { get; set; }
-        public Frequency Frequency { get; set; }
-        public Filter Filter { get; set; }
+        public Marker Marker { get; set; } = new Marker();
+        public Frequency Frequency { get; set; } = new Frequency();
+        public Filter Filter { get; set; } = new Filter();
 
         public int TestTime = 10;
         public int SamplePerSecond = 3050;
@@ -251,8 +251,8 @@ namespace Eddy
     {
         public int FC = 57;
         //public Marker Marker { get; set; }
-        public List<FD> FQ { get; set; }
-        public List<FilterFD> FT { get; set; }        
+        public List<FD> FQ { get; set; } = new List<FD>();
+        public List<FilterFD> FT { get; set; } = new List<FilterFD>();        
     }
     public class Marker
     {
@@ -301,18 +301,18 @@ namespace Eddy
     public class Frequency
     {
         public int FC = 51;
-        public List<FD> FD;
+        public List<FD> FD = new List<FD>();
     }
     public class Filter
     {
         public int FC = 52;
-        public List<FilterFD> FD;
+        public List<FilterFD> FD = new List<FilterFD>();
     }
 
     public class Filter1
     {
         public int FC = 52;
-        public List<FilterFD1> FD;
+        public List<FilterFD1> FD = new List<FilterFD1>();
     }
     public class GraphData
     {
@@ -328,7 +328,7 @@ namespace Eddy
     public class FNData
     {
         public int FN { get; set; }
-        public List<Fdata> Data { get; set; }
+        public List<Fdata> Data { get; set; } = new List<Fdata>();
     }
 
     public class Fdata
@@ -347,9 +347,9 @@ namespace Eddy
     }
     public class LogData
     {
-        public string BatchName { get; set; }
-        public string LogStartDate { get; set; }
-        public string LogEndDate { get; set; }
+        public string BatchName { get; set; } = string.Empty;
+        public string LogStartDate { get; set; } = string.Empty;
+        public string LogEndDate { get; set; } = string.Empty;
         public int PassCount { get; set; }
         public int FailCount { get; set; }
         public int TotalCount { get; set; }

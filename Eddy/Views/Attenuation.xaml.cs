@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +25,13 @@ namespace Eddy
     public partial class Attenuation : Window
     {
         public bool IsSaved = false;
-        private DispatcherTimer clearLabelTimer;
-        public DeviceCOM deviceCOM;
+        private DispatcherTimer? clearLabelTimer;
+        public DeviceCOM? deviceCOM;
         bool IsEddyAdvance = false; 
         public Attenuation()
         {
             InitializeComponent();
-            IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+            IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsEddyAdvance"]);
             
 
 
@@ -93,7 +93,7 @@ namespace Eddy
                         }
 
                         //DeviceCOM.Configuration.SaveGraphImage = chkSaveGraph.IsChecked == true;
-                        var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isAbsolute"]);
+                        var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isAbsolute"]);
                         var rat1 = false;
 
                         var rat = false;
@@ -107,12 +107,12 @@ namespace Eddy
                                 configurationToWrite.FT = DeviceCOM.Configuration.Filter.FD;
                                 //configurationToWrite.SaveGraphImage = chkSaveGraph.IsChecked == true; 
                                 var data = JsonConvert.SerializeObject(configurationToWrite);
-                                rat = deviceCOM.WriteData(data);
+                                rat = deviceCOM?.WriteData(data) ?? false;
                             }
                             else
                             {
 
-                                rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency));
+                                rat = deviceCOM?.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Frequency)) ?? false;
                                 Filter1 filter1 = new Filter1();
                                 filter1.FD = new List<FilterFD1>();
 
@@ -121,7 +121,7 @@ namespace Eddy
                                     filter1.FD.Add(new FilterFD1 { FN = item.FN, H = item.H, L = item.L });
                                 }
 
-                                rat1 = deviceCOM.WriteData(JsonConvert.SerializeObject(filter1));
+                                rat1 = deviceCOM?.WriteData(JsonConvert.SerializeObject(filter1)) ?? false;
                             }
                         }
                         else
@@ -191,7 +191,7 @@ namespace Eddy
 
                             data1[startBytes] = (byte)DeviceCOM.Configuration.Frequency.FD[0].AT;
 
-                            rat = deviceCOM.WriteDataInByte(data1);
+                            rat = deviceCOM?.WriteDataInByte(data1) ?? false;
 
                         }
 
@@ -217,7 +217,7 @@ namespace Eddy
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
@@ -231,10 +231,10 @@ namespace Eddy
 
         }
 
-        private void ClearLabelTimer_Tick(object sender, EventArgs e)
+        private void ClearLabelTimer_Tick(object? sender, EventArgs e)
         {
             lblMsg.Content = string.Empty;
-            clearLabelTimer.Stop(); // Stop the timer after clearing
+            clearLabelTimer?.Stop(); // Stop the timer after clearing
         }
 
         public List<String> Validaton()

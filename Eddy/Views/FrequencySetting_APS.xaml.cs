@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,8 +13,8 @@ namespace Eddy
     public partial class FrequencySetting_APS : Window
     {
         public bool IsSaved = false;
-        private DispatcherTimer clearLabelTimer;
-        public DeviceCOM deviceCOM;
+        private DispatcherTimer? clearLabelTimer;
+        public DeviceCOM? deviceCOM;
         bool IsEddyAdvance = false;
         public FrequencySetting_APS()
         {
@@ -30,7 +30,7 @@ namespace Eddy
             }
 
 
-            IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+            IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsEddyAdvance"]);
 
             if (IsEddyAdvance)
             {
@@ -272,7 +272,7 @@ namespace Eddy
 
                         data1[startBytes] = (byte)DeviceCOM.Configuration.Frequency.FD[0].AT;
 
-                        rat1 = deviceCOM.WriteDataInByte(data1);
+                        rat1 = deviceCOM?.WriteDataInByte(data1) ?? false;
 
                         if (rat1)
                         {
@@ -296,7 +296,7 @@ namespace Eddy
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
@@ -310,10 +310,10 @@ namespace Eddy
 
         }
 
-        private void ClearLabelTimer_Tick(object sender, EventArgs e)
+        private void ClearLabelTimer_Tick(object? sender, EventArgs e)
         {
             lblMsg.Content = string.Empty;
-            clearLabelTimer.Stop(); // Stop the timer after clearing
+            clearLabelTimer?.Stop(); // Stop the timer after clearing
         }
 
         public List<String> Validaton()
@@ -438,7 +438,10 @@ namespace Eddy
 
         private void PreviewTextInput_DecimalOnly(object sender, TextCompositionEventArgs e)
         {
-            TextBox textBox = sender as TextBox;
+            if (sender is not TextBox textBox)
+            {
+                return;
+            }
 
             string newText = textBox.Text.Insert(textBox.CaretIndex, e.Text);
 

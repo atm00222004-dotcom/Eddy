@@ -1,4 +1,4 @@
-﻿
+
 using Newtonsoft.Json;
 using ScottPlot.Interactivity;
 using System;
@@ -27,13 +27,13 @@ namespace Eddy
     public partial class MarkerSetting : Window
     {
         public bool IsSaved = false; 
-        private DispatcherTimer clearLabelTimer;
-        public DeviceCOM deviceCOM;
+        private DispatcherTimer? clearLabelTimer;
+        public DeviceCOM? deviceCOM;
         public MarkerSetting()
         {
             InitializeComponent();
 
-            var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isAbsolute"]);
+            var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isAbsolute"]);
 
             if (!isAbsolute)
             {
@@ -87,7 +87,7 @@ namespace Eddy
 
                     DeviceCOM.Configuration.Marker.MABC = Convert.ToInt32(txtMABS.Text);
 
-                    var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isAbsolute"]);
+                    var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isAbsolute"]);
                     var rat = false;
                     if (isAbsolute || !DeviceCOM.IsJSON)
                     {
@@ -123,11 +123,11 @@ namespace Eddy
                         data[19] = (byte)(DeviceCOM.Configuration.Marker.MABC & 0xFF);
                         data[20] = (byte)((DeviceCOM.Configuration.Marker.MABC >> 8) & 0xFF);
 
-                        rat = deviceCOM.WriteDataInByte(data);
+                        rat = deviceCOM?.WriteDataInByte(data) ?? false;
                     }
                     else
                     {
-                        rat = deviceCOM.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker));
+                        rat = deviceCOM?.WriteData(JsonConvert.SerializeObject(DeviceCOM.Configuration.Marker)) ?? false;
                     }
 
                         
@@ -154,7 +154,7 @@ namespace Eddy
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
@@ -165,10 +165,10 @@ namespace Eddy
             clearLabelTimer.Start();
         }
 
-        private void ClearLabelTimer_Tick(object sender, EventArgs e)
+        private void ClearLabelTimer_Tick(object? sender, EventArgs e)
         {
             lblMsg.Content = string.Empty;
-            clearLabelTimer.Stop(); // Stop the timer after clearing
+            clearLabelTimer?.Stop(); // Stop the timer after clearing
         }
 
         public List<String> Validaton()

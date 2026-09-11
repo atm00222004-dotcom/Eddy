@@ -27,7 +27,7 @@ namespace Eddy
     public partial class Logs : Window
     {
         public bool IsSaved = false;
-        public List<LogData> listOfLog;
+        public List<LogData> listOfLog = new List<LogData>();
         public Logs()
         {
             InitializeComponent();
@@ -57,8 +57,9 @@ namespace Eddy
                
                 if (string.IsNullOrEmpty(DeviceCOM.DBConnection))
                 {
-                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["DBConnection"])
-                        ?? Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]);
+                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationManager.AppSettings["DBConnection"])
+                        ?? Convert.ToString(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"])
+                        ?? "";
                 }
 
                 using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
@@ -97,7 +98,7 @@ namespace Eddy
                         {
                             LogData log = new LogData
                             {
-                                BatchName = row["BatchName"].ToString(),
+                                BatchName = row["BatchName"]?.ToString() ?? "",
                                 LogStartDate = Convert.ToDateTime(row["StartDate"]).ToLocalTime().ToString("dd/MM/yy HH:mm:ss"),
                                 LogEndDate = Convert.ToDateTime(row["EndDate"]).ToLocalTime().ToString("dd/MM/yy HH:mm:ss"),
                                 PassCount = Convert.ToInt32(row["PassCount"]),
@@ -108,7 +109,7 @@ namespace Eddy
 
                             listOfLog.Add(log);
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             MessageBox.Show("Something went wrong. Please try again.");
                         }
@@ -117,7 +118,7 @@ namespace Eddy
                     grdlogs.ItemsSource = listOfLog;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Something went wrong. Please try again");
             }
@@ -208,7 +209,7 @@ namespace Eddy
                                         .Height(25)
                                         .Width(25)
                                         .AlignMiddle()
-                                        .Image(imageBytes, ImageScaling.FitHeight);
+                                        .Image(imageBytes).FitHeight();
 
                                     left.ConstantItem(12);
 
@@ -650,7 +651,7 @@ namespace Eddy
                                     .Height(25)
                                     .Width(25)
                                     .AlignMiddle()
-                                    .Image(imageBytes, ImageScaling.FitHeight);
+                                    .Image(imageBytes).FitHeight();
 
                                 left.ConstantItem(12);
 
@@ -738,12 +739,12 @@ namespace Eddy
                                         var details = batchDetails[log.BatchName];
 
                                         // ---- Build consecutive groups sharing the same settings ----
-                                        var groups = new List<(Configuration Config, List<(DateTime TimeStamp, string ConfigurationJson, string GraphDataJson, bool Result, string BatchName)> Records)>();
+                                        var groups = new List<(Configuration? Config, List<(DateTime TimeStamp, string ConfigurationJson, string GraphDataJson, bool Result, string BatchName)> Records)>();
 
-                                        string lastKey = null;
+                                        string? lastKey = null;
                                         foreach (var item in details)
                                         {
-                                            Configuration cfg = null;
+                                            Configuration? cfg = null;
                                             try { cfg = JsonConvert.DeserializeObject<Configuration>(item.ConfigurationJson); }
                                             catch { /* leave null, treated as its own group */ }
 
@@ -885,7 +886,7 @@ namespace Eddy
                                                             {
                                                                 bool passed = localItem.Result;
 
-                                                                GraphData graph = null;
+                                                                GraphData? graph = null;
                                                                 if (!passed && !string.IsNullOrEmpty(localItem.GraphDataJson))
                                                                 {
                                                                     try { graph = JsonConvert.DeserializeObject<GraphData>(localItem.GraphDataJson); }
@@ -943,7 +944,7 @@ namespace Eddy
                                         }
                                     });
                                 }
-                                catch (Exception ex)
+                                catch (Exception)
                                 {
                                     MessageBox.Show("Something went wrong. Please try again.");
                                 }
@@ -964,13 +965,13 @@ namespace Eddy
 
                 MessageBox.Show("PDF Generated ✅");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Something went wrong. Please try again.");
             }
         }
 
-        private string BuildSettingsKey(Configuration config)
+        private string BuildSettingsKey(Configuration? config)
         {
             if (config?.Frequency?.FD == null)
                 return "no-settings";
@@ -993,10 +994,7 @@ namespace Eddy
         {
             try
             {
-                var button = sender as Button;
-                var selectedLog = button.Tag as LogData;
-
-                if (selectedLog == null)
+                if (sender is not Button button || button.Tag is not LogData selectedLog)
                     return;
 
                 GenerateSingleBatchPdf(selectedLog);
@@ -1048,12 +1046,18 @@ namespace Eddy
         {
             var list = new List<(DateTime,string,string,bool,string)>();
 
+            if (!clStartDate.SelectedDate.HasValue || !clToDate.SelectedDate.HasValue)
+            {
+                return list;
+            }
+
             try
             {
                 if (string.IsNullOrEmpty(DeviceCOM.DBConnection))
                 {
-                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["DBConnection"])
-                        ?? Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]);
+                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationManager.AppSettings["DBConnection"])
+                        ?? Convert.ToString(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"])
+                        ?? "";
                 }
 
                 using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
@@ -1088,21 +1092,21 @@ namespace Eddy
                                     reader.GetFieldValue<DateTime>(
                                         reader.GetOrdinal("TimeStamp")).ToLocalTime(),
 
-                                    reader["ConfigurationJson"]?.ToString(),
+                                    reader["ConfigurationJson"]?.ToString() ?? "",
 
-                                    reader["GraphDataJson"]?.ToString(),
+                                    reader["GraphDataJson"]?.ToString() ?? "",
 
                                     reader.GetBoolean(
                                         reader.GetOrdinal("Result")),
 
-                                    reader["BatchName"]?.ToString()
+                                    reader["BatchName"]?.ToString() ?? ""
                                 ));
                             }
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Something went wrong. Please try again.");
             }
@@ -1114,12 +1118,18 @@ namespace Eddy
         {
             var list = new List<(string,DateTime,string,string)>();
 
+            if (!clStartDate.SelectedDate.HasValue || !clToDate.SelectedDate.HasValue)
+            {
+                return list;
+            }
+
             try
             {
                 if (string.IsNullOrEmpty(DeviceCOM.DBConnection))
                 {
-                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["DBConnection"])
-                        ?? Convert.ToString(System.Configuration.ConfigurationSettings.AppSettings["ConnectionString"]);
+                    DeviceCOM.DBConnection = Convert.ToString(System.Configuration.ConfigurationManager.AppSettings["DBConnection"])
+                        ?? Convert.ToString(System.Configuration.ConfigurationManager.AppSettings["ConnectionString"])
+                        ?? "";
                 }
 
                 using (var con = new NpgsqlConnection(DeviceCOM.DBConnection))
@@ -1158,15 +1168,15 @@ namespace Eddy
                             while (reader.Read())
                             {
                                 list.Add((
-                                    reader["BatchName"]?.ToString(),
+                                    reader["BatchName"]?.ToString() ?? "",
 
                                     reader.GetFieldValue<DateTime>(
                                         reader.GetOrdinal("TimeStamp"))
                                         .ToLocalTime(),
 
-                                    reader["ConfigurationJson"]?.ToString(),
+                                    reader["ConfigurationJson"]?.ToString() ?? "",
 
-                                    reader["PartJson"]?.ToString()
+                                    reader["PartJson"]?.ToString() ?? ""
                                 ));
                             }
                         }

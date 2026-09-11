@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
@@ -7,16 +7,16 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="FrequencySetting.xaml">
+    <Page Update="Views\FrequencySetting.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="MarkerSetting.xaml">
+    <Page Update="Views\MarkerSetting.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="MainWindow.xaml">
+    <Page Update="Views\MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="PartConfig.xaml">
+    <Page Update="Views\PartConfig.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
