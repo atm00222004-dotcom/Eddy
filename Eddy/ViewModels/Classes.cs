@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -60,8 +60,13 @@ namespace Eddy
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            UdpClient u = ((UdpState)(ar.AsyncState)).u;
-            IPEndPoint e = ((UdpState)(ar.AsyncState)).e;
+            if (ar.AsyncState is not UdpState state)
+            {
+                return;
+            }
+
+            UdpClient u = state.u;
+            IPEndPoint? e = state.e;
 
             try
             {
@@ -82,7 +87,7 @@ namespace Eddy
             {
                 // Restart listening for the next datagram
                 UdpState s = new UdpState();
-                s.e = e; // Use the updated IPEndPoint for the next receive
+                s.e = e ?? state.e; // Use the updated IPEndPoint for the next receive
                 s.u = u;
                 u.BeginReceive(new AsyncCallback(ReceiveCallback), s);
             }
@@ -103,14 +108,14 @@ namespace Eddy
         {
             _command = new CommandViewModel(Execute);
         }
-        public string Header { get; set; }
-        string filename { get; set; }
-        public MainWindow mainWindow { get; set; }
-        public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
+        public string Header { get; set; } = string.Empty;
+        string? filename { get; set; }
+        public MainWindow? mainWindow { get; set; }
+        public ObservableCollection<MenuItemViewModel> MenuItems { get; set; } = new ObservableCollection<MenuItemViewModel>();
 
-        public FrequencySetting freqPop { get; set; }
-        public Attenuation attenuationPop { get; set; }
-        public MarkerSetting markerPop { get; set; }
+        public FrequencySetting? freqPop { get; set; }
+        public Attenuation? attenuationPop { get; set; }
+        public MarkerSetting? markerPop { get; set; }
 
 
         public ICommand Command
@@ -123,6 +128,11 @@ namespace Eddy
 
         private void Execute()
         {
+            if (mainWindow == null)
+            {
+                return;
+            }
+
             if (DeviceCOM.IsTubeSatart || DeviceCOM.IsCalibarationStart && (Header == "Open" || Header == "New" || Header == "Save As" || Header == "Save" || Header == "Write Configuration" || Header == "Marker Setting"))
             {
                 MessageBox.Show("The tube/calibration is in progress, no changes are allowed!", "Information");
@@ -163,7 +173,7 @@ namespace Eddy
                         }
 
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         MessageBox.Show("Error while saving the configation file!!!!", "Error Information");
                     }
@@ -192,7 +202,7 @@ namespace Eddy
                             this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         MessageBox.Show("Error while saving the configuration file!!!!", "Error Information");
                     }
@@ -214,13 +224,17 @@ namespace Eddy
                         if (result == true)
                         {
                             string data = File.ReadAllText(dialog.FileName);
-                            DeviceCOM.Configuration = JsonConvert.DeserializeObject<Configuration>(data);
+                            var cfg = JsonConvert.DeserializeObject<Configuration>(data);
+                            if (cfg != null)
+                            {
+                                DeviceCOM.Configuration = cfg;
+                            }
                             // Open document
                             mainWindow.filename = dialog.FileName;
                             this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         MessageBox.Show("Error while loading the configuration file!!!!", "Error Information");
                     }
@@ -264,7 +278,7 @@ namespace Eddy
                     bool rat1;
                     bool rat2;
                     var msg = "Configuation Write successfully!!";
-                    var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+                    var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsEddyAdvance"]);
                     if (IsEddyAdvance)
                     {
                         rat1 = true;                        
@@ -382,15 +396,15 @@ namespace Eddy
             }
         }
 
-        private void freqPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void freqPop_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (freqPop.IsSaved)
+            if (freqPop?.IsSaved == true)
             {
-                this.mainWindow.InitialGraphSetting();
-                this.mainWindow.D1Seeting();
+                this.mainWindow?.InitialGraphSetting();
+                this.mainWindow?.D1Seeting();
             }
         }
-        private void attenProp_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void attenProp_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             //if (attenuationPop.IsSaved)
             //{
@@ -398,7 +412,7 @@ namespace Eddy
             //    this.mainWindow.D1Seeting();
             //}
         }
-        private void markerPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void markerPop_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             //if (markerPop.IsSaved)
             //{
@@ -416,17 +430,17 @@ namespace Eddy
             _action = action;
         }
 
-        public void Execute(object o)
+        public void Execute(object? o)
         {
             _action();
         }
 
-        public bool CanExecute(object o)
+        public bool CanExecute(object? o)
         {
             return true;
         }
 
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add { }
             remove { }
@@ -441,13 +455,13 @@ namespace Eddy
         {
             _command = new CommandViewModel(Execute);
         }
-        public string Header { get; set; }
-        string filename { get; set; }
-        public MainWindow_APS mainWindow { get; set; }
-        public ObservableCollection<MenuItemViewModel_APS> MenuItems { get; set; }
-        public FrequencySetting_APS freqPop { get; set; }
-        public Attenuation attenuationPop { get; set; }
-        public MarkerSetting markerPop { get; set; }
+        public string Header { get; set; } = string.Empty;
+        string? filename { get; set; }
+        public MainWindow_APS? mainWindow { get; set; }
+        public ObservableCollection<MenuItemViewModel_APS> MenuItems { get; set; } = new ObservableCollection<MenuItemViewModel_APS>();
+        public FrequencySetting_APS? freqPop { get; set; }
+        public Attenuation? attenuationPop { get; set; }
+        public MarkerSetting? markerPop { get; set; }
 
 
         public ICommand Command
@@ -460,6 +474,11 @@ namespace Eddy
 
         private void Execute()
         {
+            if (mainWindow == null)
+            {
+                return;
+            }
+
             if (DeviceCOM.IsTubeSatart || DeviceCOM.IsCalibarationStart && (Header == "Open" || Header == "New" || Header == "Save As" || Header == "Save" || Header == "Write Configuration" || Header == "Marker Setting"))
             {
                 MessageBox.Show("The tube/calibration is in progress, no changes are allowed!", "Information");
@@ -500,7 +519,7 @@ namespace Eddy
                         }
 
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         MessageBox.Show("Error while saving the configation file!!!!", "Error Information");
                     }
@@ -529,7 +548,7 @@ namespace Eddy
                             this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         MessageBox.Show("Error while saving the configuration file!!!!", "Error Information");
                     }
@@ -551,13 +570,17 @@ namespace Eddy
                         if (result == true)
                         {
                             string data = File.ReadAllText(dialog.FileName);
-                            DeviceCOM.Configuration = JsonConvert.DeserializeObject<Configuration>(data);
+                            var cfg = JsonConvert.DeserializeObject<Configuration>(data);
+                            if (cfg != null)
+                            {
+                                DeviceCOM.Configuration = cfg;
+                            }
                             // Open document
                             mainWindow.filename = dialog.FileName;
                             this.mainWindow.lblConfigFileName.Content = mainWindow.filename;
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         MessageBox.Show("Error while loading the configuration file!!!!", "Error Information");
                     }
@@ -601,12 +624,12 @@ namespace Eddy
                     bool rat1;
                     bool rat2;
                     var msg = "Configuation Write successfully!!";
-                    var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["IsEddyAdvance"]);
+                    var IsEddyAdvance = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["IsEddyAdvance"]);
                     if (IsEddyAdvance)
                     {
                         rat1 = true;
 
-                        var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationSettings.AppSettings["isAbsolute"]);
+                        var isAbsolute = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["isAbsolute"]);
 
                         if (isAbsolute)
                         {
@@ -719,15 +742,15 @@ namespace Eddy
             }
         }
 
-        private void freqPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void freqPop_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (freqPop.IsSaved)
+            if (freqPop?.IsSaved == true)
             {
-                this.mainWindow.InitialGraphSetting();
-                this.mainWindow.D1Seeting();
+                this.mainWindow?.InitialGraphSetting();
+                this.mainWindow?.D1Seeting();
             }
         }
-        private void attenProp_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void attenProp_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             //if (attenuationPop.IsSaved)
             //{
@@ -735,7 +758,7 @@ namespace Eddy
             //    this.mainWindow.D1Seeting();
             //}
         }
-        private void markerPop_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void markerPop_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             //if (markerPop.IsSaved)
             //{

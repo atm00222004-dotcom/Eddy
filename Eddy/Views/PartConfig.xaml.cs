@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -50,6 +50,7 @@ namespace Eddy
                 var msg = Validaton();
                 if (msg.Count == 0)
                 {
+                    DeviceCOM.part ??= new Part();
                     DeviceCOM.part.Name = txtBatchName.Text;
                     DeviceCOM.part.Placce = txtPlace.Text;
                     DeviceCOM.part.Grade = txtGrade.Text;
@@ -69,7 +70,7 @@ namespace Eddy
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMsg.Content = "Error while saving the Configuration!!!";
             }
