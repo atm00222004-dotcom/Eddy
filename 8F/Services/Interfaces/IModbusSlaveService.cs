@@ -6,10 +6,13 @@ namespace _8F.Services.Interfaces
     {
         bool IsRunning { get; }
         int Port { get; }
-        ushort ReadRegister();
+        int HeartbeatIntervalMs { get; }
+        ushort ReadRegister(ushort address = 0);
+        void WriteRegister(ushort address, ushort value);
         void WriteRegister(ushort value);
-        void Start(int port = 5020);
+        void Start(int port = 502, int heartbeatIntervalMs = 1000);
         void Stop();
         event EventHandler<ushort>? RegisterValueChanged;
+        event EventHandler<ushort>? HeartbeatValueChanged;
     }
 }
