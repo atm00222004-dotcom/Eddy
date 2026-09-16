@@ -108,6 +108,7 @@ namespace _8F
 
         public bool isModbusServerEnable = GetConfigBool("IsModbusServerEnable", false);
         public int modbusServerPort = GetConfigInt("ModbusServerPort", 5020);
+        public int modbusHeartbeatIntervalMs = GetConfigInt("ModbusHeartbeatIntervalMs", 1000);
         public IModbusSlaveService modbusSlaveService = new ModbusSlaveService();
 
         public bool isPasswordEnable = GetConfigBool("IsPasswordEnable", true);
@@ -261,7 +262,7 @@ namespace _8F
                 try
                 {
                     modbusSlaveService.RegisterValueChanged += OnModbusRegisterIdReceived;
-                    modbusSlaveService.Start(modbusServerPort);
+                    modbusSlaveService.Start(modbusServerPort, modbusHeartbeatIntervalMs);
                 }
                 catch (Exception ex)
                 {
@@ -376,7 +377,15 @@ namespace _8F
                         isBatchWiseLogEnable ? new MenuItemViewModel { Header = "Batch Wise Log", mainWindow = this } : null,
                         (!isRenewConfig && isSerialNoLogEnable) ? new MenuItemViewModel { Header = "Serial Number Log", mainWindow = this } : null
                     }.OfType<MenuItemViewModel>())
-                }
+                },
+                isModbusServerEnable ? new MenuItemViewModel
+                {
+                    Header = "Modbus",
+                    MenuItems = new ObservableCollection<MenuItemViewModel>(new List<MenuItemViewModel?>
+                    {
+                        new MenuItemViewModel { Header = "Modbus Diagnostic Panel", mainWindow = this }
+                    }.OfType<MenuItemViewModel>())
+                } : null
             }.OfType<MenuItemViewModel>());
             DataContext = this;
 
