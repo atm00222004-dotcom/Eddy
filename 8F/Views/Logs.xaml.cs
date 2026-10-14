@@ -290,8 +290,9 @@ namespace _8F
                                                         record.Item()
                                                             .Row(r =>
                                                             {
+                                                                string coordText = (item.X.HasValue && item.Y.HasValue) ? $"   [Coord: X={item.X}, Y={item.Y}]" : "";
                                                                 r.RelativeItem()
-                                                                    .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}")
+                                                                    .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}{coordText}")
                                                                     .FontSize(9)
                                                                     .Bold()
                                                                     .FontColor("#333333");
@@ -531,7 +532,10 @@ namespace _8F
                     ""BatchName"",
                     ""Result"",
                     ""FDData"",
-                    ""PartData""
+                    ""PartData"",
+                    ""ResultData"",
+                    ""X"",
+                    ""Y""
                 FROM public.""Logs""
                 WHERE ""BatchName""=@BatchName
                 ORDER BY ""TimeStamp""";
@@ -552,7 +556,10 @@ namespace _8F
                         BatchName = row["BatchName"]?.ToString() ?? string.Empty,
                         Result = Convert.ToBoolean(row["Result"]),
                         FDData = row["FDData"]?.ToString() ?? string.Empty,
-                        PartData = row["PartData"]?.ToString() ?? string.Empty
+                        PartData = row["PartData"]?.ToString() ?? string.Empty,
+                        ResultData = row["ResultData"]?.ToString() ?? string.Empty,
+                        X = row["X"] != DBNull.Value ? Convert.ToInt32(row["X"]) : null,
+                        Y = row["Y"] != DBNull.Value ? Convert.ToInt32(row["Y"]) : null
                     });
                 }
             }
@@ -710,8 +717,9 @@ namespace _8F
                                                     record.Item()
                                                         .Row(r =>
                                                         {
+                                                            string coordText = (item.X.HasValue && item.Y.HasValue) ? $"   [Coord: X={item.X}, Y={item.Y}]" : "";
                                                             r.RelativeItem()
-                                                                .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}")
+                                                                .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}{coordText}")
                                                                 .FontSize(9)
                                                                 .Bold()
                                                                 .FontColor("#333333");

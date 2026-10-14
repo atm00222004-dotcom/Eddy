@@ -1,4 +1,4 @@
-﻿<Window x:Class="_8F.LogAll"
+<Window x:Class="_8F.LogAll"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -104,6 +104,8 @@
                         <DataGridTextColumn Width="100*" Header = "Serail Number" Binding = "{Binding SrNo}"/>
                         <DataGridTextColumn Width="100*" Header = "Date/Time" Binding = "{Binding TimeStamp}"/>
                         <DataGridTextColumn Width="50*" Header = "Result" Binding = "{Binding ResultStatus}"/>
+                        <DataGridTextColumn Width="40*" Header = "X" Binding = "{Binding X}"/>
+                        <DataGridTextColumn Width="40*" Header = "Y" Binding = "{Binding Y}"/>
                         <!--<DataGridTextColumn Width="50*" Header = "Ch1 Result" Binding = "{Binding Ch1Result}"/>
                         <DataGridTextColumn Width="50*" Header = "Ch2 Result" Binding = "{Binding Ch2Result}"/>
                         <DataGridTextColumn Width="50*" Header = "Ch3 Result" Binding = "{Binding Ch3Result}"/>
