@@ -29,6 +29,8 @@ namespace _8F.Models
         public string Ch2Result { get; set; } = string.Empty;
         public string Ch3Result { get; set; } = string.Empty;
         public string Ch4Result { get; set; } = string.Empty;
+        public string X { get; set; } = string.Empty;
+        public string Y { get; set; } = string.Empty;
 
     }
 

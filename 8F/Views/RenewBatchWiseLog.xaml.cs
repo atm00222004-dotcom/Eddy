@@ -488,9 +488,11 @@ namespace _8F
                                                                 {
                                                                     resultTable.ColumnsDefinition(cols =>
                                                                     {
-                                                                        cols.ConstantColumn(35);   // Sr No
+                                                                        cols.ConstantColumn(30);   // Sr No
                                                                         cols.RelativeColumn();     // Timestamp
-                                                                        cols.ConstantColumn(55);   // Result
+                                                                        cols.ConstantColumn(50);   // Result
+                                                                        cols.ConstantColumn(45);   // X
+                                                                        cols.ConstantColumn(45);   // Y
                                                                     });
 
                                                                     resultTable.Header(h =>
@@ -498,6 +500,8 @@ namespace _8F
                                                                         h.Cell().Background("#0D3B6E").Padding(4).Text("Sr No").FontSize(8).Bold().FontColor(Colors.White);
                                                                         h.Cell().Background("#0D3B6E").Padding(4).Text("Timestamp").FontSize(8).Bold().FontColor(Colors.White);
                                                                         h.Cell().Background("#0D3B6E").Padding(4).Text("Result").FontSize(8).Bold().FontColor(Colors.White);
+                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("X").FontSize(8).Bold().FontColor(Colors.White);
+                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("Y").FontSize(8).Bold().FontColor(Colors.White);
                                                                     });
 
                                                                     int recordIndex = 0;
@@ -513,6 +517,10 @@ namespace _8F
                                                                         resultTable.Cell().Background(item.Result ? "#E8F5E9" : "#FFEBEE").Border(1).BorderColor("#E8E8E8").Padding(4)
                                                                             .Text(item.Result ? "PASS" : "FAIL").FontSize(8).Bold()
                                                                             .FontColor(item.Result ? "#2E7D32" : "#C62828");
+                                                                        resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                            .Text(item.X?.ToString() ?? "-").FontSize(8).FontColor("#333333");
+                                                                        resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                            .Text(item.Y?.ToString() ?? "-").FontSize(8).FontColor("#333333");
                                                                     }
                                                                 });
                                                             });
@@ -555,7 +563,7 @@ namespace _8F
                     con.Open();
 
                     string sql = @"
-                        SELECT ""TimeStamp"", ""BatchName"", ""Result"", ""FDData"", ""PartData""
+                        SELECT ""TimeStamp"", ""BatchName"", ""Result"", ""FDData"", ""PartData"", ""ResultData"", ""X"", ""Y""
                         FROM public.""Logs""
                         WHERE 1=1";
 
@@ -599,7 +607,10 @@ namespace _8F
                                     BatchName = row["BatchName"]?.ToString() ?? string.Empty,
                                     Result = Convert.ToBoolean(row["Result"]),
                                     FDData = row["FDData"]?.ToString() ?? string.Empty,
-                                    PartData = row["PartData"]?.ToString() ?? string.Empty
+                                    PartData = row["PartData"]?.ToString() ?? string.Empty,
+                                    ResultData = row["ResultData"]?.ToString() ?? string.Empty,
+                                    X = row["X"] != DBNull.Value ? Convert.ToInt32(row["X"]) : null,
+                                    Y = row["Y"] != DBNull.Value ? Convert.ToInt32(row["Y"]) : null
                                 });
                             }
                         }
@@ -844,9 +855,11 @@ namespace _8F
                                                             {
                                                                 resultTable.ColumnsDefinition(cols =>
                                                                 {
-                                                                    cols.ConstantColumn(35);   // Sr No
+                                                                    cols.ConstantColumn(30);   // Sr No
                                                                     cols.RelativeColumn();     // Timestamp
-                                                                    cols.ConstantColumn(55);   // Result
+                                                                    cols.ConstantColumn(50);   // Result
+                                                                    cols.ConstantColumn(45);   // X
+                                                                    cols.ConstantColumn(45);   // Y
                                                                 });
 
                                                                 resultTable.Header(h =>
@@ -854,6 +867,8 @@ namespace _8F
                                                                     h.Cell().Background("#0D3B6E").Padding(4).Text("Sr No").FontSize(8).Bold().FontColor(Colors.White);
                                                                     h.Cell().Background("#0D3B6E").Padding(4).Text("Timestamp").FontSize(8).Bold().FontColor(Colors.White);
                                                                     h.Cell().Background("#0D3B6E").Padding(4).Text("Result").FontSize(8).Bold().FontColor(Colors.White);
+                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("X").FontSize(8).Bold().FontColor(Colors.White);
+                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("Y").FontSize(8).Bold().FontColor(Colors.White);
                                                                 });
 
                                                                 int recordIndex = 0;
@@ -869,6 +884,10 @@ namespace _8F
                                                                     resultTable.Cell().Background(item.Result ? "#E8F5E9" : "#FFEBEE").Border(1).BorderColor("#E8E8E8").Padding(4)
                                                                         .Text(item.Result ? "PASS" : "FAIL").FontSize(8).Bold()
                                                                         .FontColor(item.Result ? "#2E7D32" : "#C62828");
+                                                                    resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                        .Text(item.X?.ToString() ?? "-").FontSize(8).FontColor("#333333");
+                                                                    resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
+                                                                        .Text(item.Y?.ToString() ?? "-").FontSize(8).FontColor("#333333");
                                                                 }
                                                             });
                                                         });

@@ -480,9 +480,13 @@ namespace _8F.Services
                     var fdData = JsonConvert.SerializeObject(targetCh.graphDatas);
 
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
+                    var resultData = JsonConvert.SerializeObject(res?.FD ?? new List<FreqResult>());
+                    int? primaryX = (res?.FD != null && res.FD.Count > 0) ? res.FD[0].X : null;
+                    int? primaryY = (res?.FD != null && res.FD.Count > 0) ? res.FD[0].Y : null;
+
                     if (ChId == 1)
                     {
-                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\",\"SrNo\", \"BatchNo\" , \"TimeStamp\")\r\n\t" +
+                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\",\"SrNo\", \"BatchNo\" , \"TimeStamp\", \"ResultData\", \"X\", \"Y\")\r\n\t" +
                             "VALUES (" +
                             ChId + ", '" +
                             Result + "', '" +
@@ -492,7 +496,11 @@ namespace _8F.Services
                             DeviceCOM.part.BatchName + "', '" +
                             Code + "', " +
                             DeviceCOM.part.BatchNo + ", '" +
-                            TimeStamp + "'); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"BatchName\" = '" + DeviceCOM.part.BatchName + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
+                            TimeStamp + "', '" +
+                            resultData + "', " +
+                            (primaryX.HasValue ? primaryX.Value.ToString() : "NULL") + ", " +
+                            (primaryY.HasValue ? primaryY.Value.ToString() : "NULL") +
+                            "); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"BatchName\" = '" + DeviceCOM.part.BatchName + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
 
                         var cmd = new NpgsqlCommand(sql, con);
                         var count = cmd.ExecuteScalar();
@@ -561,7 +569,7 @@ namespace _8F.Services
                         string line = "TimeStamp,Code,Operator Name,Result";
                         foreach (var fd in ch.graphDatas)
                         {
-                            line = line + ",Frequency Result_" + fd.Id.ToString() + ",Frequency_" + fd.Id.ToString();
+                            line = line + ",Frequency Result_" + fd.Id.ToString() + ",Frequency_" + fd.Id.ToString() + ",X_" + fd.Id.ToString() + ",Y_" + fd.Id.ToString();
                         }
                         lines.Add(line);
                     }
@@ -573,7 +581,7 @@ namespace _8F.Services
                         var Gdata = ch.graphDatas.FirstOrDefault(d => d.Id == fd.FN);
                         if (Gdata != null)
                         {
-                            data = data + "," + (fd.R == 1 ? "Ok" : "No Ok") + "," + Gdata.freq.ToString();
+                            data = data + "," + (fd.R == 1 ? "Ok" : "No Ok") + "," + Gdata.freq.ToString() + "," + fd.X + "," + fd.Y;
                         }
                     }
 
