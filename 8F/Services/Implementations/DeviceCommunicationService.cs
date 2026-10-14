@@ -471,77 +471,77 @@ namespace _8F.Services
         {
             try
             {
+                // Validate that all eight unique frequency numbers (1..8) are present before saving a complete event
+                if (res?.FD == null)
+                    return;
+
+                var uniqueFns = res.FD.Where(f => f != null).Select(f => f.FN).Distinct().ToList();
+                if (uniqueFns.Count != 8 || !Enumerable.Range(1, 8).All(fn => uniqueFns.Contains(fn)))
+                {
+                    // Do not save incomplete event and do not fabricate missing values
+                    return;
+                }
+
                 using (var con = new NpgsqlConnection(ConnectionString))
                 {
-                    string sql = string.Empty;
                     con.Open();
                     var targetCh = DeviceCOM.channelDatas.FirstOrDefault(r => r.Id == ChId);
                     if (targetCh == null) return;
                     var fdData = JsonConvert.SerializeObject(targetCh.graphDatas);
 
                     var partData = JsonConvert.SerializeObject(DeviceCOM.part);
-                    var resultData = JsonConvert.SerializeObject(res?.FD ?? new List<FreqResult>());
-                    int? primaryX = (res?.FD != null && res.FD.Count > 0) ? res.FD[0].X : null;
-                    int? primaryY = (res?.FD != null && res.FD.Count > 0) ? res.FD[0].Y : null;
+                    var frequencyList = res.FD.OrderBy(f => f.FN).ToList();
+                    var frequencyDataJson = JsonConvert.SerializeObject(frequencyList);
 
                     if (ChId == 1)
                     {
-                        sql = "INSERT INTO public.\"Logs\"(\"ChId\", \"Result\", \"FDData\", \"PartData\", \"PartName\", \"BatchName\",\"SrNo\", \"BatchNo\" , \"TimeStamp\", \"ResultData\", \"X\", \"Y\")\r\n\t" +
-                            "VALUES (" +
-                            ChId + ", '" +
-                            Result + "', '" +
-                            fdData + "', '" +
-                            partData + "', '" +
-                            DeviceCOM.part.Name + "', '" +
-                            DeviceCOM.part.BatchName + "', '" +
-                            Code + "', " +
-                            DeviceCOM.part.BatchNo + ", '" +
-                            TimeStamp + "', '" +
-                            resultData + "', " +
-                            (primaryX.HasValue ? primaryX.Value.ToString() : "NULL") + ", " +
-                            (primaryY.HasValue ? primaryY.Value.ToString() : "NULL") +
-                            "); SELECT count(1) \r\n\tFROM public.\"Logs\" where \"BatchName\" = '" + DeviceCOM.part.BatchName + "' and \"BatchNo\" = " + DeviceCOM.part.BatchNo + " ;";
+                        const string sql = @"
+                            INSERT INTO public.""Logs"" (
+                                ""ChId"", ""Result"", ""FDData"", ""PartData"", ""PartName"", 
+                                ""BatchName"", ""SrNo"", ""BatchNo"", ""TimeStamp"", ""FrequencyData"", ""ResultData""
+                            ) VALUES (
+                                @ChId, @Result, @FDData::json, @PartData::json, @PartName, 
+                                @BatchName, @SrNo, @BatchNo, @TimeStamp, @FrequencyData::jsonb, @ResultData::jsonb
+                            );
+                            SELECT count(1) FROM public.""Logs"" WHERE ""BatchName"" = @BatchName AND ""BatchNo"" = @BatchNo;";
 
-                        var cmd = new NpgsqlCommand(sql, con);
-                        var count = cmd.ExecuteScalar();
-
-                        if (DeviceCOM.part.BatchType == 1)
+                        using (var cmd = new NpgsqlCommand(sql, con))
                         {
-                            if (Convert.ToInt32(count) == DeviceCOM.part.BatchSize)
-                            {
-                                // stop the logging 
-                            }
+                            cmd.Parameters.AddWithValue("@ChId", ChId);
+                            cmd.Parameters.AddWithValue("@Result", Result);
+                            cmd.Parameters.AddWithValue("@FDData", fdData ?? (object)DBNull.Value);
+                            cmd.Parameters.AddWithValue("@PartData", partData ?? (object)DBNull.Value);
+                            cmd.Parameters.AddWithValue("@PartName", (object?)DeviceCOM.part?.Name ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@BatchName", (object?)DeviceCOM.part?.BatchName ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@SrNo", (object?)Code ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@BatchNo", (object?)DeviceCOM.part?.BatchNo ?? DBNull.Value);
+                            cmd.Parameters.AddWithValue("@TimeStamp", TimeStamp);
+                            cmd.Parameters.AddWithValue("@FrequencyData", frequencyDataJson);
+                            cmd.Parameters.AddWithValue("@ResultData", frequencyDataJson);
 
-                            DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
+                            var count = cmd.ExecuteScalar();
+
+                            if (DeviceCOM.part != null && DeviceCOM.part.BatchType == 1)
+                            {
+                                if (Convert.ToInt32(count) == DeviceCOM.part.BatchSize)
+                                {
+                                    // stop the logging 
+                                }
+
+                                DeviceCOM.part.BatchNo = DeviceCOM.part.BatchNo + 1;
+                            }
                         }
                     }
                     else
                     {
                         if (!Result)
                         {
-                            sql = "update public.\"Logs\"  set \"Result\" = 'false' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
-                            var cmd = new NpgsqlCommand(sql, con);
-                            var count = cmd.ExecuteScalar();
+                            const string sql = "UPDATE public.\"Logs\" SET \"Result\" = 'false' WHERE \"Id\" = (SELECT max(\"Id\") FROM public.\"Logs\"); SELECT 1;";
+                            using (var cmd = new NpgsqlCommand(sql, con))
+                            {
+                                var count = cmd.ExecuteScalar();
+                            }
                         }
-
-                        //if (ChId == 2)
-                        //{
-                        //    sql = "update public.\"Logs\"  set \"Ch2Result\" = '"+ Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
-                        //    var cmd = new NpgsqlCommand(sql, con);
-                        //    var count = cmd.ExecuteScalar();
-                        //}
-                        //else if (ChId == 3)
-                        //{
-                        //    sql = "update public.\"Logs\"  set \"Ch3Result\" = '" + Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
-                        //    var cmd = new NpgsqlCommand(sql, con);
-                        //    var count = cmd.ExecuteScalar();
-                        //}
-                        //else if (ChId == 4)
-                        //{
-                        //    sql = "update public.\"Logs\"  set \"Ch4Result\" = '" + Result + "' where \"Id\" = (select max(\"Id\") from public.\"Logs\"); select 1";
-                        //    var cmd = new NpgsqlCommand(sql, con);
-                        //    var count = cmd.ExecuteScalar();
-                        //}
                     }
                 }
             }

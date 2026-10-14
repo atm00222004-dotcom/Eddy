@@ -80,11 +80,11 @@ namespace _8F.Services
             const string sql = @"
                 INSERT INTO public.""Logs"" (
                     ""SerialNumber"", ""BatchId"", ""OperatorName"", ""InspectionTimestamp"",
-                    ""ChannelNumber"", ""FrequencyHz"", ""XValue"", ""YValue"",
+                    ""ChannelNumber"", ""FrequencyHz"", ""FrequencyData"",
                     ""ResultPass"", ""DefectType"", ""MachineId"", ""CreatedAt""
                 ) VALUES (
                     @SerialNumber, @BatchId, @OperatorName, @InspectionTimestamp,
-                    @ChannelNumber, @FrequencyHz, @XValue, @YValue,
+                    @ChannelNumber, @FrequencyHz, @FrequencyData::jsonb,
                     @ResultPass, @DefectType, @MachineId, @CreatedAt
                 )
                 RETURNING ""Id"";";
@@ -100,8 +100,7 @@ namespace _8F.Services
                 cmd.Parameters.AddWithValue("@InspectionTimestamp", log.InspectionTimestamp.ToUniversalTime());
                 cmd.Parameters.AddWithValue("@ChannelNumber", log.ChannelNumber);
                 cmd.Parameters.AddWithValue("@FrequencyHz", log.FrequencyHz);
-                cmd.Parameters.AddWithValue("@XValue", log.XValue);
-                cmd.Parameters.AddWithValue("@YValue", log.YValue);
+                cmd.Parameters.AddWithValue("@FrequencyData", string.IsNullOrWhiteSpace(log.FrequencyData) ? "[]" : log.FrequencyData);
                 cmd.Parameters.AddWithValue("@ResultPass", log.ResultPass);
                 cmd.Parameters.AddWithValue("@DefectType", (object?)log.DefectType ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@MachineId", log.MachineId ?? string.Empty);
@@ -134,7 +133,7 @@ namespace _8F.Services
         {
             const string sql = @"
                 SELECT ""Id"", ""SerialNumber"", ""BatchId"", ""OperatorName"", ""InspectionTimestamp"",
-                       ""ChannelNumber"", ""FrequencyHz"", ""XValue"", ""YValue"", ""ResultPass"",
+                       ""ChannelNumber"", ""FrequencyHz"", ""FrequencyData"", ""ResultPass"",
                        ""DefectType"", ""MachineId"", ""CreatedAt""
                 FROM public.""Logs""
                 WHERE ""BatchId"" = @BatchId
@@ -169,7 +168,7 @@ namespace _8F.Services
         {
             const string sql = @"
                 SELECT ""Id"", ""SerialNumber"", ""BatchId"", ""OperatorName"", ""InspectionTimestamp"",
-                       ""ChannelNumber"", ""FrequencyHz"", ""XValue"", ""YValue"", ""ResultPass"",
+                       ""ChannelNumber"", ""FrequencyHz"", ""FrequencyData"", ""ResultPass"",
                        ""DefectType"", ""MachineId"", ""CreatedAt""
                 FROM public.""Logs""
                 WHERE ""SerialNumber"" = @SerialNumber
@@ -204,7 +203,7 @@ namespace _8F.Services
         {
             const string sql = @"
                 SELECT ""Id"", ""SerialNumber"", ""BatchId"", ""OperatorName"", ""InspectionTimestamp"",
-                       ""ChannelNumber"", ""FrequencyHz"", ""XValue"", ""YValue"", ""ResultPass"",
+                       ""ChannelNumber"", ""FrequencyHz"", ""FrequencyData"", ""ResultPass"",
                        ""DefectType"", ""MachineId"", ""CreatedAt""
                 FROM public.""Logs""
                 WHERE ""InspectionTimestamp"" BETWEEN @StartDate AND @EndDate
@@ -911,8 +910,7 @@ namespace _8F.Services
                 InspectionTimestamp = reader.GetDateTime(reader.GetOrdinal("InspectionTimestamp")),
                 ChannelNumber = reader.GetInt32(reader.GetOrdinal("ChannelNumber")),
                 FrequencyHz = reader.GetDouble(reader.GetOrdinal("FrequencyHz")),
-                XValue = reader.GetDouble(reader.GetOrdinal("XValue")),
-                YValue = reader.GetDouble(reader.GetOrdinal("YValue")),
+                FrequencyData = reader.IsDBNull(reader.GetOrdinal("FrequencyData")) ? "[]" : reader.GetString(reader.GetOrdinal("FrequencyData")),
                 ResultPass = reader.GetBoolean(reader.GetOrdinal("ResultPass")),
                 DefectType = reader.IsDBNull(reader.GetOrdinal("DefectType")) ? null : reader.GetString(reader.GetOrdinal("DefectType")),
                 MachineId = reader.GetString(reader.GetOrdinal("MachineId")),

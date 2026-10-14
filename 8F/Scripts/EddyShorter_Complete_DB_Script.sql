@@ -75,7 +75,9 @@ CREATE TABLE IF NOT EXISTS public."Logs"
     "Ch1Result" boolean,
     "Ch2Result" boolean,
     "Ch3Result" boolean,
-    "Ch4Result" boolean
+    "Ch4Result" boolean,
+    "FrequencyData" jsonb,
+    "ResultData" jsonb
 );
 
 ALTER TABLE IF EXISTS public."Logs" OWNER to postgres;

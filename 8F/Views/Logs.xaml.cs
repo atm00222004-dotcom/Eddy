@@ -290,9 +290,8 @@ namespace _8F
                                                         record.Item()
                                                             .Row(r =>
                                                             {
-                                                                string coordText = (item.X.HasValue && item.Y.HasValue) ? $"   [Coord: X={item.X}, Y={item.Y}]" : "";
                                                                 r.RelativeItem()
-                                                                    .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}{coordText}")
+                                                                    .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}")
                                                                     .FontSize(9)
                                                                     .Bold()
                                                                     .FontColor("#333333");
@@ -533,9 +532,7 @@ namespace _8F
                     ""Result"",
                     ""FDData"",
                     ""PartData"",
-                    ""ResultData"",
-                    ""X"",
-                    ""Y""
+                    COALESCE(""FrequencyData""::text, ""ResultData""::text, '[]') AS ""FrequencyData""
                 FROM public.""Logs""
                 WHERE ""BatchName""=@BatchName
                 ORDER BY ""TimeStamp""";
@@ -557,9 +554,8 @@ namespace _8F
                         Result = Convert.ToBoolean(row["Result"]),
                         FDData = row["FDData"]?.ToString() ?? string.Empty,
                         PartData = row["PartData"]?.ToString() ?? string.Empty,
-                        ResultData = row["ResultData"]?.ToString() ?? string.Empty,
-                        X = row["X"] != DBNull.Value ? Convert.ToInt32(row["X"]) : null,
-                        Y = row["Y"] != DBNull.Value ? Convert.ToInt32(row["Y"]) : null
+                        FrequencyData = row["FrequencyData"]?.ToString() ?? string.Empty,
+                        ResultData = row["FrequencyData"]?.ToString() ?? string.Empty
                     });
                 }
             }
@@ -717,9 +713,8 @@ namespace _8F
                                                     record.Item()
                                                         .Row(r =>
                                                         {
-                                                            string coordText = (item.X.HasValue && item.Y.HasValue) ? $"   [Coord: X={item.X}, Y={item.Y}]" : "";
                                                             r.RelativeItem()
-                                                                .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}{coordText}")
+                                                                .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}")
                                                                 .FontSize(9)
                                                                 .Bold()
                                                                 .FontColor("#333333");

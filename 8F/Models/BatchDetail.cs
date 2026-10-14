@@ -25,9 +25,22 @@ namespace _8F.Models
         public bool Result { get; set; }
         public string FDData { get; set; } = string.Empty;
         public string PartData { get; set; } = string.Empty;
+        public string FrequencyData { get; set; } = string.Empty;
         public string ResultData { get; set; } = string.Empty;
-        public int? X { get; set; }
-        public int? Y { get; set; }
+
+        public List<FreqResult> GetFrequencyResults()
+        {
+            var raw = !string.IsNullOrWhiteSpace(FrequencyData) ? FrequencyData : ResultData;
+            if (string.IsNullOrWhiteSpace(raw)) return new List<FreqResult>();
+            try
+            {
+                return JsonConvert.DeserializeObject<List<FreqResult>>(raw) ?? new List<FreqResult>();
+            }
+            catch
+            {
+                return new List<FreqResult>();
+            }
+        }
     }
 
 }
