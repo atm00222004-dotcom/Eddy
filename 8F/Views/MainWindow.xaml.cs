@@ -111,6 +111,11 @@ namespace _8F
         public int modbusHeartbeatIntervalMs = GetConfigInt("ModbusHeartbeatIntervalMs", 1000);
         public IModbusSlaveService modbusSlaveService = new ModbusSlaveService();
 
+        public bool isOperatorActionLogEnable = GetConfigBool("IsOperatorActionLogEnable", false);
+        public int operatorActionFlushIntervalMs = GetConfigInt("OperatorActionFlushIntervalMs", 5000);
+        public int operatorActionRetentionDays = GetConfigInt("OperatorActionRetentionDays", 90);
+        private _8F.Services.OperatorActionMonitor? _operatorActionMonitor;
+
         public bool isPasswordEnable = GetConfigBool("IsPasswordEnable", true);
         bool isChangeConfigEnable = GetConfigBool("IsChangeConfigurationEnable", true);
         bool isThresholdSettingEnable = GetConfigBool("IsThresholdSettingEnable", true);
@@ -267,6 +272,25 @@ namespace _8F
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Modbus TCP Slave start notice: {ex.Message}");
+                }
+            }
+
+            if (isOperatorActionLogEnable)
+            {
+                try
+                {
+                    var actionRepo = new _8F.Services.OperatorActionRepository();
+                    _operatorActionMonitor = new _8F.Services.OperatorActionMonitor(actionRepo, operatorActionFlushIntervalMs);
+                    _operatorActionMonitor.Start();
+
+                    if (operatorActionRetentionDays > 0)
+                    {
+                        _ = Task.Run(() => actionRepo.DeleteOlderThanDaysAsync(operatorActionRetentionDays));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Operator Action Monitor startup notice: {ex.Message}");
                 }
             }
 
@@ -2133,6 +2157,18 @@ namespace _8F
             if (isModbusServerEnable && modbusSlaveService != null)
             {
                 modbusSlaveService.Stop();
+            }
+
+            if (_operatorActionMonitor != null)
+            {
+                try
+                {
+                    _operatorActionMonitor.Stop();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Operator Action Monitor shutdown notice: {ex.Message}");
+                }
             }
 
             if (portCOM == null) return;

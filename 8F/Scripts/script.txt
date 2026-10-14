@@ -189,3 +189,27 @@ CREATE TABLE IF NOT EXISTS public."ConfigEllipses"
     "Ey" numeric,
     "Angel" numeric
 );
+
+-- ==========================================
+-- OPERATOR ACTION LOG (Audit trail of operator clicks and shortcut keys)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public."OperatorActionLog"
+(
+    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "EventTimestamp" timestamp without time zone NOT NULL,   -- UTC, taken when the action happened
+    "ActionType" text NOT NULL,                              -- 'Click', 'WordTyped', or 'ShortcutKey'
+    "MouseButton" text,                                      -- 'Left', 'Right', 'Middle' (null for key actions)
+    "ControlName" text,                                      -- clicked or active control's name/text
+    "KeyName" text,                                          -- key name or typed word
+    "WindowTitle" text,
+    "OperatorName" text,                                     -- from existing operator context if available
+    "SessionId" uuid NOT NULL,                               -- one id per app run
+    "ScreenX" integer,                                       -- click screen X coordinate
+    "ScreenY" integer                                        -- click screen Y coordinate
+);
+
+ALTER TABLE public."OperatorActionLog" ADD COLUMN IF NOT EXISTS "ScreenX" integer;
+ALTER TABLE public."OperatorActionLog" ADD COLUMN IF NOT EXISTS "ScreenY" integer;
+
+CREATE INDEX IF NOT EXISTS "IX_OperatorActionLog_EventTimestamp"
+    ON public."OperatorActionLog" ("EventTimestamp");
