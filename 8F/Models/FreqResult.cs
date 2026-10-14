@@ -20,10 +20,17 @@ namespace _8F.Models
 {
     public class FreqResult
     {
-        public int FN;
-        public int R;
-        public int X;
-        public int Y;
+        [JsonProperty("FN")]
+        public int FN { get; set; }
+
+        [JsonProperty("R")]
+        public int R { get; set; }
+
+        [JsonProperty("X")]
+        public int X { get; set; }
+
+        [JsonProperty("Y")]
+        public int Y { get; set; }
     }
 
 }

@@ -14,8 +14,7 @@ namespace _8F.Models
         public DateTime InspectionTimestamp { get; set; } = DateTime.UtcNow;
         public int ChannelNumber { get; set; }
         public double FrequencyHz { get; set; }
-        public double XValue { get; set; }
-        public double YValue { get; set; }
+        public string FrequencyData { get; set; } = "[]";
         public bool ResultPass { get; set; }
         public string? DefectType { get; set; }
         public string MachineId { get; set; } = string.Empty;

@@ -177,22 +177,29 @@ namespace _8F
                         page.Header()
                             .ShowOnce()
                             .BorderBottom(2)
-                            .BorderColor("#0D3B6E")
+                            .BorderColor("#1B365D")
                             .PaddingBottom(8)
                             .Row(r =>
                             {
                                 r.RelativeItem().Row(left =>
                                 {
                                     var imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Magkraft.jpg");
-                                    var imageBytes = File.ReadAllBytes(imagePath);
+                                    if (File.Exists(imagePath))
+                                    {
+                                        var imageBytes = File.ReadAllBytes(imagePath);
+                                        left.AutoItem().Height(28).Width(28).AlignMiddle().Image(imageBytes);
+                                        left.ConstantItem(10);
+                                    }
 
-                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes);
-                                    left.ConstantItem(10);
-                                    left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
+                                    left.AutoItem().AlignMiddle().Column(tc =>
+                                    {
+                                        tc.Item().Text("SORTER EDDY REPORT - SUMMARY REPORT").FontSize(15).Bold().FontColor("#1B365D");
+                                        tc.Item().Text("INDUSTRIAL NON-DESTRUCTIVE TESTING (NDT) INSPECTION SYSTEM").FontSize(7).FontColor("#64748B");
+                                    });
                                 });
 
-                                r.ConstantItem(180).AlignRight().AlignBottom()
-                                    .Text($"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).FontColor("#888888");
+                                r.ConstantItem(180).AlignRight().AlignMiddle()
+                                    .Text($"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).FontColor("#64748B");
                             });
 
                         // ----- CONTENT (summary table) -----
@@ -212,38 +219,49 @@ namespace _8F
 
                                 table.Header(header =>
                                 {
-                                    header.Cell().Background("#0D3B6E").Padding(5).Text("Production Order").FontSize(9).Bold().FontColor(Colors.White);
-                                    header.Cell().Background("#0D3B6E").Padding(5).Text("Date").FontSize(9).Bold().FontColor(Colors.White);
-                                    header.Cell().Background("#0D3B6E").Padding(5).Text(BatchCaption).FontSize(9).Bold().FontColor(Colors.White);
-                                    header.Cell().Background("#0D3B6E").Padding(5).Text("OK Count").FontSize(9).Bold().FontColor(Colors.White);
-                                    header.Cell().Background("#0D3B6E").Padding(5).Text("Not OK Count").FontSize(9).Bold().FontColor(Colors.White);
-                                    header.Cell().Background("#0D3B6E").Padding(5).Text("Total Count").FontSize(9).Bold().FontColor(Colors.White);
+                                    header.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(5).AlignCenter().Text("Production Order").FontSize(8.5f).Bold().FontColor(Colors.White);
+                                    header.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(5).AlignCenter().Text("Date").FontSize(8.5f).Bold().FontColor(Colors.White);
+                                    header.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(5).AlignCenter().Text(BatchCaption).FontSize(8.5f).Bold().FontColor(Colors.White);
+                                    header.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(5).AlignCenter().Text("OK Count").FontSize(8.5f).Bold().FontColor(Colors.White);
+                                    header.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(5).AlignCenter().Text("Not OK Count").FontSize(8.5f).Bold().FontColor(Colors.White);
+                                    header.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(5).AlignCenter().Text("Total Count").FontSize(8.5f).Bold().FontColor(Colors.White);
                                 });
 
                                 int rowIndex = 0;
                                 foreach (var log in logs)
                                 {
                                     rowIndex++;
-                                    string bg = rowIndex % 2 == 0 ? "#FAFAFA" : "#FFFFFF";
+                                    string bg = rowIndex % 2 == 0 ? "#F8FAFC" : "#FFFFFF";
 
-                                    table.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(5).Text(log.ProductionOrder ?? "-").FontSize(8);
-                                    table.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(5).Text(log.Date).FontSize(8);
-                                    table.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(5).Text(log.BatchName).FontSize(8);
-                                    table.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(5).Text(log.PassCount.ToString()).FontSize(8).FontColor("#2E7D32");
-                                    table.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(5).Text(log.FailCount.ToString()).FontSize(8).FontColor("#C62828");
-                                    table.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(5).Text(log.TotalCount.ToString()).FontSize(8).Bold();
+                                    table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(4).AlignCenter().Text(log.ProductionOrder ?? "-").FontSize(8).FontColor("#1E293B");
+                                    table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(4).AlignCenter().Text(log.Date).FontSize(8).FontColor("#1E293B");
+                                    table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(4).AlignCenter().Text(log.BatchName).FontSize(8).FontColor("#1E293B");
+                                    table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(4).AlignCenter().Text(log.PassCount.ToString()).FontSize(8).Bold().FontColor("#065F46");
+                                    table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(4).AlignCenter().Text(log.FailCount.ToString()).FontSize(8).Bold().FontColor("#991B1B");
+                                    table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(4).AlignCenter().Text(log.TotalCount.ToString()).FontSize(8).Bold().FontColor("#0F172A");
                                 }
                             });
 
                         // ----- FOOTER (page numbers) -----
                         page.Footer()
-                            .AlignCenter()
-                            .Text(x =>
+                            .BorderTop(1)
+                            .BorderColor("#E2E8F0")
+                            .PaddingTop(6)
+                            .Row(r =>
                             {
-                                x.Span("Page ");
-                                x.CurrentPageNumber();
-                                x.Span(" of ");
-                                x.TotalPages();
+                                r.RelativeItem().AlignLeft().Text("Antigravity 8F ECT Inspection System | Confidential")
+                                    .FontSize(7).FontColor("#94A3B8");
+
+                                r.RelativeItem().AlignCenter().Text(x =>
+                                {
+                                    x.Span("Page ").FontSize(7).FontColor("#64748B");
+                                    x.CurrentPageNumber().FontSize(7).Bold().FontColor("#1E293B");
+                                    x.Span(" of ").FontSize(7).FontColor("#64748B");
+                                    x.TotalPages().FontSize(7).Bold().FontColor("#1E293B");
+                                });
+
+                                r.RelativeItem().AlignRight().Text("Automated Summary Report")
+                                    .FontSize(7).FontColor("#94A3B8");
                             });
                     });
                 })
@@ -291,265 +309,359 @@ namespace _8F
             try
             {
                 var logs = listOfLog;
-
-                QuestPDF.Settings.License = LicenseType.Community;
-
-                QuestPDF.Fluent.Document.Create(container =>
+                if (logs == null || logs.Count == 0)
                 {
-                    container.Page(page =>
-                    {
-                        page.Margin(20);
-                        page.Size(PageSizes.A4);
+                    MessageBox.Show("No data found.");
+                    return;
+                }
 
-                        page.Header()
-                            .ShowOnce()
-                            .BorderBottom(2)
-                            .BorderColor("#0D3B6E")
-                            .PaddingBottom(8)
-                            .Row(r =>
-                            {
-                                r.RelativeItem().Row(left =>
-                                {
-                                    var imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Magkraft.jpg");
-                                    var imageBytes = File.ReadAllBytes(imagePath);
-
-                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes);
-                                    left.ConstantItem(10);
-                                    left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
-                                });
-
-                                r.ConstantItem(180).AlignRight().AlignBottom()
-                                    .Text($"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).FontColor("#888888");
-                            });
-
-                        page.Content()
-                            .PaddingTop(10)
-                            .Column(col =>
-                            {
-                                col.Spacing(10);
-
-                                foreach (var log in logs)
-                                {
-                                    col.Item()
-                                        .Border(1)
-                                        .BorderColor("#CCCCCC")
-                                        .Column(batch =>
-                                        {
-                                            batch.Item()
-                                                .Background("#0D3B6E")
-                                                .Padding(7).PaddingLeft(12).PaddingRight(12)
-                                                .Row(r =>
-                                                {
-                                                    r.RelativeItem().Text($"{BatchCaption} : {log.BatchName}").FontSize(8).Bold().FontColor("#FFFFFF");
-
-                                                    r.ConstantItem(250).AlignRight().Row(stats =>
-                                                    {
-                                                        stats.AutoItem().Text($"OK : {log.PassCount}").FontSize(8).Bold().FontColor("#69F0AE");
-                                                    });
-                                                });
-
-                                             var details = GetBatchDetails(log.BatchName, log.LogDateRaw, log.ProductionOrder);
-                                             if (details != null)
-                                             {
-                                                 foreach (var group in details.GroupBy(d => BuildSettingsKey(d.FDData, d.PartData)))
-                                                 {
-                                                     List<GraphData> fdList = new();
-                                                     try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData) ?? new(); }
-                                                     catch { fdList = new(); }
-
-                                                     PartConfiguration? part = null;
-                                                     try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
-                                                     catch { part = null; }
-
-                                                     batch.Item()
-                                                         .BorderTop(1).BorderColor("#E8E8E8")
-                                                         .Padding(7).PaddingLeft(12).PaddingRight(12)
-                                                         .Column(grp =>
-                                                         {
-                                                        grp.Item()
-                                                            .Border(1).BorderColor("#DDDDDD").Background("#FAFAFA").Padding(10)
-                                                            .Column(section =>
-                                                            {
-                                                                section.Item().Text("CONFIGURATION SETTING").FontSize(8).Bold().FontColor("#0D3B6E");
-
-                                                                section.Item().PaddingTop(5).Table(table =>
-                                                                {
-                                                                    table.ColumnsDefinition(columns =>
-                                                                    {
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                    });
-
-                                                                    table.Header(header =>
-                                                                    {
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Channel").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Frequency").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Gain").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Phase").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Status").FontColor(Colors.White);
-                                                                    });
-
-                                                                    foreach (var d in fdList)
-                                                                    {
-                                                                        table.Cell().Border(1).Padding(3).Text(d.Name ?? string.Empty);
-                                                                        table.Cell().Border(1).Padding(3).Text(d.freq.ToString());
-                                                                        table.Cell().Border(1).Padding(3).Text(d.gain.ToString());
-                                                                        table.Cell().Border(1).Padding(3).Text(d.phase.ToString());
-                                                                        table.Cell().Border(1).Padding(3).Text(d.isEnable ? "ON" : "OFF");
-                                                                    }
-                                                                });
-
-                                                                section.Item().PaddingTop(10).Text("THRESHOLD SETTING").FontSize(8).Bold().FontColor("#0D3B6E");
-
-                                                                section.Item().PaddingTop(5).Table(table =>
-                                                                {
-                                                                    table.ColumnsDefinition(columns =>
-                                                                    {
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                        columns.RelativeColumn();
-                                                                    });
-
-                                                                    table.Header(header =>
-                                                                    {
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Channel").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Height").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Width").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Ex").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Ey").FontColor(Colors.White);
-                                                                        header.Cell().Background("#0D3B6E").Padding(3).Text("Angle").FontColor(Colors.White);
-                                                                    });
-
-                                                                    foreach (var d in fdList)
-                                                                    {
-                                                                        table.Cell().Border(1).Padding(3).Text(d.Name ?? string.Empty);
-                                                                        table.Cell().Border(1).Padding(3).Text(d.height.ToString("0.##"));
-                                                                        table.Cell().Border(1).Padding(3).Text(d.width.ToString("0.##"));
-                                                                        table.Cell().Border(1).Padding(3).Text(d.ex.ToString("0.##"));
-                                                                        table.Cell().Border(1).Padding(3).Text(d.ey.ToString("0.##"));
-                                                                        table.Cell().Border(1).Padding(3).Text(d.angel.ToString("0.##"));
-                                                                    }
-                                                                });
-
-                                                                section.Item().PaddingTop(10).Text("PART CONFIGURATION").FontSize(8).Bold().FontColor("#0D3B6E");
-
-                                                                section.Item().PaddingTop(5).Column(c =>
-                                                                {
-                                                                    if (IsReNewConfig)
-                                                                    {
-                                                                        c.Item().Row(r =>
-                                                                        {
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Production Order", part?.ProductionOrder));
-                                                                            r.ConstantItem(10);
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Machine Number", part?.MachineNumber));
-                                                                            r.ConstantItem(10);
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Part Number", part?.PartNumber));
-                                                                        });
-                                                                        c.Item().PaddingTop(2).Row(r =>
-                                                                        {
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Part Family", part?.PartFamily));
-                                                                            r.ConstantItem(10);
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Shift", part?.BatchName));
-                                                                            r.ConstantItem(10);
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Operator", part?.CheckedBy));
-                                                                        });
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        c.Item().Row(r =>
-                                                                        {
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Batch Name", part?.BatchName));
-                                                                            r.ConstantItem(10);
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Part Name", part?.Name));
-                                                                            r.ConstantItem(10);
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Grade", part?.Grade));
-                                                                        });
-                                                                        c.Item().PaddingTop(2).Row(r =>
-                                                                        {
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Checked By", part?.CheckedBy));
-                                                                            r.ConstantItem(10);
-                                                                            r.RelativeItem(1).Element(x => LV(x, "Company Name", part?.CompanyName));
-                                                                            r.ConstantItem(10);
-                                                                            r.RelativeItem(1).Element(x => LV(x, "", ""));
-                                                                        });
-                                                                    }
-                                                                });
-
-                                                                // ---- RESULT RECORDS TABLE ----
-                                                                section.Item().PaddingTop(10).Text("RESULTS").FontSize(8).Bold().FontColor("#0D3B6E");
-
-                                                                section.Item().PaddingTop(5).Table(resultTable =>
-                                                                {
-                                                                    resultTable.ColumnsDefinition(cols =>
-                                                                    {
-                                                                        cols.ConstantColumn(30);   // Sr No
-                                                                        cols.RelativeColumn();     // Timestamp
-                                                                        cols.ConstantColumn(50);   // Result
-                                                                        cols.ConstantColumn(45);   // X
-                                                                        cols.ConstantColumn(45);   // Y
-                                                                    });
-
-                                                                    resultTable.Header(h =>
-                                                                    {
-                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("Sr No").FontSize(8).Bold().FontColor(Colors.White);
-                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("Timestamp").FontSize(8).Bold().FontColor(Colors.White);
-                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("Result").FontSize(8).Bold().FontColor(Colors.White);
-                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("X").FontSize(8).Bold().FontColor(Colors.White);
-                                                                        h.Cell().Background("#0D3B6E").Padding(4).Text("Y").FontSize(8).Bold().FontColor(Colors.White);
-                                                                    });
-
-                                                                    int recordIndex = 0;
-                                                                    foreach (var item in group)
-                                                                    {
-                                                                        recordIndex++;
-                                                                        string bg = recordIndex % 2 == 0 ? "#FAFAFA" : "#FFFFFF";
-
-                                                                        resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                            .Text(recordIndex.ToString()).FontSize(8).FontColor("#333333");
-                                                                        resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                            .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}").FontSize(8).FontColor("#333333");
-                                                                        resultTable.Cell().Background(item.Result ? "#E8F5E9" : "#FFEBEE").Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                            .Text(item.Result ? "PASS" : "FAIL").FontSize(8).Bold()
-                                                                            .FontColor(item.Result ? "#2E7D32" : "#C62828");
-                                                                        resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                            .Text(item.X?.ToString() ?? "-").FontSize(8).FontColor("#333333");
-                                                                        resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                            .Text(item.Y?.ToString() ?? "-").FontSize(8).FontColor("#333333");
-                                                                    }
-                                                                });
-                                                            });
-                                                    });
-                                                 }
-                                             }
-                                        });
-                                }
-                            });
-
-                        page.Footer()
-                            .AlignCenter()
-                            .Text(x =>
-                            {
-                                x.Span("Page ");
-                                x.CurrentPageNumber();
-                                x.Span(" of ");
-                                x.TotalPages();
-                            });
-                    });
-                })
-                .GeneratePdf(filePath);
-
+                BuildDetailedReportPdf(logs, filePath);
                 MessageBox.Show("PDF Generated Successfully");
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Detailed PDF generation error: {ex.Message}");
                 MessageBox.Show("Something went wrong. Please try again.");
             }
+        }
+
+        private void BuildDetailedReportPdf(List<LogData> logs, string filePath)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(20);
+                    page.Size(PageSizes.A4.Landscape());
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontFamily("Arial").FontSize(8).FontColor("#1E293B"));
+
+                    // ================= PAGE HEADER =================
+                    page.Header()
+                        .ShowOnce()
+                        .BorderBottom(2)
+                        .BorderColor("#1B365D")
+                        .PaddingBottom(8)
+                        .Row(r =>
+                        {
+                            r.RelativeItem().Row(left =>
+                            {
+                                var imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Magkraft.jpg");
+                                if (File.Exists(imagePath))
+                                {
+                                    var imageBytes = File.ReadAllBytes(imagePath);
+                                    left.ConstantItem(28).Height(28).AlignMiddle().Image(imageBytes).FitArea();
+                                    left.ConstantItem(10);
+                                }
+
+                                left.RelativeItem().AlignMiddle().Column(tc =>
+                                {
+                                    tc.Item().Text("SORTER EDDY REPORT - DETAILED REPORT")
+                                        .FontSize(15).Bold().FontColor("#1B365D");
+                                    tc.Item().Text("INDUSTRIAL NON-DESTRUCTIVE TESTING (NDT) INSPECTION SYSTEM")
+                                        .FontSize(7).FontColor("#64748B");
+                                });
+                            });
+
+                            r.ConstantItem(220).AlignRight().AlignMiddle().Column(rc =>
+                            {
+                                rc.Item().AlignRight().Text($"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}")
+                                    .FontSize(8).FontColor("#475569");
+                                rc.Item().AlignRight().Text("8-Frequency Inspection Data")
+                                    .FontSize(7).FontColor("#94A3B8");
+                            });
+                        });
+
+                    // ================= PAGE CONTENT =================
+                    page.Content()
+                        .PaddingTop(10)
+                        .Column(col =>
+                        {
+                            col.Spacing(10);
+
+                            foreach (var log in logs)
+                            {
+                                var details = GetBatchDetails(log.BatchName, log.LogDateRaw, log.ProductionOrder);
+                                if (details == null || details.Count == 0) continue;
+
+                                // 1. Shift / Batch Header Bar
+                                col.Item()
+                                    .Background("#1B365D")
+                                    .Padding(7).PaddingHorizontal(12)
+                                    .Row(r =>
+                                    {
+                                        r.RelativeItem().Row(br =>
+                                        {
+                                            br.AutoItem().Text($"{BatchCaption} : ").FontSize(8.5f).Bold().FontColor("#CBD5E1");
+                                            br.AutoItem().Text(log.BatchName).FontSize(8.5f).Bold().FontColor(Colors.White);
+                                            if (!string.IsNullOrWhiteSpace(log.ProductionOrder))
+                                            {
+                                                br.ConstantItem(15);
+                                                br.AutoItem().Text("PO : ").FontSize(8.5f).Bold().FontColor("#CBD5E1");
+                                                br.AutoItem().Text(log.ProductionOrder).FontSize(8.5f).Bold().FontColor(Colors.White);
+                                            }
+                                            br.ConstantItem(15);
+                                            br.AutoItem().Text("Date : ").FontSize(8.5f).Bold().FontColor("#CBD5E1");
+                                            br.AutoItem().Text(log.Date).FontSize(8.5f).Bold().FontColor(Colors.White);
+                                        });
+
+                                        r.ConstantItem(260).AlignRight().Row(stats =>
+                                        {
+                                            stats.AutoItem().Background("#0F2942").PaddingHorizontal(6).PaddingVertical(2)
+                                                .Text($"OK : {log.PassCount}").FontSize(8).Bold().FontColor("#86EFAC");
+                                            stats.ConstantItem(6);
+                                            stats.AutoItem().Background("#0F2942").PaddingHorizontal(6).PaddingVertical(2)
+                                                .Text($"NOT OK : {log.FailCount}").FontSize(8).Bold().FontColor("#FCA5A5");
+                                            stats.ConstantItem(6);
+                                            stats.AutoItem().Background("#0F2942").PaddingHorizontal(6).PaddingVertical(2)
+                                                .Text($"TOTAL : {log.TotalCount}").FontSize(8).Bold().FontColor(Colors.White);
+                                        });
+                                    });
+
+                                // 2. Sections per unique settings group
+                                foreach (var group in details.GroupBy(d => BuildSettingsKey(d.FDData, d.PartData)))
+                                {
+                                    List<GraphData> fdList = new();
+                                    try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData) ?? new(); }
+                                    catch { fdList = new(); }
+
+                                    PartConfiguration? part = null;
+                                    try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
+                                    catch { part = null; }
+
+                                    // Configuration, Threshold, and Part Configuration Card
+                                    col.Item().Border(1).BorderColor("#E2E8F0").Background("#FFFFFF").Padding(8).Column(cfgCol =>
+                                    {
+                                        cfgCol.Spacing(6);
+
+                                        // Side-by-side Configuration & Threshold settings in Landscape
+                                        cfgCol.Item().Row(row =>
+                                        {
+                                            // Left: Configuration Settings
+                                            row.RelativeItem(5).Column(left =>
+                                            {
+                                                left.Item().Text("CONFIGURATION SETTINGS").FontSize(8f).Bold().FontColor("#1B365D");
+                                                left.Item().PaddingTop(3).Table(table =>
+                                                {
+                                                    table.ColumnsDefinition(cols =>
+                                                    {
+                                                        cols.RelativeColumn(1.2f);
+                                                        cols.RelativeColumn();
+                                                        cols.RelativeColumn();
+                                                        cols.RelativeColumn();
+                                                        cols.RelativeColumn();
+                                                    });
+
+                                                    table.Header(h =>
+                                                    {
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Channel").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Frequency").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Gain").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Phase").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Status").FontSize(7f).Bold().FontColor(Colors.White);
+                                                    });
+
+                                                    int idx = 0;
+                                                    foreach (var d in fdList)
+                                                    {
+                                                        idx++;
+                                                        string bg = idx % 2 == 0 ? "#F8FAFC" : "#FFFFFF";
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.Name ?? "").FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.freq.ToString()).FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.gain.ToString()).FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.phase.ToString()).FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.isEnable ? "ON" : "OFF").FontSize(7f);
+                                                    }
+                                                });
+                                            });
+
+                                            row.ConstantItem(12);
+
+                                            // Right: Threshold Settings
+                                            row.RelativeItem(6).Column(right =>
+                                            {
+                                                right.Item().Text("THRESHOLD SETTINGS").FontSize(8f).Bold().FontColor("#1B365D");
+                                                right.Item().PaddingTop(3).Table(table =>
+                                                {
+                                                    table.ColumnsDefinition(cols =>
+                                                    {
+                                                        cols.RelativeColumn(1.2f);
+                                                        cols.RelativeColumn();
+                                                        cols.RelativeColumn();
+                                                        cols.RelativeColumn();
+                                                        cols.RelativeColumn();
+                                                        cols.RelativeColumn();
+                                                    });
+
+                                                    table.Header(h =>
+                                                    {
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Channel").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Height").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Width").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Ex").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Ey").FontSize(7f).Bold().FontColor(Colors.White);
+                                                        h.Cell().Background("#1B365D").Padding(2.5f).AlignCenter().Text("Angle").FontSize(7f).Bold().FontColor(Colors.White);
+                                                    });
+
+                                                    int idx = 0;
+                                                    foreach (var d in fdList)
+                                                    {
+                                                        idx++;
+                                                        string bg = idx % 2 == 0 ? "#F8FAFC" : "#FFFFFF";
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.Name ?? "").FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.height.ToString("0.##")).FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.width.ToString("0.##")).FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.ex.ToString("0.##")).FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.ey.ToString("0.##")).FontSize(7f);
+                                                        table.Cell().Background(bg).Border(1).BorderColor("#E2E8F0").Padding(2).AlignCenter().Text(d.angel.ToString("0.##")).FontSize(7f);
+                                                    }
+                                                });
+                                            });
+                                        });
+
+                                        // Part Configuration below tables
+                                        cfgCol.Item().PaddingTop(2).Column(c =>
+                                        {
+                                            c.Item().Text("PART CONFIGURATION").FontSize(8f).Bold().FontColor("#1B365D");
+                                            c.Item().PaddingTop(2).Row(r =>
+                                            {
+                                                if (IsReNewConfig)
+                                                {
+                                                    r.RelativeItem(1).Element(x => LV(x, "Production Order", part?.ProductionOrder));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Machine Number", part?.MachineNumber));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Part Number", part?.PartNumber));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Part Family", part?.PartFamily));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Shift", part?.BatchName));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Operator", part?.CheckedBy));
+                                                }
+                                                else
+                                                {
+                                                    r.RelativeItem(1).Element(x => LV(x, "Batch Name", part?.BatchName ?? log.BatchName));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Part Name", part?.Name));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Grade", part?.Grade));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Checked By", part?.CheckedBy));
+                                                    r.ConstantItem(10);
+                                                    r.RelativeItem(1).Element(x => LV(x, "Company Name", part?.CompanyName));
+                                                }
+                                            });
+                                        });
+                                    });
+
+                                    // ----- SINGLE COMBINED RESULTS TABLE -----
+                                    col.Item().Column(resCol =>
+                                    {
+                                        resCol.Item().Text("INSPECTION RESULTS").FontSize(8.5f).Bold().FontColor("#1B365D");
+
+                                        resCol.Item().PaddingTop(3).Table(resultTable =>
+                                        {
+                                            // Exact 11 columns in specified order
+                                            resultTable.ColumnsDefinition(cols =>
+                                            {
+                                                cols.ConstantColumn(36);   // 1. Sr No.
+                                                cols.ConstantColumn(110);  // 2. Timestamp
+                                                cols.RelativeColumn();     // 3. Frequency 1 (X,Y)
+                                                cols.RelativeColumn();     // 4. Frequency 2 (X,Y)
+                                                cols.RelativeColumn();     // 5. Frequency 3 (X,Y)
+                                                cols.RelativeColumn();     // 6. Frequency 4 (X,Y)
+                                                cols.RelativeColumn();     // 7. Frequency 5 (X,Y)
+                                                cols.RelativeColumn();     // 8. Frequency 6 (X,Y)
+                                                cols.RelativeColumn();     // 9. Frequency 7 (X,Y)
+                                                cols.RelativeColumn();     // 10. Frequency 8 (X,Y)
+                                                cols.ConstantColumn(52);   // 11. Result
+                                            });
+
+                                            resultTable.Header(h =>
+                                            {
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("Sr No.").FontSize(7.5f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignLeft().Text("Timestamp").FontSize(7.5f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("D1 (X,Y)").FontSize(7f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("D2 (X,Y)").FontSize(7f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("D3 (X,Y)").FontSize(7f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("D4 (X,Y)").FontSize(7f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("D5 (X,Y)").FontSize(7f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("D6 (X,Y)").FontSize(7f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("D7 (X,Y)").FontSize(7f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("D8 (X,Y)").FontSize(7f).Bold().FontColor(Colors.White);
+                                                h.Cell().Background("#1B365D").Border(1).BorderColor("#1B365D").Padding(3.5f).AlignCenter().Text("Result").FontSize(7.5f).Bold().FontColor(Colors.White);
+                                            });
+
+                                            int recordIndex = 0;
+                                            foreach (var item in group)
+                                            {
+                                                recordIndex++;
+                                                string rowBg = recordIndex % 2 == 0 ? "#F8FAFC" : "#FFFFFF";
+
+                                                // Map FN 1..8 to coordinate pairs, preserving negative coordinates
+                                                var freqList = item.GetFrequencyResults();
+                                                var freqMap = new Dictionary<int, string>();
+                                                foreach (var f in freqList)
+                                                {
+                                                    if (f != null && f.FN >= 1 && f.FN <= 8)
+                                                    {
+                                                        freqMap[f.FN] = $"({f.X}, {f.Y})";
+                                                    }
+                                                }
+
+                                                // 1. Sr No.
+                                                resultTable.Cell().Background(rowBg).Border(1).BorderColor("#E2E8F0").Padding(3)
+                                                    .AlignCenter().Text(recordIndex.ToString()).FontSize(7.5f).FontColor("#1E293B");
+
+                                                // 2. Timestamp
+                                                resultTable.Cell().Background(rowBg).Border(1).BorderColor("#E2E8F0").Padding(3)
+                                                    .AlignLeft().Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}").FontSize(7.5f).FontColor("#1E293B");
+
+                                                // 3 to 10. Frequency 1 to 8 (X,Y)
+                                                for (int fn = 1; fn <= 8; fn++)
+                                                {
+                                                    string coord = freqMap.TryGetValue(fn, out var cVal) ? cVal : "N/A";
+                                                    resultTable.Cell().Background(rowBg).Border(1).BorderColor("#E2E8F0").Padding(3)
+                                                        .AlignCenter().Text(coord).FontSize(7.5f).FontColor("#1E293B");
+                                                }
+
+                                                // 11. Result - Restrained Industrial PASS/FAIL Colors
+                                                string resultBg = item.Result ? "#ECFDF5" : "#FEF2F2";
+                                                string resultTextColor = item.Result ? "#065F46" : "#991B1B";
+                                                string resultBorderColor = item.Result ? "#A7F3D0" : "#FECACA";
+
+                                                resultTable.Cell().Background(resultBg).Border(1).BorderColor(resultBorderColor).Padding(3)
+                                                    .AlignCenter().Text(item.Result ? "PASS" : "FAIL").FontSize(7.5f).Bold().FontColor(resultTextColor);
+                                            }
+                                        });
+                                    });
+                                }
+                            }
+                        });
+
+                    // ================= PAGE FOOTER =================
+                    page.Footer()
+                        .BorderTop(1)
+                        .BorderColor("#E2E8F0")
+                        .PaddingTop(6)
+                        .Row(r =>
+                        {
+                           
+                            r.RelativeItem().AlignCenter().Text(x =>
+                            {
+                                x.Span("Page ").FontSize(7).FontColor("#64748B");
+                                x.CurrentPageNumber().FontSize(7).Bold().FontColor("#1E293B");
+                                x.Span(" of ").FontSize(7).FontColor("#64748B");
+                                x.TotalPages().FontSize(7).Bold().FontColor("#1E293B");
+                            });
+
+                        });
+                });
+            })
+            .GeneratePdf(filePath);
         }
 
         private List<BatchDetail>? GetBatchDetails(string batchName, DateTime? logDate, string productionOrder)
@@ -563,7 +675,7 @@ namespace _8F
                     con.Open();
 
                     string sql = @"
-                        SELECT ""TimeStamp"", ""BatchName"", ""Result"", ""FDData"", ""PartData"", ""ResultData"", ""X"", ""Y""
+                        SELECT ""TimeStamp"", ""BatchName"", ""Result"", ""FDData"", ""PartData"", COALESCE(""FrequencyData""::text, ""ResultData""::text, '[]') AS ""FrequencyData""
                         FROM public.""Logs""
                         WHERE 1=1";
 
@@ -608,9 +720,8 @@ namespace _8F
                                     Result = Convert.ToBoolean(row["Result"]),
                                     FDData = row["FDData"]?.ToString() ?? string.Empty,
                                     PartData = row["PartData"]?.ToString() ?? string.Empty,
-                                    ResultData = row["ResultData"]?.ToString() ?? string.Empty,
-                                    X = row["X"] != DBNull.Value ? Convert.ToInt32(row["X"]) : null,
-                                    Y = row["Y"] != DBNull.Value ? Convert.ToInt32(row["Y"]) : null
+                                    FrequencyData = row["FrequencyData"]?.ToString() ?? string.Empty,
+                                    ResultData = row["FrequencyData"]?.ToString() ?? string.Empty
                                 });
                             }
                         }
@@ -663,256 +774,13 @@ namespace _8F
         {
             try
             {
-                var details = GetBatchDetails(log.BatchName, log.LogDateRaw, log.ProductionOrder);
-                if (details == null) return;
-
-                QuestPDF.Settings.License = LicenseType.Community;
-
-                QuestPDF.Fluent.Document.Create(container =>
-                {
-                    container.Page(page =>
-                    {
-                        page.Margin(20);
-                        page.Size(PageSizes.A4);
-
-                        page.Header()
-                            .ShowOnce()
-                            .BorderBottom(2)
-                            .BorderColor("#0D3B6E")
-                            .PaddingBottom(8)
-                            .Row(r =>
-                            {
-                                r.RelativeItem().Row(left =>
-                                {
-                                    var imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Magkraft.jpg");
-                                    var imageBytes = File.ReadAllBytes(imagePath);
-
-                                    left.AutoItem().Height(25).Width(25).AlignMiddle().Image(imageBytes);
-                                    left.ConstantItem(10);
-                                    left.AutoItem().AlignMiddle().Text("SORTER EDDY REPORT").FontSize(18).Bold().FontColor("#0D3B6E");
-                                });
-
-                                r.ConstantItem(180).AlignRight().AlignBottom()
-                                    .Text($"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).FontColor("#888888");
-                            });
-
-                        page.Content()
-                            .PaddingTop(10)
-                            .Column(col =>
-                            {
-                                col.Item()
-                                    .Border(1)
-                                    .BorderColor("#CCCCCC")
-                                    .Column(batch =>
-                                    {
-                                        batch.Item()
-                                            .Background("#0D3B6E")
-                                            .Padding(7).PaddingLeft(12).PaddingRight(12)
-                                            .Row(r =>
-                                            {
-                                                r.RelativeItem().Text($"{BatchCaption} : {log.BatchName}").FontSize(8).Bold().FontColor("#FFFFFF");
-
-                                                r.ConstantItem(250).AlignRight().Row(stats =>
-                                                {
-                                                    stats.AutoItem().Text($"OK : {log.PassCount}").FontSize(8).Bold().FontColor("#69F0AE");
-                                                });
-                                            });
-
-                                        foreach (var group in details.GroupBy(d => BuildSettingsKey(d.FDData, d.PartData)))
-                                        {
-                                            List<GraphData> fdList = new();
-                                            try { fdList = JsonConvert.DeserializeObject<List<GraphData>>(group.First().FDData ?? "[]") ?? new(); }
-                                            catch { fdList = new(); }
-
-                                            PartConfiguration? part = null;
-                                            try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
-                                            catch { part = null; }
-
-                                            batch.Item()
-                                                .BorderTop(1).BorderColor("#E8E8E8")
-                                                .Padding(7).PaddingLeft(12).PaddingRight(12)
-                                                .Column(grp =>
-                                                {
-                                                    grp.Item()
-                                                        .Border(1).BorderColor("#DDDDDD").Background("#FAFAFA").Padding(10)
-                                                        .Column(section =>
-                                                        {
-                                                            section.Item().Text("CONFIGURATION SETTING").FontSize(8).Bold().FontColor("#0D3B6E");
-
-                                                            section.Item().PaddingTop(5).Table(table =>
-                                                            {
-                                                                table.ColumnsDefinition(columns =>
-                                                                {
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                });
-
-                                                                table.Header(header =>
-                                                                {
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Channel").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Frequency").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Gain").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Phase").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Status").FontColor(Colors.White);
-                                                                });
-
-                                                                foreach (var d in fdList)
-                                                                {
-                                                                    table.Cell().Border(1).Padding(3).Text(d.Name);
-                                                                    table.Cell().Border(1).Padding(3).Text(d.freq.ToString());
-                                                                    table.Cell().Border(1).Padding(3).Text(d.gain.ToString());
-                                                                    table.Cell().Border(1).Padding(3).Text(d.phase.ToString());
-                                                                    table.Cell().Border(1).Padding(3).Text(d.isEnable ? "ON" : "OFF");
-                                                                }
-                                                            });
-
-                                                            section.Item().PaddingTop(10).Text("THRESHOLD SETTING").FontSize(8).Bold().FontColor("#0D3B6E");
-
-                                                            section.Item().PaddingTop(5).Table(table =>
-                                                            {
-                                                                table.ColumnsDefinition(columns =>
-                                                                {
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                    columns.RelativeColumn();
-                                                                });
-
-                                                                table.Header(header =>
-                                                                {
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Channel").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Height").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Width").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Ex").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Ey").FontColor(Colors.White);
-                                                                    header.Cell().Background("#0D3B6E").Padding(3).Text("Angle").FontColor(Colors.White);
-                                                                });
-
-                                                                foreach (var d in fdList)
-                                                                {
-                                                                    table.Cell().Border(1).Padding(3).Text(d.Name);
-                                                                    table.Cell().Border(1).Padding(3).Text(d.height.ToString("0.##"));
-                                                                    table.Cell().Border(1).Padding(3).Text(d.width.ToString("0.##"));
-                                                                    table.Cell().Border(1).Padding(3).Text(d.ex.ToString("0.##"));
-                                                                    table.Cell().Border(1).Padding(3).Text(d.ey.ToString("0.##"));
-                                                                    table.Cell().Border(1).Padding(3).Text(d.angel.ToString("0.##"));
-                                                                }
-                                                            });
-
-                                                            section.Item().PaddingTop(10).Text("PART CONFIGURATION").FontSize(8).Bold().FontColor("#0D3B6E");
-
-                                                            section.Item().PaddingTop(5).Column(c =>
-                                                            {
-                                                                if (IsReNewConfig)
-                                                                {
-                                                                    c.Item().Row(r =>
-                                                                    {
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Production Order", part?.ProductionOrder));
-                                                                        r.ConstantItem(10);
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Machine Number", part?.MachineNumber));
-                                                                        r.ConstantItem(10);
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Part Number", part?.PartNumber));
-                                                                    });
-                                                                    c.Item().PaddingTop(2).Row(r =>
-                                                                    {
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Part Family", part?.PartFamily));
-                                                                        r.ConstantItem(10);
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Shift", part?.BatchName));
-                                                                        r.ConstantItem(10);
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Operator", part?.CheckedBy));
-                                                                    });
-                                                                }
-                                                                else
-                                                                {
-                                                                    c.Item().Row(r =>
-                                                                    {
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Batch Name", part?.BatchName));
-                                                                        r.ConstantItem(10);
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Part Name", part?.Name));
-                                                                        r.ConstantItem(10);
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Grade", part?.Grade));
-                                                                    });
-                                                                    c.Item().PaddingTop(2).Row(r =>
-                                                                    {
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Checked By", part?.CheckedBy));
-                                                                        r.ConstantItem(10);
-                                                                        r.RelativeItem(1).Element(x => LV(x, "Company Name", part?.CompanyName));
-                                                                        r.ConstantItem(10);
-                                                                        r.RelativeItem(1).Element(x => LV(x, "", ""));
-                                                                    });
-                                                                }
-                                                            });
-
-                                                            // ---- RESULT RECORDS TABLE ----
-                                                            section.Item().PaddingTop(10).Text("RESULTS").FontSize(8).Bold().FontColor("#0D3B6E");
-
-                                                            section.Item().PaddingTop(5).Table(resultTable =>
-                                                            {
-                                                                resultTable.ColumnsDefinition(cols =>
-                                                                {
-                                                                    cols.ConstantColumn(30);   // Sr No
-                                                                    cols.RelativeColumn();     // Timestamp
-                                                                    cols.ConstantColumn(50);   // Result
-                                                                    cols.ConstantColumn(45);   // X
-                                                                    cols.ConstantColumn(45);   // Y
-                                                                });
-
-                                                                resultTable.Header(h =>
-                                                                {
-                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("Sr No").FontSize(8).Bold().FontColor(Colors.White);
-                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("Timestamp").FontSize(8).Bold().FontColor(Colors.White);
-                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("Result").FontSize(8).Bold().FontColor(Colors.White);
-                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("X").FontSize(8).Bold().FontColor(Colors.White);
-                                                                    h.Cell().Background("#0D3B6E").Padding(4).Text("Y").FontSize(8).Bold().FontColor(Colors.White);
-                                                                });
-
-                                                                int recordIndex = 0;
-                                                                foreach (var item in group)
-                                                                {
-                                                                    recordIndex++;
-                                                                    string bg = recordIndex % 2 == 0 ? "#FAFAFA" : "#FFFFFF";
-
-                                                                    resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                        .Text(recordIndex.ToString()).FontSize(8).FontColor("#333333");
-                                                                    resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                        .Text($"{item.TimeStamp:dd/MM/yyyy HH:mm:ss}").FontSize(8).FontColor("#333333");
-                                                                    resultTable.Cell().Background(item.Result ? "#E8F5E9" : "#FFEBEE").Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                        .Text(item.Result ? "PASS" : "FAIL").FontSize(8).Bold()
-                                                                        .FontColor(item.Result ? "#2E7D32" : "#C62828");
-                                                                    resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                        .Text(item.X?.ToString() ?? "-").FontSize(8).FontColor("#333333");
-                                                                    resultTable.Cell().Background(bg).Border(1).BorderColor("#E8E8E8").Padding(4)
-                                                                        .Text(item.Y?.ToString() ?? "-").FontSize(8).FontColor("#333333");
-                                                                }
-                                                            });
-                                                        });
-                                                });
-                                        }
-                                    });
-                            });
-
-                        page.Footer()
-                            .AlignCenter()
-                            .Text(x =>
-                            {
-                                x.Span("Page ");
-                                x.CurrentPageNumber();
-                                x.Span(" of ");
-                                x.TotalPages();
-                            });
-                    });
-                })
-                .GeneratePdf(filePath);
-
+                if (log == null) return;
+                BuildDetailedReportPdf(new List<LogData> { log }, filePath);
                 MessageBox.Show("PDF Generated Successfully");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Detailed PDF generation error: {ex.Message}");
                 MessageBox.Show("Something went wrong. Please try again.");
             }
         }
@@ -921,8 +789,8 @@ namespace _8F
         {
             c.Text(t =>
             {
-                t.Span($"{label}: ").FontSize(7).FontColor("#888888");
-                t.Span(value ?? "-").FontSize(7).Bold().FontColor("#111111");
+                t.Span($"{label}: ").FontSize(7.5f).FontColor("#64748B");
+                t.Span(value ?? "-").FontSize(7.5f).Bold().FontColor("#0F172A");
             });
         }
 

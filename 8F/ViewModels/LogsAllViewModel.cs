@@ -81,8 +81,7 @@ namespace _8F.ViewModels
                             CASE WHEN ""Ch2Result"" = TRUE THEN 'OK' WHEN ""Ch2Result"" IS NULL THEN 'NA' ELSE 'Not OK' END AS ""Ch2Result"", 
                             CASE WHEN ""Ch3Result"" = TRUE THEN 'OK' WHEN ""Ch3Result"" IS NULL THEN 'NA' ELSE 'Not OK' END AS ""Ch3Result"", 
                             CASE WHEN ""Ch4Result"" = TRUE THEN 'OK' WHEN ""Ch4Result"" IS NULL THEN 'NA' ELSE 'Not OK' END AS ""Ch4Result"",
-                            COALESCE(""X""::text, '') AS ""X"",
-                            COALESCE(""Y""::text, '') AS ""Y""
+                            COALESCE(""FrequencyData""::text, ""ResultData""::text, '[]') AS ""FrequencyData""
                         FROM public.""Logs"" l
                         WHERE ""BatchName"" LIKE @BatchName 
                           AND ""SrNo"" LIKE @SrNo 
@@ -118,8 +117,7 @@ namespace _8F.ViewModels
                         _part.Ch2Result = dt.Rows[i]["Ch2Result"]?.ToString() ?? string.Empty;
                         _part.Ch3Result = dt.Rows[i]["Ch3Result"]?.ToString() ?? string.Empty;
                         _part.Ch4Result = dt.Rows[i]["Ch4Result"]?.ToString() ?? string.Empty;
-                        _part.X = dt.Rows[i]["X"]?.ToString() ?? string.Empty;
-                        _part.Y = dt.Rows[i]["Y"]?.ToString() ?? string.Empty;
+                        _part.FrequencyData = dt.Rows[i]["FrequencyData"]?.ToString() ?? string.Empty;
 
                         Logs.Add(_part);
                     }

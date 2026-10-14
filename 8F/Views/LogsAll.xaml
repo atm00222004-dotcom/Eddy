@@ -104,8 +104,6 @@
                         <DataGridTextColumn Width="100*" Header = "Serail Number" Binding = "{Binding SrNo}"/>
                         <DataGridTextColumn Width="100*" Header = "Date/Time" Binding = "{Binding TimeStamp}"/>
                         <DataGridTextColumn Width="50*" Header = "Result" Binding = "{Binding ResultStatus}"/>
-                        <DataGridTextColumn Width="40*" Header = "X" Binding = "{Binding X}"/>
-                        <DataGridTextColumn Width="40*" Header = "Y" Binding = "{Binding Y}"/>
                         <!--<DataGridTextColumn Width="50*" Header = "Ch1 Result" Binding = "{Binding Ch1Result}"/>
                         <DataGridTextColumn Width="50*" Header = "Ch2 Result" Binding = "{Binding Ch2Result}"/>
                         <DataGridTextColumn Width="50*" Header = "Ch3 Result" Binding = "{Binding Ch3Result}"/>
