@@ -431,6 +431,13 @@ namespace _8F
                                     try { part = JsonConvert.DeserializeObject<PartConfiguration>(group.First().PartData ?? "{}"); }
                                     catch { part = null; }
 
+                                    // Determine ONLY the ON (enabled) channels from configuration
+                                    var enabledChannels = fdList.Where(g => g.isEnable).OrderBy(g => g.Id).ToList();
+                                    if (enabledChannels.Count == 0 && (fdList.Count == 0 || fdList.All(g => g.isEnable)))
+                                    {
+                                        enabledChannels = Enumerable.Range(1, 8).Select(i => new GraphData { Id = i, Name = $"D{i}", isEnable = true }).ToList();
+                                    }
+
                                     // Configuration, Threshold, and Part Configuration Card
                                     col.Item().Border(1).BorderColor("#E2E8F0").Background("#FFFFFF").Padding(8).Column(cfgCol =>
                                     {
@@ -464,7 +471,7 @@ namespace _8F
                                                     });
 
                                                     int idx = 0;
-                                                    foreach (var d in fdList)
+                                                    foreach (var d in enabledChannels)
                                                     {
                                                         idx++;
                                                         string bg = idx % 2 == 0 ? "#F8FAFC" : "#FFFFFF";
@@ -506,7 +513,7 @@ namespace _8F
                                                     });
 
                                                     int idx = 0;
-                                                    foreach (var d in fdList)
+                                                    foreach (var d in enabledChannels)
                                                     {
                                                         idx++;
                                                         string bg = idx % 2 == 0 ? "#F8FAFC" : "#FFFFFF";
@@ -564,13 +571,6 @@ namespace _8F
 
                                         resCol.Item().PaddingTop(3).Table(resultTable =>
                                         {
-                                            // Determine ONLY the ON (enabled) channels from configuration
-                                            var enabledChannels = fdList.Where(g => g.isEnable).OrderBy(g => g.Id).ToList();
-                                            if (enabledChannels.Count == 0 && (fdList.Count == 0 || fdList.All(g => g.isEnable)))
-                                            {
-                                                enabledChannels = Enumerable.Range(1, 8).Select(i => new GraphData { Id = i, Name = $"D{i}", isEnable = true }).ToList();
-                                            }
-
                                             // Dynamic columns: Sr No., Timestamp, ON channels (X,Y), Result
                                             resultTable.ColumnsDefinition(cols =>
                                             {
