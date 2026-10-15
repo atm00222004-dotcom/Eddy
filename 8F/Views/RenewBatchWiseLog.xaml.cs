@@ -601,14 +601,14 @@ namespace _8F
                                                 recordIndex++;
                                                 string rowBg = recordIndex % 2 == 0 ? "#F8FAFC" : "#FFFFFF";
 
-                                                // Map FN 1..8 to coordinate pairs, preserving negative coordinates
+                                                // Map FN 1..8 to FreqResult objects
                                                 var freqList = item.GetFrequencyResults();
-                                                var freqMap = new Dictionary<int, string>();
+                                                var freqMap = new Dictionary<int, FreqResult>();
                                                 foreach (var f in freqList)
                                                 {
                                                     if (f != null && f.FN >= 1 && f.FN <= 8)
                                                     {
-                                                        freqMap[f.FN] = $"({f.X}, {f.Y})";
+                                                        freqMap[f.FN] = f;
                                                     }
                                                 }
 
@@ -623,9 +623,21 @@ namespace _8F
                                                 // 3 to 10. Frequency 1 to 8 (X,Y)
                                                 for (int fn = 1; fn <= 8; fn++)
                                                 {
-                                                    string coord = freqMap.TryGetValue(fn, out var cVal) ? cVal : "N/A";
-                                                    resultTable.Cell().Background(rowBg).Border(1).BorderColor("#E2E8F0").Padding(3)
-                                                        .AlignCenter().Text(coord).FontSize(7.5f).FontColor("#1E293B");
+                                                    bool exists = freqMap.TryGetValue(fn, out var fObj);
+                                                    string coord = exists && fObj != null ? $"({fObj.X}, {fObj.Y})" : "N/A";
+                                                    bool isFailedCell = !item.Result && exists && fObj != null && fObj.R == 0;
+
+                                                    string cellBg = isFailedCell ? "#FEF2F2" : rowBg;
+                                                    string cellBorder = isFailedCell ? "#FECACA" : "#E2E8F0";
+                                                    string cellTextColor = isFailedCell ? "#991B1B" : "#1E293B";
+
+                                                    var textElement = resultTable.Cell().Background(cellBg).Border(1).BorderColor(cellBorder).Padding(3)
+                                                        .AlignCenter().Text(coord).FontSize(7.5f).FontColor(cellTextColor);
+
+                                                    if (isFailedCell)
+                                                    {
+                                                        textElement.Bold();
+                                                    }
                                                 }
 
                                                 // 11. Result - Restrained Industrial PASS/FAIL Colors
@@ -636,7 +648,7 @@ namespace _8F
                                                 resultTable.Cell().Background(resultBg).Border(1).BorderColor(resultBorderColor).Padding(3)
                                                     .AlignCenter().Text(item.Result ? "PASS" : "FAIL").FontSize(7.5f).Bold().FontColor(resultTextColor);
                                             }
-                                        });
+                                        });                                                                              
                                     });
                                 }
                             }
