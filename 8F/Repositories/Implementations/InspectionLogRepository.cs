@@ -125,10 +125,6 @@ namespace _8F.Services
         #endregion
 
         #region 3. Read / Query Operations
-
-        /// <summary>
-        /// Queries inspection records by Batch ID.
-        /// </summary>
         public async Task<List<InspectionLog>> GetLogsByBatchAsync(string batchId)
         {
             const string sql = @"
